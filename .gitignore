@@ -1,0 +1,8 @@
+#Les commentaires sont écris en mettant un # devant la ligne
+#Exemples de fichiers ignorés :
+
+#Le contenu des dossiers avec le nom Library ou library :
+#[Ll]ibrary/
+
+#Le fichier "danger.txt" :
+#danger.txt

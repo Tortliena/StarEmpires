@@ -1,0 +1,36 @@
+td.tdcarte
+{
+    border: 2px solid black;
+    padding: 0px;
+    width:150px;
+    height: 50px;
+}
+
+td.xycarte /* Toutes les cellules des tableaux... */
+{
+    border: 2px solid black; /* auront une bordure de 1px */
+}
+
+table.carte
+{
+    border-collapse: collapse; /* Les bordures du tableau seront collées (plus joli) */
+    width:150px;
+    height: 150px;
+    text-align: center;
+}
+
+.carte
+{
+    margin-bottom: -4px;
+}
+
+img.carte
+{
+    border: 0.1px solid black;
+}
+
+.xycarte /* première ligne + 1ere colonne.*/
+{
+    font-size: large;
+    font-weight: bold;
+}

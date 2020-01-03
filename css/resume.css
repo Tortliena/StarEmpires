@@ -1,0 +1,22 @@
+.resume
+{
+    position: relative;
+    left: 55px;
+    border: 3px blue inset;
+    padding: 8px;
+    margin-bottom: 15px;
+    width: 70%;
+}
+.titreresume
+{
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: x-large;
+
+}
+.texteresume
+{
+    margin-bottom: -15px; 
+    font-size: large;
+}
+

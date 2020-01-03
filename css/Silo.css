@@ -1,0 +1,33 @@
+td.silonom
+{
+    width: 20%;
+    border: 2px solid black;
+}
+
+td.siloquantite
+{
+    width: 10%;
+    border: 2px solid black;
+}
+
+td.silodescription
+{
+    width: 70%;
+    border: 2px solid black;
+}
+
+td.silo1ereligne
+{
+    border: 2px solid black;
+    font-weight: bold;
+}
+
+table.silo
+{
+
+    border-collapse: collapse;
+    width: 90%;
+    height: 150px;
+    text-align: center;
+    font-size: large;
+}
