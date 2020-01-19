@@ -18,37 +18,37 @@ ajcomproddutourdebut($Commentairestour);
 $compterpop = $bdd->prepare('SELECT COUNT(*) AS nb FROM population WHERE joueurpop = ? and typepop like ?');
 $creationvariationdutour = $bdd->prepare('INSERT INTO variationstour (idjoueur, prodbiens, chantier, recherche, consobiens) VALUES (?, ?, ?, ?, ?)');
 
-$reponse = $bdd->query('SELECT id FROM utilisateurs ORDER BY id');
-while ($donnees = $reponse->fetch())
+$reqjoueur = $bdd->query('SELECT id, lvl FROM utilisateurs ORDER BY id');
+while ($repjoueur = $reqjoueur->fetch())
 	{
 	// Production des citoyens :
-	$compterpop->execute(array($donnees['id'], 1));
+	$compterpop->execute(array($repjoueur['id'], 1));
 	$nbcitoyens = $compterpop->fetch();
-	// echo $nbcitoyens[0] . ' citoyens ! <br /> ';
 	$prodbiens = $nbcitoyens['nb'] * 5  ;
 
 	// Production des ouvriers :
-	$compterpop->execute(array($donnees['id'], 2));
+	$compterpop->execute(array($repjoueur['id'], 2));
 	$nbouvriers = $compterpop->fetch();
-	// echo $nbouvriers[0] . ' ouvriers ! <br /> ';
 	$prodchantier = $nbouvriers['nb'] * 20  ;
 
-	// Production des chercheurs :
-	$compterpop->execute(array($donnees['id'], 3));
+	// Production de recherche :
+	if ($repjoueur['lvl']==0) // Si niveau 0 (donc pas de chercheur et de recherche) alors 1 pt de recherche
+		{$prodrecherche = 1;}
+	else
+		{ // Sinon prod dep du nb de chercheurs.
+	$compterpop->execute(array($repjoueur['id'], 3));
 	$nbchercheur = $compterpop->fetch();
-	// echo $nbouvriers[0] . ' ouvriers ! <br /> ';
 	$prodrecherche = $nbchercheur['nb'] * 1  ;
+		}
 
 	// consommation de la population :
-	$compterpop->execute(array($donnees['id'] , '%'));
+	$compterpop->execute(array($repjoueur['id'] , '%'));
 	$reponseconsommation = $compterpop->fetch();
-	// echo $nbcitoyens[0] . ' citoyens ! <br /> ';
 	$consommation = $reponseconsommation['nb'] * 1  ;
 
-	// echo $donnees['id'] . ' id joueur <br /> ';
-	$creationvariationdutour->execute(array($donnees['id'], $prodbiens, $prodchantier, $prodrecherche, $consommation));
+	$creationvariationdutour->execute(array($repjoueur['id'], $prodbiens, $prodchantier, $prodrecherche, $consommation));
 	}
-$reponse->closeCursor();
+$reqjoueur->closeCursor();
 
 /*
 function add_some_extra5(&$Commentairestour)
