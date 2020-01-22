@@ -12,6 +12,9 @@ function debutdesconstructions(&$Commentairestour)
 debutdesconstructions($Commentairestour);
 */
 
+
+// BUG : Pas de débris consommés lorsque recyclage fait.
+
 // Preparation des requêtes sql :
 $message = $bdd->prepare("INSERT INTO messagetour (idjoumess , message , domainemess , numspemessage) VALUES (? , ?, ? , ?)") ;
 
@@ -72,7 +75,7 @@ $joueur = $bdd->query('SELECT
             if ($repverifsilo['quantite'] <= 0)
                 {
                 $reqsupprimercontruction->execute(array($repconstruction['idconst']));
-                goto b;
+                break;
                 }
             }
 
@@ -92,7 +95,7 @@ $joueur = $bdd->query('SELECT
           if ($replimite['0']<=$repcomptebat['nb'])
             {
             $reqsupprimercontruction->execute(array($repconstruction['idconst']));
-            goto b;
+            break;
             }
           }
 
@@ -162,6 +165,11 @@ $joueur = $bdd->query('SELECT
                     $avancementtitane = $repconstruction['prixtitane'] ;
                     $diminutiondeun->execute(array($avancementbiens, $avancementtitane, $repconstruction['idconst']));
                     $nb-- ;
+                    if ($quantiteitemsnecessaire > 0)
+                        { // Si la construction consomme des items, alors diminuer le stock.
+                        $quantiteitemsnecessaire--;
+                        $diminutionsilo ->execute(array($repjoueur['idj'], $repcategorie['itemnecessaire']));
+                        }
                     goto a;
                     }
             }
@@ -169,7 +177,6 @@ $joueur = $bdd->query('SELECT
             {
             $avancement ->execute(array($nouvavbien, $nouvavtitane, $repconstruction['idconst']));
             }
-        b:
         }
     $miseajourdesressources->execute(array($biens, $titane, $repjoueur['idj'])); 
     } 

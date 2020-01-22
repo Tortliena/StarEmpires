@@ -1,170 +1,183 @@
 <?php
-
 session_start();
 include("../script/BDDconnection.php");
 
+/* Commentaire de début de cette phase.
+function debutdesconstructions(&$Commentairestour)
+{
+    $Commentairestour .= '</br> Début de la production des biens';
+}
+debutdesconstructions($Commentairestour);
+*/
 
-// récupérer le num du tour ($touractuel['id'])
-$reqtouractuel = $bdd->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1');
-$touractuel = $reqtouractuel->fetch();
 
-// Gestion vaisseau
-$reqvaisseau = $bdd->prepare('SELECT idjoueurbat, nomvaisseau, x, y, univers FROM vaisseau WHERE idvaisseau = ?');
-$applicationdeplacement = $bdd->prepare("UPDATE vaisseau SET x = ? , y = ?, univers = ? where idvaisseau = ? ");
+// BUG : Pas de débris consommés lorsque recyclage fait.
 
-// Divers
+// Preparation des requêtes sql :
 $message = $bdd->prepare("INSERT INTO messagetour (idjoumess , message , domainemess , numspemessage) VALUES (? , ?, ? , ?)") ;
-$reqsupprimerordreprecedent = $bdd->prepare('DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
 
-// Gestion exploration
-$reqexplorationexistante = $bdd->prepare("SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? ");
-$exploration = $bdd->prepare("INSERT INTO explore (x , y, univers , idexplorateur, tourexploration) VALUES (?, ?, ?, ?, ?)") ;
+// Gestion construction :
+$reqsupprimercontruction = $bdd->prepare('DELETE FROM construction WHERE idconst =  ? ');
+$diminutiondeun = $bdd->prepare('UPDATE construction SET nombre = nombre - 1 , avancementbiens = ? , avancementtitane = ?  WHERE idconst = ? ' );
+$construction = $bdd->prepare(
+    "SELECT nombre, avancementbiens, avancementtitane, idjoueurconst, idconst, trucaconstruire, prixbiens , prixtitane 
+    FROM construction WHERE idjoueurconst = ? ORDER BY idconst");
+$avancement = $bdd->prepare("UPDATE construction SET avancementbiens = ? , avancementtitane = ? WHERE idconst = ?");
 
-// Gestion cargo
-$reqcreercargo = $bdd->prepare("INSERT INTO cargovaisseau (idvaisseaucargo, typeitems, quantiteitems) VALUES (?, ?, ?)") ;
-$reqverifcargo = $bdd->prepare("SELECT cargovaisseau.typeitems, cargovaisseau.quantiteitems, items.nombatiment FROM cargovaisseau INNER JOIN items ON items.iditem = cargovaisseau.typeitems WHERE cargovaisseau.idvaisseaucargo = ? AND cargovaisseau.typeitems like ?") ;
-$reqaugmentercargo = $bdd->prepare("UPDATE cargovaisseau SET quantiteitems = ? WHERE idvaisseaucargo = ? AND typeitems = ?") ;
-$reqsupcargaisonvaisseau = $bdd->prepare('DELETE FROM  cargovaisseau WHERE idvaisseaucargo = ?');
+// Gestion silo :
+$reqverifsilo = $bdd->prepare('SELECT quantite FROM silo WHERE idjoueursilo = ? AND iditems = ?');
+$diminutionsilo = $bdd->prepare('UPDATE silo SET quantite = quantite - 1 WHERE idjoueursilo = ? AND iditems = ?' );
 
-// Gestion Silo
-$reqverifsilo = $bdd->prepare("SELECT quantite FROM silo WHERE idjoueursilo = ? AND iditems = ?") ;
-$reqcreersilo = $bdd->prepare("INSERT INTO silo (idjoueursilo, iditems, quantite) VALUES (?, ?, ?)") ;
-$reqaugmentersilo = $bdd->prepare("UPDATE silo SET quantite = ? WHERE idjoueursilo = ? AND iditems = ?") ;
-
-// Gestion astéroides.
-$reqmajaste = $bdd->prepare('UPDATE champsasteroides SET quantité = ? where idasteroide = ?');
-$reqsupaste = $bdd->prepare('DELETE FROM  champsasteroides WHERE idasteroide = ?');
-$reqasteroide = $bdd->prepare('SELECT idasteroide, quantité, typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
+// Par ailleurs :
+$miseajourdesressources = $bdd->prepare("UPDATE utilisateurs SET biens = ? , titane = ? WHERE id = ?");
+$reqcategorie = $bdd->prepare("SELECT typeitem , nombatiment, itemnecessaire, nomlimite FROM items WHERE iditem = ?");
+$reqcomptebat = $bdd->prepare('SELECT COUNT(idbat) as nb FROM batiments WHERE typebat = ? AND idjoueurbat = ?');
 
 
-// récupération des ordres de déplacement (= typeordre 0).
-$reqordredep = $bdd->query('SELECT idvaisseaudeplacement , xdestination , ydestination , universdestination, idjoueurduvaisseau FROM ordredeplacement WHERE typeordre = 0');
-while ($repordredep = $reqordredep->fetch())
-    {
-    // Vérifier ou se trouver le vaisseau :
-    $reqvaisseau->execute(array($repordredep['idvaisseaudeplacement']));
-    $repvaisseau = $reqvaisseau->fetch();
-    
-    // Si le vaisseau se trouve au hangars :
-    if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'] == 0)
-        { // Et que le vaisseau tente de sortir vers l'orbite de la planète
-        if ($repordredep['xdestination'] == 3 AND $repordredep['ydestination'] == 3 AND $repordredep['universdestination'] == $repordredep['idjoueurduvaisseau'])
-             {
-            //Créer message pour le joueur.
-            $mess = 'Ce vient de sortir du hangars et se trouve maintenant en orbite de notre monde.'; 
-            $message ->execute(array($repordredep['idjoueurduvaisseau'] , $mess , 'Vaisseau' , $repordredep['idvaisseaudeplacement']));
-             goto a;
-             } // Permet d'appliquer l'ordre
-        else {goto b;} // Supprimer l'ordre
-        }
+//Gestion des construction joueur par joueur.
+$joueur = $bdd->query('SELECT
+                        v.idjoueur idj ,
+                        v.chantier chantier ,
+                        u.biens biens ,
+                        u.titane ti
+                        FROM variationstour v
+                        INNER JOIN utilisateurs u
+                        ON u.id = v.idjoueur
+                        ORDER BY idj');
+    while ($repjoueur = $joueur->fetch())
+    { // Créer les variables qui vont être utilisées dans les boucles :
+    $chantier =  $repjoueur['chantier'] ;
+    $biens = $repjoueur['biens'] ;
+    $titane = $repjoueur['ti'] ;
 
-    // Si le tente de se déplacer vers le hangars
-    if ($repordredep['xdestination'] == 0 AND $repordredep['ydestination'] == 0)
-        { // Et que le vaisseau se trouve en orbite de la planète mère
-        if ($repvaisseau['univers'] == 0 AND $repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3)
-             { goto a;} // Permet d'appliquer l'ordre
-        else { goto b;} // Supprimer l'ordre
-        }
+    // Gestion des constructions une par une et uniquement celles du joueur sélectionné.
+    $construction ->execute(array($repjoueur['idj'])) ;
+    while ($repconstruction = $construction->fetch())
+        { // Créer les variables qui vont être utilisées dans les boucles :
+        $nb = $repconstruction['nombre'];
+        $avancementbiens = $repconstruction['avancementbiens'] ;
+        $nouvavbien = $repconstruction['avancementbiens'] ;
+        $avancementtitane = $repconstruction['avancementtitane'] ;
+        $nouvavtitane = $repconstruction['avancementbiens'] ;
+        $quantiteitemsnecessaire = 0;
 
-    //Créer message pour le joueur.
-    $mess = 'Ce vaisseau vient de se déplacer. Il était avant en ' . $repvaisseau['x'] . '-' . $repvaisseau['y'] ; 
-    $message ->execute(array($repordredep['idjoueurduvaisseau'] , $mess , 'Vaisseau' , $repordredep['idvaisseaudeplacement'])) ;
-    
-    a:
-    // Applique le déplacement :
-    $applicationdeplacement->execute(array($repordredep['xdestination'] , $repordredep['ydestination'] , $repordredep['universdestination'], $repordredep['idvaisseaudeplacement']));
+        $reqcategorie ->execute(array($repconstruction['trucaconstruire']));
+        $repcategorie = $reqcategorie ->fetch();
 
-    // Exploration si case inconnue :
-    $reqexplorationexistante->execute(array($repordredep['xdestination'] , $repordredep['ydestination'] , $repordredep['universdestination'] , $repordredep['idvaisseaudeplacement']));
-    $repexplorationexistante = $reqexplorationexistante->fetch(); 
-    if (empty($repexplorationexistante['idexplore']))
-        {
-        $exploration ->execute(array($repordredep['xdestination'] , $repordredep['ydestination'] , $repordredep['universdestination'], $repordredep['idjoueurduvaisseau'], $touractuel['id'])) ;
-
-        //Créer message pour le joueur.
-        $messexplo = 'Ce vaisseau vient d\'explorer le parsec (' . $repordredep['xdestination']  . ' - ' . $repordredep['ydestination'] .').'  ; 
-        $message ->execute(array($repordredep['idjoueurduvaisseau'] , $messexplo , 'Vaisseau' , $repordredep['idvaisseaudeplacement'])) ;
-        }
-    
-    b:  
-    // Supprimer l'ordre de déplacement
-    $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement']));
-    }
-$reqordredep->closeCursor();
-
-// ordre de récolte des astéroides (= typeordre 1)
-$reqordredep = $bdd->query('SELECT idvaisseaudeplacement FROM ordredeplacement WHERE typeordre = 1');
-while ($repordredep = $reqordredep->fetch())
-    {
-    // Vérifier ou se trouver le vaisseau :
-    $reqvaisseau->execute(array($repordredep['idvaisseaudeplacement']));
-    $repvaisseau = $reqvaisseau->fetch();
-    // emplacement du vaisseau : $repvaisseau['x'] $repvaisseau['y'] $repvaisseau['univers'] 
-
-    $reqasteroide->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers']));
-    $repasteroide = $reqasteroide->fetch();
-    // Données sur astéroides : $repasteroide['idasteroide'] , $repasteroide['quantité'], $repasteroide['typeitemsaste']
-
-    // Vérifier si un astéroide existe.
-    if (isset($repasteroide['idasteroide']))
-        {
-        $reqverifcargo->execute(array($repordredep['idvaisseaudeplacement'], $repasteroide['typeitemsaste']));
-        $repverifcargo = $reqverifcargo->fetch();
-        if (isset($repverifcargo['quantiteitems'])) // Si le cargo transporte déjà des débris alors augmenter. 
+        // Cas dans lequel la construction consomme des items :
+        if ($repcategorie['itemnecessaire']>0)
             {
-            $reqaugmentercargo->execute(array($repverifcargo['quantiteitems'] + 1 , $repordredep['idvaisseaudeplacement'], $repasteroide['typeitemsaste']));
+            $reqverifsilo->execute(array($repjoueur['idj'], $repcategorie['itemnecessaire']));
+            $repverifsilo = $reqverifsilo->fetch();
+            $quantiteitemsnecessaire = $repverifsilo['quantite'];
+            if ($repverifsilo['quantite'] <= 0)
+                {
+                $reqsupprimercontruction->execute(array($repconstruction['idconst']));
+                break;
+                }
+            }
+
+        a: // Revenir ici si prod se finie et qu'il y a un round 2.
+
+        if (isset($repcategorie['nomlimite'])) // S'il y a un maximum sur l'un de ces batiments.
+          {
+          // On récupère la limite.
+          $reqlimite = $bdd->prepare('SELECT '.$repcategorie['nomlimite'].' FROM limitesjoueurs WHERE id = ?');
+          $reqlimite->execute(array($repjoueur['idj']));
+          $replimite = $reqlimite->fetch(); // $replimite['0']
+
+          // On récupère le nombre de batiments actuels.
+          $reqcomptebat->execute(array($repconstruction['trucaconstruire'], $repjoueur['idj']));
+          $repcomptebat = $reqcomptebat->fetch();  // $repcomptechantier['nb']
+               
+          if ($replimite['0']<=$repcomptebat['nb'])
+            {
+            $reqsupprimercontruction->execute(array($repconstruction['idconst']));
+            break;
+            }
+          }
+
+        if ($avancementbiens > 1) // S'il reste des biens à investir, faire cette partie.
+            {
+            $minbiens = min($chantier, $avancementbiens, $biens) ;
+            $nouvavbien = $avancementbiens - $minbiens ; 
+
+            $chantier = $chantier - $minbiens ;
+            $biens = $biens - $minbiens ;
+            if ($biens == 0)
+                {$message ->execute(array($repjoueur['idj']  , 'Manque de biens !' , 'Construction' , $repconstruction['idconst'])) ;}
+            }
+        else {$nouvavbien = 0;}
+
+        if ($avancementtitane > 1)  // S'il reste du titane à investir, faire cette partie.
+            {
+            $mintitane = min($chantier/5, $avancementtitane, $titane) ;
+            $nouvavtitane = $avancementtitane - $mintitane ; 
+
+            $chantier = $chantier - $mintitane * 5 ;
+            $titane = $titane - $mintitane ;
+            }
+        else {$nouvavtitane = 0;}
+
+        if ($chantier == 0 OR ($chantier < 5 AND $titane > 0)) 
+            {
+            $message ->execute(array($repjoueur['idj']  , 'Manque d\'ouvriers !' , 'Construction' , $repconstruction['idconst'])) ;
+            }
+
+
+        // Si je peux finir le chantier : 
+        if ($nouvavbien == 0 AND $nouvavtitane == 0)
+            {
+            if ($repcategorie['typeitem'] == 'batiments' OR $repcategorie['typeitem'] == 'vaisseau')
+                {
+                $construire = $bdd->prepare('INSERT INTO '.$repcategorie['typeitem'].' (typebat, idjoueurbat) VALUES (:typebat , :idjoueurbat )');
+                $construire->execute(array(
+                    'typebat' => $repconstruction['trucaconstruire'],
+                    'idjoueurbat' => $repjoueur['idj'] ));
+                }
+            elseif ($repconstruction['trucaconstruire'] == 7)
+                { // 7 = recycler des débris de biens
+                $biens = $biens + 100;
+                }
+            elseif ($repconstruction['trucaconstruire'] == 9)
+                { // 9 = recycler des débris de métaux rares
+                $titane = $titane + 20;
+                }
+
+            $mess = $repcategorie['nombatiment'].' : Construction finie' ;
+            $message ->execute(array($repjoueur['idj'] , $mess , 'Construction', 0));
+
+            // Si je n'ai qu'un bâtiment à faire avant ou s'il ne me reste qu'un seul item en réserver :
+                if ($nb < 2 OR $quantiteitemsnecessaire == 1)
+                    {
+                    $reqsupprimercontruction->execute(array($repconstruction['idconst']));
+                    if ($quantiteitemsnecessaire > 0)
+                        { // Si la construction consomme des items, alors diminuer le stock.
+                        $quantiteitemsnecessaire--;
+                        $diminutionsilo ->execute(array($repjoueur['idj'], $repcategorie['itemnecessaire']));
+                        }
+                    }
+                else
+                    {
+                    $avancementbiens = $repconstruction['prixbiens'];
+                    $avancementtitane = $repconstruction['prixtitane'] ;
+                    $diminutiondeun->execute(array($avancementbiens, $avancementtitane, $repconstruction['idconst']));
+                    $nb-- ;
+                    if ($quantiteitemsnecessaire > 0)
+                        { // Si la construction consomme des items, alors diminuer le stock.
+                        $quantiteitemsnecessaire--;
+                        $diminutionsilo ->execute(array($repjoueur['idj'], $repcategorie['itemnecessaire']));
+                        }
+                    goto a;
+                    }
             }
         else
-            { // Sinon créer un stock. 
-            $reqcreercargo->execute(array($repordredep['idvaisseaudeplacement'], $repasteroide['typeitemsaste'] , 1));
-            }
-        
-        // Si les biens de l'asteroide tombent à 0, alors on delete. 
-        if ($repasteroide['quantité'] < 2)
             {
-            $reqsupaste->execute(array($repasteroide['idasteroide']));
-            }
-        else // Sinon on réduit de 1 sa valeur.
-            {
-            $reqmajaste->execute(array($repasteroide['quantité'] - 1 , $repasteroide['idasteroide']));
+            $avancement ->execute(array($nouvavbien, $nouvavtitane, $repconstruction['idconst']));
             }
         }
-    $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement']));
-    }
-
-// ordre de déchargement (= typeordre 2)
-$reqordredep = $bdd->query('SELECT idvaisseaudeplacement, idjoueurduvaisseau FROM ordredeplacement WHERE typeordre = 2');
-while ($repordredep = $reqordredep->fetch())
-    {
-    // Vérifier ou se trouver le vaisseau :
-    $reqvaisseau->execute(array($repordredep['idvaisseaudeplacement']));
-    $repvaisseau = $reqvaisseau->fetch();
-    // emplacement du vaisseau : $repvaisseau['x'] $repvaisseau['y'] $repvaisseau['univers'] 
-
-    // Vérifier le vaisseau se trouve sur la planète mère :
-    if ($repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3 AND $repvaisseau['univers'] == $repvaisseau['idjoueurbat'])
-        {
-        // récupérer les infos du cargo
-        $reqverifcargo->execute(array($repordredep['idvaisseaudeplacement'], '%'));
-        while ($repverifcargo = $reqverifcargo->fetch())
-            {
-            // Vérifier si l'item est déjà stocké sur la planète :
-            $reqverifsilo->execute(array($repvaisseau['idjoueurbat'], $repverifcargo['typeitems']));
-            $repverifsilo = $reqverifsilo->fetch();
-            if (isset($repverifsilo['quantite'])) // Si on a déjà un objet stocké, augmenter la quantité sur la planète
-                {
-                $reqaugmentersilo->execute(array($repverifsilo['quantite'] + $repverifcargo['quantiteitems'], $repvaisseau['idjoueurbat'], $repverifcargo['typeitems']));
-                }
-            else  // Sinon créer le stock.
-                {
-                $reqcreersilo->execute(array($repvaisseau['idjoueurbat'], $repverifcargo['typeitems'], $repverifcargo['quantiteitems']));
-                }
-            $mess = 'Un vaisseau vient de livrer ' . $repverifcargo['quantiteitems'] . ' ' . $repverifcargo['nombatiment'] ;
-            $message ->execute(array($repordredep['idjoueurduvaisseau'] , $mess , 'silo' , 0));
-            }
-        // Supprimer toute la cargaison
-        $reqsupcargaisonvaisseau->execute(array($repordredep['idvaisseaudeplacement']));
-        }
-    $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement']));
-    }
+    $miseajourdesressources->execute(array($biens, $titane, $repjoueur['idj'])); 
+    } 
+$construction->closeCursor();
+$joueur->closeCursor();
 ?>

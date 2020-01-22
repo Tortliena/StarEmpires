@@ -14,7 +14,7 @@ $reponse->closeCursor();
 $reqexploration = $bdd->prepare('SELECT idexplore , x , y, univers, idexplorateur FROM explore WHERE tourexploration = ?');
 $reqcompterexplo = $bdd->prepare('SELECT COUNT(*) AS nbcaseexplo  FROM explore WHERE idexplorateur = ? AND idexplore <= ? ') ; 
 $reqmessageinterne = $bdd->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)');
-$reqcreerasteroides = $bdd->prepare('INSERT INTO champsasteroides (xaste , yaste , uniaste, iditems, quantite) VALUES (?, ?, ?, ?, ?)');
+$reqcreerasteroides = $bdd->prepare('INSERT INTO champsasteroides (xaste , yaste , uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)');
 $reqcreerplanete = $bdd->prepare('INSERT INTO planete(xplanete, yplanete, universplanete) VALUES(:xplanete, :yplanete, :universplanete)');
 
 
@@ -52,6 +52,7 @@ while ($repexplorationexistante = $reqexploration->fetch())
                 'xplanete'=> $repexplorationexistante['x'],
                 'yplanete'=> $repexplorationexistante['y'],
                 'universplanete'=> $repexplorationexistante['univers']));
+            $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Planète habitable', 'Nous venons de trouver une nouvelle planète. Nous allons pouvoir l\'habiter en déployer d\'énormes ressources. Nous devrions continuer l\'exploration dans le but de trouver ces ressources'));
         break;
 
         case 7:
