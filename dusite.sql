@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le :  mer. 22 jan. 2020 à 17:28
+-- Généré le :  mer. 22 jan. 2020 à 20:16
 -- Version du serveur :  5.7.26
 -- Version de PHP :  7.2.18
 
@@ -57,8 +57,7 @@ INSERT INTO `afaire` (`idafaire`, `texteafaire`, `priorite`) VALUES
 (25, 'Faire de la compression : http://php-minify.com/#', 'lancementsite'),
 (154, 'Conversion pop (tour et page) : Mettre des max /chantiers ou /cdr ', 'grosseetapeplustard'),
 (159, 'Ajouter mégalopoles + lien base lunaire', 'grosetapesouspeu'),
-(75, 'Faire les images', 'grosseetapeplustard'),
-(191, 'Bug : Base lunaire non constructible ! ! ', 'encours');
+(75, 'Faire les images', 'grosseetapeplustard');
 
 -- --------------------------------------------------------
 
@@ -72,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `batiments` (
   `typebat` int(11) NOT NULL,
   `idjoueurbat` int(11) NOT NULL,
   PRIMARY KEY (`idbat`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `batiments`
@@ -80,7 +79,8 @@ CREATE TABLE IF NOT EXISTS `batiments` (
 
 INSERT INTO `batiments` (`idbat`, `typebat`, `idjoueurbat`) VALUES
 (1, 1, 1),
-(2, 2, 1);
+(2, 2, 1),
+(3, 4, 1);
 
 -- --------------------------------------------------------
 
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS `cargovaisseau` (
   `typeitems` int(11) NOT NULL,
   `quantiteitems` int(11) NOT NULL,
   PRIMARY KEY (`idcargovaisseau`)
-) ENGINE=MyISAM AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -109,10 +109,18 @@ CREATE TABLE IF NOT EXISTS `champsasteroides` (
   `xaste` int(11) NOT NULL,
   `yaste` int(11) NOT NULL,
   `uniaste` int(11) NOT NULL,
-  `quantité` int(11) NOT NULL,
+  `quantite` int(11) NOT NULL,
   `typeitemsaste` int(11) NOT NULL,
   PRIMARY KEY (`idasteroide`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+
+--
+-- Déchargement des données de la table `champsasteroides`
+--
+
+INSERT INTO `champsasteroides` (`idasteroide`, `xaste`, `yaste`, `uniaste`, `quantite`, `typeitemsaste`) VALUES
+(3, 3, 2, 2, 4, 6),
+(4, 5, 3, 2, 2, 8);
 
 -- --------------------------------------------------------
 
@@ -132,16 +140,16 @@ CREATE TABLE IF NOT EXISTS `choixevents` (
   `eventsuite3` int(11) DEFAULT NULL,
   `textechoix3` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`idchoix`)
-) ENGINE=MyISAM AUTO_INCREMENT=95 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=176 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `choixevents`
 --
 
 INSERT INTO `choixevents` (`idchoix`, `idjoueurevent`, `texteevent`, `eventsuite1`, `textechoix1`, `eventsuite2`, `textechoix2`, `eventsuite3`, `textechoix3`) VALUES
-(92, 1, 'Ce soir, gros débat politique à la télé.', NULL, NULL, NULL, NULL, NULL, NULL),
-(93, 2, 'Il fait beau aujourd\'hui', NULL, NULL, NULL, NULL, NULL, NULL),
-(94, 3, 'La journée a été longue', NULL, NULL, NULL, NULL, NULL, NULL);
+(173, 2, 'La journée a été longue', NULL, NULL, NULL, NULL, NULL, NULL),
+(174, 3, 'La journée a été longue', NULL, NULL, NULL, NULL, NULL, NULL),
+(175, 1, 'Le pégu qui râlait hier s\'est fatigué et est rentré chez lui', NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -160,14 +168,15 @@ CREATE TABLE IF NOT EXISTS `construction` (
   `prixtitane` int(11) NOT NULL,
   `idjoueurconst` int(11) NOT NULL,
   PRIMARY KEY (`idconst`)
-) ENGINE=MyISAM AUTO_INCREMENT=354 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=358 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `construction`
 --
 
 INSERT INTO `construction` (`idconst`, `trucaconstruire`, `nombre`, `avancementbiens`, `avancementtitane`, `prixbiens`, `prixtitane`, `idjoueurconst`) VALUES
-(353, '9', 3, 10, 0, 10, 0, 1);
+(357, '9', 1, 10, 0, 10, 0, 2),
+(356, '7', 1, 10, 0, 10, 0, 2);
 
 -- --------------------------------------------------------
 
@@ -184,21 +193,21 @@ CREATE TABLE IF NOT EXISTS `explore` (
   `idexplorateur` int(11) NOT NULL,
   `tourexploration` int(11) NOT NULL,
   PRIMARY KEY (`idexplore`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `explore`
 --
 
 INSERT INTO `explore` (`idexplore`, `univers`, `x`, `y`, `idexplorateur`, `tourexploration`) VALUES
-(1, 1, 3, 3, 1, 10),
-(2, 1, 3, 2, 1, 11),
-(3, 1, 4, 2, 1, 12),
-(4, 1, 4, 3, 1, 13),
-(5, 1, 4, 4, 1, 14),
-(6, 1, 3, 4, 1, 15),
-(7, 1, 2, 4, 1, 16),
-(8, 1, 2, 3, 1, 17);
+(23, 2, 3, 3, 2, 85),
+(22, 2, 5, 3, 2, 83),
+(21, 2, 4, 3, 2, 82),
+(20, 2, 5, 2, 2, 81),
+(19, 2, 4, 2, 2, 80),
+(18, 2, 3, 2, 2, 77),
+(17, 2, 2, 2, 2, 76),
+(16, 2, 2, 3, 2, 75);
 
 -- --------------------------------------------------------
 
@@ -258,8 +267,8 @@ CREATE TABLE IF NOT EXISTS `limitesjoueurs` (
 --
 
 INSERT INTO `limitesjoueurs` (`id`, `maxchantier`, `maxcentrederecherche`, `popmax`, `scientmax`, `ouvriermax`, `maxentrepot`, `maxbaselunaire`) VALUES
-(1, 1, 1, 8, 5, 5, 0, 0),
-(2, 1, 1, 8, 1, 1, 0, 0),
+(1, 1, 1, 9, 5, 5, 0, 1),
+(2, 1, 1, 8, 1, 1, 0, 1),
 (3, 1, 1, 8, 1, 1, 0, 0);
 
 -- --------------------------------------------------------
@@ -297,7 +306,7 @@ CREATE TABLE IF NOT EXISTS `messagerieinterne` (
   `titre` varchar(64) NOT NULL,
   `texte` text NOT NULL,
   PRIMARY KEY (`idmessagerieinterne`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `messagerieinterne`
@@ -306,7 +315,10 @@ CREATE TABLE IF NOT EXISTS `messagerieinterne` (
 INSERT INTO `messagerieinterne` (`expediteur`, `idmessagerieinterne`, `destinataire`, `lu`, `titre`, `texte`) VALUES
 ('Équipe scientifique', 1, 1, 0, 'Première sortir du système solaire', 'Notre premier vaisseau vient de sortir du système solaire. Il y a une grande quantité de poussière stellaire et on ne peut décerner des objets qu\'a une distance de quelques minutes\\-lumière'),
 ('Vaisseau d\'exploration', 2, 1, 0, 'Champ d\'astéroides exploitables', 'Nous venons de détecter un champs d\'astéroides et il semble qu\'il est possible d\'exploiter ces ressources. Ils regorge de ressources précieuses et nous pourrions en tirer un grand bénéfice.'),
-('Vaisseau d\'exploration', 3, 1, 0, 'Champ d\'astéroides exploitables', 'Nous venons de détecter un champs d\'astéroides et il semble qu\'il est possible d\'exploiter ces ressources. Ils regorge de ressources précieuses et nous pourrions en tirer un grand bénéfice.');
+('Vaisseau d\'exploration', 3, 1, 0, 'Champ d\'astéroides exploitables', 'Nous venons de détecter un champs d\'astéroides et il semble qu\'il est possible d\'exploiter ces ressources. Ils regorge de ressources précieuses et nous pourrions en tirer un grand bénéfice.'),
+('Vaisseau d\'exploration', 11, 2, 0, 'Champ d\'astéroides exploitables', 'Nous venons de détecter un champs d\'astéroides et il semble qu\'il est possible d\'exploiter ces ressources. Ils regorge de ressources précieuses et nous pourrions en tirer un grand bénéfice.'),
+('Vaisseau d\'exploration', 10, 2, 0, 'Planète habitable', 'Nous venons de trouver une nouvelle planète. Nous allons pouvoir l\'habiter en déployer d\'énormes ressources. Nous devrions continuer l\'exploration dans le but de trouver ces ressources'),
+('Vaisseau d\'exploration', 9, 2, 0, 'Champ d\'astéroides exploitables', 'Nous venons de détecter un champs d\'astéroides et il semble qu\'il est possible d\'exploiter ces ressources. Ils regorge de ressources précieuses et nous pourrions en tirer un grand bénéfice.');
 
 -- --------------------------------------------------------
 
@@ -322,19 +334,15 @@ CREATE TABLE IF NOT EXISTS `messagetour` (
   `domainemess` varchar(32) NOT NULL,
   `numspemessage` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idmessage`)
-) ENGINE=MyISAM AUTO_INCREMENT=109 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=165 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `messagetour`
 --
 
 INSERT INTO `messagetour` (`idmessage`, `idjoumess`, `message`, `domainemess`, `numspemessage`) VALUES
-(103, 1, 'Recycler débris rares : Construction finie', 'Construction', 0),
-(104, 1, 'Recycler débris rares : Construction finie', 'Construction', 0),
-(105, 1, 'Recycler débris rares : Construction finie', 'Construction', 0),
-(106, 1, 'Manque d\'ouvriers !', 'Construction', 353),
-(107, 1, 'Recycler débris rares : Construction finie', 'Construction', 0),
-(108, 1, 'Manque d\'ouvriers !', 'Construction', 353);
+(163, 2, 'Un vaisseau vient de livrer 1 débris communs', 'silo', 0),
+(164, 2, 'Un vaisseau vient de livrer 1 débris avec des métaux rares', 'silo', 0);
 
 -- --------------------------------------------------------
 
@@ -352,7 +360,7 @@ CREATE TABLE IF NOT EXISTS `ordredeplacement` (
   `idjoueurduvaisseau` int(11) NOT NULL,
   `typeordre` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idordredeplacement`)
-) ENGINE=MyISAM AUTO_INCREMENT=274 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=294 DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -367,7 +375,7 @@ CREATE TABLE IF NOT EXISTS `planete` (
   `yplanete` int(11) NOT NULL,
   `universplanete` int(11) NOT NULL,
   PRIMARY KEY (`idplanete`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `planete`
@@ -377,7 +385,9 @@ INSERT INTO `planete` (`idplanete`, `xplanete`, `yplanete`, `universplanete`) VA
 (1, 3, 3, 1),
 (2, 3, 4, 1),
 (3, 3, 3, 2),
-(4, 3, 3, 3);
+(4, 3, 3, 3),
+(5, 3, 4, 2),
+(6, 4, 3, 2);
 
 -- --------------------------------------------------------
 
@@ -392,7 +402,7 @@ CREATE TABLE IF NOT EXISTS `population` (
   `typepop` int(11) NOT NULL DEFAULT '1',
   `typepoparrivee` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idpop`)
-) ENGINE=MyISAM AUTO_INCREMENT=25 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `population`
@@ -422,7 +432,8 @@ INSERT INTO `population` (`idpop`, `joueurpop`, `typepop`, `typepoparrivee`) VAL
 (21, 3, 1, 0),
 (22, 2, 1, 0),
 (23, 3, 1, 0),
-(24, 3, 1, 0);
+(24, 3, 1, 0),
+(25, 1, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -445,7 +456,7 @@ CREATE TABLE IF NOT EXISTS `recherche` (
 
 INSERT INTO `recherche` (`idrecherche`, `nomrecherche`, `descriptionrecherche`, `prixrecherche`) VALUES
 (1, 'Centre de recherche', 'Vous permet de construire un centre de recherche qui va vous permettre d\'augmenter la limite maximale du nombre de chercheurs.', 8),
-(2, 'Base lunaire', 'Votre peuple s\'en va installer des bases sur des lunes dans votre système principal ou sur les mondes proches.', 10),
+(2, 'Base lunaire', 'Votre peuple s\'en va installer des bases dans la galaxie. Cependant, ces installation nécessitent d\'importantes quantités de ressources rares qu\'on trouve en faible quantité sur notre monde.', 10),
 (3, 'Chantier', 'Permet de lancer des projets plus importants.', 5),
 (4, 'Moteur interstellaire', 'Permet développer la technologie pour voyager entre les étoiles. Vous pourrez ainsi visiter les 5 étoiles repérées dans l\'univers.', 3);
 
@@ -464,7 +475,7 @@ CREATE TABLE IF NOT EXISTS `rech_joueur` (
   `rechnesc` int(11) NOT NULL DEFAULT '1000',
   `rechposs` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idrechprinc`)
-) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=22 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `rech_joueur`
@@ -477,10 +488,11 @@ INSERT INTO `rech_joueur` (`idrechprinc`, `idjoueurrecherche`, `idrech`, `avrech
 (11, 2, 4, 6, 6, 1),
 (9, 1, 2, 18, 16, 1),
 (13, 3, 4, 3, 3, 1),
-(14, 2, 3, 0, 6, 0),
-(15, 2, 1, 11, 13, 0),
+(20, 2, 3, 6, 6, 1),
+(15, 2, 1, 13, 13, 1),
 (19, 3, 3, 8, 8, 1),
-(18, 3, 1, 1, 9, 0);
+(18, 3, 1, 9, 9, 1),
+(21, 2, 2, 3, 13, 0);
 
 -- --------------------------------------------------------
 
@@ -495,7 +507,7 @@ CREATE TABLE IF NOT EXISTS `silo` (
   `iditems` int(11) NOT NULL,
   `quantite` int(11) NOT NULL,
   UNIQUE KEY `idsilo` (`idsilo`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `silo`
@@ -503,7 +515,9 @@ CREATE TABLE IF NOT EXISTS `silo` (
 
 INSERT INTO `silo` (`idsilo`, `idjoueursilo`, `iditems`, `quantite`) VALUES
 (1, 1, 6, 0),
-(2, 1, 8, 11);
+(2, 1, 8, 10),
+(6, 2, 8, 1),
+(5, 2, 6, 1);
 
 -- --------------------------------------------------------
 
@@ -517,7 +531,7 @@ CREATE TABLE IF NOT EXISTS `tour` (
   `datetour` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `resume` text,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=60 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=87 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `tour`
@@ -582,7 +596,34 @@ INSERT INTO `tour` (`id`, `datetour`, `resume`) VALUES
 (56, '2020-01-22 12:05:45', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
 (57, '2020-01-22 12:06:21', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
 (58, '2020-01-22 12:06:57', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
-(59, '2020-01-22 12:07:15', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop');
+(59, '2020-01-22 12:07:15', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(60, '2020-01-22 14:42:05', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(61, '2020-01-22 14:42:08', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(62, '2020-01-22 14:42:24', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(63, '2020-01-22 14:42:28', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(64, '2020-01-22 14:42:32', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(65, '2020-01-22 14:42:36', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(66, '2020-01-22 14:42:37', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(67, '2020-01-22 14:42:42', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(68, '2020-01-22 14:42:45', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(69, '2020-01-22 14:43:00', NULL),
+(70, '2020-01-22 14:44:10', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(71, '2020-01-22 14:44:17', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(72, '2020-01-22 14:44:22', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(73, '2020-01-22 14:44:26', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(74, '2020-01-22 14:44:31', NULL),
+(75, '2020-01-22 14:52:26', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(76, '2020-01-22 14:52:44', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(77, '2020-01-22 14:52:50', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(78, '2020-01-22 14:52:56', NULL),
+(79, '2020-01-22 14:54:09', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(80, '2020-01-22 14:54:26', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(81, '2020-01-22 14:54:30', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(82, '2020-01-22 14:54:37', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(83, '2020-01-22 14:54:43', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(84, '2020-01-22 14:54:47', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(85, '2020-01-22 14:55:13', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(86, '2020-01-22 14:55:21', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop');
 
 -- --------------------------------------------------------
 
@@ -634,9 +675,9 @@ CREATE TABLE IF NOT EXISTS `utilisateurs` (
 --
 
 INSERT INTO `utilisateurs` (`id`, `pseudo`, `motdepasse`, `dateinscription`, `biens`, `titane`, `idevent`, `ideventsuivant`, `lvl`) VALUES
-(1, 'qw', '$2y$10$aeRzDQxkoWLKwiMKfaNykOIsSi6QRPDaTGTnFpzfLbfKAYDBtcodG', '2019-12-11', 155, 380, 2, 0, 5),
-(2, 'ty', '$2y$10$oBttu4RYOmafULAgtTWfu.BIq5AXUB8nDRFpKB6P4l8frYfz15xhu', '2020-01-18', 494, 0, 1, 0, 2),
-(3, 'vb', '$2y$10$uz4K5e9jpvQ9lAUbCaxBzeRAX.1eqbcFOe1j8dtatULwxKaDPErA2', '2020-01-18', 412, 0, 4, 0, 2);
+(1, 'qw', '$2y$10$aeRzDQxkoWLKwiMKfaNykOIsSi6QRPDaTGTnFpzfLbfKAYDBtcodG', '2019-12-11', 228, 430, -1, 0, 6),
+(2, 'ty', '$2y$10$oBttu4RYOmafULAgtTWfu.BIq5AXUB8nDRFpKB6P4l8frYfz15xhu', '2020-01-18', 988, 0, 4, 0, 5),
+(3, 'vb', '$2y$10$uz4K5e9jpvQ9lAUbCaxBzeRAX.1eqbcFOe1j8dtatULwxKaDPErA2', '2020-01-18', 1006, 0, 4, 0, 2);
 
 -- --------------------------------------------------------
 
@@ -654,14 +695,15 @@ CREATE TABLE IF NOT EXISTS `vaisseau` (
   `y` int(11) DEFAULT '0',
   `nomvaisseau` varchar(32) NOT NULL DEFAULT 'Vaisseau',
   PRIMARY KEY (`idvaisseau`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `vaisseau`
 --
 
 INSERT INTO `vaisseau` (`idvaisseau`, `idjoueurbat`, `typebat`, `univers`, `x`, `y`, `nomvaisseau`) VALUES
-(1, 1, 5, 1, 3, 3, 'Vaisseau');
+(1, 1, 5, 1, 3, 3, 'Vaisseau'),
+(2, 2, 5, 2, 3, 3, 'Vaisseau');
 
 -- --------------------------------------------------------
 
@@ -678,16 +720,16 @@ CREATE TABLE IF NOT EXISTS `variationstour` (
   `recherche` int(11) NOT NULL DEFAULT '5',
   `consobiens` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idtable`)
-) ENGINE=MyISAM AUTO_INCREMENT=93 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=174 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `variationstour`
 --
 
 INSERT INTO `variationstour` (`idtable`, `idjoueur`, `prodbiens`, `chantier`, `recherche`, `consobiens`) VALUES
-(90, 1, 15, 40, 3, 8),
-(91, 2, 30, 20, 1, 8),
-(92, 3, 30, 20, 1, 8);
+(171, 1, 20, 40, 3, 9),
+(172, 2, 30, 20, 1, 8),
+(173, 3, 30, 20, 1, 8);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

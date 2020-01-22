@@ -32,9 +32,9 @@ $reqcreersilo = $bdd->prepare("INSERT INTO silo (idjoueursilo, iditems, quantite
 $reqaugmentersilo = $bdd->prepare("UPDATE silo SET quantite = ? WHERE idjoueursilo = ? AND iditems = ?") ;
 
 // Gestion astéroides.
-$reqmajaste = $bdd->prepare('UPDATE champsasteroides SET quantité = ? where idasteroide = ?');
+$reqmajaste = $bdd->prepare('UPDATE champsasteroides SET quantite = ? where idasteroide = ?');
 $reqsupaste = $bdd->prepare('DELETE FROM  champsasteroides WHERE idasteroide = ?');
-$reqasteroide = $bdd->prepare('SELECT idasteroide, quantité, typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
+$reqasteroide = $bdd->prepare('SELECT idasteroide, quantite, typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
 
 
 // récupération des ordres de déplacement (= typeordre 0).
@@ -103,7 +103,7 @@ while ($repordredep = $reqordredep->fetch())
 
     $reqasteroide->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers']));
     $repasteroide = $reqasteroide->fetch();
-    // Données sur astéroides : $repasteroide['idasteroide'] , $repasteroide['quantité'], $repasteroide['typeitemsaste']
+    // Données sur astéroides : $repasteroide['idasteroide'] , $repasteroide['quantite'], $repasteroide['typeitemsaste']
 
     // Vérifier si un astéroide existe.
     if (isset($repasteroide['idasteroide']))
@@ -120,13 +120,13 @@ while ($repordredep = $reqordredep->fetch())
             }
         
         // Si les biens de l'asteroide tombent à 0, alors on delete. 
-        if ($repasteroide['quantité'] < 2)
+        if ($repasteroide['quantite'] < 2)
             {
             $reqsupaste->execute(array($repasteroide['idasteroide']));
             }
         else // Sinon on réduit de 1 sa valeur.
             {
-            $reqmajaste->execute(array($repasteroide['quantité'] - 1 , $repasteroide['idasteroide']));
+            $reqmajaste->execute(array($repasteroide['quantite'] - 1 , $repasteroide['idasteroide']));
             }
         }
     $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement']));
