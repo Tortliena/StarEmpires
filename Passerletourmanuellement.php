@@ -39,8 +39,6 @@ include("script/BDDconnection.php");
 <?php
 //Permet de voir le tour qui passe, soit en entrant un nombre, soit en laissant vide la case.
 
-
-
 if (isset($_GET["voir"]) and $_GET["voir"] == 0 )
   {
 $reponse = $bdd->query('SELECT * FROM tour ORDER BY id DESC LIMIT 1') or die(print_r($bdd->errorInfo()));

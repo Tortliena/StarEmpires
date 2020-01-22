@@ -58,7 +58,3 @@ function add_some_extra5(&$Commentairestour)
 add_some_extra5($Commentairestour);
 */
 ?>
-
-
-
-
