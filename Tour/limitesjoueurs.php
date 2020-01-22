@@ -21,7 +21,7 @@ while ($repjoueur = $reqjoueur->fetch())
     // Calcul du max d'ouvriers :
     $reqcompterbat->execute(array(2, $repjoueur['id']));
     $repcompterchantier = $reqcompterbat->fetch();
-    $maxouvriers = max (2 , $repcompterchantier['nb']*5);
+    $maxouvriers = max (1 , $repcompterchantier['nb']*5);
 
     // Calcul du max de centre de recherche :
     $maxcentrederecherche = 1;
@@ -29,7 +29,7 @@ while ($repjoueur = $reqjoueur->fetch())
     // Calcul du max de scientifiques
     $reqcompterbat->execute(array(1, $repjoueur['id']));
     $repcomptercdr = $reqcompterbat->fetch();
-    $maxscientifiques = max (2 , $repcomptercdr['nb']*5);
+    $maxscientifiques = max (1 , $repcomptercdr['nb']*5);
 
     $reqmajlimite->execute(array($maxpop, $maxchantiers, $maxouvriers, $maxcentrederecherche, $maxscientifiques, $repjoueur['id'])); 
     }

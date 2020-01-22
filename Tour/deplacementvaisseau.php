@@ -55,7 +55,7 @@ while ($repordredep = $reqordredep->fetch())
             $message ->execute(array($repordredep['idjoueurduvaisseau'] , $mess , 'Vaisseau' , $repordredep['idvaisseaudeplacement']));
              goto a;
              } // Permet d'appliquer l'ordre
-        else {goto b;} // Supprimer l'ordre
+        else {break;} // Supprimer l'ordre
         }
 
     // Si le tente de se déplacer vers le hangars

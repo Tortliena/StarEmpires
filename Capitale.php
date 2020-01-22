@@ -206,7 +206,7 @@ while ($reppoptransf = $reqpoptransf->fetch())
           echo "Continuer de miner, trouvez des ressources rares, lancer la recherche sur les bases lunaires et en produire une. Vous allez avoir besoin de recycler les débris (option de construction de la page chantier)</br>";
           echo "Facultatif : Former plus de chercheurs. La recherche des bases lunaires est assez lourde.</br>";
           echo "Facultatif 2 : Vous devriez avoir fini les recherches sur les centres de recherche et les chantiers. Vous pouvez en constuire un de chaque pour augmenter votre limite d'ouvriers ou de chercheurs.</br>";
-          echo "PS : C'est buggué. Vous pouvez pas faire ce niveau (qui est aussi le dernier au passage)</br>";
+          echo "PS : C'est buggué. J'ai rajouté artificiellement des débris rares dans votre silo.</br>";
       break;
       case 6:
           echo "Vous etes arrivé au bout du jeu ! Bonne chance !";

@@ -31,6 +31,8 @@ $reqcountbat = $bdd->prepare('SELECT COUNT(*) AS nb FROM batiments WHERE idjoueu
 $prixrech = $bdd->prepare("SELECT prixrecherche FROM recherche WHERE idrecherche = ? ");
 $reqcreerrecherche = $bdd->prepare("INSERT INTO rech_joueur(idjoueurrecherche, idrech, rechnesc) VALUES (?,?,?)");
 
+// À supprimer car pour palier à un bug.
+$reqdonnerdebrisrares = $bdd->prepare("INSERT INTO silo(idjoueursilo, iditems, quantite ) VALUES (?,?,?)");
 
 $reqlvl = $bdd->QUERY('SELECT lvl, id from utilisateurs ORDER BY id ASC');
 WHILE($replvl = $reqlvl->fetch())
@@ -101,6 +103,8 @@ WHILE($replvl = $reqlvl->fetch())
             $aleatoirerecherche = rand(100 , 200) ;
             $reelprixrech = $aleatoirerecherche * $repprixrech['prixrecherche'] / 100 ;
             $reqcreerrecherche->execute(array($replvl['id'], 2, $reelprixrech));
+
+            $reqdonnerdebrisrares->execute(array($replvl['id'], 8, 10));
             }  
       break;
 
@@ -112,8 +116,6 @@ WHILE($replvl = $reqlvl->fetch())
             $reqlvlup->execute(array($replvl['id']));
             }
       break;
-
-
   	}
 	}
 

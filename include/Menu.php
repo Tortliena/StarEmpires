@@ -2,8 +2,7 @@
     <div>
         <h3>Menu</h3>
            	<?php
-
-
+        
             // Affichage du tour en cours : 
             $reponse = $bdd->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1');
             $touractuel = $reponse->fetch();
@@ -29,7 +28,6 @@
             ?>
             <a class ="lienmenu" href="script/deconnection.php">Déconnection</a> </br>
             <a class ="lienmenu" href="Messagerie.php">Messagerie</br>
-
 
             <?php
             $reqmessnonlu = $bdd->prepare('SELECT COUNT(*) AS nbmessnonlu FROM messagerie WHERE idjoueurrecepteur = ? AND lu = ? AND supprimerecepteur = ?');

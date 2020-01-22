@@ -2,4 +2,5 @@
 Prop3=19,2
 [InternetShortcut]
 IDList=
-URL=http://localhost/site/capitale.php
+URL=http://localhost/starempires/capitale.php
+HotKey=0

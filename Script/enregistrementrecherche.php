@@ -16,7 +16,9 @@ $reprechafaire = $reqrechercheafaire->fetch();
 $supanciennerech = "DELETE FROM rech_joueur WHERE idjoueurrecherche = ? AND idrech = ? " ;
 $bdd->prepare($supanciennerech)->execute([$_SESSION['id'], $_POST['idrecherche']]);
 
+$reqrelancerrech = $bdd->prepare("INSERT INTO rech_joueur(idjoueurrecherche, idrech, avrech, rechnesc) VALUES (?,?,?,?)");
+$reqrelancerrech->execute(array($_SESSION['id'],$_POST['idrecherche'],$reprechafaire['avrech'],$reprechafaire['rechnesc']));	
 $_SESSION['message1'] = $_POST['combien'];
 $_SESSION['message2'] = $info[0];
 header('Location: ../recherche.php?message=17');
-    ?>
+?>
