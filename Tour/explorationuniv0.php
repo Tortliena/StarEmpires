@@ -14,7 +14,7 @@ $reponse->closeCursor();
 $reqexploration = $bdd->prepare('SELECT idexplore , x , y, univers, idexplorateur FROM explore WHERE tourexploration = ?');
 $reqcompterexplo = $bdd->prepare('SELECT COUNT(*) AS nbcaseexplo  FROM explore WHERE idexplorateur = ? AND idexplore <= ? ') ; 
 $reqmessageinterne = $bdd->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)');
-$reqcreerasteroides = $bdd->prepare('INSERT INTO champsasteroides (xaste , yaste , uniaste, biensaste, titaneaste) VALUES (?, ?, ?, ?, ?)');
+$reqcreerasteroides = $bdd->prepare('INSERT INTO champsasteroides (xaste , yaste , uniaste, iditems, quantite) VALUES (?, ?, ?, ?, ?)');
 $reqcreerplanete = $bdd->prepare('INSERT INTO planete(xplanete, yplanete, universplanete) VALUES(:xplanete, :yplanete, :universplanete)');
 
 
@@ -38,7 +38,7 @@ while ($repexplorationexistante = $reqexploration->fetch())
 
         case 3:
             $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Champ d\'astéroides exploitables', 'Nous venons de détecter un champs d\'astéroides et il semble qu\'il est possible d\'exploiter ces ressources. Ils regorge de ressources précieuses et nous pourrions en tirer un grand bénéfice.'));
-            $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 5, 0));
+            $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 6, 5));
         break;
 
         case 4:
@@ -56,7 +56,7 @@ while ($repexplorationexistante = $reqexploration->fetch())
 
         case 7:
             $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Champ d\'astéroides exploitables', 'Nous venons de détecter un champs d\'astéroides et il semble qu\'il est possible d\'exploiter ces ressources. Ils regorge de ressources précieuses et nous pourrions en tirer un grand bénéfice.'));
-            $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 0, 3));   
+            $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 8, 3));   
         break;
 
         case 8:

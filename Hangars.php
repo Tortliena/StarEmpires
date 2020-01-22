@@ -47,8 +47,7 @@ include("include/resume.php");
 // requetes pour la carte et/ou les ordres.
 $reqdect = $bdd->prepare('SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? LIMIT 1');
 $reqplanete = $bdd->prepare('SELECT idplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? LIMIT 1');
-$reqasteroide = $bdd->prepare('SELECT idasteroide , biensaste , titaneaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
-
+$reqasteroide = $bdd->prepare('SELECT idasteroide , quantité , typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
 
 // Permet de récupérer les ordres de déplacement en cours.
 $ordredeplacementactuel = $bdd->prepare('SELECT xdestination , ydestination , typeordre FROM ordredeplacement WHERE idvaisseaudeplacement = ?');

@@ -72,8 +72,13 @@
 
             }
     		?>
-
-    		</br></br>
+  		
+    		<!-- Passer le tour manuellement -->
+			<form action="tour/Gestionglobale.php">
+			<p>
+			    <input type="submit" value="Passer le tour" />
+			</p>
+			</form>
             <b><a class ="lienmenu" href="Passerletourmanuellement.php">Gestion tour</a></b></br> </br>
             <a class ="lienmenu" href="tour/test.php">test du tour</a> </br> 
             <a class ="lienmenu" href="test.php?id=2">test de page</a> </br>

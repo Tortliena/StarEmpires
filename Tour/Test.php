@@ -1,8 +1,8 @@
 <?php
-/*
+
 session_start();
 include("../script/BDDconnection.php");
-*/
+
 
 // récupérer le num du tour ($touractuel['id'])
 $reqtouractuel = $bdd->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1');
@@ -32,9 +32,9 @@ $reqcreersilo = $bdd->prepare("INSERT INTO silo (idjoueursilo, iditems, quantite
 $reqaugmentersilo = $bdd->prepare("UPDATE silo SET quantite = ? WHERE idjoueursilo = ? AND iditems = ?") ;
 
 // Gestion astéroides.
-$reqmajaste = $bdd->prepare('UPDATE champsasteroides SET biensaste = ? , titaneaste = ? where idasteroide = ? ');
+$reqmajaste = $bdd->prepare('UPDATE champsasteroides SET quantité = ? where idasteroide = ?');
 $reqsupaste = $bdd->prepare('DELETE FROM  champsasteroides WHERE idasteroide = ?');
-$reqasteroide = $bdd->prepare('SELECT idasteroide, biensaste, titaneaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
+$reqasteroide = $bdd->prepare('SELECT idasteroide, quantité, typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
 
 
 // récupération des ordres de déplacement (= typeordre 0).
@@ -103,30 +103,30 @@ while ($repordredep = $reqordredep->fetch())
 
     $reqasteroide->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers']));
     $repasteroide = $reqasteroide->fetch();
-    // Données sur astéroides : $repasteroide['idasteroide'] , $repasteroide['biensaste'], $repasteroide['titaneaste']
+    // Données sur astéroides : $repasteroide['idasteroide'] , $repasteroide['quantité'], $repasteroide['typeitemsaste']
 
     // Vérifier si un astéroide existe.
     if (isset($repasteroide['idasteroide']))
         {
-        $reqverifcargo->execute(array($repordredep['idvaisseaudeplacement'], 6));
+        $reqverifcargo->execute(array($repordredep['idvaisseaudeplacement'], $repasteroide['typeitemsaste']));
         $repverifcargo = $reqverifcargo->fetch();
         if (isset($repverifcargo['quantiteitems'])) // Si le cargo transporte déjà des débris alors augmenter. 
             {
-            $reqaugmentercargo->execute(array($repverifcargo['quantiteitems'] + 1 , $repordredep['idvaisseaudeplacement'], 6));
+            $reqaugmentercargo->execute(array($repverifcargo['quantiteitems'] + 1 , $repordredep['idvaisseaudeplacement'], $repasteroide['typeitemsaste']));
             }
         else
             { // Sinon créer un stock. 
-            $reqcreercargo->execute(array($repordredep['idvaisseaudeplacement'], 6 , 1));
+            $reqcreercargo->execute(array($repordredep['idvaisseaudeplacement'], $repasteroide['typeitemsaste'] , 1));
             }
         
         // Si les biens de l'asteroide tombent à 0, alors on delete. 
-        if ($repasteroide['biensaste'] < 2)
+        if ($repasteroide['quantité'] < 2)
             {
             $reqsupaste->execute(array($repasteroide['idasteroide']));
             }
         else // Sinon on réduit de 1 sa valeur.
             {
-            $reqmajaste->execute(array($repasteroide['biensaste'] - 1 , $repasteroide['titaneaste'] , $repasteroide['idasteroide']));
+            $reqmajaste->execute(array($repasteroide['quantité'] - 1 , $repasteroide['idasteroide']));
             }
         }
     $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement']));
