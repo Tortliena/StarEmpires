@@ -1,4 +1,5 @@
 <?php
+session_start();
 include("BDDconnection.php");
 
 //pseudo vide lors de la tentative d'inscription.
@@ -75,6 +76,9 @@ $reqcreerplanete->execute(array(
     'xplanete'=> 3,
     'yplanete'=> 3,
     'universplanete'=> $repdernierid['id']));
+
+$_SESSION['pseudo'] = $_POST["pseudo"];
+$_SESSION['id'] = $repdernierid['id'];
 
 header('Location: ../accueil.php?message=4');
 ?>
