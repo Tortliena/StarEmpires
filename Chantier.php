@@ -61,7 +61,7 @@ $req->closeCursor();
 
   if ($donnees['nbdechantier'] == 0)
   {
-    echo 'Tu n\'as aucun chantier (deux places d\'ouvriers offertes).';
+    echo 'Tu n\'as aucun chantier (une place d\'ouvrier offerte).';
   }
   if ($donnees['nbdechantier'] == 1)
   {
