@@ -1,8 +1,7 @@
 <?php
-/*
 session_start();
 include("../script/BDDconnection.php");
-*/
+
 
 /* Commentaire de début de cette phase.
 function debutdesconstructions(&$Commentairestour)
@@ -30,7 +29,9 @@ $construirevaisseau = $bdd->prepare('INSERT INTO vaisseau (typevaisseau, idjoueu
 
 // Gestion silo :
 $reqverifsilo = $bdd->prepare('SELECT quantite FROM silo WHERE idjoueursilo = ? AND iditems = ?');
+$reqcreersilo = $bdd->prepare('INSERT INTO silo (idjoueursilo, iditems, quantite) VALUES (?, ?, ?)');
 $diminutionsilo = $bdd->prepare('UPDATE silo SET quantite = quantite - 1 WHERE idjoueursilo = ? AND iditems = ?' );
+$augmentersilo = $bdd->prepare('UPDATE silo SET quantite = quantite + 1 WHERE idjoueursilo = ? AND iditems = ?' );
 
 // Par ailleurs :
 $miseajourdesressources = $bdd->prepare("UPDATE utilisateurs SET biens = ? , titane = ? WHERE id = ?");
@@ -70,6 +71,13 @@ $joueur = $bdd->query('SELECT
         // Cas dans lequel la construction consomme des items :
         if ($repcategorie['itemnecessaire']>0)
             {
+            // Supprimer cette variable pour éviter les suprises avec une construction précédente.
+            if (isset($repverifsilo['quantite']))
+                {
+                unset($repverifsilo['quantite']);
+                }
+
+            // Vérifier qu'on en a en stock   
             $reqverifsilo->execute(array($repjoueur['idj'], $repcategorie['itemnecessaire']));
             $repverifsilo = $reqverifsilo->fetch();
             $quantiteitemsnecessaire = $repverifsilo['quantite'];
@@ -131,13 +139,38 @@ $joueur = $bdd->query('SELECT
         if ($nouvavbien == 0 AND $nouvavtitane == 0)
             {
             if ($repcategorie['typeitem'] == 'batiments')
-                {
+                { // cas des batiments
                 $construirebatiment->execute(array($repconstruction['trucaconstruire'], $repjoueur['idj'] ));
                 }
 
             elseif ($repcategorie['typeitem'] == 'vaisseau')
-                {
+                { // cas des vaisseaux
                 $construirevaisseau->execute(array($repconstruction['trucaconstruire'], $repjoueur['idj'] ));
+                }
+
+            elseif ($repcategorie['typeitem'] == 'composant')
+                { // cas des composants (et plus tard des autres trucs à mettre dans le silo ?)
+                // Supprimer cette variable pour éviter les suprises avec une construction précédente.
+                if (isset($repverifsilo['quantite']))
+                    {
+                    unset($repverifsilo['quantite']);
+                    }
+                
+                // Requete pour vérifier si j'en ai en stock    
+                $reqverifsilo->execute(array($repjoueur['idj'], $repconstruction['trucaconstruire']));
+                $repverifsilo = $reqverifsilo->fetch();
+                
+                // Si oui, alors augmenter le stock
+                if (isset($repverifsilo['quantite']))
+                    {
+                    $augmentersilo->execute(array($repjoueur['idj'], $repconstruction['trucaconstruire']));
+                    }
+
+                // Sinon, créer le stock stock  
+                else
+                    {
+                    $reqcreersilo->execute(array($repjoueur['idj'], $repconstruction['trucaconstruire'], 1));
+                    }
                 }
 
             elseif ($repconstruction['trucaconstruire'] == 7)

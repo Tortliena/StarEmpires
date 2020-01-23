@@ -102,18 +102,27 @@ WHILE($replvl = $reqlvl->fetch())
       break;
 
       case 4:
+          // Pour monter de niveau, il faut ramener quelque chose dans les silos.
           $reqcomptersilo->execute(array($replvl['id']));
           $reqcomptersilo = $reqcomptersilo->fetch();
-          // Pour monter de niveau, il faut ramener quelque chose dans les silos.
           if ($reqcomptersilo['nb']>0)
             {
             $reqlvlup->execute(array($replvl['id']));
-            $reqlimitebaselunaire->execute(array(1, $replvl['id']));
+            
             // Cela permet de construire la première base lunaire.
+            $reqlimitebaselunaire->execute(array(1, $replvl['id']));
+            
+            // Cela donne accès aux moteurs améliorés.
+            $prixrech->execute(array(5));
+            $repprixrech = $prixrech->fetch();
+            $aleatoirerecherche = rand(100 , 200) ;
+            $reelprixrech = $aleatoirerecherche * $repprixrech['prixrecherche'] / 100 ;
+            $reqcreerrecherche->execute(array($replvl['id'], 5, $reelprixrech));
             }
       break;
 
       case 5:
+          // Pour monter de niveau, il faut construire une base spatiale.
           $reqcountbat->execute(array($replvl['id'], 4));
           $repcountbat = $reqcountbat->fetch();
           if ($repcountbat['nb']>0)

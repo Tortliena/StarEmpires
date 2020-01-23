@@ -88,14 +88,13 @@ $a = 0; ?> <!-- Variable permettant de gérer le cas avec 0 construction possibl
         RIGHT JOIN items
         ON rech_joueur.idrech = items.technescessaire
         WHERE (items.technescessaire = 0 OR (rech_joueur.idjoueurrecherche = ? AND rech_joueur.rechposs = 1))
-        AND (items.typeitem = "batiments" OR items.typeitem = "vaisseau")
+        AND (items.typeitem = "batiments" OR items.typeitem = "vaisseau" OR items.typeitem = "composant")
         ');
         $reqmenuderoulantconstruction->execute(array($_SESSION['id']));
         while ($repmenuderoulantconstruction = $reqmenuderoulantconstruction->fetch())
           {
             if (isset($repmenuderoulantconstruction['nomlimite'])) // S'il y a un maximum sur l'un de ces batiments.
               {
-              
               // On récupère la limite.
               $reqlimite = $bdd->prepare('SELECT '.$repmenuderoulantconstruction['nomlimite'].' FROM limitesjoueurs WHERE id = ?');
               $reqlimite->execute(array($_SESSION['id']));
@@ -106,9 +105,10 @@ $a = 0; ?> <!-- Variable permettant de gérer le cas avec 0 construction possibl
               $reqcomptechantier->execute(array($repmenuderoulantconstruction['iditem'], $_SESSION['id']));
               $repcomptechantier = $reqcomptechantier->fetch();  // $repcomptechantier['nb']
               }
+
             if (!isset($repmenuderoulantconstruction['nomlimite']) OR $replimite['0']>$repcomptechantier['nb'])
               {
-              $a++;  ?>
+              $a++;  // Variable permettant de gérer le cas ou on a aucune construction possible. ?>
               <option value="<?php echo $repmenuderoulantconstruction['iditem']; ?>"><?php echo $repmenuderoulantconstruction['nombatiment']; ?></option>
               <?php
               } 

@@ -208,9 +208,13 @@ while ($reppoptransf = $reqpoptransf->fetch())
           echo "Facultatif 2 : Former plus de chercheurs. La recherche des bases lunaires est assez lourde.</br>";
       break;
       case 6:
-          echo "Vous etes arrivé au bout du jeu ! Bonne chance !";
+          echo "Faire la recherche sur les moteurs améliorés et équiper un de vos vaisseaux avec l'un de ces moteurs.";
       break;
-  }
+      case 7: 
+          echo "Vous etes arrivé au bout du jeu ! Bonne chance !"; 
+      break; 
+
+      }
   ?>
   </div>
   </body>

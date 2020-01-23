@@ -18,7 +18,7 @@ include("script/BDDconnection.php");
   <body>
     <?php include("include/menu.php"); 
 
-  $reqvaisseau = $bdd->prepare('SELECT idjoueurbat, nomvaisseau, x, y, univers FROM vaisseau WHERE idvaisseau = ?');
+  $reqvaisseau = $bdd->prepare('SELECT idjoueurbat, nomvaisseau, x, y, univers, vitesse FROM vaisseau WHERE idvaisseau = ?');
   $reqvaisseau->execute(array($_GET['id']));
   $repvaisseau = $reqvaisseau->fetch();
   
@@ -44,6 +44,9 @@ include("include/resume.php");
 </form>
 
 <?php
+echo 'Vitesse du vaisseau : ' . $repvaisseau['vitesse'] . ' parsec/cycle</br>'; 
+
+
 // requetes pour la carte et/ou les ordres.
 $reqdect = $bdd->prepare('SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? LIMIT 1');
 $reqplanete = $bdd->prepare('SELECT idplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? LIMIT 1');
@@ -55,11 +58,12 @@ $ordredeplacementactuel->execute(array($_GET['id']));
 $reponseordredeplacementactuel = $ordredeplacementactuel->fetch();
 
 // Si le vaisseau est au hangars : 
-if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'] == 0)
-  {echo 'Votre vaisseau est au hangars.' ;
+if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'] == $_SESSION['id'])
+  {
+  echo 'Votre vaisseau est au hangars.' ;
   
   // Si il y a un ordre de sortie du hangars : 
-  if ($reponseordredeplacementactuel['xdestination'] == 3 AND $reponseordredeplacementactuel['ydestination'] == 3)
+  if ($reponseordredeplacementactuel['typeordre'] == 4)
       {?>
     <form method="post" action="script/annulerdeplacementvaisseau.php"><p><?php
     {echo 'Vous avez ordonné à votre vaisseau de sortir.' ;}?>
@@ -72,14 +76,15 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
 
   // Formulaire d'ordres dans le hangars : ?>
   <form method="post" action="script/ordredepuishangars.php">
-    <p><?php echo 'Ordre :' ;?>
+    <p>Ordre :
     <input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>">
     <select name="ordredepuishangars" id="ordredepuishangars">
-      <option value="sortir">Sortir</option>
+    <option value="sortir">Sortir</option>
     <input type="submit" value="Valider" />
     </p>
-    </form><?php
-  }
+  </form>
+  <?php
+  } // Fin de la partie dans le hangars.
 
 // Si le vaisseau est de sortie sur la carte :
 else
@@ -89,12 +94,9 @@ else
     // Si le vaisseau se trouve en orbite de la planète mère :
     if ($repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3 AND $repvaisseau['univers'] == $_SESSION['id'])
       { // Formulaire pour faire rentrer le vaisseau en orbite. ?>
-      <form method="post" action="script/ordredeplacementvaisseau.php"><p>
+      <form method="post" action="script/ordrerentrerorbite.php"><p>
       <?php echo 'Votre vaisseau se trouve à proximité de votre planète mère (3 - 3).' ; ?>
         <input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>">
-        <input name="univers" type="hidden" value="<?php echo $repvaisseau['univers'] ;?>">
-        <input name="xobjectif" type="hidden" value="0">
-        <input name="yobjectif" type="hidden" value="0">
         <input type="submit" value="Rentrer en orbite" />
       </p></form>
       <?php 
@@ -104,7 +106,7 @@ else
     if ($reponseordredeplacementactuel['xdestination'] != NULL)
       { 
       ?><form method="post" action="script/annulerdeplacementvaisseau.php"><p><?php
-      if ($reponseordredeplacementactuel['xdestination'] == 0 AND $reponseordredeplacementactuel['ydestination'] == 0 AND $reponseordredeplacementactuel['typeordre'] == 0)
+      if ($reponseordredeplacementactuel['typeordre'] == 3)
         { // Si l'ordre est de rentrer en orbite :
         echo 'Vous avez ordonné à votre vaisseau de rentrer en orbite de la planète mère.' ;
         }
@@ -130,8 +132,8 @@ else
       }  
     echo 'Votre vaisseau est en balade en ' . $repvaisseau['univers'] . ' , ' . $repvaisseau['x'] . ' , ' . $repvaisseau['y'];
 
-  // Formulaire pour donner un ordre de déplacement.
-  ?>
+    // Formulaire pour donner un ordre de déplacement.
+    ?>
     <form method="post" action="script/ordredeplacementvaisseau.php">
     <p>
         <input type="number" name="xobjectif" value="<?php if (!isset($_GET['x'])){echo $repvaisseau['x'];} else{echo $_GET['x'];} ?>" min="1" max="<?php echo $xymax;?>">
@@ -144,32 +146,32 @@ else
     </p>
     </form>
 
-<?php
-  // Si on a un champs d'astéroide, formulaire pour embarquer les trucs.
-  $reqasteroide->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers']));
-  $repasteroide = $reqasteroide->fetch();
-  if (isset($repasteroide['idasteroide']))
-            { 
-            ?>
-            <form method="post" action="script/ordreminer.php">
-            <p>
-            Vous êtes face à un champs d'astéroides.
-            <input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>">
-            <input name="univers" type="hidden" value="<?php echo $repvaisseau['univers'] ;?>">
-            <input name="xdepart" type="hidden" value="<?php echo $repvaisseau['x'] ;?>">
-            <input name="ydepart" type="hidden" value="<?php echo $repvaisseau['y'] ;?>">       
-            <input type="submit" value="Récolter" />
-            </p>
-            </form>
-            <?php
-            }
+    <?php
+    // Si on a un champs d'astéroide, formulaire pour embarquer les trucs.
+    $reqasteroide->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers']));
+    $repasteroide = $reqasteroide->fetch();
+    if (isset($repasteroide['idasteroide']))
+      { 
+      ?>
+      <form method="post" action="script/ordreminer.php">
+      <p>
+      Vous êtes face à un champs d'astéroides.
+      <input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>">
+      <input name="univers" type="hidden" value="<?php echo $repvaisseau['univers'] ;?>">
+      <input name="xdepart" type="hidden" value="<?php echo $repvaisseau['x'] ;?>">
+      <input name="ydepart" type="hidden" value="<?php echo $repvaisseau['y'] ;?>">       
+      <input type="submit" value="Récolter" />
+      </p>
+      </form>
+      <?php
+      }
 
 
-// Carte spatiale :
-  for ($y = 0 ; $y <= $xymax ; $y++)
-    {
-  for ($x = 0 ; $x <= $xymax ; $x++)
-    {
+  // Carte spatiale :
+    for ($y = 0 ; $y <= $xymax ; $y++)
+      {
+    for ($x = 0 ; $x <= $xymax ; $x++)
+      {
       if ($x == 0 AND $y == 0)
         { // Début du tableau + tout en haut à gauche.
         echo '<table class = "carte"><caption>Univers ' . $repvaisseau['univers'] . '!</caption><tr><td class = "xycarte">x/y</td>' ;
@@ -219,8 +221,8 @@ else
         { // fin du tableau
         echo '</table>' ;
         }
-    }}
-  }
+      }} // Acolades pour fermer les for de la carte.
+  } // acolade pour fermer la partie hors hangars.
 
 $reqverifcargo = $bdd->prepare(" SELECT c.quantiteitems , i.nombatiment
   									FROM cargovaisseau c
@@ -231,19 +233,28 @@ $a = 0;
 $reqverifcargo ->execute(array($_GET['id']));
 while ($repverifcargo  = $reqverifcargo ->fetch())
     {
-   	if ($a != 0){echo ', ';}
-    if ($a == 0){echo '<form method="post" action="script/ordredecharger.php"><p>Ce vaisseau transporte ';}
-    echo $repverifcargo['quantiteitems'].' '.$repverifcargo['nombatiment'] ;
-	  $a++;
-    }
+   	if ($a != 0)
+      { // Permet de gérer les cas avec de multiples items dans les soutes.
+      echo ', ';
+      }
+    else
+      { // On passe par cette partie une seule fois.
+      echo '<form method="post" action="script/ordredecharger.php"><p>Ce vaisseau transporte ';
+      }
 
-if ($repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3 AND $repvaisseau['univers'] == $_SESSION['id'] AND $a>0)
-      { // Formulaire pour décharger le cargo ?>.
-        <input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>">
-        <input type="submit" value="décharger" />
-      </p></form>
-      <?php }
-elseif ($a>0) { echo '.';}?>
+    // Affiche ce qui est dans le cargo.
+    echo $repverifcargo['quantiteitems'].' '.$repverifcargo['nombatiment'] ;
+    $a++;
+    }
+ 
+if ($repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3 AND $repvaisseau['univers'] == $_SESSION['id'] AND $a>0) 
+  { // Formulaire pour décharger le cargo ?>.
+      <input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>"> 
+      <input type="submit" value="décharger" /> 
+      </p>
+    </form><?php
+  }
+elseif ($a>0) { echo '.';}?> 
   
   </div>
   </body>

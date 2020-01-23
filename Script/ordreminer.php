@@ -26,13 +26,6 @@ echo $_POST['ydepart'] . '</br>';
     $reqasteroide->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers']));
     $repasteroide = $reqasteroide->fetch();
 
-/*
-    echo $repvaisseau['x'].'blabla</br>';
-    echo $repvaisseau['y'].'blabla</br>';
-    echo $repvaisseau['univers'].'blabla</br>';
-    echo $repasteroide['idasteroide'].'blabla</br>';
-*/
-
     if (isset($repasteroide['idasteroide']))
         {
         // supprimer ordre précédent.

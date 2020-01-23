@@ -46,35 +46,8 @@ while ($repordredep = $reqordredep->fetch())
     $reqvaisseau->execute(array($repordredep['idvaisseaudeplacement']));
     $repvaisseau = $reqvaisseau->fetch();
 
-    // Si le vaisseau se trouve au hangars :
-    if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'] == 0)
-        { // Et que le vaisseau tente de sortir vers l'orbite de la planète
-        if ($repordredep['xdestination'] == 3 AND $repordredep['ydestination'] == 3 AND $repordredep['universdestination'] == $repordredep['idjoueurduvaisseau'])
-             {
-            //Créer message pour le joueur.
-            $mess = 'Ce vient de sortir du hangars et se trouve maintenant en orbite de notre monde.'; 
-            $message ->execute(array($repordredep['idjoueurduvaisseau'] , $mess , 'Vaisseau' , $repordredep['idvaisseaudeplacement']));
-            $xeffectif = $repordredep['xdestination'];
-            $yeffectif = $repordredep['ydestination'];
-             goto a;
-             } // Permet d'appliquer l'ordre
-        else {goto b;} // Supprimer l'ordre
-        }
-
-    // Si le tente de se déplacer vers le hangars
-    if ($repordredep['xdestination'] == 0 AND $repordredep['ydestination'] == 0)
-        { // Et que le vaisseau se trouve en orbite de la planète mère
-        if ($repvaisseau['univers'] == 0 AND $repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3)
-            {
-            $xeffectif = $repordredep['xdestination'];
-            $yeffectif = $repordredep['ydestination'];
-            goto a;
-            } // Permet d'appliquer l'ordre
-        else {goto b;} // Supprimer l'ordre
-        }
-
     // Puis-je arriver à destination selon x ?
-    if ($repvaisseau['x']+$repvaisseau['vitesse'] > $repordredep['xdestination'] AND $repvaisseau['x']-$repvaisseau['vitesse'] < $repordredep['xdestination'])
+    if ($repvaisseau['x']+$repvaisseau['vitesse'] >= $repordredep['xdestination'] AND $repvaisseau['x']-$repvaisseau['vitesse'] <= $repordredep['xdestination'])
         {
         $xeffectif = $repordredep['xdestination'];
         } // Si oui, alors ordre = destination
@@ -88,7 +61,7 @@ while ($repordredep = $reqordredep->fetch())
         } // Sinon, ordre = place initiale + vitesse vers la destination.
 
     // Même chose ici mais avec les y. 
-    if ($repvaisseau['y']+$repvaisseau['vitesse'] > $repordredep['ydestination'] AND $repvaisseau['y']-$repvaisseau['vitesse'] < $repordredep['ydestination'])
+    if ($repvaisseau['y']+$repvaisseau['vitesse'] >= $repordredep['ydestination'] AND $repvaisseau['y']-$repvaisseau['vitesse'] <= $repordredep['ydestination'])
         {
         $yeffectif = $repordredep['ydestination'];
         }
@@ -109,7 +82,6 @@ while ($repordredep = $reqordredep->fetch())
     $mess = 'Ce vaisseau vient de se déplacer. Il était avant en ' . $xeffectif . '-' . $yeffectif ; 
     $message ->execute(array($repordredep['idjoueurduvaisseau'] , $mess , 'Vaisseau' , $repordredep['idvaisseaudeplacement'])) ;
     
-    a:
     // Applique le déplacement :
     $applicationdeplacement->execute(array($xeffectif , $yeffectif , $repordredep['universdestination'], $repordredep['idvaisseaudeplacement']));
 
@@ -125,7 +97,6 @@ while ($repordredep = $reqordredep->fetch())
         $message ->execute(array($repordredep['idjoueurduvaisseau'] , $messexplo , 'Vaisseau' , $repordredep['idvaisseaudeplacement'])) ;
         }
     
-    b:
     if ($arriveadestination == true)
         { 
         // Supprimer l'ordre de déplacement si la destination est atteinte
@@ -213,5 +184,40 @@ while ($repordredep = $reqordredep->fetch())
         $reqsupcargaisonvaisseau->execute(array($repordredep['idvaisseaudeplacement']));
         }
     $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement']));
+    }
+
+// ordre de rentrée en orbite (= typeordre 3)
+$reqordredep = $bdd->query('SELECT idvaisseaudeplacement, idjoueurduvaisseau FROM ordredeplacement WHERE typeordre = 3');
+while ($repordredep = $reqordredep->fetch())
+    {
+    // Vérifier ou se trouver le vaisseau :
+    $reqvaisseau->execute(array($repordredep['idvaisseaudeplacement']));
+    $repvaisseau = $reqvaisseau->fetch();
+
+    if ($repvaisseau['univers'] == $repordredep['idjoueurduvaisseau'] AND $repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3)
+        { // Vérifier les coordonnées et appliquer l'ordre.
+        $applicationdeplacement->execute(array(0 , 0 , $repordredep['idjoueurduvaisseau'], $repordredep['idvaisseaudeplacement']));
+        } 
+    $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement'])); 
+    }
+
+// ordre de sortie vers l'orbite (= typeordre 4)
+$reqordredep = $bdd->query('SELECT idvaisseaudeplacement, idjoueurduvaisseau FROM ordredeplacement WHERE typeordre = 4');
+while ($repordredep = $reqordredep->fetch())
+    {
+    // Vérifier ou se trouver le vaisseau :
+    $reqvaisseau->execute(array($repordredep['idvaisseaudeplacement']));
+    $repvaisseau = $reqvaisseau->fetch();
+
+    // Si le vaisseau se trouve au hangars :
+    if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'] == $repordredep['idjoueurduvaisseau'])
+        {
+        //Créer message pour le joueur.
+        $mess = 'Ce vient de sortir du hangars et se trouve maintenant en orbite de notre monde.'; 
+        $message ->execute(array($repordredep['idjoueurduvaisseau'] , $mess , 'Vaisseau' , $repordredep['idvaisseaudeplacement']));
+        // Et appliquer l'ordre.
+        $applicationdeplacement->execute(array(3 , 3, $repordredep['idjoueurduvaisseau'], $repordredep['idvaisseaudeplacement']));         
+        }
+    $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement'])); 
     }
 ?>
