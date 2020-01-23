@@ -25,6 +25,8 @@ $construction = $bdd->prepare(
     "SELECT nombre, avancementbiens, avancementtitane, idjoueurconst, idconst, trucaconstruire, prixbiens , prixtitane 
     FROM construction WHERE idjoueurconst = ? ORDER BY idconst");
 $avancement = $bdd->prepare("UPDATE construction SET avancementbiens = ? , avancementtitane = ? WHERE idconst = ?");
+$construirebatiment = $bdd->prepare('INSERT INTO batiments (typebat, idjoueurbat) VALUES (?, ?)');
+$construirevaisseau = $bdd->prepare('INSERT INTO vaisseau (typevaisseau, idjoueurbat) VALUES (?, ?)');
 
 // Gestion silo :
 $reqverifsilo = $bdd->prepare('SELECT quantite FROM silo WHERE idjoueursilo = ? AND iditems = ?');
@@ -34,7 +36,6 @@ $diminutionsilo = $bdd->prepare('UPDATE silo SET quantite = quantite - 1 WHERE i
 $miseajourdesressources = $bdd->prepare("UPDATE utilisateurs SET biens = ? , titane = ? WHERE id = ?");
 $reqcategorie = $bdd->prepare("SELECT typeitem , nombatiment, itemnecessaire, nomlimite FROM items WHERE iditem = ?");
 $reqcomptebat = $bdd->prepare('SELECT COUNT(idbat) as nb FROM batiments WHERE typebat = ? AND idjoueurbat = ?');
-
 
 //Gestion des construction joueur par joueur.
 $joueur = $bdd->query('SELECT
@@ -126,17 +127,19 @@ $joueur = $bdd->query('SELECT
             $message ->execute(array($repjoueur['idj']  , 'Manque d\'ouvriers !' , 'Construction' , $repconstruction['idconst'])) ;
             }
 
-
         // Si je peux finir le chantier : 
         if ($nouvavbien == 0 AND $nouvavtitane == 0)
             {
-            if ($repcategorie['typeitem'] == 'batiments' OR $repcategorie['typeitem'] == 'vaisseau')
+            if ($repcategorie['typeitem'] == 'batiments')
                 {
-                $construire = $bdd->prepare('INSERT INTO '.$repcategorie['typeitem'].' (typebat, idjoueurbat) VALUES (:typebat , :idjoueurbat )');
-                $construire->execute(array(
-                    'typebat' => $repconstruction['trucaconstruire'],
-                    'idjoueurbat' => $repjoueur['idj'] ));
+                $construirebatiment->execute(array($repconstruction['trucaconstruire'], $repjoueur['idj'] ));
                 }
+
+            elseif ($repcategorie['typeitem'] == 'vaisseau')
+                {
+                $construirevaisseau->execute(array($repconstruction['trucaconstruire'], $repjoueur['idj'] ));
+                }
+
             elseif ($repconstruction['trucaconstruire'] == 7)
                 { // 7 = recycler des débris de biens
                 $biens = $biens + 100;
