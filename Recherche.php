@@ -5,7 +5,7 @@ If (!$_SESSION['pseudo'])
     header('Location: Accueil.php');
     exit(); 
 }
-include("script/BDDconnection.php");
+include("include/BDDconnection.php");
 ?>
 
 <!DOCTYPE html>
@@ -26,17 +26,17 @@ include("script/BDDconnection.php");
     include("include/resume.php");
 
 // Compter nombre de scientifiques
-$reponse = $bdd->prepare('SELECT COUNT(*) AS scient FROM population WHERE joueurpop= ? AND typepop = 3');
+$reponse = $bdg->prepare('SELECT COUNT(*) AS scient FROM population WHERE joueurpop= ? AND typepop = 3');
 $reponse->execute(array($_SESSION['id']));                                   
 $ouvriers = $reponse->fetch();
 $reponse->closeCursor();
 
   // Afficher le nombre de centre de recherche :
-  $reqcountrecherche = $bdd->prepare('SELECT COUNT(*) AS nbdecentrederecherche FROM batiments WHERE idjoueurbat = ? AND typebat = 1');
+  $reqcountrecherche = $bdg->prepare('SELECT COUNT(*) AS nbdecentrederecherche FROM batiments WHERE idjoueurbat = ? AND typebat = 1');
   $reqcountrecherche->execute(array($_SESSION['id']));
   $repcountrecherche = $reqcountrecherche->fetch();
 
-  $reqlimitechercheur = $bdd->prepare('SELECT scientmax FROM limitesjoueurs WHERE id = ?');
+  $reqlimitechercheur = $bdg->prepare('SELECT scientmax FROM limitesjoueurs WHERE id = ?');
   $reqlimitechercheur->execute(array($_SESSION['id']));
   $replimitechercheur = $reqlimitechercheur->fetch();
 
@@ -56,33 +56,34 @@ $reponse->closeCursor();
   }
 
 // Afficher la recherche en cours !
-$reqrecherencours = ("SELECT recherche.nomrecherche 
+$reqrecherencours = $bdd->prepare("
+      SELECT recherche.nomrecherche 
       FROM recherche
-INNER JOIN rech_joueur
-        ON recherche.idrecherche = rech_joueur.idrech
-        AND rech_joueur.rechposs = 0
-        AND rech_joueur.idjoueurrecherche = '{$_SESSION['id']}'
-        ORDER BY rech_joueur.idrechprinc DESC
-        LIMIT 1 ");
-    $result = $bdd->query($reqrecherencours);
-    $reqrecherencours = $result->fetch() ; 
+      INNER JOIN gamer.rech_joueur
+      ON recherche.idrecherche = rech_joueur.idrech
+      AND rech_joueur.rechposs = 0
+      AND rech_joueur.idjoueurrecherche = ?
+      ORDER BY rech_joueur.idrechprinc DESC
+      LIMIT 1 ");
+$reqrecherencours->execute(array($_SESSION['id']));
+$reprecherencours = $reqrecherencours->fetch() ; 
     
-    if (!isset($reqrecherencours['nomrecherche']))
+    if (!isset($reprecherencours['nomrecherche']))
       {
       echo '<p>Aucune recherche en cours.</p>'; 
       }
     else
       {
-      echo '<p> La recherche en cours est ' . $reqrecherencours['nomrecherche'] . '</p>'  ;
+      echo '<p> La recherche en cours est ' . $reprecherencours['nomrecherche'] . '</p>'  ;
       }
-    $result->closeCursor();
+    $reqrecherencours->closeCursor();
 ?>
 
   <h2>Recherches possibles :</h2>
   <?php
 
   // Recherche actuelle : 
-  $afficherrecherche = $bdd->prepare('SELECT recherche FROM variationstour WHERE idjoueur= ?');
+  $afficherrecherche = $bdg->prepare('SELECT recherche FROM variationstour WHERE idjoueur= ?');
   $afficherrecherche->execute(array($_SESSION['id']));
   $recherche = $afficherrecherche->fetch();
 
@@ -90,7 +91,7 @@ $reqrechercheencours = $bdd->prepare("  SELECT  recherche.nomrecherche , recherc
                                                 rech_joueur.avrech, rech_joueur.rechnesc,
                                                 recherche.idrecherche, rech_joueur.avrech
                                         FROM recherche
-                                        INNER JOIN rech_joueur
+                                        INNER JOIN gamer.rech_joueur
                                         ON recherche.idrecherche = rech_joueur.idrech
                                         WHERE rech_joueur.idjoueurrecherche = ?
                                           AND rech_joueur.rechposs = 0");
@@ -131,13 +132,13 @@ $reqrechercheencours->execute(array($_SESSION['id']));
           </form> </p>  <?php
 
       }
-  $result->closeCursor(); ?>
+  $reqrechercheencours->closeCursor(); ?>
 
 <h2>Recherches finies :</h2>
   <?php
 $reqrecherchefinie = $bdd->prepare("  SELECT recherche.nomrecherche , recherche.descriptionrecherche
                                       FROM recherche
-                                      INNER JOIN rech_joueur
+                                      INNER JOIN gamer.rech_joueur
                                       ON recherche.idrecherche = rech_joueur.idrech
                                       WHERE rech_joueur.idjoueurrecherche = ?
                                         AND rech_joueur.rechposs = 1");

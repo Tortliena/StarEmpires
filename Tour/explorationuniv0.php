@@ -5,17 +5,17 @@ include("../script/BDDconnection.php");
 */
 
 // Tour en cours : $touractuel['id']
-$reponse = $bdd->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1');
+$reponse = $bda->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1');
 $touractuel = $reponse->fetch();
 $reponse->closeCursor();
 // echo $touractuel['id'] . '</br>'; 
 
 // Compter le nombre de case explorées et seulement celles AVANT et du joueur.
-$reqexploration = $bdd->prepare('SELECT idexplore , x , y, univers, idexplorateur FROM explore WHERE tourexploration = ?');
-$reqcompterexplo = $bdd->prepare('SELECT COUNT(*) AS nbcaseexplo  FROM explore WHERE idexplorateur = ? AND idexplore <= ? ') ; 
-$reqmessageinterne = $bdd->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)');
-$reqcreerasteroides = $bdd->prepare('INSERT INTO champsasteroides (xaste , yaste , uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)');
-$reqcreerplanete = $bdd->prepare('INSERT INTO planete(xplanete, yplanete, universplanete) VALUES(:xplanete, :yplanete, :universplanete)');
+$reqexploration = $bdg->prepare('SELECT idexplore , x , y, univers, idexplorateur FROM explore WHERE tourexploration = ?');
+$reqcompterexplo = $bdg->prepare('SELECT COUNT(*) AS nbcaseexplo  FROM explore WHERE idexplorateur = ? AND idexplore <= ? ') ; 
+$reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)');
+$reqcreerasteroides = $bda->prepare('INSERT INTO champsasteroides (xaste , yaste , uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)');
+$reqcreerplanete = $bda->prepare('INSERT INTO planete(xplanete, yplanete, universplanete) VALUES(:xplanete, :yplanete, :universplanete)');
 
 
 // Permet de traiter les explorations du tour.

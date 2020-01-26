@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("script/BDDconnection.php");
+include("include/BDDconnection.php");
 ?>
 
 <!DOCTYPE html>
@@ -41,14 +41,14 @@ include("script/BDDconnection.php");
 
 if (isset($_GET["voir"]) and $_GET["voir"] == 0 )
   {
-$reponse = $bdd->query('SELECT * FROM tour ORDER BY id DESC LIMIT 1') or die(print_r($bdd->errorInfo()));
+$reponse = $bda->query('SELECT * FROM tour ORDER BY id DESC LIMIT 1') or die(print_r($bdd->errorInfo()));
 $donnees = $reponse->fetch(); 
 echo 'le dernier tour est le tour ' . $donnees['id'] . ' et s\'est passé le ' . $donnees['datetour']  ;
 echo ' <br />  ' . $donnees['resume'] ; 
   }
 elseif (isset($_GET["voir"]))
   {
-  $req = $bdd->prepare('SELECT * FROM tour WHERE id = ?');
+  $req = $bda->prepare('SELECT * FROM tour WHERE id = ?');
   $req->execute(array($_GET["voir"]));
   $donnees = $req->fetch(); 
     echo 'le tour ' . $donnees['id'] . ' s\'est passé le ' . $donnees['datetour']  ;

@@ -5,7 +5,7 @@ If (!$_SESSION['pseudo'])
     header('Location: Accueil.php');
     exit(); 
 }
-include("script/BDDconnection.php");
+include("include/BDDconnection.php");
 ?>
 
 <!DOCTYPE html>
@@ -30,7 +30,7 @@ include("script/BDDconnection.php");
 
 <?php
 // Compter nombre d'ouvrier
-$reqcompterouvrier = $bdd->prepare('SELECT COUNT(*) AS ouvriers FROM population WHERE joueurpop= ? AND typepop = 2');
+$reqcompterouvrier = $bdg->prepare('SELECT COUNT(*) AS ouvriers FROM population WHERE joueurpop= ? AND typepop = 2');
 $reqcompterouvrier->execute(array($_SESSION['id']));                                   
 $ouvriers = $reqcompterouvrier->fetch();
 $reqcompterouvrier->closeCursor();
@@ -54,7 +54,7 @@ $reqcompterouvrier->closeCursor();
 </br>
 
 <?php
-$req = $bdd->prepare('SELECT COUNT(*) AS nbdechantier FROM batiments WHERE idjoueurbat = ? AND typebat = 2');
+$req = $bdg->prepare('SELECT COUNT(*) AS nbdechantier FROM batiments WHERE idjoueurbat = ? AND typebat = 2');
 $req->execute(array($_SESSION['id']));
 $donnees = $req->fetch();
 $req->closeCursor();
@@ -82,10 +82,10 @@ $a = 0; ?> <!-- Variable permettant de gérer le cas avec 0 construction possibl
       <select name="trucaconstruire" id="trucaconstruire">
         <?php
         // Menu déroulant en fonction de la table des items et basé sur les technologies.
-        $reqmenuderoulantconstruction = $bdd->prepare('
+        $reqmenuderoulantconstruction = $bdg->prepare('
         SELECT  items.iditem, items.nombatiment, items.nomlimite
         FROM rech_joueur
-        RIGHT JOIN items
+        RIGHT JOIN datawebsite.items
         ON rech_joueur.idrech = items.technescessaire
         WHERE (items.technescessaire = 0 OR (rech_joueur.idjoueurrecherche = ? AND rech_joueur.rechposs = 1))
         AND (items.typeitem = "batiments" OR items.typeitem = "vaisseau" OR items.typeitem = "composant")
@@ -96,12 +96,12 @@ $a = 0; ?> <!-- Variable permettant de gérer le cas avec 0 construction possibl
             if (isset($repmenuderoulantconstruction['nomlimite'])) // S'il y a un maximum sur l'un de ces batiments.
               {
               // On récupère la limite.
-              $reqlimite = $bdd->prepare('SELECT '.$repmenuderoulantconstruction['nomlimite'].' FROM limitesjoueurs WHERE id = ?');
+              $reqlimite = $bdg->prepare('SELECT '.$repmenuderoulantconstruction['nomlimite'].' FROM limitesjoueurs WHERE id = ?');
               $reqlimite->execute(array($_SESSION['id']));
               $replimite = $reqlimite->fetch(); // $replimite['0']
 
               // On récupère le nombre de batiments actuels.
-              $reqcomptechantier = $bdd->prepare('SELECT COUNT(idbat) as nb FROM batiments WHERE typebat = ? AND idjoueurbat = ?');
+              $reqcomptechantier = $bdg->prepare('SELECT COUNT(idbat) as nb FROM batiments WHERE typebat = ? AND idjoueurbat = ?');
               $reqcomptechantier->execute(array($repmenuderoulantconstruction['iditem'], $_SESSION['id']));
               $repcomptechantier = $reqcomptechantier->fetch();  // $repcomptechantier['nb']
               }
@@ -117,10 +117,10 @@ $a = 0; ?> <!-- Variable permettant de gérer le cas avec 0 construction possibl
 
 
         // Menu déroulant en fonction de la table des items et basé sur les items possédés.
-        $reqmenuderoulantitems = $bdd->prepare('
+        $reqmenuderoulantitems = $bdg->prepare('
         SELECT  items.iditem, items.nombatiment
         FROM silo
-        RIGHT JOIN items
+        RIGHT JOIN datawebsite.items
         ON items.itemnecessaire = silo.iditems
         WHERE silo.idjoueursilo = ? AND silo.quantite > 0
         ');
@@ -149,13 +149,13 @@ $a = 0; ?> <!-- Variable permettant de gérer le cas avec 0 construction possibl
 
 <?php
 // Affichage des constructions en cours.
-$reqconstencours = $bdd->prepare('SELECT trucaconstruire , nombre , avancementbiens, avancementtitane, prixbiens, prixtitane, idconst FROM construction WHERE idjoueurconst= ? ORDER BY idconst');
+$reqconstencours = $bdg->prepare('SELECT trucaconstruire , nombre , avancementbiens, avancementtitane, prixbiens, prixtitane, idconst FROM construction WHERE idjoueurconst= ? ORDER BY idconst');
 $reqconstencours->execute(array($_SESSION['id']));
 $a = 0 ; // Variable pour creer un formulaire spécifique à chacune des construction en cours.
 // Question bête un mois après avoir fait cette page : Pourquoi je n'utilise pas l'idconst pour faire le formulaire de suppression ?!
 
 $req = $bdd->prepare('SELECT nombatiment FROM items WHERE iditem = ?');
-$reqmess = $bdd->prepare("SELECT message FROM messagetour WHERE domainemess = ? AND numspemessage = ?");
+$reqmess = $bdg->prepare("SELECT message FROM messagetour WHERE domainemess = ? AND numspemessage = ?");
 
 while ($donnees = $reqconstencours->fetch())
   {

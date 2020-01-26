@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("BDDconnection.php");
+include("../include/BDDconnection.php");
 
 /*
 echo $_SESSION['pseudo'] . '</br>' ;
@@ -26,16 +26,16 @@ echo $_POST['trucaconstruire'] . '</br>';
 
 	    if (isset($repinfoitem['nomlimite'])) // S'il y a un maximum sur l'un de ces batiments.
 	        {
-	        $reqlimite = $bdd->prepare('SELECT '.$repinfoitem['nomlimite'].' FROM limitesjoueurs WHERE id = ?');
+	        $reqlimite = $bdg->prepare('SELECT '.$repinfoitem['nomlimite'].' FROM limitesjoueurs WHERE id = ?');
 	        $reqlimite->execute(array($_SESSION['id']));
 	        $replimite = $reqlimite->fetch(); // $replimite['0']
 
-	        $reqcomptechantier = $bdd->prepare('SELECT COUNT(idbat) as nb FROM batiments WHERE typebat = ? AND idjoueurbat = ?');
+	        $reqcomptechantier = $bdg->prepare('SELECT COUNT(idbat) as nb FROM batiments WHERE typebat = ? AND idjoueurbat = ?');
 	        $reqcomptechantier->execute(array($_POST['trucaconstruire'], $_SESSION['id']));
 	        $repcomptechantier = $reqcomptechantier->fetch();  // $repcomptechantier['nb']
 
 	        $constencours = 0; //Permet de récupérer le nombre de construction en cours.
-	        $reqconstructionencours = $bdd->prepare('SELECT nombre FROM construction WHERE trucaconstruire = ? AND idjoueurconst = ?');
+	        $reqconstructionencours = $bdg->prepare('SELECT nombre FROM construction WHERE trucaconstruire = ? AND idjoueurconst = ?');
 	        $reqconstructionencours->execute(array($_POST['trucaconstruire'], $_SESSION['id']));
 	        while($repconstructionencours=$reqconstructionencours->fetch())
 	        	{
@@ -53,13 +53,13 @@ echo $_POST['trucaconstruire'] . '</br>';
 
         if ($repinfoitem['itemnecessaire'] > 1)
             { // Cas ou l'on a besoin d'un item en stock pour faire cette construction
-            $reqverifsilo = $bdd->prepare('SELECT quantite FROM silo WHERE idjoueursilo = ? AND iditems = ?');
+            $reqverifsilo = $bdg->prepare('SELECT quantite FROM silo WHERE idjoueursilo = ? AND iditems = ?');
             $reqverifsilo->execute(array($_SESSION['id'], $repinfoitem['itemnecessaire']));
             $repverifsilo = $reqverifsilo->fetch();       
             // $repverifsilo['quantite'] = quantité dans les stocks necessaire pour la construction. 
 
             $constencours = 0; //Permet de récupérer le nombre de construction en cours utilisant l'item étudié.
-	        $reqconstructionencours = $bdd->prepare('SELECT nombre FROM construction WHERE trucaconstruire = ? AND idjoueurconst = ?');
+	        $reqconstructionencours = $bdg->prepare('SELECT nombre FROM construction WHERE trucaconstruire = ? AND idjoueurconst = ?');
 	        $reqconstructionencours->execute(array($_POST['trucaconstruire'], $_SESSION['id']));
 	        while($repconstructionencours=$reqconstructionencours->fetch())
 	        	{
@@ -73,7 +73,7 @@ echo $_POST['trucaconstruire'] . '</br>';
                 }
             }
             
-            $reqcreerconstruction = $bdd->prepare('INSERT INTO construction(trucaconstruire, nombre, idjoueurconst, avancementbiens, avancementtitane, prixbiens, prixtitane) VALUES(:trucaconstruire, :nombre, :idjoueurconst, :avancementbiens, :avancementtitane, :prixbiens, :prixtitane)');
+            $reqcreerconstruction = $bdg->prepare('INSERT INTO construction(trucaconstruire, nombre, idjoueurconst, avancementbiens, avancementtitane, prixbiens, prixtitane) VALUES(:trucaconstruire, :nombre, :idjoueurconst, :avancementbiens, :avancementtitane, :prixbiens, :prixtitane)');
             $reqcreerconstruction->execute(array(
                 'trucaconstruire' => $_POST['trucaconstruire'],
                 'nombre' => $_POST['combien'],

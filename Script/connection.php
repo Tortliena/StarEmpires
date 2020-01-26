@@ -1,11 +1,11 @@
 <?php
 session_start();
-include("BDDconnection.php");
+include("../include/BDDconnection.php");
 
 if (isset($_COOKIE['id']) AND !isset($_SESSION['id']))
     {
     $_POST['pass'] = $_COOKIE['pass'];
-    $req = $bdd->prepare('SELECT motdepasse, id, pseudo FROM utilisateurs WHERE id = ?');
+    $req = $bdg->prepare('SELECT motdepasse, id, pseudo FROM utilisateurs WHERE id = ?');
     $req->execute(array($_COOKIE['id']));
     $resultat = $req->fetch();
     goto a;
@@ -15,7 +15,7 @@ setcookie("id", 0, time(), "/");
 setcookie("pass", 0, time(), "/");
 
 //  Récupération de l'utilisateur et de son pass hashé
-$req = $bdd->prepare('SELECT motdepasse, id, pseudo FROM utilisateurs WHERE pseudo = ?');
+$req = $bdg->prepare('SELECT motdepasse, id, pseudo FROM utilisateurs WHERE pseudo = ?');
 $req->execute(array($_POST["pseudo"]));
 $resultat = $req->fetch();
 a: // On arrive ici si on a déjà des cookies.

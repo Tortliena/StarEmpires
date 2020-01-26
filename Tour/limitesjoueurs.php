@@ -3,11 +3,11 @@
 include("../script/BDDconnection.php");
 */
 
-$reqmajlimite = $bdd->prepare('UPDATE limitesjoueurs SET popmax = ?, maxchantier = ?, ouvriermax = ?, maxcentrederecherche = ?, scientmax = ? WHERE id = ?');
+$reqmajlimite = $bdg->prepare('UPDATE limitesjoueurs SET popmax = ?, maxchantier = ?, ouvriermax = ?, maxcentrederecherche = ?, scientmax = ? WHERE id = ?');
 
-$reqcompterbat = $bdd->prepare('SELECT COUNT(idbat) as nb FROM batiments WHERE typebat = ? and idjoueurbat = ?');
+$reqcompterbat = $bdg->prepare('SELECT COUNT(idbat) as nb FROM batiments WHERE typebat = ? and idjoueurbat = ?');
 
-$reqjoueur = $bdd->query("SELECT id FROM utilisateurs ORDER BY id");
+$reqjoueur = $bdg->query("SELECT id FROM utilisateurs ORDER BY id");
 while ($repjoueur = $reqjoueur->fetch())
     {
     // Calcul du max de pop :

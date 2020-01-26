@@ -1,7 +1,8 @@
 <?php
+/*
 session_start();
 include("../script/BDDconnection.php");
-
+*/
 
 /* Commentaire de début de cette phase.
 function debutdesconstructions(&$Commentairestour)
@@ -11,35 +12,34 @@ function debutdesconstructions(&$Commentairestour)
 debutdesconstructions($Commentairestour);
 */
 
-
 // BUG : Pas de débris consommés lorsque recyclage fait.
 
 // Preparation des requêtes sql :
-$message = $bdd->prepare("INSERT INTO messagetour (idjoumess , message , domainemess , numspemessage) VALUES (? , ?, ? , ?)") ;
+$message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess , numspemessage) VALUES (? , ?, ? , ?)") ;
 
 // Gestion construction :
-$reqsupprimercontruction = $bdd->prepare('DELETE FROM construction WHERE idconst =  ? ');
-$diminutiondeun = $bdd->prepare('UPDATE construction SET nombre = nombre - 1 , avancementbiens = ? , avancementtitane = ?  WHERE idconst = ? ' );
-$construction = $bdd->prepare(
+$reqsupprimercontruction = $bdg->prepare('DELETE FROM construction WHERE idconst =  ? ');
+$diminutiondeun = $bdg->prepare('UPDATE construction SET nombre = nombre - 1 , avancementbiens = ? , avancementtitane = ?  WHERE idconst = ? ' );
+$construction = $bdg->prepare(
     "SELECT nombre, avancementbiens, avancementtitane, idjoueurconst, idconst, trucaconstruire, prixbiens , prixtitane 
     FROM construction WHERE idjoueurconst = ? ORDER BY idconst");
-$avancement = $bdd->prepare("UPDATE construction SET avancementbiens = ? , avancementtitane = ? WHERE idconst = ?");
-$construirebatiment = $bdd->prepare('INSERT INTO batiments (typebat, idjoueurbat) VALUES (?, ?)');
-$construirevaisseau = $bdd->prepare('INSERT INTO vaisseau (typevaisseau, idjoueurbat) VALUES (?, ?)');
+$avancement = $bdg->prepare("UPDATE construction SET avancementbiens = ? , avancementtitane = ? WHERE idconst = ?");
+$construirebatiment = $bdg->prepare('INSERT INTO batiments (typebat, idjoueurbat) VALUES (?, ?)');
+$construirevaisseau = $bdg->prepare('INSERT INTO vaisseau (typevaisseau, idjoueurbat) VALUES (?, ?)');
 
 // Gestion silo :
-$reqverifsilo = $bdd->prepare('SELECT quantite FROM silo WHERE idjoueursilo = ? AND iditems = ?');
-$reqcreersilo = $bdd->prepare('INSERT INTO silo (idjoueursilo, iditems, quantite) VALUES (?, ?, ?)');
-$diminutionsilo = $bdd->prepare('UPDATE silo SET quantite = quantite - 1 WHERE idjoueursilo = ? AND iditems = ?' );
-$augmentersilo = $bdd->prepare('UPDATE silo SET quantite = quantite + 1 WHERE idjoueursilo = ? AND iditems = ?' );
+$reqverifsilo = $bdg->prepare('SELECT quantite FROM silo WHERE idjoueursilo = ? AND iditems = ?');
+$reqcreersilo = $bdg->prepare('INSERT INTO silo (idjoueursilo, iditems, quantite) VALUES (?, ?, ?)');
+$diminutionsilo = $bdg->prepare('UPDATE silo SET quantite = quantite - 1 WHERE idjoueursilo = ? AND iditems = ?' );
+$augmentersilo = $bdg->prepare('UPDATE silo SET quantite = quantite + 1 WHERE idjoueursilo = ? AND iditems = ?' );
 
 // Par ailleurs :
-$miseajourdesressources = $bdd->prepare("UPDATE utilisateurs SET biens = ? , titane = ? WHERE id = ?");
+$miseajourdesressources = $bdg->prepare("UPDATE utilisateurs SET biens = ? , titane = ? WHERE id = ?");
 $reqcategorie = $bdd->prepare("SELECT typeitem , nombatiment, itemnecessaire, nomlimite FROM items WHERE iditem = ?");
-$reqcomptebat = $bdd->prepare('SELECT COUNT(idbat) as nb FROM batiments WHERE typebat = ? AND idjoueurbat = ?');
+$reqcomptebat = $bdg->prepare('SELECT COUNT(idbat) as nb FROM batiments WHERE typebat = ? AND idjoueurbat = ?');
 
 //Gestion des construction joueur par joueur.
-$joueur = $bdd->query('SELECT
+$joueur = $bdg->query('SELECT
                         v.idjoueur idj ,
                         v.chantier chantier ,
                         u.biens biens ,

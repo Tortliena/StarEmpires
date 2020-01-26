@@ -5,7 +5,7 @@ If (!$_SESSION['pseudo'])
     header('Location: Accueil.php');
     exit(); 
 }
-include("script/BDDconnection.php");
+include("include/BDDconnection.php");
 ?>
 
 <!DOCTYPE html>
@@ -39,7 +39,7 @@ include("script/BDDconnection.php");
     <h1>En cours :</h1>
 
 <?php
-$reponse = $bdd->prepare('SELECT texteafaire, idafaire FROM afaire WHERE priorite = ? ORDER BY idafaire');
+$reponse = $bda->prepare('SELECT texteafaire, idafaire FROM afaire WHERE priorite = ? ORDER BY idafaire');
 $reponse->execute(array('encours'));
 while ($donnees = $reponse->fetch())
   {

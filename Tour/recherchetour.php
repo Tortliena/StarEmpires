@@ -11,20 +11,20 @@ function debutdesconstructions(&$Commentairestour)
 }
 debutdesconstructions($Commentairestour);
 */
-$reqrecherencours = $bdd->prepare(" SELECT avrech , rechnesc
+$reqrecherencours = $bdg->prepare(" SELECT avrech , rechnesc
                                     FROM rech_joueur
                                     WHERE idjoueurrecherche = ? AND rechposs = 0
                                     ORDER BY idrechprinc DESC LIMIT 1 ");
 
-$avancement = $bdd->prepare(" UPDATE rech_joueur
+$avancement = $bdg->prepare(" UPDATE rech_joueur
                               SET avrech =  avrech + ? , rechposs = ?
                               WHERE rech_joueur.idjoueurrecherche = ? AND rechposs = 0
                               ORDER BY idrechprinc DESC LIMIT 1 ");
 
-$message = $bdd->prepare("  INSERT INTO messagetour (idjoumess , message , domainemess)
+$message = $bdg->prepare("  INSERT INTO messagetour (idjoumess , message , domainemess)
                             VALUES (?, ?, ?)");
 
-$reponse = $bdd->query('SELECT idjoueur , recherche FROM variationstour ORDER BY idjoueur');
+$reponse = $bdg->query('SELECT idjoueur , recherche FROM variationstour ORDER BY idjoueur');
   while ($infojoueur = $reponse->fetch())
     {
     $reqrecherencours ->execute(array($infojoueur['idjoueur']));

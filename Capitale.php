@@ -5,7 +5,7 @@ If (!$_SESSION['pseudo'])
     header('Location: Accueil.php');
     exit(); 
 }
-include("script/BDDconnection.php");
+include("include/BDDconnection.php");
 ?>
 
 <!DOCTYPE html>
@@ -26,12 +26,12 @@ include("script/BDDconnection.php");
     $typemessage = 'capitale' ;
     include("include/resume.php");
 
-$reqchoixactuel = $bdd->prepare('SELECT ideventsuivant FROM utilisateurs WHERE id= ?');
+$reqchoixactuel = $bdg->prepare('SELECT ideventsuivant FROM utilisateurs WHERE id= ?');
 $reqchoixactuel->execute(array($_SESSION['id']));
 $repchoixactuel = $reqchoixactuel->fetch();
 
 
-$recuperereventencours = $bdd->prepare('SELECT * FROM choixevents WHERE idjoueurevent= ?');
+$recuperereventencours = $bdg->prepare('SELECT * FROM choixevents WHERE idjoueurevent= ?');
 $recuperereventencours->execute(array($_SESSION['id']));
 $eventencours = $recuperereventencours->fetch();
 
@@ -71,7 +71,7 @@ if (isset($eventencours['texteevent']))
   }
 
 // Affichage de la population totale.
-$compterpop = $bdd->prepare('SELECT COUNT(*) AS population FROM population WHERE joueurpop= ?');
+$compterpop = $bdg->prepare('SELECT COUNT(*) AS population FROM population WHERE joueurpop= ?');
 $compterpop->execute(array($_SESSION['id']));
 $population = $compterpop->fetch();
 ?>
@@ -79,7 +79,7 @@ $population = $compterpop->fetch();
 
 <?php
 // Affichage du nombre de citoyens. 
-$comptercit = $bdd->prepare('SELECT COUNT(*) AS citoyens FROM population WHERE joueurpop= ? AND typepop = 1');
+$comptercit = $bdg->prepare('SELECT COUNT(*) AS citoyens FROM population WHERE joueurpop= ? AND typepop = 1');
 $comptercit->execute(array($_SESSION['id']));
 $citoyens = $comptercit->fetch();
 ?>
@@ -102,7 +102,7 @@ $citoyens = $comptercit->fetch();
 
 <?php
 // Affichage de la quantité de biens.
-$reqbiens = $bdd->prepare('SELECT biens FROM utilisateurs WHERE id= ?');
+$reqbiens = $bdg->prepare('SELECT biens FROM utilisateurs WHERE id= ?');
 $reqbiens->execute(array($_SESSION['id']));
 $quantbiens = $reqbiens->fetch();
 ?>
@@ -110,7 +110,7 @@ $quantbiens = $reqbiens->fetch();
 Tu as <?php echo $quantbiens['biens'];?> de biens divers.
 <?php
 // Affichage de la prod des biens.
-$reqprod = $bdd->prepare('SELECT prodbiens , consobiens FROM variationstour WHERE idjoueur= ?');
+$reqprod = $bdg->prepare('SELECT prodbiens , consobiens FROM variationstour WHERE idjoueur= ?');
 $reqprod->execute(array($_SESSION['id']));
 $prodbiens = $reqprod->fetch();
 $reqprod->closeCursor();
@@ -151,7 +151,7 @@ $reqtypepop->closeCursor();
 // Permet de visualiser les ordres de conversion de pop en cours. 
 // $reqpoptransf = $bdd->prepare('SELECT p.typepop , typepoparrivee, idpop FROM population p INNER JOIN typepop t ON t.idtypepop = t.typepop WHERE joueurpop= ? AND NOT typepoparrivee = 0');
 
-$reqpoptransf = $bdd->prepare('SELECT typepop , typepoparrivee, idpop FROM population WHERE joueurpop= ? AND NOT typepoparrivee = 0');
+$reqpoptransf = $bdg->prepare('SELECT typepop , typepoparrivee, idpop FROM population WHERE joueurpop= ? AND NOT typepoparrivee = 0');
 $reqnompop = $bdd->prepare('SELECT nompop from typepop WHERE idtypepop = ?');
 
 $reqpoptransf->execute(array($_SESSION['id']));
@@ -170,7 +170,7 @@ while ($reppoptransf = $reqpoptransf->fetch())
   }
 
 // Permet d'afficher les objectifs/niveau
-  $reqlvl = $bdd->prepare('SELECT lvl from utilisateurs WHERE id= ?');
+  $reqlvl = $bdg->prepare('SELECT lvl from utilisateurs WHERE id= ?');
   $reqlvl->execute(array($_SESSION['id']));
   $replvl = $reqlvl->fetch();
 

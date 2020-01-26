@@ -4,7 +4,7 @@
            	<?php
         
             // Affichage du tour en cours : 
-            $reponse = $bdd->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1');
+            $reponse = $bda->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1');
             $touractuel = $reponse->fetch();
             $reponse->closeCursor();?> 
             Tour <?php echo $touractuel['id'] ; ?>
@@ -21,7 +21,7 @@
 			else
 			{
 			// récupérer le niveau du joueur.
-           	$reqlvl = $bdd->prepare('SELECT lvl from utilisateurs WHERE id= ?');
+           	$reqlvl = $bdg->prepare('SELECT lvl from utilisateurs WHERE id= ?');
             $reqlvl->execute(array($_SESSION['id']));
             $replvl = $reqlvl->fetch();
             echo 'Logging : ' . $_SESSION['pseudo'] . ' </br> ';
@@ -30,11 +30,11 @@
             <a class ="lienmenu" href="Messagerie.php">Messagerie</br>
 
             <?php
-            $reqmessnonlu = $bdd->prepare('SELECT COUNT(*) AS nbmessnonlu FROM messagerie WHERE idjoueurrecepteur = ? AND lu = ? AND supprimerecepteur = ?');
+            $reqmessnonlu = $bdg->prepare('SELECT COUNT(*) AS nbmessnonlu FROM messagerie WHERE idjoueurrecepteur = ? AND lu = ? AND supprimerecepteur = ?');
             $reqmessnonlu->execute(array($_SESSION['id'], 0, 0));
             $repmessnonlu = $reqmessnonlu->fetch();
 
-            $reqmessnonluinterne = $bdd->prepare('SELECT COUNT(*) AS reqmessnonluinterne FROM messagerieinterne WHERE destinataire = ? AND lu = ?');
+            $reqmessnonluinterne = $bdg->prepare('SELECT COUNT(*) AS reqmessnonluinterne FROM messagerieinterne WHERE destinataire = ? AND lu = ?');
             $reqmessnonluinterne->execute(array($_SESSION['id'], 0));
             $repmessnonluinterne  = $reqmessnonluinterne->fetch();
 
@@ -58,7 +58,7 @@
                 }
 
             $ecrirehangars = 1 ;
-            $reqvaiss = $bdd->prepare('SELECT idvaisseau , nomvaisseau FROM vaisseau WHERE idjoueurbat = ? ORDER BY idvaisseau');
+            $reqvaiss = $bdg->prepare('SELECT idvaisseau , nomvaisseau FROM vaisseau WHERE idjoueurbat = ? ORDER BY idvaisseau');
             $reqvaiss->execute(array($_SESSION['id']));
             while ($repvaiss = $reqvaiss->fetch())
                 {

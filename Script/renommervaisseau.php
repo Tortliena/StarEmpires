@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("BDDconnection.php");
+include("../include/BDDconnection.php");
 
 //On arrive ici avec :
 // $_POST['nouveaunom']
@@ -14,12 +14,9 @@ if (empty($_POST['nouveaunom']))
     exit();
 	}
 
-
-
-
 else
 	{
-	$renommervaisseau = $bdd->prepare('UPDATE vaisseau SET nomvaisseau = ? WHERE idvaisseau = ? AND idjoueurbat = ?' );
+	$renommervaisseau = $bdg->prepare('UPDATE vaisseau SET nomvaisseau = ? WHERE idvaisseau = ? AND idjoueurbat = ?' );
 	$renommervaisseau->execute(array($_POST['nouveaunom'] , $_POST['idvaisseau'], $_SESSION['id']));
 	header("location: ../hangars.php?message=26&" .
        "id=" . urlencode($_POST['idvaisseau']));

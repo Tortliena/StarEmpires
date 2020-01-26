@@ -5,7 +5,7 @@ If (!$_SESSION['pseudo'])
     header('Location: Accueil.php');
     exit(); 
 }
-include("script/BDDconnection.php");
+include("include/BDDconnection.php");
 ?>
 
 <!DOCTYPE html>
@@ -27,7 +27,7 @@ include("script/BDDconnection.php");
     $typemessage = 'silo' ;
     include("include/resume.php");
 
-$reqbiens = $bdd->prepare('SELECT biens, titane FROM utilisateurs WHERE id= ?');
+$reqbiens = $bdg->prepare('SELECT biens, titane FROM utilisateurs WHERE id= ?');
 $reqbiens->execute(array($_SESSION['id']));
 $quantbiens = $reqbiens->fetch();
 
@@ -51,10 +51,9 @@ $quantbiens = $reqbiens->fetch();
 
 <?php }
 
-
 $reqSiloItems = $bdd->prepare('
 									SELECT s.quantite, i.description, i.nombatiment
-									FROM silo s
+									FROM gamer.silo s
 									INNER JOIN items i
 									ON i.iditem = s.iditems
 									WHERE s.idjoueursilo = ?');
@@ -71,7 +70,6 @@ while($repSiloItems = $reqSiloItems->fetch())
   	</tr>
 	<?php
 	} } ?>
-
 
 </table>
 

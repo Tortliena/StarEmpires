@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("BDDconnection.php");
+include("../include/BDDconnection.php");
 
 /*
 echo $_SESSION['pseudo'] . '</br>' ;
@@ -37,7 +37,7 @@ $_SESSION['titre'] = $_POST['titre'];
 // Une fois la vérification faite, enregistrer le message.
     else
         {
-        $req = $bdd->prepare('INSERT INTO messagerie(idjoueuremetteur , idjoueurrecepteur, textemessagerie, titremessage) VALUES(?, ?, ?, ?)');
+        $req = $bdg->prepare('INSERT INTO messagerie(idjoueuremetteur , idjoueurrecepteur, textemessagerie, titremessage) VALUES(?, ?, ?, ?)');
         $req->execute(array($_SESSION['id'], $_POST['destinataire'], $_POST['textemessage'], $_POST['titre']));
         $req->closeCursor();
         unset($_SESSION['message']);

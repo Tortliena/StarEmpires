@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("BDDconnection.php");
+include("../include/BDDconnection.php");
 
 //pseudo vide lors de la tentative d'inscription.
 if (empty($_POST["pseudo"]) or !isset($_POST["pseudo"]))
@@ -24,7 +24,7 @@ if (empty($_POST["pass"]) or !isset($_POST["pass"]))
 }
 
 //Pseudo déjà présent dans la bdd.
-$reponse = $bdd->query('SELECT pseudo FROM utilisateurs');
+$reponse = $bdg->query('SELECT pseudo FROM utilisateurs');
 while ($donnees = $reponse->fetch())
 {
     if ($_POST["pseudo"] == $donnees['pseudo'])
@@ -38,20 +38,20 @@ $reponse->closeCursor();
 // Dans le cas d'une inscription réussie :
 // Hachage du mot de passe
 $pass_hache = password_hash($_POST['pass'], PASSWORD_DEFAULT);
-$requtilisateur = $bdd->prepare('INSERT INTO utilisateurs(pseudo, motdepasse, dateinscription, biens) VALUES(:pseudo, :pass, CURDATE(), :biens)');
+$requtilisateur = $bdg->prepare('INSERT INTO utilisateurs(pseudo, motdepasse, dateinscription, biens) VALUES(:pseudo, :pass, CURDATE(), :biens)');
 $requtilisateur->execute(array(
     'pseudo' => $_POST["pseudo"],
     'pass' => $pass_hache,
     'biens' => 300));
 
-$reqdernierid = $bdd->query('SELECT id FROM utilisateurs ORDER BY id DESC LIMIT 1');
+$reqdernierid = $bdg->query('SELECT id FROM utilisateurs ORDER BY id DESC LIMIT 1');
 $repdernierid = $reqdernierid->fetch();
 
-$reqlimite = $bdd->prepare('INSERT INTO limitesjoueurs(id) VALUES(:id)');
+$reqlimite = $bdg->prepare('INSERT INTO limitesjoueurs(id) VALUES(:id)');
 $reqlimite->execute(array(
     'id' => $repdernierid['id']));
 
-$reqpop = $bdd->prepare('INSERT INTO population(joueurpop, typepop) VALUES(:joueurpop, :typepop)');
+$reqpop = $bdg->prepare('INSERT INTO population(joueurpop, typepop) VALUES(:joueurpop, :typepop)');
 $reqpop->execute(array(
     'joueurpop'=> $repdernierid['id'],
     'typepop'=> 1));
@@ -71,7 +71,7 @@ $reqpop->execute(array(
     'joueurpop' => $repdernierid['id'],
     'typepop'=> 1));
 
-$reqcreerplanete = $bdd->prepare('INSERT INTO planete(xplanete, yplanete, universplanete) VALUES(:xplanete, :yplanete, :universplanete)');
+$reqcreerplanete = $bda->prepare('INSERT INTO planete(xplanete, yplanete, universplanete) VALUES(:xplanete, :yplanete, :universplanete)');
 $reqcreerplanete->execute(array(
     'xplanete'=> 3,
     'yplanete'=> 3,

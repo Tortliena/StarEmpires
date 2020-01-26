@@ -4,13 +4,12 @@ session_start();
 include("../script/BDDconnection.php");
 */
 
-$reqselectpop = $bdd->prepare('SELECT idpop , joueurpop , typepop, typepoparrivee FROM population WHERE NOT typepoparrivee = ?');
-$reqressources = $bdd->prepare("SELECT biens FROM utilisateurs WHERE id = ?");
+$reqselectpop = $bdg->prepare('SELECT idpop , joueurpop , typepop, typepoparrivee FROM population WHERE NOT typepoparrivee = ?');
+$reqressources = $bdg->prepare("SELECT biens FROM utilisateurs WHERE id = ?");
 $reqtypepop = $bdd->prepare("SELECT prixchangementpop , technecessaire FROM typepop WHERE idtypepop = ?");
-$miseajourdesressources = $bdd->prepare("UPDATE utilisateurs SET biens = ? WHERE id = ?");
-$miseajourpop = $bdd->prepare("UPDATE population SET typepop = ? , typepoparrivee = ? WHERE joueurpop = ? AND idpop = ?");
-$message = $bdd->prepare("INSERT INTO messagetour (idjoumess , message , domainemess) VALUES (? , ?, ?)") ;
-
+$miseajourdesressources = $bdg->prepare("UPDATE utilisateurs SET biens = ? WHERE id = ?");
+$miseajourpop = $bdg->prepare("UPDATE population SET typepop = ? , typepoparrivee = ? WHERE joueurpop = ? AND idpop = ?");
+$message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess) VALUES (? , ?, ?)") ;
 
 $reqselectpop->execute(array(0));
 while ($repselectpop = $reqselectpop->fetch())
@@ -18,7 +17,6 @@ while ($repselectpop = $reqselectpop->fetch())
   $reqressources->execute(array($repselectpop['joueurpop']));
   $repressources = $reqressources->fetch(); 
   //echo $repressources['biens'] . ' biens du joueur</br>'; 
-
 
   $reqtypepop->execute(array($repselectpop['typepoparrivee']));
   $reptypepop = $reqtypepop->fetch(); 

@@ -1,12 +1,14 @@
 <?php
 session_start();
-include("BDDconnection.php");
+include("../include/BDDconnection.php");
 
+/*
 echo $_SESSION['pseudo'] . '</br>' ;
 echo $_SESSION['id'] . '</br>' ;
 echo $_POST['idrecherche'] . '</br>';
+*/
 
-$reqrechercheafaire = $bdd->prepare(
+$reqrechercheafaire = $bdg->prepare(
     "SELECT idrech, avrech , rechnesc
     FROM rech_joueur
     WHERE idjoueurrecherche =  ? AND idrech = ?");
@@ -14,9 +16,9 @@ $reqrechercheafaire->execute(array($_SESSION['id'] , $_POST['idrecherche']));
 $reprechafaire = $reqrechercheafaire->fetch();
 
 $supanciennerech = "DELETE FROM rech_joueur WHERE idjoueurrecherche = ? AND idrech = ? " ;
-$bdd->prepare($supanciennerech)->execute([$_SESSION['id'], $_POST['idrecherche']]);
+$bdg->prepare($supanciennerech)->execute([$_SESSION['id'], $_POST['idrecherche']]);
 
-$reqrelancerrech = $bdd->prepare("INSERT INTO rech_joueur(idjoueurrecherche, idrech, avrech, rechnesc) VALUES (?,?,?,?)");
+$reqrelancerrech = $bdg->prepare("INSERT INTO rech_joueur(idjoueurrecherche, idrech, avrech, rechnesc) VALUES (?,?,?,?)");
 $reqrelancerrech->execute(array($_SESSION['id'],$_POST['idrecherche'],$reprechafaire['avrech'],$reprechafaire['rechnesc']));	
 $_SESSION['message1'] = $_POST['combien'];
 $_SESSION['message2'] = $info[0];

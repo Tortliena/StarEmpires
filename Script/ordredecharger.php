@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("BDDconnection.php");
+include("../include/BDDconnection.php");
 
 /*
 echo $_SESSION['pseudo'] . '</br>' ;
@@ -10,7 +10,7 @@ echo $_POST['idvaisseau'] . '</br>' ;
 */
 
 //Vérifier propriétaire du vaisseau.  
-    $reqvaisseau = $bdd->prepare('SELECT x, y, univers, idjoueurbat FROM vaisseau WHERE idvaisseau = ?');
+    $reqvaisseau = $bdg->prepare('SELECT x, y, univers, idjoueurbat FROM vaisseau WHERE idvaisseau = ?');
     $reqvaisseau->execute(array($_POST['idvaisseau']));
     $repvaisseau = $reqvaisseau->fetch();
 
@@ -30,7 +30,7 @@ echo $_POST['idvaisseau'] . '</br>' ;
         }
 
 // Vérifier qu'il y a quelque chose dans le vaisseau.
-$reqverifcargo = $bdd->prepare(" SELECT quantiteitems FROM cargovaisseau WHERE idvaisseaucargo = ?") ;
+$reqverifcargo = $bdg->prepare(" SELECT quantiteitems FROM cargovaisseau WHERE idvaisseaucargo = ?") ;
 $reqverifcargo ->execute(array($_POST['idvaisseau']));
 $repverifcargo  = $reqverifcargo ->fetch();
 if (isset($repverifcargo['quantiteitems']))
@@ -39,7 +39,7 @@ if (isset($repverifcargo['quantiteitems']))
     $reqsupprimerordreprecedent->execute(array($_POST['idvaisseau']));
     
     // créer nouvel ordre.
-    $req = $bdd->prepare('INSERT INTO ordredeplacement(idvaisseaudeplacement , xdestination , ydestination , universdestination, idjoueurduvaisseau, typeordre) VALUES(?, ?, ?, ?, ?, ?)');
+    $req = $bdg->prepare('INSERT INTO ordredeplacement(idvaisseaudeplacement , xdestination , ydestination , universdestination, idjoueurduvaisseau, typeordre) VALUES(?, ?, ?, ?, ?, ?)');
     $req->execute(array($_POST['idvaisseau'], 3, 3, $_SESSION['id'], $_SESSION['id'], 2));
     }
 

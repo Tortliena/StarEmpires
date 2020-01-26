@@ -4,12 +4,12 @@ include("../script/BDDconnection.php");
 */
 
 // Vider la table de messages du tour.
-$bdd->exec('DELETE FROM messagetour');
+$bdg->exec('DELETE FROM messagetour');
 
 // Vider la table de variation du tour.
-$bdd->exec('DELETE FROM variationstour');
+$bdg->exec('DELETE FROM variationstour');
 
 // Vider la table des évènements en cours
-$bdd->exec('DELETE FROM choixevents');
+$bdg->exec('DELETE FROM choixevents');
 
 ?>

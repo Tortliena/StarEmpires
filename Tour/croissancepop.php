@@ -11,12 +11,12 @@ function commentairecroissancedelapopdebut(&$Commentairestour)
 }
 commentairecroissancedelapopdebut($Commentairestour);
 
-$req = $bdd->prepare('SELECT COUNT(*) AS nbpopulation FROM population WHERE joueurpop= ?');
-$creationpop = $bdd->prepare('INSERT INTO population(joueurpop) VALUES(:joueurpop)');
+$req = $bdg->prepare('SELECT COUNT(*) AS nbpopulation FROM population WHERE joueurpop= ?');
+$creationpop = $bdg->prepare('INSERT INTO population(joueurpop) VALUES(:joueurpop)');
 
-$message = $bdd->prepare("INSERT INTO messagetour (idjoumess , message , domainemess) VALUES (?, ?, ?)") ; 
+$message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess) VALUES (?, ?, ?)") ; 
 
-$reponse = $bdd->query('SELECT id, popmax FROM limitesjoueurs');
+$reponse = $bdg->query('SELECT id, popmax FROM limitesjoueurs');
 while ($donnees = $reponse->fetch())
 	{ // Compter le nombre de pop.
 	$req->execute(array($donnees['id']));

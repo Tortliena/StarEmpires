@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("BDDconnection.php");
+include("../include/BDDconnection.php");
 
 /*
 echo $_SESSION['pseudo'] . '</br>' ;
@@ -11,7 +11,7 @@ echo $_POST['ydepart'] . '</br>';
 */
 
 //Vérifier propriétaire du vaisseau.  
-    $reqvaisseau = $bdd->prepare('SELECT x, y, univers, idjoueurbat FROM vaisseau WHERE idvaisseau = ?');
+    $reqvaisseau = $bdg->prepare('SELECT x, y, univers, idjoueurbat FROM vaisseau WHERE idvaisseau = ?');
     $reqvaisseau->execute(array($_POST['idvaisseau']));
     $repvaisseau = $reqvaisseau->fetch();
 
@@ -22,18 +22,18 @@ echo $_POST['ydepart'] . '</br>';
         }
 
 // Vérifier qu'il y a un champs d'asteroides près du vaisseau. 
-    $reqasteroide = $bdd->prepare('SELECT idasteroide FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
+    $reqasteroide = $bda->prepare('SELECT idasteroide FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
     $reqasteroide->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers']));
     $repasteroide = $reqasteroide->fetch();
 
     if (isset($repasteroide['idasteroide']))
         {
         // supprimer ordre précédent.
-        $reqsupprimerordreprecedent = $bdd->prepare('DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
+        $reqsupprimerordreprecedent = $bdg->prepare('DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
         $reqsupprimerordreprecedent->execute(array($_POST['idvaisseau']));
         
         // créer nouvel ordre.
-        $req = $bdd->prepare('INSERT INTO ordredeplacement(idvaisseaudeplacement , xdestination , ydestination , universdestination, idjoueurduvaisseau, typeordre) VALUES(?, ?, ?, ?, ?, ?)');
+        $req = $bdg->prepare('INSERT INTO ordredeplacement(idvaisseaudeplacement , xdestination , ydestination , universdestination, idjoueurduvaisseau, typeordre) VALUES(?, ?, ?, ?, ?, ?)');
         $req->execute(array($_POST['idvaisseau'], $_POST['xdepart'], $_POST['ydepart'], $_POST['univers'], $_SESSION['id'], 1));
         }
 

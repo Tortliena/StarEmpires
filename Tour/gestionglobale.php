@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("../script/BDDconnection.php");
+include("../include/BDDconnection.php");
 ?>
 
 <?php

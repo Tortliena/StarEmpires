@@ -5,7 +5,7 @@ If (!$_SESSION['pseudo'])
     header('Location: Accueil.php');
     exit(); 
 }
-include("script/BDDconnection.php");
+include("include/BDDconnection.php");
 ?>
 
 <!DOCTYPE html>
@@ -18,7 +18,7 @@ include("script/BDDconnection.php");
   <body>
     <?php include("include/menu.php"); 
 
-  $reqvaisseau = $bdd->prepare('SELECT idjoueurbat, nomvaisseau, x, y, univers, vitesse FROM vaisseau WHERE idvaisseau = ?');
+  $reqvaisseau = $bdg->prepare('SELECT idjoueurbat, nomvaisseau, x, y, univers, vitesse FROM vaisseau WHERE idvaisseau = ?');
   $reqvaisseau->execute(array($_GET['id']));
   $repvaisseau = $reqvaisseau->fetch();
   
@@ -48,12 +48,12 @@ echo 'Vitesse du vaisseau : ' . $repvaisseau['vitesse'] . ' parsec/cycle</br>';
 
 
 // requetes pour la carte et/ou les ordres.
-$reqdect = $bdd->prepare('SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? LIMIT 1');
-$reqplanete = $bdd->prepare('SELECT idplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? LIMIT 1');
-$reqasteroide = $bdd->prepare('SELECT idasteroide , quantite , typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
+$reqdect = $bdg->prepare('SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? LIMIT 1');
+$reqplanete = $bda->prepare('SELECT idplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? LIMIT 1');
+$reqasteroide = $bda->prepare('SELECT idasteroide , quantite , typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
 
 // Permet de récupérer les ordres de déplacement en cours.
-$ordredeplacementactuel = $bdd->prepare('SELECT xdestination , ydestination , typeordre FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
+$ordredeplacementactuel = $bdg->prepare('SELECT xdestination , ydestination , typeordre FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
 $ordredeplacementactuel->execute(array($_GET['id']));
 $reponseordredeplacementactuel = $ordredeplacementactuel->fetch();
 
@@ -64,15 +64,18 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
   
   // Si il y a un ordre de sortie du hangars : 
   if ($reponseordredeplacementactuel['typeordre'] == 4)
-      {?>
-    <form method="post" action="script/annulerdeplacementvaisseau.php"><p><?php
-    {echo 'Vous avez ordonné à votre vaisseau de sortir.' ;}?>
+    {
+    ?>
+    <form method="post" action="script/annulerdeplacementvaisseau.php">
+      <p>
+      Vous avez ordonné à votre vaisseau de sortir.
       <input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>">
       <input name="univers" type="hidden" value="<?php echo $repvaisseau['univers'] ;?>">
-      <input type="submit" value="supprimer l'ordre" />
+      <input type="submit" value="supprimer l'ordre"/>
     </p>
-      </form>
-    <?php }
+    </form>
+    <?php
+    }
 
   // Formulaire d'ordres dans le hangars : ?>
   <form method="post" action="script/ordredepuishangars.php">
@@ -84,6 +87,43 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
     </p>
   </form>
   <?php
+
+
+  // Permet d'afficher cette partie avec le niveau suffisant.
+  $reqlvl = $bdg->prepare('SELECT lvl from utilisateurs WHERE id= ?');
+  $reqlvl->execute(array($_SESSION['id']));
+  $replvl = $reqlvl->fetch();
+  if ($replvl['lvl']>=6)
+  {
+  
+  $reqSiloItems = $bdd->prepare("
+                  SELECT s.quantite, i.description, i.nombatiment
+                  FROM gamer.silo s
+                  INNER JOIN items i
+                  ON i.iditem = s.iditems
+                  WHERE s.idjoueursilo = ?
+                  AND i.typeitem = 'composant'");
+
+  $reqSiloItems->execute(array($_SESSION['id']));
+
+  echo 'Composants dans les stocks :</br>'; 
+  while($repSiloItems = $reqSiloItems->fetch())
+    { 
+    if ($repSiloItems['quantite']>0)
+      {
+      echo $repSiloItems['quantite'] . ' ' . $repSiloItems['nombatiment'] . '</br>';
+      } 
+    }
+  }
+
+// Montrer les composants actuels.
+// Formulaire pour changer composant.
+
+// A faire par ailleurs : 
+// Page chantier = afficher le changement en cours.
+// Tour/contruction = Faire une construction spéciale.
+// Recalculer la vitesse du vaisseau.
+
   } // Fin de la partie dans le hangars.
 
 // Si le vaisseau est de sortie sur la carte :
@@ -224,9 +264,9 @@ else
       }} // Acolades pour fermer les for de la carte.
   } // acolade pour fermer la partie hors hangars.
 
-$reqverifcargo = $bdd->prepare(" SELECT c.quantiteitems , i.nombatiment
+$reqverifcargo = $bdg->prepare("SELECT c.quantiteitems , i.nombatiment
   									FROM cargovaisseau c
-									INNER JOIN items i
+									  INNER JOIN datawebsite.items i
   									ON i.iditem = c.typeitems
   									WHERE idvaisseaucargo = ?") ;
 $a = 0;

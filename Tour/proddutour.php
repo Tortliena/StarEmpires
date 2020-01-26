@@ -15,10 +15,10 @@ ajcomproddutourdebut($Commentairestour);
 // Permet de gérer les joueurs un par un.
 // Ajouter une valeur 'pause' sur les joueurs pour leur désactiver la pause ?
 
-$compterpop = $bdd->prepare('SELECT COUNT(*) AS nb FROM population WHERE joueurpop = ? and typepop like ?');
-$creationvariationdutour = $bdd->prepare('INSERT INTO variationstour (idjoueur, prodbiens, chantier, recherche, consobiens) VALUES (?, ?, ?, ?, ?)');
+$compterpop = $bdg->prepare('SELECT COUNT(*) AS nb FROM population WHERE joueurpop = ? and typepop like ?');
+$creationvariationdutour = $bdg->prepare('INSERT INTO variationstour (idjoueur, prodbiens, chantier, recherche, consobiens) VALUES (?, ?, ?, ?, ?)');
 
-$reqjoueur = $bdd->query('SELECT id, lvl FROM utilisateurs ORDER BY id');
+$reqjoueur = $bdg->query('SELECT id, lvl FROM utilisateurs ORDER BY id');
 while ($repjoueur = $reqjoueur->fetch())
 	{
 	// Production des citoyens :

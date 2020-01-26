@@ -5,7 +5,7 @@ If (!$_SESSION['pseudo'])
     header('Location: Accueil.php');
     exit(); 
 }
-include("script/BDDconnection.php");
+include("include/BDDconnection.php");
 ?>
 
 <!DOCTYPE html>
@@ -29,7 +29,7 @@ include("script/BDDconnection.php");
         <option value="0" selected disabled> Destinataire</option>
         <?php
         // Menu déroulant en fonction des autres joueurs :    
-        $reponse = $bdd->prepare('SELECT  id, pseudo FROM utilisateurs WHERE NOT id = ?');
+        $reponse = $bdg->prepare('SELECT  id, pseudo FROM utilisateurs WHERE NOT id = ?');
         $reponse->execute(array($_SESSION['id']));
         while ($donnees = $reponse->fetch())
           {
@@ -47,7 +47,7 @@ include("script/BDDconnection.php");
 
 
     <?php
-    $reqmessagerecusinterne = $bdd->prepare('SELECT idmessagerieinterne , expediteur , lu , titre , texte FROM messagerieinterne WHERE destinataire = ?');
+    $reqmessagerecusinterne = $bdg->prepare('SELECT idmessagerieinterne , expediteur , lu , titre , texte FROM messagerieinterne WHERE destinataire = ?');
     $a = 0; // Permet de faire apparaitre une seule fois <h2>Messages internes :</h2>
     $reqmessagerecusinterne ->execute(array($_SESSION['id']));
     while ($repmessagerecusinterne  = $reqmessagerecusinterne ->fetch())
@@ -66,8 +66,8 @@ include("script/BDDconnection.php");
 
     <h2>Messages recus :</h2>
     <?php
-    $reqmessagerecus = $bdd->prepare('SELECT idmessagerie, idjoueuremetteur, lu, titremessage, datemessage  FROM messagerie WHERE idjoueurrecepteur = ? AND supprimerecepteur = 0');
-    $reqpseudo = $bdd->prepare('SELECT pseudo FROM utilisateurs WHERE id = ?'); 
+    $reqmessagerecus = $bdg->prepare('SELECT idmessagerie, idjoueuremetteur, lu, titremessage, datemessage  FROM messagerie WHERE idjoueurrecepteur = ? AND supprimerecepteur = 0');
+    $reqpseudo = $bdg->prepare('SELECT pseudo FROM utilisateurs WHERE id = ?'); 
     $reqmessagerecus ->execute(array($_SESSION['id']));
     while ($repmessagerecus  = $reqmessagerecus ->fetch())
       {
@@ -86,7 +86,7 @@ include("script/BDDconnection.php");
     </br><h2>Messages envoyés :</h2>
 
     <?php
-    $reqmessageenvoye = $bdd->prepare('SELECT idmessagerie, idjoueurrecepteur, lu, titremessage, datemessage  FROM messagerie WHERE idjoueuremetteur = ? AND supprimeemetteur = 0'); 
+    $reqmessageenvoye = $bdg->prepare('SELECT idmessagerie, idjoueurrecepteur, lu, titremessage, datemessage  FROM messagerie WHERE idjoueuremetteur = ? AND supprimeemetteur = 0'); 
     $reqmessageenvoye ->execute(array($_SESSION['id']));
     while ($repmessageenvoye  = $reqmessageenvoye ->fetch())
       {

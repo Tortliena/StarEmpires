@@ -3,7 +3,7 @@
 include("../script/BDDconnection.php");
 */
 
-$bdd->exec("INSERT INTO tour (datetour) VALUES (CURRENT_TIMESTAMP)");
+$bda->exec("INSERT INTO tour (datetour) VALUES (CURRENT_TIMESTAMP)");
 // Trouver un moyen d'éditer le texte pour voir si tout s'est bien passé. Avec de multiples tables ?
 
 // echo 'le dernier tour est le tour ' . $donnees['id'] . ' et s\'est passé le ' . $donnees['datetour']  ;

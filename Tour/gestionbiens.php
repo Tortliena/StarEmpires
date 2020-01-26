@@ -11,11 +11,11 @@ function add_some_extra2(&$Commentairestour)
 }
 add_some_extra2($Commentairestour);
 
-$applicationvariationdutour = $bdd->prepare("	UPDATE utilisateurs SET biens = 
+$applicationvariationdutour = $bdg->prepare("	UPDATE utilisateurs SET biens = 
 												(CASE WHEN (biens < ?) THEN 0 ELSE (biens - ?) END)
 												where id = ? ");
 // Ajout au stock actuel.
-$reponse = $bdd->query('SELECT idjoueur, prodbiens, consobiens FROM variationstour');
+$reponse = $bdg->query('SELECT idjoueur, prodbiens, consobiens FROM variationstour');
 while ($donnees = $reponse->fetch())
 {
 $variation = $donnees['consobiens'] - $donnees['prodbiens'] ; 

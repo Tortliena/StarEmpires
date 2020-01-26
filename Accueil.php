@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("script/BDDconnection.php");
+include("include/bddconnection.php");
 
 if (isset($_COOKIE['id']) AND !isset($_SESSION['id']))
   {
@@ -28,7 +28,7 @@ if (isset($_COOKIE['id']) AND !isset($_SESSION['id']))
 
 <div class="corps">
 
-<h1>Bienvenue </h1>
+<h1>Bienvenue wqe</h1>
 <!-- Soit message de bienvenue, soit un message d'erreur ici -->
 <?php include("include/message.php"); ?>
 

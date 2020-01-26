@@ -1,11 +1,11 @@
 <?php
-$reqeventencours = $bdd->query('SELECT id FROM utilisateurs WHERE ideventsuivant = 0 ORDER BY id');
-$reqmajeventencours = $bdd->prepare('UPDATE utilisateurs SET idevent = ? WHERE id = ?');
+$reqeventencours = $bdg->query('SELECT id FROM utilisateurs WHERE ideventsuivant = 0 ORDER BY id');
+$reqmajeventencours = $bdg->prepare('UPDATE utilisateurs SET idevent = ? WHERE id = ?');
 
-$message = $bdd->prepare("INSERT INTO messagetour (idjoumess , message , domainemess) VALUES (?, ?, 'capitale')") ; 
-$reqmajeventprochain = $bdd->prepare('UPDATE utilisateurs SET ideventsuivant = -? WHERE id = ?');
+$message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess) VALUES (?, ?, 'capitale')") ; 
+$reqmajeventprochain = $bdg->prepare('UPDATE utilisateurs SET ideventsuivant = -? WHERE id = ?');
 
-$creerchoixevent = $bdd->prepare("INSERT INTO choixevents (idjoueurevent, texteevent, Eventsuite1, Textechoix1, Eventsuite2, Textechoix2, Eventsuite3, Textechoix3) VALUES (?, ?, ?, ?, ?, ?, ?, ?)") ; 
+$creerchoixevent = $bdg->prepare("INSERT INTO choixevents (idjoueurevent, texteevent, Eventsuite1, Textechoix1, Eventsuite2, Textechoix2, Eventsuite3, Textechoix3) VALUES (?, ?, ?, ?, ?, ?, ?, ?)") ; 
 
 while ($repeventencours = $reqeventencours->fetch())
 {   // $repeventencours['id'] = id du joueur.

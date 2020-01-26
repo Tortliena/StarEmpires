@@ -5,39 +5,41 @@ include("../script/BDDconnection.php");
 */
 
 // récupérer le num du tour ($touractuel['id'])
-$reqtouractuel = $bdd->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1');
+$reqtouractuel = $bda->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1');
 $touractuel = $reqtouractuel->fetch();
 
 // Gestion vaisseau
-$reqvaisseau = $bdd->prepare('SELECT idjoueurbat, nomvaisseau, x, y, univers, vitesse FROM vaisseau WHERE idvaisseau = ?');
-$applicationdeplacement = $bdd->prepare("UPDATE vaisseau SET x = ? , y = ?, univers = ? where idvaisseau = ? ");
+$reqvaisseau = $bdg->prepare('SELECT idjoueurbat, nomvaisseau, x, y, univers, vitesse FROM vaisseau WHERE idvaisseau = ?');
+$applicationdeplacement = $bdg->prepare("UPDATE vaisseau SET x = ? , y = ?, univers = ? where idvaisseau = ? ");
 
 // Divers
-$message = $bdd->prepare("INSERT INTO messagetour (idjoumess , message , domainemess , numspemessage) VALUES (? , ?, ? , ?)") ;
-$reqsupprimerordreprecedent = $bdd->prepare('DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
+$message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess , numspemessage) VALUES (? , ?, ? , ?)") ;
+$reqsupprimerordreprecedent = $bdg->prepare('DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
 
 // Gestion exploration
-$reqexplorationexistante = $bdd->prepare("SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? ");
-$exploration = $bdd->prepare("INSERT INTO explore (x , y, univers , idexplorateur, tourexploration) VALUES (?, ?, ?, ?, ?)") ;
+$reqexplorationexistante = $bdg->prepare("SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? ");
+$exploration = $bdg->prepare("INSERT INTO explore (x , y, univers , idexplorateur, tourexploration) VALUES (?, ?, ?, ?, ?)") ;
 
 // Gestion cargo
-$reqcreercargo = $bdd->prepare("INSERT INTO cargovaisseau (idvaisseaucargo, typeitems, quantiteitems) VALUES (?, ?, ?)") ;
-$reqverifcargo = $bdd->prepare("SELECT cargovaisseau.typeitems, cargovaisseau.quantiteitems, items.nombatiment FROM cargovaisseau INNER JOIN items ON items.iditem = cargovaisseau.typeitems WHERE cargovaisseau.idvaisseaucargo = ? AND cargovaisseau.typeitems like ?") ;
-$reqaugmentercargo = $bdd->prepare("UPDATE cargovaisseau SET quantiteitems = ? WHERE idvaisseaucargo = ? AND typeitems = ?") ;
-$reqsupcargaisonvaisseau = $bdd->prepare('DELETE FROM  cargovaisseau WHERE idvaisseaucargo = ?');
+$reqcreercargo = $bdg->prepare("INSERT INTO cargovaisseau (idvaisseaucargo, typeitems, quantiteitems) VALUES (?, ?, ?)") ;
+$reqverifcargo = $bdd->prepare("SELECT cargovaisseau.typeitems, cargovaisseau.quantiteitems, items.nombatiment FROM gamer.cargovaisseau INNER JOIN items ON items.iditem = cargovaisseau.typeitems WHERE cargovaisseau.idvaisseaucargo = ? AND cargovaisseau.typeitems like ?") ;
+$reqaugmentercargo = $bdg->prepare("UPDATE cargovaisseau SET quantiteitems = ? WHERE idvaisseaucargo = ? AND typeitems = ?") ;
+$reqsupcargaisonvaisseau = $bdg->prepare('DELETE FROM cargovaisseau WHERE idvaisseaucargo = ?');
 
 // Gestion Silo
-$reqverifsilo = $bdd->prepare("SELECT quantite FROM silo WHERE idjoueursilo = ? AND iditems = ?") ;
-$reqcreersilo = $bdd->prepare("INSERT INTO silo (idjoueursilo, iditems, quantite) VALUES (?, ?, ?)") ;
-$reqaugmentersilo = $bdd->prepare("UPDATE silo SET quantite = ? WHERE idjoueursilo = ? AND iditems = ?") ;
+$reqverifsilo = $bdg->prepare("SELECT quantite FROM silo WHERE idjoueursilo = ? AND iditems = ?") ;
+$reqcreersilo = $bdg->prepare("INSERT INTO silo (idjoueursilo, iditems, quantite) VALUES (?, ?, ?)") ;
+$reqaugmentersilo = $bdg->prepare("UPDATE silo SET quantite = ? WHERE idjoueursilo = ? AND iditems = ?") ;
 
 // Gestion astéroides.
-$reqmajaste = $bdd->prepare('UPDATE champsasteroides SET quantite = ? where idasteroide = ?');
-$reqsupaste = $bdd->prepare('DELETE FROM  champsasteroides WHERE idasteroide = ?');
-$reqasteroide = $bdd->prepare('SELECT idasteroide, quantite, typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
+$reqmajaste = $bda->prepare('UPDATE champsasteroides SET quantite = ? where idasteroide = ?');
+$reqsupaste = $bda->prepare('DELETE FROM  champsasteroides WHERE idasteroide = ?');
+$reqasteroide = $bda->prepare('SELECT idasteroide, quantite, typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
 
-// récupération des ordres de déplacement (= typeordre 0).
-$reqordredep = $bdd->query('SELECT idvaisseaudeplacement , xdestination , ydestination , universdestination, idjoueurduvaisseau FROM ordredeplacement WHERE typeordre = 0');
+// récupération des ordres de déplacement.
+$reqordredep = $bdg->prepare('SELECT idvaisseaudeplacement , xdestination , ydestination , universdestination, idjoueurduvaisseau FROM ordredeplacement WHERE typeordre = ?');
+
+$reqordredep->execute(array(0)); // 0 = ordre de déplacement normaux.
 while ($repordredep = $reqordredep->fetch())
     {
     $arriveadestination = true ; // par défaut, considérer l'ordre comme exécutable en entier;
@@ -110,8 +112,7 @@ while ($repordredep = $reqordredep->fetch())
     }
 $reqordredep->closeCursor();
 
-// ordre de récolte des astéroides (= typeordre 1)
-$reqordredep = $bdd->query('SELECT idvaisseaudeplacement FROM ordredeplacement WHERE typeordre = 1');
+$reqordredep->execute(array(1)); // ordre de récolte des astéroides (= typeordre 1)
 while ($repordredep = $reqordredep->fetch())
     {
     // Vérifier ou se trouver le vaisseau :
@@ -149,9 +150,9 @@ while ($repordredep = $reqordredep->fetch())
         }
     $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement']));
     }
+$reqordredep->closeCursor();
 
-// ordre de déchargement (= typeordre 2)
-$reqordredep = $bdd->query('SELECT idvaisseaudeplacement, idjoueurduvaisseau FROM ordredeplacement WHERE typeordre = 2');
+$reqordredep->execute(array(2)); // ordre de déchargement (= typeordre 2)
 while ($repordredep = $reqordredep->fetch())
     {
     // Vérifier ou se trouver le vaisseau :
@@ -185,9 +186,9 @@ while ($repordredep = $reqordredep->fetch())
         }
     $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement']));
     }
+$reqordredep->closeCursor();
 
-// ordre de rentrée en orbite (= typeordre 3)
-$reqordredep = $bdd->query('SELECT idvaisseaudeplacement, idjoueurduvaisseau FROM ordredeplacement WHERE typeordre = 3');
+$reqordredep->execute(array(3)); // ordre de rentrée en orbite (= typeordre 3) 
 while ($repordredep = $reqordredep->fetch())
     {
     // Vérifier ou se trouver le vaisseau :
@@ -200,9 +201,9 @@ while ($repordredep = $reqordredep->fetch())
         } 
     $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement'])); 
     }
+$reqordredep->closeCursor();
 
-// ordre de sortie vers l'orbite (= typeordre 4)
-$reqordredep = $bdd->query('SELECT idvaisseaudeplacement, idjoueurduvaisseau FROM ordredeplacement WHERE typeordre = 4');
+$reqordredep->execute(array(4)); // ordre de sortie vers l'orbite (= typeordre 4)
 while ($repordredep = $reqordredep->fetch())
     {
     // Vérifier ou se trouver le vaisseau :
@@ -220,4 +221,5 @@ while ($repordredep = $reqordredep->fetch())
         }
     $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement'])); 
     }
+$reqordredep->closeCursor();
 ?>
