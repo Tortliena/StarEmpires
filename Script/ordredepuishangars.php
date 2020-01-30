@@ -15,7 +15,18 @@ echo $_POST['idvaisseau'] . '</br>';
     $repvaisseau = $reqvaisseau->fetch();
     
     if ($repvaisseau['idjoueurbat'] != $_SESSION['id'])
-    { header('Location: ../accueil.php?message=31'); exit(); }
+    { header('Location: ../accueil.php?message=31'); exit();}
+    $reqordreactuel = $bdg->prepare('SELECT typeordre FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
+    $reqordreactuel->execute(array($_POST['idvaisseau']));
+    $repordreactuel = $reqordreactuel->fetch();
+    if ($repordreactuel['typeordre'] == 6)
+    {
+    header("location: ../hangars.php?message=34&" . "id=" . urlencode($_POST['idvaisseau'])); 
+    exit();
+    }
+
+    if ($repvaisseau['idjoueurbat'] != $_SESSION['id'])
+    { header('Location: ../accueil.php?message=31'); exit();}
 
 // Création d'un ordre de déplacement.
     else
@@ -29,5 +40,5 @@ echo $_POST['idvaisseau'] . '</br>';
         $req->execute(array($_POST['idvaisseau'], 3, 3, $_SESSION['id'], $_SESSION['id'], 4));
         }
 
-header("Location: ../hangars.php?id={$_POST['idvaisseau']}");
+header("Location: ../hangars.php?id=" . urlencode($_POST['idvaisseau']));
 ?>

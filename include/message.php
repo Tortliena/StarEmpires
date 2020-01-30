@@ -160,6 +160,12 @@ switch ($_GET["message"])
     case 32:
         echo "Vous venez de lancer une rénovation du vaisseau." ;
     break;
+    case 33:
+        echo "Rénovation du vaisseau annulée" ;
+    break;
+    case 34:
+        echo "Vous devez annuler l'ordre de rénovation avant de donner tout autre ordre à ce vaisseau." ;
+    break;
 //    default:
 //        echo '';
 }

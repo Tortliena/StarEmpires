@@ -9,15 +9,15 @@ echo $_POST['idvaisseau'] . '</br>' ;
 */
 
 //Vérifier propriétaire du vaisseau.  
-    $reqvaisseau = $bdg->prepare('SELECT x, y, univers, idjoueurbat FROM vaisseau WHERE idvaisseau = ?');
-    $reqvaisseau->execute(array($_POST['idvaisseau']));
-    $repvaisseau = $reqvaisseau->fetch();
+$reqvaisseau = $bdg->prepare('SELECT x, y, univers, idjoueurbat FROM vaisseau WHERE idvaisseau = ?');
+$reqvaisseau->execute(array($_POST['idvaisseau']));
+$repvaisseau = $reqvaisseau->fetch();
 
-    if ($repvaisseau['idjoueurbat'] != $_SESSION['id'])
-        {
-        header('Location: ../accueil.php?message=31');
-        exit();
-        }
+if ($repvaisseau['idjoueurbat'] != $_SESSION['id'])
+    {
+    header('Location: ../accueil.php?message=31');
+    exit();
+    }
 
 // Vérifier localisation du vaisseau
 if  ( $repvaisseau['univers'] == $_SESSION['id'] AND
@@ -48,6 +48,6 @@ else
     header('Location: ../accueil.php?message=31');
     exit();
     }
-
-header("Location: ../hangars.php?id={$_POST['idvaisseau']}");
+    
+header("Location: ../hangars.php?id=" . urlencode($_POST['idvaisseau']));
 ?>

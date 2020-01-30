@@ -19,7 +19,25 @@ else
     {
     $reqsupprimerordreprecedent = $bdg->prepare('DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
     $reqsupprimerordreprecedent->execute(array($_POST['idvaisseau']));
-    }
+
+    // Cas d'une suppression d'un ordre de rénovation de vaisseau :
+    // Récupérer l'ordre de construction :
+    $reqnumerodeconstruction = $bdg->prepare('SELECT idconstruction FROM concenptionencours WHERE idvaisseauconception = ?');
+    $reqnumerodeconstruction->execute(array($_POST['idvaisseau']));
+    $repnumerodeconstruction = $reqnumerodeconstruction->fetch();
+
+    if (isset($repnumerodeconstruction['idconstruction']))
+    	{
+	    // Supprimer la construction en cours :
+		$reqsupprimerconstructionencours = $bdg->prepare('DELETE FROM construction WHERE idconst = ?');
+	    $reqsupprimerconstructionencours->execute(array($repnumerodeconstruction['idconstruction']));
+
+	    // Supprimer la partie spéciale liée à la conception en cours :
+	    $reqsupprimerconcenptionencours = $bdg->prepare('DELETE FROM concenptionencours WHERE idvaisseauconception = ?');
+	    $reqsupprimerconcenptionencours->execute(array($_POST['idvaisseau']));
+	    header("location: ../hangars.php?message=33&" . "id=" . urlencode($_POST['idvaisseau'])); 
+    	}
+    }	
 
 header("location: ../hangars.php?message=20&" . "id=" . urlencode($_POST['idvaisseau'])); 
     ?>

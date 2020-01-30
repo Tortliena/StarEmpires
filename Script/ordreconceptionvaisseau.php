@@ -5,11 +5,13 @@ include("../include/BDDconnection.php");
 $result = $_POST['composant'];
 $result_explode = explode('|', $result);
 
+/*
 echo "id composant : ". $result_explode[0]."<br />";
 echo "type composant : ". $result_explode[1]."<br />";
 echo $_SESSION['pseudo'] . '</br>' ;
 echo $_SESSION['id'] . '</br>' ;
 echo $_POST['idvaisseau'] . ' id du vaisseau</br>' ;
+*/
 
 //Vérifier propriétaire du vaisseau.  
 $reqvaisseau = $bdg->prepare('SELECT univers, idjoueurbat FROM vaisseau WHERE idvaisseau = ?');
@@ -37,7 +39,5 @@ $repnumconstruction = $reqnumconstruction ->fetch();
 $reqcreerconception = $bdg->prepare('INSERT INTO concenptionencours(idconstruction, idvaisseauconception, typecomposant, idnouvcomposant) VALUES(?, ?, ?, ?)');
 $reqcreerconception->execute(array($repnumconstruction['idconst'], $_POST['idvaisseau'], $result_explode[1], $result_explode[0]));
 
-header("Location: ../hangars.php?id={$_POST['idvaisseau']}&message=32");
+header("location: ../hangars.php?message=32&" . "id=" . urlencode($_POST['idvaisseau'])); 
 ?>
-
-

@@ -91,6 +91,20 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
     <?php
     }
 
+  elseif ($reponseordredeplacementactuel['typeordre'] == 6)
+    { // Si l'ordre est de rénover un vaisseau :
+    ?>
+    <form method="post" action="script/annulerdeplacementvaisseau.php">
+      <p>
+      Vous venez juste de débuter la rénovation du vaisseau.
+      <input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>">
+      <input name="univers" type="hidden" value="<?php echo $repvaisseau['univers'] ;?>">
+      <input type="submit" value="supprimer l'ordre"/>
+    </p>
+    </form>
+    <?php
+    }
+
   // Formulaire d'ordres dans le hangars : ?>
   <form method="post" action="script/ordredepuishangars.php">
     <p>Ordre :
@@ -101,7 +115,6 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
     </p>
   </form>
   <?php
-
 
   // Permet d'afficher cette partie avec le niveau suffisant.
   $reqlvl = $bdg->prepare('SELECT lvl from utilisateurs WHERE id= ?');
