@@ -23,5 +23,5 @@ else
 	exit();
 	}
 
-header("location: ../accueil.php");
+header("location: ../accueil.php?message=31");
 ?>

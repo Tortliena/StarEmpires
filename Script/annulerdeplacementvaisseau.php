@@ -13,7 +13,7 @@ $reqvaisseau->execute(array($_POST['idvaisseau']));
 $repvaisseau = $reqvaisseau->fetch();
     
 if ($repvaisseau['idjoueurbat'] != $_SESSION['id'])
-    { header('Location: Accueil.php'); exit(); }
+    { header('Location: ../accueil.php?message=31'); exit(); }
 
 else
     {

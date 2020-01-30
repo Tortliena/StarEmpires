@@ -57,5 +57,5 @@ include("niveaux.php");
 // Permet de créer un résumé du tour pour vérifier les bugs.
 include("resumetour.php");
 
-header('Location: ../Passerletourmanuellement?voir=');
+header('Location: ../administration?voir=');
 ?>

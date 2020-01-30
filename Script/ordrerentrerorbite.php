@@ -9,7 +9,7 @@ include("../include/BDDconnection.php");
 
     if ($repvaisseau['idjoueurbat'] != $_SESSION['id'])
         {
-        header('Location: Accueil.php');
+        header('Location: ../accueil.php?message=31');
         exit();
         }
 

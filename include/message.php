@@ -154,6 +154,9 @@ switch ($_GET["message"])
     case 30:
         echo "Votre limite pour cette population est de " . $_SESSION['message1'] . ". Vous ne pouvez donc pas convertir autant de population." ;
     break;
+    case 31:
+        echo "Erreur non spécifiée !" ;
+    break;
 //    default:
 //        echo '';
 }

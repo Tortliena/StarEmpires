@@ -20,7 +20,7 @@ $repproprietaireordreconstruction = $reqproprietaireordreconstruction->fetch();
 
 if ($repproprietaireordreconstruction['idjoueurconst'] != $_SESSION['id'])
     {
-    header('Location: ../Accueil.php'); exit();
+    header('Location: ../Acceuil.php'); exit();
     }
 
 // Si pas d'avancement, on supprime tout.

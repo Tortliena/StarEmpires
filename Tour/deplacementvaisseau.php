@@ -142,13 +142,13 @@ while ($repordredep = $reqordredep->fetch())
         if ($repasteroide['quantite'] < 2)
             {
             $reqsupaste->execute(array($repasteroide['idasteroide']));
+            $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement']));
             }
         else // Sinon on réduit de 1 sa valeur.
             {
             $reqmajaste->execute(array($repasteroide['quantite'] - 1 , $repasteroide['idasteroide']));
             }
         }
-    $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement']));
     }
 $reqordredep->closeCursor();
 
@@ -188,7 +188,7 @@ while ($repordredep = $reqordredep->fetch())
     }
 $reqordredep->closeCursor();
 
-$reqordredep->execute(array(3)); // ordre de rentrée en orbite (= typeordre 3) 
+$reqordredep->execute(array(3)); // ordre de rentrée vers la planète (= typeordre 3) 
 while ($repordredep = $reqordredep->fetch())
     {
     // Vérifier ou se trouver le vaisseau :
@@ -203,7 +203,7 @@ while ($repordredep = $reqordredep->fetch())
     }
 $reqordredep->closeCursor();
 
-$reqordredep->execute(array(4)); // ordre de sortie vers l'orbite (= typeordre 4)
+$reqordredep->execute(array(4)); // ordre de sortie vers la carte (= typeordre 4)
 while ($repordredep = $reqordredep->fetch())
     {
     // Vérifier ou se trouver le vaisseau :

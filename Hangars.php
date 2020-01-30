@@ -77,6 +77,20 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
     <?php
     }
 
+  elseif ($reponseordredeplacementactuel['typeordre'] == 2)
+    { // Si l'ordre est de décharger la cargaison
+    ?>
+    <form method="post" action="script/annulerdeplacementvaisseau.php">
+      <p>
+      Vous avez ordonné à votre vaisseau de décharger sa cargainson.
+      <input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>">
+      <input name="univers" type="hidden" value="<?php echo $repvaisseau['univers'] ;?>">
+      <input type="submit" value="supprimer l'ordre"/>
+    </p>
+    </form>
+    <?php
+    }
+
   // Formulaire d'ordres dans le hangars : ?>
   <form method="post" action="script/ordredepuishangars.php">
     <p>Ordre :
@@ -95,7 +109,79 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
   $replvl = $reqlvl->fetch();
   if ($replvl['lvl']>=6)
   {
-  
+
+  // Afficher ce qui est actuellement sur votre vaisseau. 
+  echo 'Composants dans votre vaisseau :</br>';
+  $reqcomposantsurlevaisseau
+      = $bdd->prepare("
+      SELECT i.nombatiment
+      FROM gamer.composantvaisseau c
+      INNER JOIN items i
+      ON i.iditem = c.iditemcomposant
+      WHERE c.idvaisseaucompo = ?
+      AND c.typecomposant = ?
+      ");
+
+  echo '</br>Moteur : ';
+
+$a = 0; ?> <!-- Variable permettant de gérer le cas avec 0 choix -->
+<form method="post" action="script/ordreconceptionvaisseau.php">
+  <p>
+    <label for="idcomposant">
+    <?php
+    $reqcomposantsurlevaisseau->execute(array($_GET['id'], 'moteur'));
+    while($repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch())
+      {
+      echo $repcomposantsurlevaisseau['nombatiment'];
+      $composantmoteurexiste = true;
+      }
+    if ($composantmoteurexiste =! true)
+      {
+      echo 'Moteur I';
+      }
+      ?>
+  </label>
+  <select name="composant" id="idcomposant">
+
+    <?php
+    $reqmoteurdanssilo = $bdd->prepare("
+                  SELECT s.quantite, i.nombatiment, i.iditem, i.souscategorie
+                  FROM gamer.silo s
+                  INNER JOIN items i
+                  ON i.iditem = s.iditems
+                  WHERE s.idjoueursilo = ?
+                  AND i.souscategorie = ?");
+    $reqmoteurdanssilo ->execute(array($_SESSION['id'], 'moteur'));
+
+  while($repmoteurdanssilo = $reqmoteurdanssilo->fetch())
+    { 
+    if ($repmoteurdanssilo['quantite']>0)
+      {
+      ?>
+      <option value="<?php echo $repmoteurdanssilo['iditem']; ?>|<?php echo $repmoteurdanssilo['souscategorie']; ?>"><?php echo $repmoteurdanssilo['nombatiment']; ?></option>
+      <?php
+      $a++;
+      } 
+    }
+
+    if ($a == 0)
+      {
+      echo '<option disabled selected>Pas de composant en stock</option>';
+      }
+    else
+      {
+      echo '</select>';
+      echo '<input name="idvaisseau" type="hidden" value="' . $_GET['id'] . '">';
+      echo '<input type="submit" value="échanger" />';
+      }
+  ?>
+   </p>
+</form>
+
+<?php
+
+  echo '</br>Composants dans les stocks :</br>';
+
   $reqSiloItems = $bdd->prepare("
                   SELECT s.quantite, i.description, i.nombatiment
                   FROM gamer.silo s
@@ -103,10 +189,8 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
                   ON i.iditem = s.iditems
                   WHERE s.idjoueursilo = ?
                   AND i.typeitem = 'composant'");
-
   $reqSiloItems->execute(array($_SESSION['id']));
 
-  echo 'Composants dans les stocks :</br>'; 
   while($repSiloItems = $reqSiloItems->fetch())
     { 
     if ($repSiloItems['quantite']>0)
@@ -114,17 +198,8 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
       echo $repSiloItems['quantite'] . ' ' . $repSiloItems['nombatiment'] . '</br>';
       } 
     }
-  }
-
-// Montrer les composants actuels.
-// Formulaire pour changer composant.
-
-// A faire par ailleurs : 
-// Page chantier = afficher le changement en cours.
-// Tour/contruction = Faire une construction spéciale.
-// Recalculer la vitesse du vaisseau.
-
-  } // Fin de la partie dans le hangars.
+  } // Fin de la partie sur les modules. 
+} // Fin de la partie dans le hangars.
 
 // Si le vaisseau est de sortie sur la carte :
 else
@@ -147,7 +222,7 @@ else
       { 
       ?><form method="post" action="script/annulerdeplacementvaisseau.php"><p><?php
       if ($reponseordredeplacementactuel['typeordre'] == 3)
-        { // Si l'ordre est de rentrer en orbite :
+        { // Si l'ordre est de rentrer en orbite
         echo 'Vous avez ordonné à votre vaisseau de rentrer en orbite de la planète mère.' ;
         }
       elseif ($reponseordredeplacementactuel['typeordre'] == 1)
@@ -155,7 +230,7 @@ else
         echo 'Vous avez ordonné à votre vaisseau de miner le champs d\'astéroides' ;
         }
       elseif ($reponseordredeplacementactuel['typeordre'] == 2)
-        { // Si l'ordre est de miner un champs d'asteroide
+        { // Si l'ordre est de décharger la cargaison
         echo 'Vous avez ordonné à votre vaisseau de décharger sa cargainson' ;
         }
       else
@@ -286,15 +361,24 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
     echo $repverifcargo['quantiteitems'].' '.$repverifcargo['nombatiment'] ;
     $a++;
     }
- 
-if ($repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3 AND $repvaisseau['univers'] == $_SESSION['id'] AND $a>0) 
-  { // Formulaire pour décharger le cargo ?>.
+
+if 	($a>0 AND $repvaisseau['univers'] == $_SESSION['id']
+    AND
+      (($repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3) // Proche de la planète
+      OR
+      ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0))) // Au hangars
+    { // Formulaire pour décharger le cargo
+    ?>.
       <input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>"> 
       <input type="submit" value="décharger" /> 
       </p>
     </form><?php
   }
-elseif ($a>0) { echo '.';}?> 
+elseif ($a>0) 
+  {
+  echo '.';
+  }
+?> 
   
   </div>
   </body>
