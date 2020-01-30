@@ -39,5 +39,3 @@ $reqcreerconception->execute(array($repnumconstruction['idconst'], $_POST['idvai
 
 header("Location: ../hangars.php?id={$_POST['idvaisseau']}&message=32");
 ?>
-
-
