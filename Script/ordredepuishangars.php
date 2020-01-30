@@ -15,7 +15,7 @@ echo $_POST['idvaisseau'] . '</br>';
     $repvaisseau = $reqvaisseau->fetch();
     
     if ($repvaisseau['idjoueurbat'] != $_SESSION['id'])
-    { header('Location: Accueil.php'); exit(); }
+    { header('Location: ../accueil.php?message=31'); exit(); }
 
 // Création d'un ordre de déplacement.
     else

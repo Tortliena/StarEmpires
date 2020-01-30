@@ -30,5 +30,5 @@ if ($_SESSION['id'] == $repmessage['idjoueuremetteur'])
 	exit();
 	}
 
-header('Location: ../accueil.php');
+header('Location: ../accueil.php?message=31');
 ?>

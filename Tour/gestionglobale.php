@@ -51,11 +51,14 @@ include("explorationuniv0.php");
 // Mise à jour des limites des joueurs (pop, bat).
 include("limitesjoueurs.php");
 
+// MAJ vaisseaux
+include("gestionvaisseau.php");
+
 // Mise à jour des niveaux des joueurs.
 include("niveaux.php");
 
 // Permet de créer un résumé du tour pour vérifier les bugs.
 include("resumetour.php");
 
-header('Location: ../Passerletourmanuellement?voir=');
+header('Location: ../administration?voir=');
 ?>

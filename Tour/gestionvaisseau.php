@@ -1,8 +1,5 @@
 <?php
 
-session_start();
-include("../include/BDDconnection.php");
-
 $reqmajvitessevaisseau = $bdg->prepare('UPDATE vaisseau SET vitesse = ? WHERE idvaisseau = ?');
 
 $reqinformationvaisseau = $bdg ->query('

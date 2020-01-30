@@ -2,6 +2,7 @@
 session_start();
 include("../include/BDDconnection.php");
 
+/*
 echo $_SESSION['pseudo'] . '</br>' ;
 echo $_SESSION['id'] . '</br>' ;
 echo $_POST['xobjectif'] . '</br>';
@@ -10,7 +11,7 @@ echo $_POST['idvaisseau'] . '</br>';
 echo $_POST['univers'] . '</br>';
 echo $_POST['xdepart'] . '</br>';
 echo $_POST['ydepart'] . '</br>';
-
+*/
 
 //Vérifier propriétaire du vaisseau.  
     $reqvaisseau = $bdg->prepare('SELECT univers, idjoueurbat FROM vaisseau WHERE idvaisseau = ?');
@@ -18,7 +19,7 @@ echo $_POST['ydepart'] . '</br>';
     $repvaisseau = $reqvaisseau->fetch();
     
     if ($repvaisseau['idjoueurbat'] != $_SESSION['id'])
-    { header('Location: Accueil.php'); exit(); }
+    { header('Location: ../accueil.php?message=31'); exit(); }
 
 //Vérifier que les coordonnées sont différentes. 
     if ($_POST['xdepart'] == $_POST['xobjectif'] AND $_POST['ydepart'] == $_POST['yobjectif'])

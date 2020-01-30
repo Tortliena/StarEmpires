@@ -81,7 +81,7 @@ while ($repordredep = $reqordredep->fetch())
         }
 
     //Créer message pour le joueur.
-    $mess = 'Ce vaisseau vient de se déplacer. Il était avant en ' . $xeffectif . '-' . $yeffectif ; 
+    $mess = 'Ce vaisseau vient de se déplacer. Il était avant en ' . $repvaisseau['x'] . '-' . $repvaisseau['y'] ; 
     $message ->execute(array($repordredep['idjoueurduvaisseau'] , $mess , 'Vaisseau' , $repordredep['idvaisseaudeplacement'])) ;
     
     // Applique le déplacement :
@@ -142,13 +142,13 @@ while ($repordredep = $reqordredep->fetch())
         if ($repasteroide['quantite'] < 2)
             {
             $reqsupaste->execute(array($repasteroide['idasteroide']));
+            $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement']));
             }
         else // Sinon on réduit de 1 sa valeur.
             {
             $reqmajaste->execute(array($repasteroide['quantite'] - 1 , $repasteroide['idasteroide']));
             }
         }
-    $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement']));
     }
 $reqordredep->closeCursor();
 
@@ -160,8 +160,12 @@ while ($repordredep = $reqordredep->fetch())
     $repvaisseau = $reqvaisseau->fetch();
     // emplacement du vaisseau : $repvaisseau['x'] $repvaisseau['y'] $repvaisseau['univers'] 
 
-    // Vérifier le vaisseau se trouve sur la planète mère :
-    if ($repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3 AND $repvaisseau['univers'] == $repvaisseau['idjoueurbat'])
+    // Vérifier le vaisseau se trouve sur la planète mère ou au hangars:
+    if ($repvaisseau['univers'] == $repvaisseau['idjoueurbat']
+      AND
+        (($repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3) // Proche de la planète
+        OR
+        ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0))) // Au hangars
         {
         // récupérer les infos du cargo
         $reqverifcargo->execute(array($repordredep['idvaisseaudeplacement'], '%'));
@@ -188,7 +192,7 @@ while ($repordredep = $reqordredep->fetch())
     }
 $reqordredep->closeCursor();
 
-$reqordredep->execute(array(3)); // ordre de rentrée en orbite (= typeordre 3) 
+$reqordredep->execute(array(3)); // ordre de rentrée vers la planète (= typeordre 3) 
 while ($repordredep = $reqordredep->fetch())
     {
     // Vérifier ou se trouver le vaisseau :
@@ -203,7 +207,7 @@ while ($repordredep = $reqordredep->fetch())
     }
 $reqordredep->closeCursor();
 
-$reqordredep->execute(array(4)); // ordre de sortie vers l'orbite (= typeordre 4)
+$reqordredep->execute(array(4)); // ordre de sortie vers la carte (= typeordre 4)
 while ($repordredep = $reqordredep->fetch())
     {
     // Vérifier ou se trouver le vaisseau :

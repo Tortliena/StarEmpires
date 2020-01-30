@@ -79,7 +79,7 @@
 			    <input type="submit" value="Passer le tour" />
 			</p>
 			</form>
-            <b><a class ="lienmenu" href="Passerletourmanuellement.php">Gestion tour</a></b></br> </br>
+            <b><a class ="lienmenu" href="Administration.php">Admin</a></b></br> </br>
             <a class ="lienmenu" href="tour/test.php">test du tour</a> </br> 
             <a class ="lienmenu" href="test.php?id=2">test de page</a> </br>
             <a class ="lienmenu" href="afaire.php">À faire</a> </br> </br>
