@@ -40,7 +40,7 @@ function creerrecherche($idrecherche, $idjoueur)
     $reelprixrech = $aleatoirerecherche * $repprixrech['prixrecherche'] / 100 ;
     $reqcreerrecherche->execute(array($idjoueur, $idrecherche, $reelprixrech));
     }
-// À utiliser :  creerrecherche(XXXXX, $replvl['id']); 
+// À utiliser :  creerrecherche( X (= num recherche) , $replvl['id']); 
 
 
 $reqlvl = $bdg->QUERY('SELECT lvl, id from utilisateurs ORDER BY id ASC');
@@ -112,6 +112,9 @@ WHILE($replvl = $reqlvl->fetch())
 	            
 	            // Cela donne accès aux moteurs améliorés.
 	            creerrecherche(5, $replvl['id']);
+
+	            // Cela donne accès aux soutes.
+   	            creerrecherche(7, $replvl['id']);
 	            }
       break;
 

@@ -19,6 +19,15 @@ h2
     padding-bottom: 0px;
 }
 
+h3
+{
+    margin-top: 0px ; 
+    padding-top: 0px;
+    margin-left: 0px ;
+    margin-bottom: 5px ;
+    padding-bottom: 0px;
+}
+
 .alerte
 {
 	margin-bottom: 15px ;

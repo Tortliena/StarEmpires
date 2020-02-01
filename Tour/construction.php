@@ -1,12 +1,4 @@
 <?php
-/* Commentaire de début de cette phase.
-function debutdesconstructions(&$Commentairestour)
-{
-    $Commentairestour .= '</br> Début de la production des biens';
-}
-debutdesconstructions($Commentairestour);
-*/
-
 // Preparation des requêtes sql :
 $message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess , numspemessage) VALUES (? , ?, ? , ?)") ;
 
@@ -86,13 +78,11 @@ $reqjoueur = $bdg->query('SELECT
             $repcategorie = $reqcategorie ->fetch();
             }
 
-
         // Cas dans lequel la construction consomme des items :
         if ($repcategorie['itemnecessaire']>0)
             {
-            // Supprimer cette variable pour éviter les suprises avec une construction précédente.
             if (isset($repverifsilo['quantite']))
-                {
+                {// Supprimer cette variable pour éviter les suprises avec une construction précédente.
                 unset($repverifsilo['quantite']);
                 }
 
@@ -103,6 +93,11 @@ $reqjoueur = $bdg->query('SELECT
             if ($repverifsilo['quantite'] <= 0)
                 {
                 $reqsupprimercontruction->execute(array($repconstruction['idconst']));
+                if ($repconstruction['trucaconstruire'] == -1)
+                    // Supprimer la conception en cours.
+                    $reqsupprimerconception->execute(array($repconcenptioninfo['idvaisseauconception'], $repconcenptioninfo['typecomposant']));
+                    // Supprimer l'ordre de déplacement.
+                    $reqsupprimerdeplacement->execute(array($repconcenptioninfo['idvaisseauconception']));
                 break;
                 }
             }
@@ -194,7 +189,6 @@ $reqjoueur = $bdg->query('SELECT
 
             elseif ($repcategorie['typeitem'] == 'conception')
                 { // Cas d'un changement de composant dans un vaisseau
-
                 // Supprimer précédent composant
                 $reqsupprimercomposant->execute(array($repconcenptioninfo['idvaisseauconception'], $repconcenptioninfo['typecomposant']));
 

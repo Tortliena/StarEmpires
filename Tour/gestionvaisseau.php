@@ -1,6 +1,8 @@
 <?php
 
 $reqmajvitessevaisseau = $bdg->prepare('UPDATE vaisseau SET vitesse = ? WHERE idvaisseau = ?');
+$reqmajsoutevaisseau = $bdg->prepare('UPDATE vaisseau SET capacitedesoute = ? WHERE idvaisseau = ?');
+
 
 $reqinformationvaisseau = $bdg ->query('
     SELECT c.idcomposant, c.typebonus, c.totalbonus, v.idvaisseau
@@ -10,15 +12,15 @@ $reqinformationvaisseau = $bdg ->query('
     ORDER BY v.idvaisseau');
  while ($repinformationvaisseau = $reqinformationvaisseau->fetch())
     {
-    echo $repinformationvaisseau['idcomposant'] . '</br>' ;
-    echo $repinformationvaisseau['typebonus'] . '</br>' ;
-    echo $repinformationvaisseau['totalbonus'] . '</br>' ;
-    echo $repinformationvaisseau['idvaisseau'] . '</br>' ;
-   
-    if ($repinformationvaisseau['typebonus'] == 1)
-        { // 1 = bonus à la vitesse.
+    switch ($repinformationvaisseau['typebonus'])
+        { 
+        case 1: // 1 = bonus à la vitesse.
         $reqmajvitessevaisseau->execute(array($repinformationvaisseau['totalbonus'], $repinformationvaisseau['idvaisseau']));
+        break;
+
+        case 2: // capacité des soutes.
+        $reqmajsoutevaisseau->execute(array($repinformationvaisseau['totalbonus'], $repinformationvaisseau['idvaisseau']));
+        break;
         } 
     }
-
 ?>

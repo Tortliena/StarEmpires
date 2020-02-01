@@ -36,7 +36,7 @@ include("include/BDDconnection.php");
     </form>
 
 
-    <h1>En cours :</h1>
+    <h2>En cours :</h2>
 
 <?php
 $reponse = $bda->prepare('SELECT texteafaire, idafaire FROM afaire WHERE priorite = ? ORDER BY idafaire');
@@ -52,7 +52,7 @@ while ($donnees = $reponse->fetch())
 $reponse->closeCursor();
 ?>
 
-    <h1>Petit truc rapide :</h1>
+    <h2>Petit truc rapide :</h2>
 
 <?php
 $reponse->execute(array('petittrucrapide'));
@@ -67,7 +67,7 @@ while ($donnees = $reponse->fetch())
 $reponse->closeCursor();
 ?>
 
-    <h1>Grosse étape à faire sous peu :</h1>
+    <h2>Grosse étape à faire sous peu :</h2>
 
     <?php
         $reponse->execute(array("grosetapesouspeu"));
@@ -82,7 +82,7 @@ $reponse->closeCursor();
         $reponse->closeCursor();
     ?>
 
-    <h1>Petit truc plus tard</h1>
+    <h2>Petit truc plus tard</h2>
 
 <?php
 $reponse->execute(array("petittrucplustard"));
@@ -98,7 +98,7 @@ $reponse->closeCursor();
 ?>
 
 
-    <h1>Grosse étape plus tard</h1>
+    <h2>Grosse étape plus tard</h2>
 
     <?php
         $reponse->execute(array("grosseetapeplustard"));
@@ -113,7 +113,7 @@ $reponse->closeCursor();
         $reponse->closeCursor();
     ?>
 
-    </br><h1>Pour le lancement du site</h1>
+    </br><h2>Pour le lancement du site</h2>
     <?php
         $reponse->execute(array("lancementsite"));
         while ($donnees = $reponse->fetch())

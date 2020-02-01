@@ -5,7 +5,7 @@
     $_GET["message"] = 0 ;  
     }
 switch ($_GET["message"])
-{ 
+    { 
     case 1:
         echo "les deux mots de passe ne sont pas identiques. Veuillez réessayer.";
     break;
@@ -166,9 +166,8 @@ switch ($_GET["message"])
     case 34:
         echo "Vous devez annuler l'ordre de rénovation avant de donner tout autre ordre à ce vaisseau." ;
     break;
-//    default:
-//        echo '';
-}
+    }
+
 unset($_SESSION['message1']);
 unset($_SESSION['message2']);
 unset($_SESSION['message3']);
