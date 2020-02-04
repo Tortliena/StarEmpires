@@ -166,6 +166,12 @@ switch ($_GET["message"])
     case 34:
         echo "Vous devez annuler l'ordre de rénovation avant de donner tout autre ordre à ce vaisseau." ;
     break;
+    case 35:
+        echo "Pas de champs d'astéroides à proximité !" ;
+    break;
+    case 36:
+        echo "Ce vaisseau n'a pas de marchandise dans les soutes !" ;
+    break;
     }
 
 unset($_SESSION['message1']);

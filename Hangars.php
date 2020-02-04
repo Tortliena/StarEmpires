@@ -18,7 +18,7 @@ include("include/BDDconnection.php");
   <body>
     <?php include("include/menu.php"); 
 
-  $reqvaisseau = $bdg->prepare('SELECT idjoueurbat, nomvaisseau, x, y, univers, vitesse, capacitedesoute FROM vaisseau WHERE idvaisseau = ?');
+  $reqvaisseau = $bdg->prepare('SELECT * FROM vaisseau WHERE idvaisseau = ?');
   $reqvaisseau->execute(array($_GET['id']));
   $repvaisseau = $reqvaisseau->fetch();
   
@@ -34,107 +34,7 @@ include("include/message.php");
 $typemessage = 'vaisseau' ;
 include("include/resume.php");
 
-// Utiliser avec composanthangars(NOMTYPECOMPOSANT, $_SESSION['id'], $_GET['id'])
-function composanthangars($typecomposant, $idjoueur, $idvaisseau)
-  {
-  include("include/BDDconnection.php");
-  $reqcomposantsurlevaisseau
-      = $bdd->prepare("
-      SELECT i.nombatiment
-      FROM gamer.composantvaisseau c
-      INNER JOIN items i
-      ON i.iditem = c.iditemcomposant
-      WHERE c.idvaisseaucompo = ?
-      AND c.typecomposant = ?
-      ");
-
-  echo '<h3>' . $typecomposant . ' :</h3>';
-
-  $a = 0; ?> <!-- Variable permettant de gérer le cas avec 0 choix -->
-  <form method="post" action="script/ordreconceptionvaisseau.php">
-    <p>
-      <label for="idcomposant">
-      <?php
-      $composantexiste = false;
-      $reqcomposantsurlevaisseau->execute(array($idvaisseau, $typecomposant));
-      while($repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch())
-        {
-        echo $repcomposantsurlevaisseau['nombatiment'];
-        $composantexiste = true;
-        }
-      if ($composantexiste == false)
-        {
-        echo $typecomposant . ' basique';
-        }
-        ?>
-      </label>
-      <select name="composant" id="idcomposant">
-
-      <?php
-      $reqsilo = $bdd->prepare("
-                    SELECT s.quantite, i.nombatiment, i.iditem, i.souscategorie
-                    FROM gamer.silo s
-                    INNER JOIN items i
-                    ON i.iditem = s.iditems
-                    WHERE s.idjoueursilo = ?
-                    AND i.souscategorie = ?");
-      $reqsilo ->execute(array($idjoueur, $typecomposant));
-
-      while($repsilo = $reqsilo->fetch())
-        { 
-        if ($repsilo['quantite']>0)
-          {
-          ?>
-          <option value="<?php echo $repsilo['iditem']; ?>|<?php echo $repsilo['souscategorie']; ?>"><?php echo $repsilo['nombatiment']; ?></option>
-          <?php
-          $a++;
-          } 
-        }
-
-      if ($a == 0)
-        {
-        echo '<option disabled selected>Pas de composant en stock</option>';
-        }
-      else
-        {
-        echo '<input name="idvaisseau" type="hidden" value="' . $idvaisseau . '">';
-        echo '<input type="submit" value="échanger" />';
-        } ?>
-        </select>
-     </p>
-  </form><?php
-  } // Fin de la fonction pour afficher les items.
-
-// Utiliser avec annulerordrededeplacement($reponseordredeplacementactuel['typeordre'], $_GET['id'], $reponseordredeplacementactuel['xdestination'], $reponseordredeplacementactuel['ydestination'])
-function annulerordrededeplacement($typeordre, $idvaisseau, $xdest, $ydest)
-  {
-  switch ($typeordre)
-    {
-      case 0:
-        $messageannulerdeplacement = 'Vous avez ordonné à votre vaisseau de se déplacer en ' . $xdest . '-' . $ydest . ' ';
-      break;
-      case 1:
-        $messageannulerdeplacement = 'Vous avez ordonné à votre vaisseau de miner le champs d\'astéroides';
-      break;
-      case 2:
-        $messageannulerdeplacement = 'Vous avez ordonné à votre vaisseau de décharger sa cargainson.';
-      break;
-      case 3:
-        $messageannulerdeplacement = 'Vous avez ordonné à votre vaisseau de rentrer en orbite de la planète mère.';
-      break;
-      case 4:
-        $messageannulerdeplacement = 'Vous avez ordonné à votre vaisseau de sortir de l\'orbite de la planète';
-      break;
-      case 6:
-        $messageannulerdeplacement = 'Vous venez juste de débuter la rénovation du vaisseau.';
-      break;
-    }
-    echo '<form method="post" action="script/annulerdeplacementvaisseau.php"><p>';
-    echo $messageannulerdeplacement ;
-    echo '<input name="idvaisseau" type="hidden" value="' . $idvaisseau . '">';
-    echo '<input type="submit" value="supprimer l\'ordre"/>';
-    echo '</p></form>';
-  }
+include("include/fonctionhangars.php");
 
 ?>
 <form method="post" action="script/renommervaisseau.php">
@@ -146,10 +46,9 @@ function annulerordrededeplacement($typeordre, $idvaisseau, $xdest, $ydest)
 </form>
 
 <?php
-echo 'Vitesse du vaisseau : ' . $repvaisseau['vitesse'] . ' parsec/cycle</br>'; 
+echo '<p>Vitesse du vaisseau : ' . $repvaisseau['vitesse'] . ' parsec/cycle</p>'; 
 
-$a = 0; // Variable permettant de gérer le cas avec un ou plusieurs composants en stock.
-
+$a = 0; // Variable permettant de gérer le cas avec un ou plusieurs composants en stock + gére le cas du remplissage des soutes.
 $reqverifcargo = $bdg->prepare("SELECT c.quantiteitems , i.nombatiment
                 FROM cargovaisseau c
                 INNER JOIN datawebsite.items i
@@ -158,38 +57,38 @@ $reqverifcargo = $bdg->prepare("SELECT c.quantiteitems , i.nombatiment
 $reqverifcargo ->execute(array($_GET['id']));
 while ($repverifcargo  = $reqverifcargo ->fetch())
   {
-  if ($a != 0)
-    { // Permet de gérer les cas avec de multiples items dans les soutes.
-    echo ', ';
+  if ($a == 0)
+    {
+    $texteexplication = '<p>Ce vaisseau transporte ';
     }
   else
-    { // On passe par cette partie une seule fois.
-    echo '<form method="post" action="script/ordredecharger.php"><p>Ce vaisseau transporte ';
+    { // Permet de gérer les cas avec de multiples items dans les soutes.
+    $texteexplication .= ', ';
     }
   // Affiche ce qui est dans le cargo.
-  echo $repverifcargo['quantiteitems'].' '.$repverifcargo['nombatiment'] ;
-  $a = $a + $repverifcargo['quantiteitems'];
-  
+  $texteexplication .= $repverifcargo['quantiteitems'].' '.$repverifcargo['nombatiment'] ;
 
-  if  ($repvaisseau['univers'] == $_SESSION['id']
-      AND
+  $a = $a + $repverifcargo['quantiteitems'];
+  }
+  if ($a != 0)
+    {
+    $texteexplication .= '. ';
+    if  ($repvaisseau['univers'] == $_SESSION['id']
+        AND
         (($repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3) // Proche de la planète
         OR
         ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0))) // Au hangars
-      { // Formulaire pour décharger le cargo
-      ?>.
-        <input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>">
-        <input type="submit" value="décharger" /> 
-        </p>
-      </form><?php
+      { // Formulaire pour décharger le cargo. Ne s'exécute que si on a quelque chose en soute ($a)
+      formulaireordredeplacement(2, $_GET['id'], $texteexplication);
       }
-  elseif ($a >= 0) 
-    {
-    echo '.</br>';
+    else
+      { // Permet de mettre un point à la fin de la phase avec les trucs en soute. 
+      echo $texteexplication ;
+      }
+    echo '</p>'; 
     }
-  }
-echo 'Capacité des soutes : ' . $a . '/' . $repvaisseau['capacitedesoute'];
 
+echo '<p>Capacité des soutes : ' . $a . '/' . $repvaisseau['capacitedesoute'] . '. Capacité de minage : ' . $repvaisseau['capaciteminage'] . '</p>';
 
 // requetes pour la carte et/ou les ordres.
 $reqdect = $bdg->prepare('SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? LIMIT 1');
@@ -201,6 +100,21 @@ $ordredeplacementactuel = $bdg->prepare('SELECT xdestination , ydestination , ty
 $ordredeplacementactuel->execute(array($_GET['id']));
 $reponseordredeplacementactuel = $ordredeplacementactuel->fetch();
 
+// Si on a un champs d'astéroide, formulaire pour embarquer les trucs.
+$reqasteroide->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers']));
+$repasteroide = $reqasteroide->fetch();
+if (isset($repasteroide['idasteroide']))
+  {
+  if ($a < $repvaisseau['capacitedesoute'])
+    {
+    formulaireordredeplacement(1, $_GET['id'], $texteexplication);
+    }
+  else
+    {
+    echo '<p>Vous êtes à proximité d\'un champs de débris, mais vous ne pouvez pas miner faute de place dans les soutes</p>'; 
+    }
+  }
+
 // Si le vaisseau est au hangars : 
 if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'] == $_SESSION['id'])
   {
@@ -210,16 +124,8 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
     annulerordrededeplacement($reponseordredeplacementactuel['typeordre'], $_GET['id'], $reponseordredeplacementactuel['xdestination'], $reponseordredeplacementactuel['ydestination']);
     }
 
-  // Formulaire d'ordres dans le hangars : ?>
-  <form method="post" action="script/ordredepuishangars.php">
-    <p>Ordre :
-    <input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>">
-    <select name="ordredepuishangars" id="ordredepuishangars">
-    <option value="sortir">Sortir</option>
-    <input type="submit" value="Valider" />
-    </p>
-  </form>
-  <?php
+  // Ordre de sortir du hangars.
+  formulaireordredeplacement(4, $_GET['id'], 0);
 
   // Permet d'afficher cette partie avec le niveau suffisant.
   $reqlvl = $bdg->prepare('SELECT lvl from utilisateurs WHERE id= ?');
@@ -244,16 +150,16 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
                       AND i.typeitem = 'composant'");
       $reqsiloitems->execute(array($_SESSION['id']));
 
-    $a = 0; // Permet de gérer le cas avec 0 composant en stock
+    $b = 0; // Permet de gérer le cas avec 0 composant en stock
     while($repsiloitems = $reqsiloitems->fetch())
       { 
       if ($repsiloitems['quantite']>0)
         {
-        $a++;
+        $b++;
         echo $repsiloitems['quantite'] . ' ' . $repsiloitems['nombatiment'] . '</br>';
         } 
       }
-    if ($a == 0)
+    if ($b == 0)
       {
       echo 'Rien en stock' ; 
       }
@@ -267,13 +173,9 @@ else
 
     // Si le vaisseau se trouve en orbite de la planète mère :
     if ($repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3 AND $repvaisseau['univers'] == $_SESSION['id'])
-      { // Formulaire pour faire rentrer le vaisseau en orbite. ?>
-      <form method="post" action="script/ordrerentrerorbite.php"><p>
-      <?php echo 'Votre vaisseau se trouve à proximité de votre planète mère (3 - 3).' ; ?>
-        <input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>">
-        <input type="submit" value="Rentrer en orbite" />
-      </p></form>
-      <?php 
+      {
+      // Formulaire pour rentrer en orbite : ordre de type 3.
+      formulaireordredeplacement(3, $_GET['id'], 0);
       }
 
     // Si il y a un ordre de déplacement en cours : 
@@ -282,7 +184,7 @@ else
       annulerordrededeplacement($reponseordredeplacementactuel['typeordre'], $_GET['id'], $reponseordredeplacementactuel['xdestination'], $reponseordredeplacementactuel['ydestination']);
       }
 
-    echo 'Votre vaisseau est en balade en ' . $repvaisseau['univers'] . ' , ' . $repvaisseau['x'] . ' , ' . $repvaisseau['y'];
+    echo '<p>Votre vaisseau est en balade en ' . $repvaisseau['univers'] . ' , ' . $repvaisseau['x'] . ' , ' . $repvaisseau['y'] . '</p>';
 
     // Formulaire pour donner un ordre de déplacement.
     ?>
@@ -299,24 +201,6 @@ else
     </form>
 
     <?php
-    // Si on a un champs d'astéroide, formulaire pour embarquer les trucs.
-    $reqasteroide->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers']));
-    $repasteroide = $reqasteroide->fetch();
-    if (isset($repasteroide['idasteroide']))
-      { 
-      ?>
-      <form method="post" action="script/ordreminer.php">
-      <p>
-      Vous êtes face à un champs d'astéroides.
-      <input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>">
-      <input name="univers" type="hidden" value="<?php echo $repvaisseau['univers'] ;?>">
-      <input name="xdepart" type="hidden" value="<?php echo $repvaisseau['x'] ;?>">
-      <input name="ydepart" type="hidden" value="<?php echo $repvaisseau['y'] ;?>">       
-      <input type="submit" value="Récolter" />
-      </p>
-      </form>
-      <?php
-      }
 
     // Carte spatiale :
     for ($y = 0 ; $y <= $xymax ; $y++)

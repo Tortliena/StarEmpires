@@ -1,7 +1,7 @@
 <?php
 /*
 session_start();
-include("../script/BDDconnection.php");
+include("../include/BDDconnection.php");
 */
 
 // récupérer le num du tour ($touractuel['id'])
@@ -9,7 +9,7 @@ $reqtouractuel = $bda->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1');
 $touractuel = $reqtouractuel->fetch();
 
 // Gestion vaisseau
-$reqvaisseau = $bdg->prepare('SELECT idjoueurbat, nomvaisseau, x, y, univers, vitesse FROM vaisseau WHERE idvaisseau = ?');
+$reqvaisseau = $bdg->prepare('SELECT idjoueurbat, nomvaisseau, x, y, univers, vitesse, capacitedesoute, capaciteminage FROM vaisseau WHERE idvaisseau = ?');
 $applicationdeplacement = $bdg->prepare("UPDATE vaisseau SET x = ? , y = ?, univers = ? where idvaisseau = ? ");
 
 // Divers
@@ -120,36 +120,61 @@ while ($repordredep = $reqordredep->fetch())
     $repvaisseau = $reqvaisseau->fetch();
     // emplacement du vaisseau : $repvaisseau['x'] $repvaisseau['y'] $repvaisseau['univers'] 
 
-    $reqasteroide->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers']));
-    $repasteroide = $reqasteroide->fetch();
-    // Données sur astéroides : $repasteroide['idasteroide'] , $repasteroide['quantite'], $repasteroide['typeitemsaste']
-
-    // Vérifier si un astéroide existe.
-    if (isset($repasteroide['idasteroide']))
+    $quantitetransportee = 0; // Permet de définir combien on transporte actuellement.
+    $reqverifcargo->execute(array($repordredep['idvaisseaudeplacement'], '%'));
+    while ($repverifcargo = $reqverifcargo->fetch())
         {
-        $reqverifcargo->execute(array($repordredep['idvaisseaudeplacement'], $repasteroide['typeitemsaste']));
-        $repverifcargo = $reqverifcargo->fetch();
-        if (isset($repverifcargo['quantiteitems'])) // Si le cargo transporte déjà des débris alors augmenter. 
+        $quantitetransportee = $quantitetransportee + $repverifcargo['quantiteitems'];
+        }
+    
+    $quantiterestantedesoute = $repvaisseau['capacitedesoute'] - $quantitetransportee;
+    $capaciteminage = $repvaisseau['capaciteminage'];
+    
+    for ( ; $quantiterestantedesoute>0 , $capaciteminage>0 ; $capaciteminage-- , $quantiterestantedesoute--)
+        {
+        if ($quantiterestantedesoute <= 0)
+            { // si on n'a plus de soute, alors on supprime l'ordre et on passe au vaisseau suivant.
+            $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement']));
+            break ;
+            }
+            
+        $reqasteroide->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers']));
+        $repasteroide = $reqasteroide->fetch();
+        // Vérifier si un astéroide existe.
+        if (isset($repasteroide['idasteroide']))
             {
-            $reqaugmentercargo->execute(array($repverifcargo['quantiteitems'] + 1 , $repordredep['idvaisseaudeplacement'], $repasteroide['typeitemsaste']));
+            $reqverifcargo->execute(array($repordredep['idvaisseaudeplacement'], $repasteroide['typeitemsaste']));
+            $repverifcargo = $reqverifcargo->fetch();
+            if (isset($repverifcargo['quantiteitems'])) // Si le cargo transporte déjà des débris alors augmenter. 
+                {
+                $reqaugmentercargo->execute(array($repverifcargo['quantiteitems'] + 1 , $repordredep['idvaisseaudeplacement'], $repasteroide['typeitemsaste']));
+                }
+            else
+                { // Sinon créer un stock. 
+                $reqcreercargo->execute(array($repordredep['idvaisseaudeplacement'], $repasteroide['typeitemsaste'] , 1));
+                }
+            
+            // Si les biens de l'asteroide tombent à 0, alors on delete. 
+            if ($repasteroide['quantite'] < 2)
+                {
+                $reqsupaste->execute(array($repasteroide['idasteroide']));
+                $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement']));
+                }
+            else // Sinon on réduit de 1 sa valeur.
+                {
+                $reqmajaste->execute(array($repasteroide['quantite'] - 1 , $repasteroide['idasteroide']));
+                }
+            if ($quantiterestantedesoute <= 1)
+                { // Permet de supprimer l'ordre si la soute tombe à 0. 
+                $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement']));
+                }
             }
         else
-            { // Sinon créer un stock. 
-            $reqcreercargo->execute(array($repordredep['idvaisseaudeplacement'], $repasteroide['typeitemsaste'] , 1));
-            }
-        
-        // Si les biens de l'asteroide tombent à 0, alors on delete. 
-        if ($repasteroide['quantite'] < 2)
-            {
-            $reqsupaste->execute(array($repasteroide['idasteroide']));
+            { // si l'astéroide n'existe pas ou plus, alors on supprime l'ordre.
             $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement']));
             }
-        else // Sinon on réduit de 1 sa valeur.
-            {
-            $reqmajaste->execute(array($repasteroide['quantite'] - 1 , $repasteroide['idasteroide']));
-            }
-        }
-    }
+        } // Fin boucle while pour le cas avec de multiples minages.
+    } // Fin des ordres de minage.
 $reqordredep->closeCursor();
 
 $reqordredep->execute(array(2)); // ordre de déchargement (= typeordre 2)
