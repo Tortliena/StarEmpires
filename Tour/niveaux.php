@@ -28,18 +28,31 @@ $reqlimitebaselunaire = $bdg->prepare('UPDATE limitesjoueurs SET maxbaselunaire 
 // Pour lvl 5 à 6
 $reqcountbat = $bdg->prepare('SELECT COUNT(*) AS nb FROM batiments WHERE idjoueurbat = ? AND typebat = ?');
 
+// Pour lvl 6 à 7
+$reqcomposantsurlevaisseau = $bdg->prepare("SELECT COUNT(*) AS nb 
+      FROM gamer.composantvaisseau c
+      INNER JOIN vaisseau v ON v.idvaisseau = c.idvaisseaucompo
+      WHERE v.idjoueurbat = ?");
+
 // Fonction permettant de créer une recherche :
 function creerrecherche($idrecherche, $idjoueur)
 	{
 	include("../include/BDDconnection.php");
-	$prixrech = $bdd->prepare("SELECT prixrecherche FROM recherche WHERE idrecherche = ? ");
-	$reqcreerrecherche = $bdg->prepare("INSERT INTO rech_joueur(idjoueurrecherche, idrech, rechnesc) VALUES (?,?,?)");	
-    $prixrech->execute(array($idrecherche));
-    $repprixrech = $prixrech->fetch();
-    $aleatoirerecherche = rand(100 , 200) ;
-    $reelprixrech = $aleatoirerecherche * $repprixrech['prixrecherche'] / 100 ;
-    $reqcreerrecherche->execute(array($idjoueur, $idrecherche, $reelprixrech));
+  
+  $reqrechercheexistedeja = $bdg->prepare('SELECT COUNT(*) AS nb FROM rech_joueur WHERE idrech = ? AND idjoueurrecherche = ?');
+  $reqrechercheexistedeja->execute(array($idrecherche, $idjoueur));
+  $reprechercheexistedeja = $reqrechercheexistedeja->fetch();
+  if ($reprechercheexistedeja['nb'] == 0)
+    {
+  	$prixrech = $bdd->prepare("SELECT prixrecherche FROM recherche WHERE idrecherche = ? ");
+  	$reqcreerrecherche = $bdg->prepare("INSERT INTO rech_joueur(idjoueurrecherche, idrech, rechnesc) VALUES (?,?,?)");	
+      $prixrech->execute(array($idrecherche));
+      $repprixrech = $prixrech->fetch();
+      $aleatoirerecherche = rand(100 , 200) ;
+      $reelprixrech = $aleatoirerecherche * $repprixrech['prixrecherche'] / 100 ;
+      $reqcreerrecherche->execute(array($idjoueur, $idrecherche, $reelprixrech));
     }
+  }
 // À utiliser :  creerrecherche( X (= num recherche) , $replvl['id']); 
 
 
@@ -114,7 +127,7 @@ WHILE($replvl = $reqlvl->fetch())
 	            creerrecherche(5, $replvl['id']);
 
 	            // Cela donne accès aux soutes.
-   	            creerrecherche(7, $replvl['id']);
+   	          creerrecherche(7, $replvl['id']);
 	            }
       break;
 
@@ -126,6 +139,24 @@ WHILE($replvl = $reqlvl->fetch())
 	            {
 	            $reqlvlup->execute(array($replvl['id']));
 	            }
+      break;
+      case 6:
+            // Pour monter de niveau, il faut construire une base spatiale.
+            $reqcomposantsurlevaisseau->execute(array($replvl['id']));
+            $repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch();
+            if ($repcomposantsurlevaisseau['nb']>0)
+              {
+              $reqlvlup->execute(array($replvl['id']));
+
+              // Cela donne accès aux lasers miniers.
+              creerrecherche(6, $replvl['id']);
+
+              // Cela donne accès aux lasers miniers.
+              creerrecherche(10, $replvl['id']);
+
+              // Cela donne accès aux lasers miniers.
+              creerrecherche(11, $replvl['id']);
+              }
       break;
   	}
 	}

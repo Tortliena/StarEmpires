@@ -172,6 +172,34 @@ switch ($_GET["message"])
     case 36:
         echo "Ce vaisseau n'a pas de marchandise dans les soutes !" ;
     break;
+    case 37:
+        echo "Ce vaisseau n'est pas endommagé !" ;
+    break;
+    case 38:
+        echo "Vous venez d'ordonner à ce vaisseau d'aller en " . $_SESSION['message1'] . "-" . $_SESSION['message2'];
+    break;
+    case 39:
+        echo "Vous venez d'ordonner à ce vaisseau de récolter les ressources présentes.";
+    break;
+    case 40:
+        echo "Vous venez d'ordonner à ce vaisseau de décharger ses soutes sur votre planète.";
+    break;
+    case 41:
+        echo "Pas de chantier de réparation à proximité !";
+    break;
+    case 42:
+        echo "Il faut cocher la case pour cette action.";
+    break;
+
+    case 43:
+        echo "La rénovation est déjà avancée. Si vous voulez complètement l'annuler, vous devez cocher la case et retenter l'annulation. Votre investissement actuel sera perdu.";
+    break;
+    case 44:
+        echo "Vous venez de lancer la réparation de ce vaisseau.";
+    break;
+    case 45:
+        echo "Vous venez d'ordonner à votre vaisseau de partir dans l'espace.";
+    break;
     }
 
 unset($_SESSION['message1']);

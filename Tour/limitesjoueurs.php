@@ -13,7 +13,9 @@ while ($repjoueur = $reqjoueur->fetch())
     // Calcul du max de pop :
     $reqcompterbat->execute(array(4, $repjoueur['id']));
     $repcompterbaselunaire = $reqcompterbat->fetch();
-    $maxpop = 8 + $repcompterbaselunaire['nb'];
+    $reqcompterbat->execute(array(3, $repjoueur['id']));
+    $repcomptermegalopole = $reqcompterbat->fetch();
+    $maxpop = 8 + $repcompterbaselunaire['nb'] + $repcomptermegalopole['nb'];
 
     // Calcul du max de chantiers :
     $maxchantiers = 1;

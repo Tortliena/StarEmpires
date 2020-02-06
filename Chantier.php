@@ -179,8 +179,8 @@ while ($repconstencours = $reqconstencours->fetch())
         {echo $message['message'] . '</br></br>' ; }
       $reqnomitemencoursdeconstruction->closeCursor();
       }
-    elseif ($repconstencours['trucaconstruire'] == -1)
-      {
+    elseif ($repconstencours['trucaconstruire'] == -1 OR $repconstencours['trucaconstruire'] == -2)
+      { // cas d'une conception
       $reqnomvaisseau = $bdg->prepare("
       SELECT v.nomvaisseau
       FROM vaisseau v INNER JOIN concenptionencours c

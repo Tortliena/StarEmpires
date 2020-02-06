@@ -16,7 +16,7 @@ function composanthangars($typecomposant, $idjoueur, $idvaisseau)
   echo '<h3>' . ucfirst($typecomposant) . ' :</h3>';
 
   $a = 0; ?> <!-- Variable permettant de gérer le cas avec 0 choix -->
-  <form method="post" action="script/ordreconceptionvaisseau.php">
+  <form method="post" action="script/ordredeplacement.php">
     <p>
       <label for="idcomposant">
       <?php
@@ -29,7 +29,7 @@ function composanthangars($typecomposant, $idjoueur, $idvaisseau)
         }
       if ($composantexiste == false)
         {
-        echo ucfirst($typecomposant) . ' basique';
+        echo 'Pas d\'équipement particulier installé';
         }
         ?>
       </label>
@@ -62,8 +62,11 @@ function composanthangars($typecomposant, $idjoueur, $idvaisseau)
         }
       else
         {
-        echo '<input name="idvaisseau" type="hidden" value="' . $idvaisseau . '">';
-        echo '<input type="submit" value="échanger" />';
+        echo '<input name="idvaisseau" type="hidden" value="' . $idvaisseau . '"> ';
+        echo '<input name="xobjectif" type="hidden" value="0">';
+        echo '<input name="yobjectif" type="hidden" value="0">';
+        echo '<input name="typeordre" type="hidden" value="6">';
+        echo '<input type="submit" value="Échanger" />';
         } ?>
         </select>
      </p>
@@ -71,7 +74,7 @@ function composanthangars($typecomposant, $idjoueur, $idvaisseau)
   } // Fin de la fonction pour afficher les items.
 
 // Utiliser avec annulerordrededeplacement($reponseordredeplacementactuel['typeordre'], $_GET['id'], $reponseordredeplacementactuel['xdestination'], $reponseordredeplacementactuel['ydestination'])
-function annulerordrededeplacement($typeordre, $idvaisseau, $xdest, $ydest)
+function annulerordrededeplacement($typeordre, $idvaisseau, $xdest, $ydest, $bloque)
   {
   switch ($typeordre)
     {
@@ -93,11 +96,20 @@ function annulerordrededeplacement($typeordre, $idvaisseau, $xdest, $ydest)
       case 6:
         $messageannulerdeplacement = 'Vous venez juste de débuter la rénovation du vaisseau. ';
       break;
+      case 7:
+        $messageannulerdeplacement = 'Votre vaisseau est en réparation. ';
+      break;
     }
-    echo '<form method="post" action="script/annulerdeplacementvaisseau.php"><p>';
+    echo '<form method="post" action="script/ordredeplacement.php"><p>';
     echo $messageannulerdeplacement ;
     echo '<input name="idvaisseau" type="hidden" value="' . $idvaisseau . '">';
-    echo '<input type="submit" value="supprimer l\'ordre"/>';
+    if ($bloque == 1)
+      {
+      echo '<input type="hidden" name="confirmer" value="off"/>'; 
+      echo '<input id = "checkbox" type="checkbox" name="confirmer"/> <label for="checkbox"></label>  '; 
+      }
+    echo '<input name="typeordre" type="hidden" value="-1">';
+    echo '<input type="submit" value="Supprimer l\'ordre"/>';
     echo '</p></form>';
   }
 
@@ -120,14 +132,18 @@ function formulaireordredeplacement($typeordre, $idvaisseau, $texteexplication)
       $texteexplication = 'Votre vaisseau se trouve à proximité de votre planète. ';
       $textevalidation = 'Quitter l\'orbite';
     break;
+    case 7:
+      $textevalidation = 'Réparer';
+    break;
     }
 
   echo '<form method="post" action="script/ordredeplacement.php"><p>';
   echo $texteexplication ;
   echo '<input name="typeordre" type="hidden" value="' . $typeordre . '">';
   echo '<input name="idvaisseau" type="hidden" value="' . $idvaisseau . '">';
+  echo '<input name="xobjectif" type="hidden" value="0">';
+  echo '<input name="yobjectif" type="hidden" value="0">';
   echo '<input type="submit" value="' . $textevalidation . '" />';
   echo '</p></form>';
   }
-
   ?>

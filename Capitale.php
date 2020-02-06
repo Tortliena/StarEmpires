@@ -26,10 +26,9 @@ include("include/BDDconnection.php");
     $typemessage = 'capitale' ;
     include("include/resume.php");
 
-$reqchoixactuel = $bdg->prepare('SELECT ideventsuivant FROM utilisateurs WHERE id= ?');
-$reqchoixactuel->execute(array($_SESSION['id']));
-$repchoixactuel = $reqchoixactuel->fetch();
-
+$reqinfoutilisateur = $bdg->prepare('SELECT * FROM utilisateurs WHERE id= ?');
+$reqinfoutilisateur->execute(array($_SESSION['id']));
+$repinfoutilisateur = $reqinfoutilisateur->fetch();
 
 $recuperereventencours = $bdg->prepare('SELECT * FROM choixevents WHERE idjoueurevent= ?');
 $recuperereventencours->execute(array($_SESSION['id']));
@@ -44,7 +43,7 @@ if (isset($eventencours['texteevent']))
     <form method="post" action="script/choixevent.php">
     <input type="hidden" name="choix" value="<?php echo $eventencours['eventsuite1'] ;?>">
     <input type="submit"
-    <?php if ($repchoixactuel['ideventsuivant'] == $eventencours['eventsuite1']) { ?> class="choixactuel" <?php } ?>
+    <?php if ($repinfoutilisateur['ideventsuivant'] == $eventencours['eventsuite1']) { ?> class="choixactuel" <?php } ?>
     value="<?php echo $eventencours['textechoix1'] ;?>" />
     </form><?php
     }
@@ -54,7 +53,7 @@ if (isset($eventencours['texteevent']))
     <form method="post" action="script/choixevent.php">
     <input type="hidden" name="choix" value="<?php echo $eventencours['eventsuite2'] ;?>">
     <input type="submit"
-    <?php if ($repchoixactuel['ideventsuivant'] == $eventencours['eventsuite2']) { ?> class="choixactuel" <?php } ?>
+    <?php if ($repinfoutilisateur['ideventsuivant'] == $eventencours['eventsuite2']) { ?> class="choixactuel" <?php } ?>
     value="<?php echo $eventencours['textechoix2'] ;?>" />
     </form><?php
     }
@@ -64,22 +63,39 @@ if (isset($eventencours['texteevent']))
     <form method="post" action="script/choixevent.php">
     <input type="hidden" name="choix" value="<?php echo $eventencours['eventsuite3'] ;?>">
     <input type="submit"
-    <?php if ($repchoixactuel['ideventsuivant'] == $eventencours['eventsuite3']) { echo 'class="choixactuel"'; } ?>
+    <?php if ($repinfoutilisateur['ideventsuivant'] == $eventencours['eventsuite3']) { echo 'class="choixactuel"'; } ?>
     value="<?php echo $eventencours['textechoix3'] ;?>" />
     </form><?php
     }
   }
+
+$reqinfolimites = $bdg->prepare('SELECT * FROM limitesjoueurs WHERE id= ?');
+$reqinfolimites->execute(array($_SESSION['id']));
+$repinfolimites = $reqinfolimites->fetch();
+
+$reqcomptermegalopole = $bdg->prepare('SELECT COUNT(*) AS nb FROM batiments WHERE idjoueurbat = ? AND typebat = 3');
+$reqcomptermegalopole->execute(array($_SESSION['id']));
+$repcomptermegalopole = $reqcomptermegalopole->fetch();
+
+$reqcompterbaselunaire = $bdg->prepare('SELECT COUNT(*) AS nb FROM batiments WHERE idjoueurbat = ? AND typebat = 4');
+$reqcompterbaselunaire->execute(array($_SESSION['id']));
+$repcompterbaselunaire = $reqcompterbaselunaire->fetch();
+
+$total = $repcompterbaselunaire['nb'] + $repcomptermegalopole['nb'] + 8 ; 
+echo '</br></br>Population max : 8 + ' . $repcomptermegalopole['nb'] . '/' . $repinfolimites['maxmegalopole'] . ' mégalopole + ' . $repcompterbaselunaire['nb'] . '/' . $repinfolimites['maxbaselunaire'] . ' base lunaire = '. $total . ' max';
 
 // Affichage de la population totale.
 $compterpop = $bdg->prepare('SELECT COUNT(*) AS population FROM population WHERE joueurpop= ?');
 $compterpop->execute(array($_SESSION['id']));
 $population = $compterpop->fetch();
 ?>
-</br></br>Il y a <?php echo $population[0]; ?> de population au total dans ton empire.</br>
+</br>Il y a <?php echo $population[0]; ?> de population au total dans ton empire.</br>
 
 <?php
+
+
 // Affichage du nombre de citoyens. 
-$comptercit = $bdg->prepare('SELECT COUNT(*) AS citoyens FROM population WHERE joueurpop= ? AND typepop = 1');
+$comptercit = $bdg->prepare('SELECT COUNT(*) AS citoyens FROM population WHERE joueurpop = ? AND typepop = 1');
 $comptercit->execute(array($_SESSION['id']));
 $citoyens = $comptercit->fetch();
 ?>
@@ -99,15 +115,8 @@ $citoyens = $comptercit->fetch();
   }
 ?>
 
-
-<?php
-// Affichage de la quantité de biens.
-$reqbiens = $bdg->prepare('SELECT biens FROM utilisateurs WHERE id= ?');
-$reqbiens->execute(array($_SESSION['id']));
-$quantbiens = $reqbiens->fetch();
-?>
 </br>
-Tu as <?php echo $quantbiens['biens'];?> de biens divers.
+Tu as <?php echo $repinfoutilisateur['biens'];?> de biens divers.
 <?php
 // Affichage de la prod des biens.
 $reqprod = $bdg->prepare('SELECT prodbiens , consobiens FROM variationstour WHERE idjoueur= ?');
@@ -169,13 +178,8 @@ while ($reppoptransf = $reqpoptransf->fetch())
   </form></br><?php
   }
 
-// Permet d'afficher les objectifs/niveau
-  $reqlvl = $bdg->prepare('SELECT lvl from utilisateurs WHERE id= ?');
-  $reqlvl->execute(array($_SESSION['id']));
-  $replvl = $reqlvl->fetch();
-
   echo '<h2>Objectifs :</h2>';
-  switch ($replvl['lvl'])
+  switch ($repinfoutilisateur['lvl'])
   { 
       case 0:
           echo "Former un chercheur et un ouvrier.";
@@ -208,9 +212,9 @@ while ($reppoptransf = $reqpoptransf->fetch())
           echo "Facultatif 2 : Former plus de chercheurs. La recherche des bases lunaires est assez lourde.</br>";
       break;
       case 6:
-          echo "Faire la recherche sur les moteurs améliorés et équiper un de vos vaisseaux avec l'un de ces moteurs.";
+          echo "Faire une recherche sur des équipements de vaisseau et installer un composant sur l'un de vos vaisseaux.";
       break;
-      case 7: 
+      default:
           echo "Vous etes arrivé au bout du jeu ! Bonne chance !"; 
       break; 
 

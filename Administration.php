@@ -13,10 +13,16 @@ include("include/BDDconnection.php");
 
     <body>
 
-<?php include("include/menu.php"); ?>
+<?php
+include("include/menu.php");
+?>
 
 <div class="corps">
     <h1>GESTION DU TOUR</h1>
+
+<?php
+include("include/message.php");
+?>
 
 <!-- Afficher le tour que l'on veut -->
 <form method="get" action="Passerletourmanuellement.php">
@@ -57,7 +63,8 @@ elseif (isset($_GET["voir"]))
 <!-- Reset l'univers ! -->
 <form action="script/resertunivers.php">
 <p>
-    <input type="submit" value="RAZ joueurs/univers" />
+  <input type="submit" value="RAZ joueurs/univers" />
+  <input id = "checkbox" type="checkbox" name="confirmer"/> <label for="checkbox"></label>
 </p>
 </form>
 

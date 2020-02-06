@@ -27,6 +27,8 @@ $reqinsertcomposant = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseauco
 $reqsupprimercomposant = $bdg->prepare('DELETE FROM composantvaisseau WHERE idvaisseaucompo = ? AND typecomposant = ?');
 $reqsupprimerconception = $bdg->prepare('DELETE FROM concenptionencours WHERE idvaisseauconception = ? AND typecomposant = ?');
 $reqsupprimerdeplacement = $bdg->prepare('DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
+$requpdatevaisseau = $bdg->prepare('UPDATE vaisseau SET HPmaxvaisseau = 1');
+$requpdatedeplacement = $bdg->prepare('UPDATE ordredeplacement SET bloque = 1');
 
 // Par ailleurs :
 $miseajourdesressources = $bdg->prepare("UPDATE utilisateurs SET biens = ? , titane = ? WHERE id = ?");
@@ -60,17 +62,21 @@ $reqjoueur = $bdg->query('SELECT
         $nouvavtitane = $repconstruction['avancementbiens'] ;
         $quantiteitemsnecessaire = 0;
 
-        // Si c'est une rénovation de vaisseau :
-        if ($repconstruction['trucaconstruire'] == -1)
+        // Si c'est une rénovation de vaisseau (-1 = changer composant, -2 = réparer) :
+        if ($repconstruction['trucaconstruire'] == -1 OR $repconstruction['trucaconstruire'] == -2)
             {
             $reqconcenptioninfo->execute(array($repconstruction['idconst']));
             $repconcenptioninfo = $reqconcenptioninfo->fetch();
 
+            // Permet de bloquer un ordre. Le vaisseau ne peut plus avoir un nouvel ordre.
+            $requpdatedeplacement->execute(array());
+
             // Cela permet d'avoir l'item nécessaire pour le consommer.
             $repcategorie['itemnecessaire'] = $repconcenptioninfo['idnouvcomposant'];
             $repcategorie['typeitem'] = "conception" ;
-            $repcategorie['nombatiment'] = "Rénovation du " ;
-            $repcategorie['nombatiment'] .= $repconcenptioninfo['nomvaisseau'] ; 
+            $repcategorie['nombatiment'] = "Rénovation du " ; 
+            $repcategorie['nombatiment'] .= $repconcenptioninfo['nomvaisseau'] ;
+            // 2 dernière lignes = Permet de donner un nom pour le message au joueur.  
             }
         else
             { // Sinon aller récupérer les infos dans la table des items.
@@ -189,12 +195,17 @@ $reqjoueur = $bdg->query('SELECT
 
             elseif ($repcategorie['typeitem'] == 'conception')
                 { // Cas d'un changement de composant dans un vaisseau
-                // Supprimer précédent composant
-                $reqsupprimercomposant->execute(array($repconcenptioninfo['idvaisseauconception'], $repconcenptioninfo['typecomposant']));
+                if ($repconstruction['trucaconstruire'] == -1)
+                    {
+                    // Supprimer précédent composant
+                    $reqsupprimercomposant->execute(array($repconcenptioninfo['idvaisseauconception'], $repconcenptioninfo['typecomposant']));
 
-                // Puis insérer le nouveau
-                $reqinsertcomposant->execute(array($repconcenptioninfo['idvaisseauconception'], $repconcenptioninfo['idnouvcomposant'], $repconcenptioninfo['typecomposant']));
-
+                    // Puis insérer le nouveau
+                    $reqinsertcomposant->execute(array($repconcenptioninfo['idvaisseauconception'], $repconcenptioninfo['idnouvcomposant'], $repconcenptioninfo['typecomposant']));
+                    }
+                // Permet de gérer le cas des réparations (les PV du vaisseau = PV max lors du recalcul des PV car PV composant =! PV max vaisseau dans update des vaisseaux.)
+                $requpdatevaisseau->execute(array());
+                
                 // Supprimer la conception en cours.
                 $reqsupprimerconception->execute(array($repconcenptioninfo['idvaisseauconception'], $repconcenptioninfo['typecomposant']));
 

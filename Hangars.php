@@ -21,7 +21,11 @@ include("include/BDDconnection.php");
   $reqvaisseau = $bdg->prepare('SELECT * FROM vaisseau WHERE idvaisseau = ?');
   $reqvaisseau->execute(array($_GET['id']));
   $repvaisseau = $reqvaisseau->fetch();
-  
+
+  $reqlvl = $bdg->prepare('SELECT lvl from utilisateurs WHERE id= ?');
+  $reqlvl->execute(array($_SESSION['id']));
+  $replvl = $reqlvl->fetch();
+
   if ($repvaisseau['idjoueurbat'] != $_SESSION['id'])
     { header('Location: Accueil.php'); exit(); }
   ?>
@@ -90,13 +94,23 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
 
 echo '<p>Capacité des soutes : ' . $a . '/' . $repvaisseau['capacitedesoute'] . '. Capacité de minage : ' . $repvaisseau['capaciteminage'] . '</p>';
 
+$PourcentHP = $repvaisseau['HPvaisseau'] / $repvaisseau['HPmaxvaisseau'] * 100 ;
+if ($PourcentHP != 100 AND $repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'] == $_SESSION['id'])
+	{ // Permet de réparer le vaisseau.
+	formulaireordredeplacement(7, $_GET['id'], 'PV : ' . number_format($PourcentHP, 0) . '% ');
+	}	
+else
+	{
+	echo '<p>PV : ' . number_format($PourcentHP, 0) . '%</p>'; 
+	}
+
 // requetes pour la carte et/ou les ordres.
 $reqdect = $bdg->prepare('SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? LIMIT 1');
 $reqplanete = $bda->prepare('SELECT idplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? LIMIT 1');
 $reqasteroide = $bda->prepare('SELECT idasteroide , quantite , typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
 
 // Permet de récupérer les ordres de déplacement en cours.
-$ordredeplacementactuel = $bdg->prepare('SELECT xdestination , ydestination , typeordre FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
+$ordredeplacementactuel = $bdg->prepare('SELECT * FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
 $ordredeplacementactuel->execute(array($_GET['id']));
 $reponseordredeplacementactuel = $ordredeplacementactuel->fetch();
 
@@ -107,7 +121,7 @@ if (isset($repasteroide['idasteroide']))
   {
   if ($a < $repvaisseau['capacitedesoute'])
     {
-    formulaireordredeplacement(1, $_GET['id'], $texteexplication);
+    formulaireordredeplacement(1, $_GET['id'], 0);
     }
   else
     {
@@ -121,16 +135,13 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
   echo '<h3></br>Votre vaisseau est au hangars.</h3>' ;
   if (isset($reponseordredeplacementactuel['typeordre']))
     {
-    annulerordrededeplacement($reponseordredeplacementactuel['typeordre'], $_GET['id'], $reponseordredeplacementactuel['xdestination'], $reponseordredeplacementactuel['ydestination']);
+    annulerordrededeplacement($reponseordredeplacementactuel['typeordre'], $_GET['id'], $reponseordredeplacementactuel['xdestination'], $reponseordredeplacementactuel['ydestination'], $reponseordredeplacementactuel['bloque']);
     }
 
   // Ordre de sortir du hangars.
   formulaireordredeplacement(4, $_GET['id'], 0);
 
   // Permet d'afficher cette partie avec le niveau suffisant.
-  $reqlvl = $bdg->prepare('SELECT lvl from utilisateurs WHERE id= ?');
-  $reqlvl->execute(array($_SESSION['id']));
-  $replvl = $reqlvl->fetch();
   if ($replvl['lvl']>=6)
     {
     // Afficher ce qui est actuellement sur votre vaisseau. 
@@ -140,15 +151,23 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
 
     composanthangars('soute', $_SESSION['id'], $_GET['id']);
 
-      echo '<h2>Composants dans les stocks :</h2>';
-      $reqsiloitems = $bdd->prepare("
-                      SELECT s.quantite, i.description, i.nombatiment
-                      FROM gamer.silo s
-                      INNER JOIN items i
-                      ON i.iditem = s.iditems
-                      WHERE s.idjoueursilo = ?
-                      AND i.typeitem = 'composant'");
-      $reqsiloitems->execute(array($_SESSION['id']));
+    if ($replvl['lvl']>=7)
+      {
+      composanthangars('arme', $_SESSION['id'], $_GET['id']);
+
+      // Donner accès à cette partie plus tard dans les niveaux.
+      composanthangars('coque', $_SESSION['id'], $_GET['id']);
+      }
+
+    echo '<h2>Composants dans les stocks :</h2>';
+    $reqsiloitems = $bdd->prepare("
+                    SELECT s.quantite, i.description, i.nombatiment
+                    FROM gamer.silo s
+                    INNER JOIN items i
+                    ON i.iditem = s.iditems
+                    WHERE s.idjoueursilo = ?
+                    AND i.typeitem = 'composant'");
+    $reqsiloitems->execute(array($_SESSION['id']));
 
     $b = 0; // Permet de gérer le cas avec 0 composant en stock
     while($repsiloitems = $reqsiloitems->fetch())
@@ -181,21 +200,19 @@ else
     // Si il y a un ordre de déplacement en cours : 
     if (isset($reponseordredeplacementactuel['typeordre']))
       {
-      annulerordrededeplacement($reponseordredeplacementactuel['typeordre'], $_GET['id'], $reponseordredeplacementactuel['xdestination'], $reponseordredeplacementactuel['ydestination']);
+      annulerordrededeplacement($reponseordredeplacementactuel['typeordre'], $_GET['id'], $reponseordredeplacementactuel['xdestination'], $reponseordredeplacementactuel['ydestination'], $reponseordredeplacementactuel['bloque']);
       }
 
     echo '<p>Votre vaisseau est en balade en ' . $repvaisseau['univers'] . ' , ' . $repvaisseau['x'] . ' , ' . $repvaisseau['y'] . '</p>';
 
     // Formulaire pour donner un ordre de déplacement.
     ?>
-    <form method="post" action="script/ordredeplacementvaisseau.php">
+    <form method="post" action="script/ordredeplacement.php">
     <p>
         <input type="number" name="xobjectif" value="<?php if (!isset($_GET['x'])){echo $repvaisseau['x'];} else{echo $_GET['x'];} ?>" min="1" max="<?php echo $xymax;?>">
     <input type="number" name="yobjectif" value="<?php if (!isset($_GET['y'])){echo $repvaisseau['y'];} else{echo $_GET['y'];} ?>" min="1" max="<?php echo $xymax;?>">
         <input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>">
-        <input name="univers" type="hidden" value="<?php echo $repvaisseau['univers'] ;?>">
-        <input name="xdepart" type="hidden" value="<?php echo $repvaisseau['x'] ;?>">
-        <input name="ydepart" type="hidden" value="<?php echo $repvaisseau['y'] ;?>">
+        <input name="typeordre" type="hidden" value="0">
         <input type="submit" value="déplacer" />
     </p>
     </form>
