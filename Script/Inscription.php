@@ -80,5 +80,5 @@ $reqcreerplanete->execute(array(
 $_SESSION['pseudo'] = $_POST["pseudo"];
 $_SESSION['id'] = $repdernierid['id'];
 
-header('Location: ../accueil.php?message=4');
+header('Location: ../capitale.php?message=4');
 ?>

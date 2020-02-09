@@ -83,7 +83,7 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
         OR
         ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0))) // Au hangars
       { // Formulaire pour décharger le cargo. Ne s'exécute que si on a quelque chose en soute ($a)
-      formulaireordredeplacement(2, $_GET['id'], $texteexplication);
+      formulaireordredeplacement(2, $_GET['id'], $texteexplication, 0, 0);
       }
     else
       { // Permet de mettre un point à la fin de la phase avec les trucs en soute. 
@@ -97,7 +97,7 @@ echo '<p>Capacité des soutes : ' . $a . '/' . $repvaisseau['capacitedesoute'] .
 $PourcentHP = $repvaisseau['HPvaisseau'] / $repvaisseau['HPmaxvaisseau'] * 100 ;
 if ($PourcentHP != 100 AND $repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'] == $_SESSION['id'])
 	{ // Permet de réparer le vaisseau.
-	formulaireordredeplacement(7, $_GET['id'], 'PV : ' . number_format($PourcentHP, 0) . '% ');
+	formulaireordredeplacement(7, $_GET['id'], 'PV : ' . number_format($PourcentHP, 0) . '% ', 0, 0);
 	}	
 else
 	{
@@ -121,12 +121,27 @@ if (isset($repasteroide['idasteroide']))
   {
   if ($a < $repvaisseau['capacitedesoute'])
     {
-    formulaireordredeplacement(1, $_GET['id'], 0);
+    formulaireordredeplacement(1, $_GET['id'], 0, 0, 0);
     }
   else
     {
     echo '<p>Vous êtes à proximité d\'un champs de débris, mais vous ne pouvez pas miner faute de place dans les soutes</p>'; 
     }
+  }
+
+// Détection 
+$reqdetectionvaisseauennemi = $bdg->prepare("SELECT idvaisseau, nomvaisseau FROM vaisseau WHERE idjoueurbat <> ? AND univers = ? AND x = ? AND y = ? AND x <> 0");
+$reqdetectionvaisseauennemi->execute(array($_SESSION['id'], $repvaisseau['univers'], $repvaisseau['x'], $repvaisseau['y']));
+while($repdetectionvaisseauennemi = $reqdetectionvaisseauennemi->fetch())
+  {
+  formulaireordredeplacement(5, $_GET['id'], 'Vaisseau inconnu détecté : ' . $repdetectionvaisseauennemi['nomvaisseau'] . ' ', $repdetectionvaisseauennemi['idvaisseau'], 0);
+  }
+
+$reqdetectionvaisseau = $bdg->prepare("SELECT idvaisseau, nomvaisseau FROM vaisseau WHERE idjoueurbat = ? AND univers = ? AND x = ? AND y = ? AND  idvaisseau <> ? AND x <> 0");
+$reqdetectionvaisseau->execute(array($_SESSION['id'], $repvaisseau['univers'], $repvaisseau['x'], $repvaisseau['y'], $repvaisseau['idvaisseau']));
+while($repdetectionvaisseau = $reqdetectionvaisseau->fetch())
+  {
+  echo '<p>Vaisseau ami à proximité : ' . $repdetectionvaisseau['nomvaisseau'] . '</p>';
   }
 
 // Si le vaisseau est au hangars : 
@@ -139,7 +154,7 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
     }
 
   // Ordre de sortir du hangars.
-  formulaireordredeplacement(4, $_GET['id'], 0);
+  formulaireordredeplacement(4, $_GET['id'], 0, 0, 0);
 
   // Permet d'afficher cette partie avec le niveau suffisant.
   if ($replvl['lvl']>=6)
@@ -194,7 +209,7 @@ else
     if ($repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3 AND $repvaisseau['univers'] == $_SESSION['id'])
       {
       // Formulaire pour rentrer en orbite : ordre de type 3.
-      formulaireordredeplacement(3, $_GET['id'], 0);
+      formulaireordredeplacement(3, $_GET['id'], 0, 0, 0);
       }
 
     // Si il y a un ordre de déplacement en cours : 

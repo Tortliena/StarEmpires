@@ -34,6 +34,10 @@ $reqcomposantsurlevaisseau = $bdg->prepare("SELECT COUNT(*) AS nb
       INNER JOIN vaisseau v ON v.idvaisseau = c.idvaisseaucompo
       WHERE v.idjoueurbat = ?");
 
+// Pour lvl 7 à 8
+// Permet de repérer un vaisseau sans tous ses PV ! Problème si le vaisseau se fait détruire ?
+$reqvaisseau = $bdg->prepare("SELECT idvaisseau FROM vaisseau WHERE HPmaxvaisseau <> HPvaisseau AND idjoueurbat = ?");
+
 // Fonction permettant de créer une recherche :
 function creerrecherche($idrecherche, $idjoueur)
 	{
@@ -141,7 +145,7 @@ WHILE($replvl = $reqlvl->fetch())
 	            }
       break;
       case 6:
-            // Pour monter de niveau, il faut construire une base spatiale.
+            // Pour monter de niveau, il équiper un composant.
             $reqcomposantsurlevaisseau->execute(array($replvl['id']));
             $repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch();
             if ($repcomposantsurlevaisseau['nb']>0)
@@ -150,6 +154,15 @@ WHILE($replvl = $reqlvl->fetch())
 
               // Cela donne accès aux lasers miniers.
               creerrecherche(6, $replvl['id']);
+              }
+      break;
+      case 7:
+            // Pour monter de niveau, il faut avoir perdu des points de vie d'un vaisseau.
+            $reqvaisseau->execute(array($replvl['id']));
+            $repvaisseau = $reqvaisseau->fetch();
+            if (isset($repvaisseau['idvaisseau']))
+              {
+              $reqlvlup->execute(array($replvl['id']));
 
               // Cela donne accès aux lasers miniers.
               creerrecherche(10, $replvl['id']);

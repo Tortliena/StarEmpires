@@ -214,6 +214,9 @@ while ($reppoptransf = $reqpoptransf->fetch())
       case 6:
           echo "Faire une recherche sur des équipements de vaisseau et installer un composant sur l'un de vos vaisseaux.";
       break;
+      case 7:
+          echo "Continuez d'explorer pour trouver quelque chose d'intéressant.";
+      break;
       default:
           echo "Vous etes arrivé au bout du jeu ! Bonne chance !"; 
       break; 

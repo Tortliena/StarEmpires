@@ -11,13 +11,14 @@ echo $_POST['xobjectif'] . '</br>';
 echo $_POST['yobjectif'] . '</br>';
 echo $_POST['confirmer'] . '</br>'; //'on' si case coché, 'off' si non cochée, null si pas de case.
 */
-
 // Si conception : $_POST['composant'] avec 2 valeurs dedans.
 
 //Vérifier propriétaire du vaisseau.  
     $reqvaisseau = $bdg->prepare('SELECT * FROM vaisseau WHERE idvaisseau = ?');
     $reqvaisseau->execute(array($_POST['idvaisseau']));
     $repvaisseau = $reqvaisseau->fetch();
+
+echo $repordreactuel['bloque'];
 
     if ($repvaisseau['idjoueurbat'] != $_SESSION['id'])
         {
@@ -29,12 +30,18 @@ echo $_POST['confirmer'] . '</br>'; //'on' si case coché, 'off' si non cochée,
     $reqordreactuel->execute(array($_POST['idvaisseau']));
     $repordreactuel = $reqordreactuel->fetch();
 
+    // Ordre totalement bloqué : 
+    if ($repordreactuel['bloque'] == 2)
+        {
+        $message = 47 ;
+        goto a;
+        }
+
     // Il faut avoir coché la case pour annuler un ordre bloqué. 
     if ($repordreactuel['bloque'] == 1)
         { // Cas du vaisseau en cours de rénovation !
         if ($_POST['confirmer'] == 'on')
             { // Si on valide qu'on veut annuler, alors on peut continuer.
-
             }
         elseif ($_POST['confirmer'] == 'off')
             { // Si la variable existe et est à 0 :
@@ -53,8 +60,8 @@ echo $_POST['confirmer'] . '</br>'; //'on' si case coché, 'off' si non cochée,
         //Vérifier que les coordonnées sont différentes. 
         if ($repvaisseau['x'] == $_POST['xobjectif'] AND $repvaisseau['y'] == $_POST['yobjectif'])
             {
-            header("location: ../hangars.php?message=19&" . "id=" . urlencode($_POST['idvaisseau'])); 
-            exit();  
+            $message = 19 ;
+            goto a;   
             }
         $message = 38 ;
         $_SESSION['message1'] = $_POST['xobjectif']; 
@@ -69,13 +76,15 @@ echo $_POST['confirmer'] . '</br>'; //'on' si case coché, 'off' si non cochée,
         $repasteroide = $reqasteroide->fetch();   
         if (!isset($repasteroide['idasteroide']))
             {
-            header("location: ../hangars.php?message=35&" . "id=" . urlencode($_POST['idvaisseau'])); 
-            exit();
+            $message = 35 ;
+            goto a;
             }
         $message = 39 ;
         }
 
-        if ($_POST['typeordre'] == 2)
+    // ordre de rentrée vers la planète (= typeordre 3). Faire ici une vérification ?
+
+    if ($_POST['typeordre'] == 2)
         { // 2 = décharger
         // Vérifier localisation du vaisseau
         if  ($repvaisseau['univers'] == $_SESSION['id'] AND
@@ -87,20 +96,20 @@ echo $_POST['confirmer'] . '</br>'; //'on' si case coché, 'off' si non cochée,
             ))
             {
             // Vérifier qu'il y a quelque chose dans le vaisseau.
-            $reqverifcargo = $bdg->prepare(" SELECT quantiteitems FROM cargovaisseau WHERE idvaisseaucargo = ?") ;
+            $reqverifcargo = $bdg->prepare("SELECT quantiteitems FROM cargovaisseau WHERE idvaisseaucargo = ?") ;
             $reqverifcargo ->execute(array($_POST['idvaisseau']));
             $repverifcargo  = $reqverifcargo ->fetch();
             if (!isset($repverifcargo['quantiteitems']))
                 {
-                header("location: ../hangars.php?message=36&" . "id=" . urlencode($_POST['idvaisseau']));
-                exit();
+                $message = 36 ;
+                goto a;
                 }
             }
         $message = 40 ;
         }
 
     if ($_POST['typeordre'] == 4)
-        {
+        { // Ordre de sortie vers la carte.
         $message = 45; 
         }
     
@@ -113,6 +122,17 @@ echo $_POST['confirmer'] . '</br>'; //'on' si case coché, 'off' si non cochée,
     $reqnumerodeconstruction = $bdg->prepare('SELECT idconstruction FROM concenptionencours WHERE idvaisseauconception = ?');
     $reqnumerodeconstruction->execute(array($_POST['idvaisseau']));
     $repnumerodeconstruction = $reqnumerodeconstruction->fetch();
+
+    // Supprimer ordre de bataille :
+    $reqsupprimerbataille = $bdg->prepare('DELETE FROM bataille WHERE idvaisseauoffensif  = ?');
+    $reqsupprimerbataille->execute(array($_POST['idvaisseau']));
+
+    if ($_POST['typeordre'] == 5)
+        { // Ordre de sortie vers la carte.
+        $reqcreerbataille = $bdg->prepare('INSERT INTO bataille (idvaisseauoffensif,   idvaisseaudefensif) VALUES(?, ?)') ;
+        $reqcreerbataille ->execute(array($_POST['idvaisseau'], $_POST['xobjectif']));
+        $message = 46;
+        }
 
     if (isset($repnumerodeconstruction['idconstruction']))
         {
@@ -152,8 +172,8 @@ echo $_POST['confirmer'] . '</br>'; //'on' si case coché, 'off' si non cochée,
                 {
                 if($repvaisseau['HPvaisseau'] == $repvaisseau['HPmaxvaisseau'])
                     { // Le vaisseau est full HP !
-                    header("location: ../hangars.php?message=37&" . "id=" . urlencode($_POST['idvaisseau']));
-                    exit();
+                    $message = 37 ;
+                    goto a;
                     }
                 else
                     {
@@ -192,8 +212,8 @@ echo $_POST['confirmer'] . '</br>'; //'on' si case coché, 'off' si non cochée,
             }
         else
             { // Pas au bon endroit pour réparer le vaisseau.
-            header("location: ../hangars.php?message=41&" . "id=" . urlencode($_POST['idvaisseau']));
-            exit();
+            $message = 41 ;
+            goto a; 
             }
         }
 

@@ -42,6 +42,9 @@ include("croissancepop.php");
 // Gestion de la page chantier et utilise 'proddutour'.
 include("construction.php");
 
+// Boum ! ! 
+include("combat.php");
+
 // Mouvement de la flotte + exploration
 include("deplacementvaisseau.php");
 

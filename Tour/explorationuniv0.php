@@ -15,9 +15,17 @@ $reqexploration = $bdg->prepare('SELECT idexplore , x , y, univers, idexplorateu
 $reqcompterexplo = $bdg->prepare('SELECT COUNT(*) AS nbcaseexplo  FROM explore WHERE idexplorateur = ? AND idexplore <= ? ') ; 
 $reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)');
 $reqcreerasteroides = $bda->prepare('INSERT INTO champsasteroides (xaste , yaste , uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)');
-$reqcreerplanete = $bda->prepare('INSERT INTO planete(xplanete, yplanete, universplanete) VALUES(:xplanete, :yplanete, :universplanete)');
+$reqcreerplanete = $bda->prepare('INSERT INTO planete(xplanete, yplanete, universplanete) VALUES(?, ?, ?)');
 
+// Créer vaisseau
+$reqcreervaiseau = $bdg->prepare('INSERT INTO vaisseau(idjoueurbat, typevaisseau, x, y, univers, nomvaisseau, HPmaxvaisseau, HPvaisseau) VALUES(?, ?, ?, ?, ?, ?, ?, ?)');
+$reqinfovaisseau = $bdg->prepare('SELECT idvaisseau FROM vaisseau ORDER BY idvaisseau DESC LIMIT 1');
+$reqcreercomposant = $bdg->prepare('INSERT INTO composantvaisseau(idvaisseaucompo, iditemcomposant, typecomposant) VALUES(?, ?, ?)');
+$reqcreerordredeplacement = $bdg->prepare('INSERT INTO ordredeplacement(idvaisseaudeplacement, xdestination, ydestination, universdestination, idjoueurduvaisseau, typeordre, bloque) VALUES(?, ?, ?, ?, ?, ?, ?)');
+$reqsupprimerordreprecedent = $bdg->prepare('DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
 
+$reqinfovaisseauexplorateur = $bdg->prepare('SELECT idvaisseau FROM vaisseau WHERE x = ? AND y = ? AND univers = ?');
+ 
 // Permet de traiter les explorations du tour.
 $reqexploration->execute(array($touractuel['id']));
 while ($repexplorationexistante = $reqexploration->fetch())
@@ -48,10 +56,7 @@ while ($repexplorationexistante = $reqexploration->fetch())
         break;
 
         case 6:     
-            $reqcreerplanete->execute(array(
-                'xplanete'=> $repexplorationexistante['x'],
-                'yplanete'=> $repexplorationexistante['y'],
-                'universplanete'=> $repexplorationexistante['univers']));
+            $reqcreerplanete->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers']));
             $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Planète habitable', 'Nous venons de trouver une nouvelle planète. Nous allons pouvoir l\'habiter en déployer d\'énormes ressources. Nous devrions continuer l\'exploration dans le but de trouver ces ressources'));
         break;
 
@@ -69,7 +74,19 @@ while ($repexplorationexistante = $reqexploration->fetch())
         break;
 
         case 10:
+            $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Vaisseau inconnu détecté', 'Nous venons de trouver un vaisseau inconnu. Nous avons tenté de communiquer avec lui, mais aucune réaction de sa part. Il est en très mauvais état et semble abandonné depuis des siècles. Nous allons tenter de l\'aborder.'));
             
+            $reqinfovaisseauexplorateur->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers']));
+            $repinfovaisseauexplorateur = $reqinfovaisseauexplorateur->fetch();
+
+            $reqsupprimerordreprecedent->execute(array($repinfovaisseauexplorateur['idvaisseau']));
+            $reqcreerordredeplacement->execute(array($repinfovaisseauexplorateur['idvaisseau'], $repexplorationexistante['x'], $repexplorationexistante['y'], 0, $repexplorationexistante['idexplorateur'], 8 ,2));
+
+            $reqcreervaiseau->execute(array(0, 5, $repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 'Épave spatiale', 20, 20));
+            $reqinfovaisseau->execute(array());
+            $repinfovaisseau = $reqinfovaisseau->fetch();
+
+            $reqcreercomposant->execute(array($repinfovaisseau['idvaisseau'], 13, 'arme'));
         break;
 
         case 11:

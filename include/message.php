@@ -71,8 +71,7 @@ switch ($_GET["message"])
         else
         {   
         echo "Vous avez lancé la production de " . $_SESSION['message1'] . " " . $_SESSION['message2'] . " !";
-        }
-        
+        }  
     break;
 
     case 13:
@@ -106,6 +105,7 @@ switch ($_GET["message"])
     case 19:
         echo "Vous devez entrer des coordonnées différentes de celles actuelles.";
     break;
+
     case 20:
         echo "Ordre de déplacement supprimé";
     break;
@@ -141,6 +141,7 @@ switch ($_GET["message"])
     case 28:
         echo "Vous n'avez pas assez en stock pour lancer autant de fois ce projet.";
     break;
+
     case 29:
         if (empty($_SESSION['message1']) or !isset($_SESSION['message1']))
         {
@@ -151,42 +152,54 @@ switch ($_GET["message"])
         echo "Votre limite pour ce bâtiment est de " . $_SESSION['message1'] . ". Vous en avez " . $_SESSION['message2'] . ". Vous pouvez donc lancer la construction au maximum de " . $a . ".";
         }
     break;
+
     case 30:
         echo "Votre limite pour cette population est de " . $_SESSION['message1'] . ". Vous ne pouvez donc pas convertir autant de population." ;
     break;
+
     case 31:
         echo "Erreur non spécifiée !" ;
     break;
+
     case 32:
         echo "Vous venez de lancer une rénovation du vaisseau." ;
     break;
+
     case 33:
         echo "Rénovation du vaisseau annulée" ;
     break;
+
     case 34:
         echo "Vous devez annuler l'ordre de rénovation avant de donner tout autre ordre à ce vaisseau." ;
     break;
+
     case 35:
         echo "Pas de champs d'astéroides à proximité !" ;
     break;
+
     case 36:
         echo "Ce vaisseau n'a pas de marchandise dans les soutes !" ;
     break;
+
     case 37:
         echo "Ce vaisseau n'est pas endommagé !" ;
     break;
+
     case 38:
         echo "Vous venez d'ordonner à ce vaisseau d'aller en " . $_SESSION['message1'] . "-" . $_SESSION['message2'];
     break;
+
     case 39:
         echo "Vous venez d'ordonner à ce vaisseau de récolter les ressources présentes.";
     break;
+
     case 40:
         echo "Vous venez d'ordonner à ce vaisseau de décharger ses soutes sur votre planète.";
     break;
     case 41:
         echo "Pas de chantier de réparation à proximité !";
     break;
+
     case 42:
         echo "Il faut cocher la case pour cette action.";
     break;
@@ -194,11 +207,21 @@ switch ($_GET["message"])
     case 43:
         echo "La rénovation est déjà avancée. Si vous voulez complètement l'annuler, vous devez cocher la case et retenter l'annulation. Votre investissement actuel sera perdu.";
     break;
+
     case 44:
         echo "Vous venez de lancer la réparation de ce vaisseau.";
     break;
+
     case 45:
         echo "Vous venez d'ordonner à votre vaisseau de partir dans l'espace.";
+    break;
+
+    case 46:
+        echo "Attaque lancée !";
+    break;
+
+    case 47:
+        echo "Votre vaisseau est actuellement occupé et ne peut pas suivre un ordre.";
     break;
     }
 

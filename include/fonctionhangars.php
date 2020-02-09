@@ -93,11 +93,17 @@ function annulerordrededeplacement($typeordre, $idvaisseau, $xdest, $ydest, $blo
       case 4:
         $messageannulerdeplacement = 'Vous avez ordonné à votre vaisseau de sortir de l\'orbite de la planète. ';
       break;
+      case 5:
+        $messageannulerdeplacement = 'Vous allez attaquer un vaisseau. ';
+      break;
       case 6:
         $messageannulerdeplacement = 'Vous venez juste de débuter la rénovation du vaisseau. ';
       break;
       case 7:
         $messageannulerdeplacement = 'Votre vaisseau est en réparation. ';
+      break;
+      case 8:
+        $messageannulerdeplacement = 'Votre vaisseau est actuellement occupé et ne réponds pas à vos tentatives de communication. ';
       break;
     }
     echo '<form method="post" action="script/ordredeplacement.php"><p>';
@@ -113,7 +119,7 @@ function annulerordrededeplacement($typeordre, $idvaisseau, $xdest, $ydest, $blo
     echo '</p></form>';
   }
 
-function formulaireordredeplacement($typeordre, $idvaisseau, $texteexplication)
+function formulaireordredeplacement($typeordre, $idvaisseau, $texteexplication, $valeur1, $valeur2)
   {
   switch ($typeordre)
     {
@@ -132,6 +138,9 @@ function formulaireordredeplacement($typeordre, $idvaisseau, $texteexplication)
       $texteexplication = 'Votre vaisseau se trouve à proximité de votre planète. ';
       $textevalidation = 'Quitter l\'orbite';
     break;
+    case 5:
+      $textevalidation = 'Attaquer';
+    break;
     case 7:
       $textevalidation = 'Réparer';
     break;
@@ -141,8 +150,8 @@ function formulaireordredeplacement($typeordre, $idvaisseau, $texteexplication)
   echo $texteexplication ;
   echo '<input name="typeordre" type="hidden" value="' . $typeordre . '">';
   echo '<input name="idvaisseau" type="hidden" value="' . $idvaisseau . '">';
-  echo '<input name="xobjectif" type="hidden" value="0">';
-  echo '<input name="yobjectif" type="hidden" value="0">';
+  echo '<input name="xobjectif" type="hidden" value="' . $valeur1 . '">';
+  echo '<input name="yobjectif" type="hidden" value="' . $valeur2 . '">';
   echo '<input type="submit" value="' . $textevalidation . '" />';
   echo '</p></form>';
   }

@@ -11,10 +11,12 @@ $touractuel = $reqtouractuel->fetch();
 // Gestion vaisseau
 $reqvaisseau = $bdg->prepare('SELECT idjoueurbat, nomvaisseau, x, y, univers, vitesse, capacitedesoute, capaciteminage FROM vaisseau WHERE idvaisseau = ?');
 $applicationdeplacement = $bdg->prepare("UPDATE vaisseau SET x = ? , y = ?, univers = ? where idvaisseau = ? ");
+$reqmettrepva1 = $bdg->prepare("UPDATE vaisseau SET x = ? , y = ?, HPvaisseau = ? where idvaisseau = ? ");
 
 // Divers
-$message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess , numspemessage) VALUES (? , ?, ? , ?)") ;
+$message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess , numspemessage) VALUES (?, ?, ?, ?)") ;
 $reqsupprimerordreprecedent = $bdg->prepare('DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
+$reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)');
 
 // Gestion exploration
 $reqexplorationexistante = $bdg->prepare("SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? ");
@@ -88,7 +90,7 @@ while ($repordredep = $reqordredep->fetch())
     $applicationdeplacement->execute(array($xeffectif , $yeffectif , $repordredep['universdestination'], $repordredep['idvaisseaudeplacement']));
 
     // Exploration si case inconnue :
-    $reqexplorationexistante->execute(array($xeffectif , $yeffectif , $repordredep['universdestination'] , $repordredep['idvaisseaudeplacement']));
+    $reqexplorationexistante->execute(array($xeffectif , $yeffectif , $repordredep['universdestination'] , $repordredep['idjoueurduvaisseau']));
     $repexplorationexistante = $reqexplorationexistante->fetch(); 
     if (empty($repexplorationexistante['idexplore']))
         {
@@ -251,4 +253,31 @@ while ($repordredep = $reqordredep->fetch())
     $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement'])); 
     }
 $reqordredep->closeCursor();
+
+// $reqordredep->execute(array(5)); = attaquer (page bataille)
+// $reqordredep->execute(array(6)); = conception de vaisseau (page construction)
+// $reqordredep->execute(array(7)); = Réparation de vaisseau (page construction)
+
+$reqordredep->execute(array(8)); //  = Ordre spécial premier vaisseau trouvé.
+while ($repordredep = $reqordredep->fetch())
+    {
+    if ($repordredep['xdestination'] == 5)
+        {$xdestination = 4;}
+    else {$xdestination = $repordredep['xdestination']+1;}
+
+    if ($repordredep['ydestination'] == 1)
+        {$ydestination = 2;}
+    else {$ydestination = $repordredep['ydestination']-1;}
+
+    $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repordredep['idjoueurduvaisseau'], 0, 'Échec de la mission', 'Nous avons tenté d\'aborder l\'épave, mais ce qui semble être un système de défense automatique nous a tiré dessus. Notre vaisseau est lourdement endommagé et nous devrions rentrer et le réparer.'));
+
+    $reqmessageinterne->execute(array('Amirauté', $repordredep['idjoueurduvaisseau'], 0, 'Développement de la défense spatiale', 'Les informations receuillient par la mission d\'exploration laissent à penser que nous pourrions construire une petite flotte armée capable de venir à bout de la défense du vaisseau inconnu. Ensuite nous pourrions récupérer et étudier les débris.'));
+
+    $reqmettrepva1->execute(array($xdestination, $ydestination, 1, $repordredep['idvaisseaudeplacement']));
+
+    $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement'])); 
+    }
+$reqordredep->closeCursor();
+
 ?>
+
