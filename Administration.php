@@ -63,11 +63,10 @@ elseif (isset($_GET["voir"]))
 <!-- Reset l'univers ! -->
 <form action="script/resertunivers.php">
 <p>
-  <input type="submit" value="RAZ joueurs/univers" />
   <input id = "checkbox" type="checkbox" name="confirmer"/> <label for="checkbox"></label>
+  <input type="submit" value="RAZ joueurs/univers" />
 </p>
 </form>
-
 
 </div>
   </body>

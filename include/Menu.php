@@ -52,7 +52,7 @@
 
 			<?php
             // Permet d'afficher le lien vers le silo si on a le niveau pour y accéder.
-            if ($replvl['lvl'] > 4) 
+            if ($replvl['lvl'] > 5) 
                 {
                 echo '<a class ="lienmenu" href="silo.php">Silo</a></br>';
                 }
@@ -69,7 +69,6 @@
                 }//}
 
             $reqvaiss->closeCursor();
-
             }
     		?>
   		

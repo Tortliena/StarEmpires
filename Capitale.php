@@ -82,7 +82,12 @@ $reqcompterbaselunaire->execute(array($_SESSION['id']));
 $repcompterbaselunaire = $reqcompterbaselunaire->fetch();
 
 $total = $repcompterbaselunaire['nb'] + $repcomptermegalopole['nb'] + 8 ; 
-echo '</br></br>Population max : 8 + ' . $repcomptermegalopole['nb'] . '/' . $repinfolimites['maxmegalopole'] . ' mégalopole + ' . $repcompterbaselunaire['nb'] . '/' . $repinfolimites['maxbaselunaire'] . ' base lunaire = '. $total . ' max';
+echo '</br></br>Population max : 8 + ' . $repcomptermegalopole['nb'] . '/' . $repinfolimites['maxmegalopole'] . ' mégalopole ';
+if ($repinfoutilisateur['lvl']>4)
+  {
+  echo '+ ' . $repcompterbaselunaire['nb'] . '/' . $repinfolimites['maxbaselunaire'] . ' base lunaire ';
+  }
+echo '= '. $total . ' max';
 
 // Affichage de la population totale.
 $compterpop = $bdg->prepare('SELECT COUNT(*) AS population FROM population WHERE joueurpop= ?');
@@ -182,45 +187,61 @@ while ($reppoptransf = $reqpoptransf->fetch())
   switch ($repinfoutilisateur['lvl'])
   { 
       case 0:
-          echo "Former un chercheur et un ouvrier.";
-          echo "Vous pouvez passer des tours en allant dans 'gestion du tour' puis 'passer le tour'.</br>";
+          echo "Former un chercheur et un ouvrier.</br>";
+          echo "Vous pouvez passer des tours en cliquant sur 'passer le tour'.</br>";
           echo "Pour former des population, vous pouvez utiliser cette page.</br>";
       break;
       case 1:
           echo "Finir la recherche sur les moteurs.</br>";
-          echo "Facultatif : Vous aurez accès à d'autres recherches après celle-ci. Vous pourrez choisir celle qui vous intéresse.";
+          echo "Facultatif : Utilisez votre ouvrier pour faire une mégalopole.</br>";
       break;
       case 2:
-          echo "Construire un vaisseau spatial et le sortir.</br>";
+          echo "Construire un vaisseau spatial et le sortir dans l'espace.</br>";
           echo "Construction : Page chantier.</br>";
-          echo "Facultatif : Vous pouvez former un second ouvrier pour accélérer la construction.</br>";
           echo "Pour diriger le vaisseau, aller sur la page dédiée qui devrait apparaitre après sa construction.</br>";
+          echo "Facultatif : Finir les recherches sur les chantiers et les centres de recherche. Vous pourrez plus tard recruter plus d'ouvriers et de chercheurs.</br>";
+          echo "Facultatif : Renommer votre vaisseau quand il est construit. Cela pourra vous aider.</br>";
       break;
       case 3:
           echo "Explorer les environs et trouver quelque chose d'intéressant.</br>";
           echo "Pour se déplacer : Vous pouvez cliquer sur la carte puis valider l'ordre.</br>";
-          echo "Facultatif : Avec deux vaisseaux, cela ira plus vite.</br>";
+          echo "Facultatif : Avec deux vaisseaux, cela ira plus vite. Et avec plus d'ouvriers et de chercheurs, vous pourrez progresser plus vite.</br>";
       break;
       case 4:
           echo "Vous venez de trouver quelques astéroides et une planète. Cela va assurer à votre peuple une prospérité à court-moyen terme.</br>";
-          echo "Envoyer un ou plusieurs vaisseaux miner les astéroides aux alentours et ramener la cargaison sur votre planète.</br>";
-          echo "Déplacer un vaisseau sur un champs d'astéroides, et vous aurez une option pour miner. Ramener le vaisseau avec sa cargaison sur votre planète et vous aurez une option pour déposer votre butin.</br>";
+          echo "Vous pouvez déplacer un vaisseau sur un champs d'astéroides, et vous aurez une option pour miner. Ramener le vaisseau avec sa cargaison sur votre planète et vous aurez une option pour déposer votre butin.</br>";
+          echo "Continuez d'explorer en parallèle.</br>";
+          echo "Facultatif : Faire la recherche sur les bases lunaires et commencer la production.</br>";
       break;
       case 5:
-          echo "Continuer de miner, trouvez des ressources rares, lancer la recherche sur les bases lunaires et en produire une. Vous allez avoir besoin de recycler les débris (option de construction de la page chantier)</br>";
-          echo "Facultatif : Vous devriez avoir fini les recherches sur les centres de recherche et les chantiers. Vous pouvez en constuire un de chaque pour augmenter votre limite d'ouvriers ou de chercheurs.</br>";
-          echo "Facultatif 2 : Former plus de chercheurs. La recherche des bases lunaires est assez lourde.</br>";
+          echo "Votre vaisseau d'exploration est lourdement endommagé. Vous avez aussi trouvé de multiples ressources à exploiter et une nouvelle planète nécessitant un gros investissement.</br>";
+          echo "Faites une recherche sur des équipements de vaisseau et construisez en un ou alors envoyez un vaisseau récolter des ressources et ramenez les sur votre planète.</br>";
       break;
       case 6:
-          echo "Faire une recherche sur des équipements de vaisseau et installer un composant sur l'un de vos vaisseaux.";
+          echo "Vous avez maintenant accès à votre silo. Vous y avez dedans le résumé de ce qui est stocké sur votre planète.</br>";
+          echo "Équiper un de vos vaisseaux avec un composant quelconque. Ils faut faire entrer votre vaisseau dans le hangars et sélectionner le composant à équiper.</br>";
       break;
       case 7:
-          echo "Continuez d'explorer pour trouver quelque chose d'intéressant.";
+          echo "Il est temps pour nous d'aller commencer la colonisation d'un nouveau monde. Finissez la recherche sur les bases lunaires et en produire une.</br>";
+          echo "Vous allez avoir besoin de recycler les débris spatiaux, donc équipez vos vaisseaux de moteurs, lasers miniers et de soutes avant de ramener ce dont vous avez besoin sur votre planète.</br>";
+      break;
+      case 8:
+          echo "Nous devons faire des recherches sur l'armement spatial et commencer à équiper une paire de vaisseau avec. Cela nous permettra d'étudier l'épave.</br>";
+          echo "En attendant, continuons d'explorer pour voir si nous ne pourrions pas trouver un monde ayant ou abritant toujours les créateurs de cette épave.</br>";
+      break;
+      case 9:
+          echo "Notre univers est vide de vie avancée en dehors de cette épave. Nous ne sommes pas en mesure d'expliquer comment cette chose à pu arriver là. Nous allons devoir l'étudier et pour cela, nous devons détruire ses défenses automatiques.</br>";
+          echo "Envoyez deux vaisesaux lourdement équipés attaquer cette épave. Nous allons pouvoir l'étudier par la suite.</br>";
+      break;
+      case 10:
+          echo "Récoltez ce que vous pouvez sur les restes de l'épave. Ramenez le tout sur la planète et étudions ce qui peut encore l'être.";
+      break;
+      case 11:
+          echo "Équipez un vaisseau avec le dispositif inconnu et utilisez-le.";
       break;
       default:
           echo "Vous etes arrivé au bout du jeu ! Bonne chance !"; 
       break; 
-
       }
   ?>
   </div>

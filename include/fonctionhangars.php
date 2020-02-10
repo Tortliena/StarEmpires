@@ -119,10 +119,14 @@ function annulerordrededeplacement($typeordre, $idvaisseau, $xdest, $ydest, $blo
     echo '</p></form>';
   }
 
-function formulaireordredeplacement($typeordre, $idvaisseau, $texteexplication, $valeur1, $valeur2)
+function formulaireordredeplacement($typeordre, $idvaisseau, $texteexplication, $valeur1, $valeur2, $xymax)
   {
   switch ($typeordre)
     {
+    case 0:
+      $texteexplication = '<input type="number" name="xobjectif" value="' . $valeur1 . '" min="1" max="' . $xymax . '"><input type="number" name="yobjectif" value="' . $valeur2 . '" min="1" max="' . $xymax . '">';
+      $textevalidation = 'déplacer';
+    break;
     case 1:
       $texteexplication = 'Votre vaisseau se trouve à proximité champs d\'astéroides. ';
       $textevalidation = 'Récolter';
@@ -147,12 +151,14 @@ function formulaireordredeplacement($typeordre, $idvaisseau, $texteexplication, 
     }
 
   echo '<form method="post" action="script/ordredeplacement.php"><p>';
+  echo '<input name="xobjectif" type="hidden" value="' . $valeur1 . '">';
+  echo '<input name="yobjectif" type="hidden" value="' . $valeur2 . '">';
   echo $texteexplication ;
   echo '<input name="typeordre" type="hidden" value="' . $typeordre . '">';
   echo '<input name="idvaisseau" type="hidden" value="' . $idvaisseau . '">';
-  echo '<input name="xobjectif" type="hidden" value="' . $valeur1 . '">';
-  echo '<input name="yobjectif" type="hidden" value="' . $valeur2 . '">';
   echo '<input type="submit" value="' . $textevalidation . '" />';
   echo '</p></form>';
   }
+
+  // Gérer cas ordre 5 ! 
   ?>

@@ -56,24 +56,16 @@ while ($repexplorationexistante = $reqexploration->fetch())
         break;
 
         case 6:     
-            $reqcreerplanete->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers']));
-            $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Planète habitable', 'Nous venons de trouver une nouvelle planète. Nous allons pouvoir l\'habiter en déployer d\'énormes ressources. Nous devrions continuer l\'exploration dans le but de trouver ces ressources'));
+            $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Champ d\'astéroides exploitables', 'Nous venons de détecter un champs d\'astéroides et il semble qu\'il est possible d\'exploiter ces ressources. Ils regorge de ressources précieuses et nous pourrions en tirer un grand bénéfice.'));
+            $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 8, 3));
         break;
 
         case 7:
-            $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Champ d\'astéroides exploitables', 'Nous venons de détecter un champs d\'astéroides et il semble qu\'il est possible d\'exploiter ces ressources. Ils regorge de ressources précieuses et nous pourrions en tirer un grand bénéfice.'));
-            $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 8, 3));   
+        	$reqcreerplanete->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers']));
+            $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Planète habitable', 'Nous venons de trouver une nouvelle planète. Nous allons pouvoir l\'habiter en déployer d\'énormes ressources. Nous devrions commencer les recherches pour développer l\'équipement nécessaire.'));   
         break;
 
         case 8:
-            
-        break;
-
-        case 9:
-            
-        break;
-
-        case 10:
             $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Vaisseau inconnu détecté', 'Nous venons de trouver un vaisseau inconnu. Nous avons tenté de communiquer avec lui, mais aucune réaction de sa part. Il est en très mauvais état et semble abandonné depuis des siècles. Nous allons tenter de l\'aborder.'));
             
             $reqinfovaisseauexplorateur->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers']));
@@ -89,8 +81,17 @@ while ($repexplorationexistante = $reqexploration->fetch())
             $reqcreercomposant->execute(array($repinfovaisseau['idvaisseau'], 13, 'arme'));
         break;
 
-        case 11:
+        case 9:
             
+        break;
+
+        case 10:
+
+        break;
+
+        case 11:
+            $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 6, 5));
+            $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 8, 1));
         break;
 
         case 12:
@@ -106,7 +107,8 @@ while ($repexplorationexistante = $reqexploration->fetch())
         break;
 
         case 15:
-            
+            $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 6, 2));
+            $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 8, 4));
         break;
 
         case 16:
@@ -118,7 +120,7 @@ while ($repexplorationexistante = $reqexploration->fetch())
         break;
 
         case 18:
-            
+            $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 6, 10));
         break;
 
         case 19:
@@ -138,7 +140,7 @@ while ($repexplorationexistante = $reqexploration->fetch())
         break;
 
         case 23:
-            
+            $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 6, 10));
         break;
 
         case 24:

@@ -136,7 +136,9 @@ $reqjoueur = $bdg->query('SELECT
             $chantier = $chantier - $minbiens ;
             $biens = $biens - $minbiens ;
             if ($biens == 0)
-                {$message ->execute(array($repjoueur['idj']  , 'Manque de biens !' , 'Construction' , $repconstruction['idconst'])) ;}
+                {
+                $message ->execute(array($repjoueur['idj']  , 'Manque de biens !' , 'Construction' , $repconstruction['idconst'])) ;
+                }
             }
         else {$nouvavbien = 0;}
 
@@ -215,16 +217,25 @@ $reqjoueur = $bdg->query('SELECT
 
             elseif ($repconstruction['trucaconstruire'] == 7)
                 { // 7 = recycler des débris de biens
-                $biens = $biens + 100;
+                $recdebris = rand(75 , 150);
+                $biens = $biens + $recdebris;
+                $mess = 'Le recyclage des débris vous a rapporté ' . $recdebris . ' biens divers.' ;
+                $message ->execute(array($repjoueur['idj'] , $mess , 'Construction', 0));
                 }
 
             elseif ($repconstruction['trucaconstruire'] == 9)
                 { // 9 = recycler des débris de métaux rares
-                $titane = $titane + 20;
+                $recdebrisrare = rand(15 , 30);
+                $titane = $titane + $recdebrisrare;
+                $mess = 'Le recyclage des débris vous a rapporté ' . $recdebrisrare . ' unités de titane.' ;
+                $message ->execute(array($repjoueur['idj'] , $mess , 'Construction', 0));
                 }
 
-            $mess = $repcategorie['nombatiment'].' : Construction finie' ;
-            $message ->execute(array($repjoueur['idj'] , $mess , 'Construction', 0));
+            if ($repconstruction['trucaconstruire'] != 7 AND $repconstruction['trucaconstruire'] != 9)
+                {
+                $mess = $repcategorie['nombatiment'].' : Construction finie' ;
+                $message ->execute(array($repjoueur['idj'] , $mess , 'Construction', 0));
+                }
 
             // Si je n'ai qu'un bâtiment à faire avant ou s'il ne me reste qu'un seul item en réserver :
                 if ($nb < 2 OR $quantiteitemsnecessaire == 1)

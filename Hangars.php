@@ -10,21 +10,17 @@ include("include/BDDconnection.php");
 
 <!DOCTYPE html>
 <html>
-    <head>
-           <meta charset="utf-8" />
-           <link rel="stylesheet" href="style.css" />
-           <title>Mon super site</title>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Mon super site</title>
   </head>
-  <body>
-    <?php include("include/menu.php"); 
+<body>
+  <?php include("include/menu.php"); 
 
   $reqvaisseau = $bdg->prepare('SELECT * FROM vaisseau WHERE idvaisseau = ?');
   $reqvaisseau->execute(array($_GET['id']));
   $repvaisseau = $reqvaisseau->fetch();
-
-  $reqlvl = $bdg->prepare('SELECT lvl from utilisateurs WHERE id= ?');
-  $reqlvl->execute(array($_SESSION['id']));
-  $replvl = $reqlvl->fetch();
 
   if ($repvaisseau['idjoueurbat'] != $_SESSION['id'])
     { header('Location: Accueil.php'); exit(); }
@@ -50,7 +46,11 @@ include("include/fonctionhangars.php");
 </form>
 
 <?php
-echo '<p>Vitesse du vaisseau : ' . $repvaisseau['vitesse'] . ' parsec/cycle</p>'; 
+
+  if ($replvl['lvl']>=3)
+    {
+    echo '<p>Vitesse du vaisseau : ' . $repvaisseau['vitesse'] . ' parsec/cycle</p>'; 
+    }
 
 $a = 0; // Variable permettant de gérer le cas avec un ou plusieurs composants en stock + gére le cas du remplissage des soutes.
 $reqverifcargo = $bdg->prepare("SELECT c.quantiteitems , i.nombatiment
@@ -83,7 +83,7 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
         OR
         ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0))) // Au hangars
       { // Formulaire pour décharger le cargo. Ne s'exécute que si on a quelque chose en soute ($a)
-      formulaireordredeplacement(2, $_GET['id'], $texteexplication, 0, 0);
+      formulaireordredeplacement(2, $_GET['id'], $texteexplication, 0, 0, 0);
       }
     else
       { // Permet de mettre un point à la fin de la phase avec les trucs en soute. 
@@ -92,17 +92,23 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
     echo '</p>'; 
     }
 
-echo '<p>Capacité des soutes : ' . $a . '/' . $repvaisseau['capacitedesoute'] . '. Capacité de minage : ' . $repvaisseau['capaciteminage'] . '</p>';
+  if ($replvl['lvl']>=3)
+    {
+    echo '<p>Capacité des soutes : ' . $a . '/' . $repvaisseau['capacitedesoute'] . '. Capacité de minage : ' . $repvaisseau['capaciteminage'] . '</p>';
+    }
 
-$PourcentHP = $repvaisseau['HPvaisseau'] / $repvaisseau['HPmaxvaisseau'] * 100 ;
-if ($PourcentHP != 100 AND $repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'] == $_SESSION['id'])
-	{ // Permet de réparer le vaisseau.
-	formulaireordredeplacement(7, $_GET['id'], 'PV : ' . number_format($PourcentHP, 0) . '% ', 0, 0);
-	}	
-else
-	{
-	echo '<p>PV : ' . number_format($PourcentHP, 0) . '%</p>'; 
-	}
+  if ($replvl['lvl']>=5)
+    {
+    $PourcentHP = $repvaisseau['HPvaisseau'] / $repvaisseau['HPmaxvaisseau'] * 100 ;
+    if ($PourcentHP != 100 AND $repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'] == $_SESSION['id'])
+    	{ // Permet de réparer le vaisseau.
+    	formulaireordredeplacement(7, $_GET['id'], 'PV : ' . number_format($PourcentHP, 0) . '% ', 0, 0, 0);
+    	}	
+    else
+    	{
+    	echo '<p>PV : ' . number_format($PourcentHP, 0) . '%</p>'; 
+    	}
+    }
 
 // requetes pour la carte et/ou les ordres.
 $reqdect = $bdg->prepare('SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? LIMIT 1');
@@ -121,7 +127,7 @@ if (isset($repasteroide['idasteroide']))
   {
   if ($a < $repvaisseau['capacitedesoute'])
     {
-    formulaireordredeplacement(1, $_GET['id'], 0, 0, 0);
+    formulaireordredeplacement(1, $_GET['id'], 0, 0, 0, 0);
     }
   else
     {
@@ -129,12 +135,23 @@ if (isset($repasteroide['idasteroide']))
     }
   }
 
+$reqarmesurvaisseau = $bdg->prepare("SELECT COUNT(*) AS nb FROM composantvaisseau WHERE tirrestant > 0 AND idvaisseaucompo = ?");
+$reqarmesurvaisseau->execute(array($_GET['id']));
+$reparmesurvaisseau = $reqarmesurvaisseau->fetch();
+
 // Détection 
 $reqdetectionvaisseauennemi = $bdg->prepare("SELECT idvaisseau, nomvaisseau FROM vaisseau WHERE idjoueurbat <> ? AND univers = ? AND x = ? AND y = ? AND x <> 0");
 $reqdetectionvaisseauennemi->execute(array($_SESSION['id'], $repvaisseau['univers'], $repvaisseau['x'], $repvaisseau['y']));
 while($repdetectionvaisseauennemi = $reqdetectionvaisseauennemi->fetch())
   {
-  formulaireordredeplacement(5, $_GET['id'], 'Vaisseau inconnu détecté : ' . $repdetectionvaisseauennemi['nomvaisseau'] . ' ', $repdetectionvaisseauennemi['idvaisseau'], 0);
+  if ($reparmesurvaisseau['nb'] > 0)
+    {
+    formulaireordredeplacement(5, $_GET['id'], 'Vaisseau inconnu détecté : ' . $repdetectionvaisseauennemi['nomvaisseau'] . ' ', $repdetectionvaisseauennemi['idvaisseau'], 0, 0);
+    }
+  else
+    {
+    echo '<p>Vaisseau potentiellement hostile à proximité : ' . $repdetectionvaisseauennemi['nomvaisseau'] . '</p>';
+    }
   }
 
 $reqdetectionvaisseau = $bdg->prepare("SELECT idvaisseau, nomvaisseau FROM vaisseau WHERE idjoueurbat = ? AND univers = ? AND x = ? AND y = ? AND  idvaisseau <> ? AND x <> 0");
@@ -154,7 +171,7 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
     }
 
   // Ordre de sortir du hangars.
-  formulaireordredeplacement(4, $_GET['id'], 0, 0, 0);
+  formulaireordredeplacement(4, $_GET['id'], 0, 0, 0, 0);
 
   // Permet d'afficher cette partie avec le niveau suffisant.
   if ($replvl['lvl']>=6)
@@ -166,10 +183,10 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
 
     composanthangars('soute', $_SESSION['id'], $_GET['id']);
 
-    if ($replvl['lvl']>=7)
-      {
-      composanthangars('arme', $_SESSION['id'], $_GET['id']);
+    composanthangars('arme', $_SESSION['id'], $_GET['id']);
 
+    if ($replvl['lvl']>=8)
+      {
       // Donner accès à cette partie plus tard dans les niveaux.
       composanthangars('coque', $_SESSION['id'], $_GET['id']);
       }
@@ -209,7 +226,7 @@ else
     if ($repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3 AND $repvaisseau['univers'] == $_SESSION['id'])
       {
       // Formulaire pour rentrer en orbite : ordre de type 3.
-      formulaireordredeplacement(3, $_GET['id'], 0, 0, 0);
+      formulaireordredeplacement(3, $_GET['id'], 0, 0, 0, 0);
       }
 
     // Si il y a un ordre de déplacement en cours : 
@@ -221,18 +238,14 @@ else
     echo '<p>Votre vaisseau est en balade en ' . $repvaisseau['univers'] . ' , ' . $repvaisseau['x'] . ' , ' . $repvaisseau['y'] . '</p>';
 
     // Formulaire pour donner un ordre de déplacement.
-    ?>
-    <form method="post" action="script/ordredeplacement.php">
-    <p>
-        <input type="number" name="xobjectif" value="<?php if (!isset($_GET['x'])){echo $repvaisseau['x'];} else{echo $_GET['x'];} ?>" min="1" max="<?php echo $xymax;?>">
-    <input type="number" name="yobjectif" value="<?php if (!isset($_GET['y'])){echo $repvaisseau['y'];} else{echo $_GET['y'];} ?>" min="1" max="<?php echo $xymax;?>">
-        <input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>">
-        <input name="typeordre" type="hidden" value="0">
-        <input type="submit" value="déplacer" />
-    </p>
-    </form>
-
-    <?php
+    if (isset($_GET['x']))
+      {
+      formulaireordredeplacement(0, $_GET['id'], 0, $_GET['x'], $_GET['y'], $xymax);
+      }
+    else
+      {
+      formulaireordredeplacement(0, $_GET['id'], 0, $repvaisseau['x'], $repvaisseau['y'], 0);
+      }
 
     // Carte spatiale :
     for ($y = 0 ; $y <= $xymax ; $y++)

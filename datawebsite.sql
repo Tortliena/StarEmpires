@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le :  Dim 09 fév. 2020 à 19:46
+-- Généré le :  lun. 10 fév. 2020 à 06:58
 -- Version du serveur :  5.7.26
 -- Version de PHP :  7.2.18
 
@@ -79,20 +79,20 @@ CREATE TABLE IF NOT EXISTS `items` (
 --
 
 INSERT INTO `items` (`iditem`, `nombatiment`, `coutbien`, `couttitane`, `typeitem`, `technescessaire`, `itemnecessaire`, `description`, `nomlimite`, `souscategorie`) VALUES
-(1, 'Centre de recherche', 100, 0, 'batiments', 1, 0, NULL, 'maxcentrederecherche', ''),
-(2, 'Chantier', 100, 0, 'batiments', 3, 0, NULL, 'maxchantier', ''),
-(3, 'Mégalopole', 100, 0, 'batiments', 0, 0, 'Permet d\'augmenter la population maximale d\'une planète.', 'maxmegalopole', ''),
+(1, 'Centre de recherche', 60, 0, 'batiments', 1, 0, NULL, 'maxcentrederecherche', ''),
+(2, 'Chantier', 50, 0, 'batiments', 3, 0, NULL, 'maxchantier', ''),
+(3, 'Mégalopole', 80, 0, 'batiments', 0, 0, 'Permet d\'augmenter la population maximale d\'une planète.', 'maxmegalopole', ''),
 (4, 'Base lunaire', 150, 10, 'batiments', 2, 0, NULL, 'maxbaselunaire', ''),
 (5, 'Frégate', 100, 0, 'vaisseau', 4, 0, NULL, NULL, ''),
 (6, 'débris communs', 10, 0, 'autre', 0, 0, 'Ressources communes trouvées dans l\'espace. Vous pouvez demander à vos ouvriers de travailler dessus pour les transformer en biens utilisables.', NULL, ''),
 (7, 'Recycler débris', 10, 0, 'autre', 0, 6, NULL, NULL, ''),
 (8, 'débris avec des métaux rares', 10, 0, 'autre', 0, 0, 'Vous ne trouvez pas ces métaux sur votre planète en grande quantité. Ils vous permettent d\'accéder une technologie plus avancée. Cependant, il vous faut au préalable raffiner ce produit brut.', NULL, ''),
 (9, 'Recycler débris rares', 10, 0, 'autre', 0, 8, NULL, NULL, ''),
-(10, 'Moteur II', 100, 0, 'composant', 5, 0, 'Moteur amélioré permettant de déplacer plus vite les vaisseaux.', NULL, 'moteur'),
-(11, 'Laser minier', 100, 0, 'composant', 6, 0, 'Composant destiné à découper les débris. Peut servir d\'arme. Relativement lent car limité à la vitesse de la lumière.', NULL, 'arme'),
-(12, 'Soutes larges', 100, 0, 'composant', 7, 0, 'Permet d\'installer des soutes sur votre vaisseau', NULL, 'soute'),
+(10, 'Moteur II', 40, 0, 'composant', 5, 0, 'Moteur amélioré permettant de déplacer plus vite les vaisseaux.', NULL, 'moteur'),
+(11, 'Laser minier', 50, 0, 'composant', 6, 0, 'Composant destiné à découper les débris. Peut servir d\'arme. Relativement lent car limité à la vitesse de la lumière.', NULL, 'arme'),
+(12, 'Soutes larges', 40, 0, 'composant', 7, 0, 'Permet d\'installer des soutes sur votre vaisseau', NULL, 'soute'),
 (14, 'Torpille supraluminique', 100, 0, 'composant', 10, 0, 'Énorme bombe avec un propulseur supraluminique. Simple, efficace, rapide contre les grosses cibles peu mobiles.', NULL, 'arme'),
-(15, 'Coque polycarbonique', 100, 0, 'composant', 11, 0, 'Coque composée de polymères de carbone. Léger et résistant.', NULL, 'coque'),
+(15, 'Coque polycarbonique', 50, 0, 'composant', 11, 0, 'Coque composée de polymères de carbone. Léger et résistant.', NULL, 'coque'),
 (13, 'Arme alienne pour le 1er vaisseau', 100, 0, 'composant', -1, 0, NULL, NULL, 'arme');
 
 -- --------------------------------------------------------
@@ -118,12 +118,12 @@ INSERT INTO `recherche` (`idrecherche`, `nomrecherche`, `descriptionrecherche`, 
 (1, 'Centre de recherche', 'Vous permet de construire un centre de recherche qui va vous permettre d\'augmenter la limite maximale du nombre de chercheurs.', 8),
 (2, 'Base lunaire', 'Votre peuple s\'en va installer des bases dans la galaxie. Cependant, ces installation nécessitent d\'importantes quantités de ressources rares qu\'on trouve en faible quantité sur notre monde.', 10),
 (3, 'Chantier', 'Permet de lancer des projets plus importants.', 5),
-(4, 'Moteur interstellaire', 'Permet développer la technologie pour voyager entre les étoiles. Vous pourrez ainsi visiter les 5 étoiles repérées dans l\'univers.', 3),
+(4, 'Moteur interstellaire', 'Permet développer la technologie pour voyager entre les étoiles. Vous pourrez ainsi visiter les 5 étoiles repérées dans l\'univers.', 2),
 (5, 'Moteurs améliorés', 'Ce moteur permettra aux vaisseaux d\'aller plus vite. Cette évolution est permise par les dernières ressources trouvées. ', 20),
 (6, 'Lasers miniers', 'Développement de lasers optimisés pour découper des débris. Peut servir d\'arme.', 20),
 (7, 'Architecture spatiale de stokage', 'Permet d\'installer des soutes sur vos vaisseaux. Ils pourront transporter plus de ressources.', 20),
-(10, 'Armes supraluminique', 'On prend une bombe, et on installe un petit moteur supraluminique dessus. On obtient alors une torpille bien plus rapide que les lasers classiques et efficace contre les grosses cibles peu mobiles.', 100),
-(11, 'Coque renforcée', 'Ces coques sont renforcées avec un polymère de carbone. Léger et constructibles avec les ressources de notre monde natal.', 100);
+(10, 'Armes supraluminique', 'On prend une bombe, et on installe un petit moteur supraluminique dessus. On obtient alors une torpille bien plus rapide que les lasers classiques et efficace contre les grosses cibles peu mobiles.', 25),
+(11, 'Coque renforcée', 'Ces coques sont renforcées avec un polymère de carbone. Léger et constructibles avec les ressources de notre monde natal.', 25);
 
 -- --------------------------------------------------------
 

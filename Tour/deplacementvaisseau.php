@@ -36,7 +36,7 @@ $reqaugmentersilo = $bdg->prepare("UPDATE silo SET quantite = ? WHERE idjoueursi
 // Gestion astéroides.
 $reqmajaste = $bda->prepare('UPDATE champsasteroides SET quantite = ? where idasteroide = ?');
 $reqsupaste = $bda->prepare('DELETE FROM  champsasteroides WHERE idasteroide = ?');
-$reqasteroide = $bda->prepare('SELECT idasteroide, quantite, typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
+$reqasteroide = $bda->prepare('SELECT idasteroide, quantite, typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? ORDER BY RAND () LIMIT 1');
 
 // récupération des ordres de déplacement.
 $reqordredep = $bdg->prepare('SELECT idvaisseaudeplacement , xdestination , ydestination , universdestination, idjoueurduvaisseau FROM ordredeplacement WHERE typeordre = ?');
@@ -270,8 +270,6 @@ while ($repordredep = $reqordredep->fetch())
     else {$ydestination = $repordredep['ydestination']-1;}
 
     $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repordredep['idjoueurduvaisseau'], 0, 'Échec de la mission', 'Nous avons tenté d\'aborder l\'épave, mais ce qui semble être un système de défense automatique nous a tiré dessus. Notre vaisseau est lourdement endommagé et nous devrions rentrer et le réparer.'));
-
-    $reqmessageinterne->execute(array('Amirauté', $repordredep['idjoueurduvaisseau'], 0, 'Développement de la défense spatiale', 'Les informations receuillient par la mission d\'exploration laissent à penser que nous pourrions construire une petite flotte armée capable de venir à bout de la défense du vaisseau inconnu. Ensuite nous pourrions récupérer et étudier les débris.'));
 
     $reqmettrepva1->execute(array($xdestination, $ydestination, 1, $repordredep['idvaisseaudeplacement']));
 

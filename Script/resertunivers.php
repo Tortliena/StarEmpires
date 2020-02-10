@@ -2,16 +2,17 @@
 session_start();
 include("../include/BDDconnection.php");
 
-//echo $_POST['confirmer'] . '</br>' ;
+echo $_GET['confirmer'] . ' A</br>' ;
 
-if (!isset($_POST['perdreressources']))
+if (!isset($_GET['confirmer']))
     {
-    header('Location: ../administration.php?message=42');
-    exit(); 
+	header('Location: ../administration.php?message=42');
+	exit(); 
     }
 
 else
 	{
+	echo $_POST['confirmer'] . ' C</br>' ;
 	$reqnomtable = $bda->query("SELECT distinct TABLE_SCHEMA, TABLE_NAME from INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'autre' OR TABLE_SCHEMA = 'gamer'");
 	while ($repnomtable  = $reqnomtable ->fetch())
 		{
@@ -39,5 +40,5 @@ session_destroy();
 setcookie("id", 0, time(), "/"); 
 setcookie("pass", 0, time(), "/");
 
-header('Location: ../acceuil.php');
+header('Location: ../accueil.php');
 ?>

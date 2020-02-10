@@ -223,6 +223,34 @@ switch ($_GET["message"])
     case 47:
         echo "Votre vaisseau est actuellement occupé et ne peut pas suivre un ordre.";
     break;
+
+    case 48:
+        echo "Vous avez annulé l'ordre de minage.";
+    break;
+
+    case 49:
+        echo "Vous avez annulé l'ordre de minage.";
+    break;
+
+    case 50:
+        echo "Votre vaisseau ne va pas décharger.";
+    break;
+
+    case 51:
+        echo "Votre vaisseau va rester dans l'espace et ne va pas rentrer en orbite.";
+    break;
+
+    case 52:
+        echo "Votre vaisseau va rester en orbite de la planète.";
+    break;
+
+    case 53:
+        echo "Vous venez d'annuler l'attaque.";
+    break;
+
+    case 54:
+        echo "Vous venez d'annuler la réparation du vaisseau.";
+    break;
     }
 
 unset($_SESSION['message1']);

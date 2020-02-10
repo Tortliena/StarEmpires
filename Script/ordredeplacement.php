@@ -18,8 +18,6 @@ echo $_POST['confirmer'] . '</br>'; //'on' si case coché, 'off' si non cochée,
     $reqvaisseau->execute(array($_POST['idvaisseau']));
     $repvaisseau = $reqvaisseau->fetch();
 
-echo $repordreactuel['bloque'];
-
     if ($repvaisseau['idjoueurbat'] != $_SESSION['id'])
         {
         header('Location: ../accueil.php?message=31');
@@ -143,15 +141,44 @@ echo $repordreactuel['bloque'];
         // Supprimer la partie spéciale liée à la conception en cours :
         $reqsupprimerconcenptionencours = $bdg->prepare('DELETE FROM concenptionencours WHERE idvaisseauconception = ?');
         $reqsupprimerconcenptionencours->execute(array($_POST['idvaisseau']));
-        $message = 33 ;
         } 
 
+    echo $_POST['typeordre'];
+    echo $repordreactuel['typeordre'];
     if ($_POST['typeordre'] == -1)
         { // Cas de l'annulation d'un ordre.
-        if (!isset($message))
-            { // Si on a pas encore de message, alors c'est juste le message de base pour annuler un ordre.
+        if ($repordreactuel['typeordre'] == 1)
+            { // Minage.
+            $message = 49 ;
+            } 
+        elseif ($repordreactuel['typeordre'] == 2)
+            { // Déchargement.
+            $message = 50 ;
+            } 
+        elseif ($repordreactuel['typeordre'] == 3)
+            { // Rentrer en orbite.
+            $message = 51 ;
+            } 
+        elseif ($repordreactuel['typeordre'] == 4)
+            { // Rentrer en orbite.
+            $message = 52 ;
+            } 
+        elseif ($repordreactuel['typeordre'] == 5)
+            { // Rentrer en orbite.
+            $message = 53 ;
+            } 
+        elseif ($repordreactuel['typeordre'] == 6)
+            { // Rentrer en orbite.
+            $message = 33 ;
+            } 
+        elseif ($repordreactuel['typeordre'] == 7)
+            { // Rentrer en orbite.
+            $message = 54 ;
+            } 
+        else
+            {// Par défaut, message générique.
             $message = 20 ;
-            }
+            } 
         }    
     else
         {
@@ -199,7 +226,7 @@ echo $repordreactuel['bloque'];
                 $reqcreerconstruction = $bdg->prepare('INSERT INTO construction
                     (trucaconstruire, nombre, idjoueurconst, avancementbiens, avancementtitane, prixbiens, prixtitane)
                     VALUES(?, ?, ?, ?, ?, ?, ?)');
-                $reqcreerconstruction->execute(array(-1, 1, $_SESSION['id'], 100+$prixbienreparation, 0, 100+$prixbienreparation, 0));
+                $reqcreerconstruction->execute(array(-1, 1, $_SESSION['id'], 20+$prixbienreparation, 0, 20+$prixbienreparation, 0));
 
                 $reqnumconstruction = $bdg->QUERY('SELECT idconst FROM construction ORDER BY idconst DESC LIMIT 1'); 
                 $repnumconstruction = $reqnumconstruction ->fetch();
@@ -220,6 +247,7 @@ echo $repordreactuel['bloque'];
     if (isset($message))
         {
         a:
+        echo $message; 
         header("location: ../hangars.php?message=" . $message . "&id=" . urlencode($_POST['idvaisseau']));
         exit(); 
         }
