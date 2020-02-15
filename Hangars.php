@@ -106,8 +106,30 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
     	}	
     else
     	{
-    	echo '<p>PV : ' . number_format($PourcentHP, 0) . '%</p>'; 
+    	echo '<p>PV : ' . number_format($PourcentHP, 0) . '%'; 
     	}
+    
+    $reqcomposantsurlevaisseau
+          = $bdd->prepare("
+          SELECT i.nombatiment
+          FROM gamer.composantvaisseau c
+          INNER JOIN items i
+          ON i.iditem = c.iditemcomposant
+          WHERE c.idvaisseaucompo = ?
+          AND c.typecomposant = 'arme'
+          ");
+    $reqcomposantsurlevaisseau->execute(array($_GET['id']));
+    $repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch();
+    echo '&emsp; Armement : ';
+      if (isset($repcomposantsurlevaisseau['nombatiment']))
+        {
+        echo ucfirst($repcomposantsurlevaisseau['nombatiment']);
+        }
+      else
+        {
+        echo 'Vaisseau non armé.';
+        }
+    echo '</p>';
     }
 
 // requetes pour la carte et/ou les ordres.

@@ -44,41 +44,41 @@ $requtilisateur->execute(array(
     'pass' => $pass_hache,
     'biens' => 300));
 
-$reqdernierid = $bdg->query('SELECT id FROM utilisateurs ORDER BY id DESC LIMIT 1');
-$repdernierid = $reqdernierid->fetch();
+$dernierID = $bdg->lastInsertId() ;
 
 $reqlimite = $bdg->prepare('INSERT INTO limitesjoueurs(id) VALUES(:id)');
 $reqlimite->execute(array(
-    'id' => $repdernierid['id']));
+    'id' => $dernierID));
 
+// Permet de créer des citoyens de multiples fois
 $reqpop = $bdg->prepare('INSERT INTO population(joueurpop, typepop) VALUES(:joueurpop, :typepop)');
 $reqpop->execute(array(
-    'joueurpop'=> $repdernierid['id'],
+    'joueurpop'=> $dernierID,
     'typepop'=> 1));
 $reqpop->execute(array(
-    'joueurpop'=> $repdernierid['id'],
+    'joueurpop'=> $dernierID,
     'typepop'=> 1));
 $reqpop->execute(array(
-    'joueurpop'=> $repdernierid['id'],
+    'joueurpop'=> $dernierID,
     'typepop'=> 1));
 $reqpop->execute(array(
-    'joueurpop' => $repdernierid['id'],
+    'joueurpop' => $dernierID,
     'typepop'=> 1));
 $reqpop->execute(array(
-    'joueurpop' => $repdernierid['id'],
+    'joueurpop' => $dernierID,
     'typepop'=> 1));
 $reqpop->execute(array(
-    'joueurpop' => $repdernierid['id'],
-    'typepop'=> 1));
+    'joueurpop' => $dernierID,
+    'typepop'=> 1)); // 6eme fois.
 
 $reqcreerplanete = $bda->prepare('INSERT INTO planete(xplanete, yplanete, universplanete) VALUES(:xplanete, :yplanete, :universplanete)');
 $reqcreerplanete->execute(array(
     'xplanete'=> 3,
     'yplanete'=> 3,
-    'universplanete'=> $repdernierid['id']));
+    'universplanete'=> $dernierID));
 
 $_SESSION['pseudo'] = $_POST["pseudo"];
-$_SESSION['id'] = $repdernierid['id'];
+$_SESSION['id'] = $dernierID;
 
 header('Location: ../capitale.php?message=4');
 ?>

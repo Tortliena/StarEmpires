@@ -27,25 +27,31 @@ $reqinformationvaisseau = $bdg ->query('
         } 
     }
 
-$reqcomposant = $bdg ->prepare('SELECT c.HPcomposant 
+$reqcomposant = $bdg ->prepare('SELECT c.HPcomposant, i.coutbien, i.couttitane
     FROM gamer.composantvaisseau cv
     INNER JOIN datawebsite.composant c ON c.idcomposant = cv.iditemcomposant
+    INNER JOIN datawebsite.items i ON c.idcomposant = i.iditem
     WHERE cv.idvaisseaucompo = ? ORDER BY cv.idtable');
-$requpdatePVmaxvaisseau = $bdg ->prepare('UPDATE vaisseau SET HPmaxvaisseau = ? , HPvaisseau = ? WHERE idvaisseau = ?');
+
+$requpdatePVmaxvaisseau = $bdg ->prepare('UPDATE vaisseau SET HPmaxvaisseau = ? , HPvaisseau = ? , biensvaisseau = ? , titanevaisseau = ? WHERE idvaisseau = ?');
 
 $reqvaisseau = $bdg ->query('SELECT idvaisseau, HPmaxvaisseau FROM vaisseau ORDER BY idvaisseau');
  while ($repvaisseau = $reqvaisseau->fetch())
     {
+    $coutbien = 100;
+    $couttitane = 0;
     $HPvaisseau = 3;
     $reqcomposant->execute(array($repvaisseau['idvaisseau']));
     while ($repcomposant = $reqcomposant->fetch())
         {
         $HPvaisseau = $HPvaisseau + $repcomposant['HPcomposant'];
+        $coutbien = $coutbien + $repcomposant['coutbien'];
+        $couttitane = $couttitane + $repcomposant['couttitane'];
         }
 
     if ($repvaisseau['HPmaxvaisseau'] != $HPvaisseau)
         {
-        $requpdatePVmaxvaisseau->execute(array($HPvaisseau, $HPvaisseau, $repvaisseau['idvaisseau']));
+        $requpdatePVmaxvaisseau->execute(array($HPvaisseau, $HPvaisseau, $coutbien, $couttitane, $repvaisseau['idvaisseau']));
         }
     }
 ?>

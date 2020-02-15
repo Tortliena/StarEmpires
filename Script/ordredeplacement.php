@@ -117,7 +117,7 @@ echo $_POST['confirmer'] . '</br>'; //'on' si case coché, 'off' si non cochée,
 
     // Cas d'une suppression d'un ordre de rénovation de vaisseau :
     // Récupérer l'ordre de construction :
-    $reqnumerodeconstruction = $bdg->prepare('SELECT idconstruction FROM concenptionencours WHERE idvaisseauconception = ?');
+    $reqnumerodeconstruction = $bdg->prepare('SELECT idconstruction FROM conceptionencours WHERE idvaisseauconception = ?');
     $reqnumerodeconstruction->execute(array($_POST['idvaisseau']));
     $repnumerodeconstruction = $reqnumerodeconstruction->fetch();
 
@@ -139,12 +139,10 @@ echo $_POST['confirmer'] . '</br>'; //'on' si case coché, 'off' si non cochée,
         $reqsupprimerconstructionencours->execute(array($repnumerodeconstruction['idconstruction']));
 
         // Supprimer la partie spéciale liée à la conception en cours :
-        $reqsupprimerconcenptionencours = $bdg->prepare('DELETE FROM concenptionencours WHERE idvaisseauconception = ?');
-        $reqsupprimerconcenptionencours->execute(array($_POST['idvaisseau']));
+        $reqsupprimerconceptionencours = $bdg->prepare('DELETE FROM conceptionencours WHERE idvaisseauconception = ?');
+        $reqsupprimerconceptionencours->execute(array($_POST['idvaisseau']));
         } 
 
-    echo $_POST['typeordre'];
-    echo $repordreactuel['typeordre'];
     if ($_POST['typeordre'] == -1)
         { // Cas de l'annulation d'un ordre.
         if ($repordreactuel['typeordre'] == 1)
@@ -214,7 +212,7 @@ echo $_POST['confirmer'] . '</br>'; //'on' si case coché, 'off' si non cochée,
                     $repnumconstruction = $reqnumconstruction ->fetch();
 
                     // Insérer conception (besoin pour garder un lien vers le vaisseau)
-                    $reqcreerconception = $bdg->prepare('INSERT INTO concenptionencours(idconstruction, idvaisseauconception, typecomposant, idnouvcomposant) VALUES(?, ?, ?, ?)');
+                    $reqcreerconception = $bdg->prepare('INSERT INTO conceptionencours(idconstruction, idvaisseauconception, typecomposant, idnouvcomposant) VALUES(?, ?, ?, ?)');
                     $reqcreerconception->execute(array($repnumconstruction['idconst'], $_POST['idvaisseau'], 0 , 0)); 
                     $message = 44 ; 
                     }
@@ -231,7 +229,7 @@ echo $_POST['confirmer'] . '</br>'; //'on' si case coché, 'off' si non cochée,
                 $reqnumconstruction = $bdg->QUERY('SELECT idconst FROM construction ORDER BY idconst DESC LIMIT 1'); 
                 $repnumconstruction = $reqnumconstruction ->fetch();
 
-                $reqcreerconception = $bdg->prepare('INSERT INTO concenptionencours(idconstruction, idvaisseauconception, typecomposant, idnouvcomposant) VALUES(?, ?, ?, ?)');
+                $reqcreerconception = $bdg->prepare('INSERT INTO conceptionencours(idconstruction, idvaisseauconception, typecomposant, idnouvcomposant) VALUES(?, ?, ?, ?)');
                 $reqcreerconception->execute(array($repnumconstruction['idconst'], $_POST['idvaisseau'], $result_explode[1], $result_explode[0]));
 
                 $message = 32 ; 

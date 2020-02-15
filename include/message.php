@@ -251,6 +251,14 @@ switch ($_GET["message"])
     case 54:
         echo "Vous venez d'annuler la réparation du vaisseau.";
     break;
+
+    case 55:
+        echo "Nouveau concept de vaisseau créé !";
+    break;
+
+    case 56:
+        echo "Vous devez nommer votre design. Le nom ne doit pas être seulement des chiffres.";
+    break;
     }
 
 unset($_SESSION['message1']);

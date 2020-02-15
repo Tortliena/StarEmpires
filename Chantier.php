@@ -183,7 +183,7 @@ while ($repconstencours = $reqconstencours->fetch())
       { // cas d'une conception
       $reqnomvaisseau = $bdg->prepare("
       SELECT v.nomvaisseau
-      FROM vaisseau v INNER JOIN concenptionencours c
+      FROM vaisseau v INNER JOIN conceptionencours c
       ON c.idvaisseauconception = v.idvaisseau
       WHERE c.idconstruction = ?");
       $reqnomvaisseau->execute(array($repconstencours['idconst']));

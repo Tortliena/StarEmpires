@@ -277,5 +277,6 @@ while ($repordredep = $reqordredep->fetch())
     }
 $reqordredep->closeCursor();
 
-?>
+// $reqordredep->execute(array(9)); = design avec un ordre totalement bloqué.
 
+?>

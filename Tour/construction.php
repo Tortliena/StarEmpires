@@ -19,13 +19,13 @@ $diminutionsilo = $bdg->prepare('UPDATE silo SET quantite = quantite - 1 WHERE i
 $augmentersilo = $bdg->prepare('UPDATE silo SET quantite = quantite + 1 WHERE idjoueursilo = ? AND iditems = ?' );
 
 // Cas des conceptions :
-$reqconcenptioninfo = $bdg->prepare('SELECT v.nomvaisseau, c.idvaisseauconception, c.idnouvcomposant, c.typecomposant
-    FROM vaisseau v INNER JOIN concenptionencours c
+$reqconceptioninfo = $bdg->prepare('SELECT v.nomvaisseau, c.idvaisseauconception, c.idnouvcomposant, c.typecomposant
+    FROM vaisseau v INNER JOIN conceptionencours c
     ON c.idvaisseauconception = v.idvaisseau
     WHERE idconstruction = ?');
 $reqinsertcomposant = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)');
 $reqsupprimercomposant = $bdg->prepare('DELETE FROM composantvaisseau WHERE idvaisseaucompo = ? AND typecomposant = ?');
-$reqsupprimerconception = $bdg->prepare('DELETE FROM concenptionencours WHERE idvaisseauconception = ? AND typecomposant = ?');
+$reqsupprimerconception = $bdg->prepare('DELETE FROM conceptionencours WHERE idvaisseauconception = ? AND typecomposant = ?');
 $reqsupprimerdeplacement = $bdg->prepare('DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
 $requpdatevaisseau = $bdg->prepare('UPDATE vaisseau SET HPmaxvaisseau = 1');
 $requpdatedeplacement = $bdg->prepare('UPDATE ordredeplacement SET bloque = 1');
@@ -65,17 +65,17 @@ $reqjoueur = $bdg->query('SELECT
         // Si c'est une rénovation de vaisseau (-1 = changer composant, -2 = réparer) :
         if ($repconstruction['trucaconstruire'] == -1 OR $repconstruction['trucaconstruire'] == -2)
             {
-            $reqconcenptioninfo->execute(array($repconstruction['idconst']));
-            $repconcenptioninfo = $reqconcenptioninfo->fetch();
+            $reqconceptioninfo->execute(array($repconstruction['idconst']));
+            $repconceptioninfo = $reqconceptioninfo->fetch();
 
             // Permet de bloquer un ordre. Le vaisseau ne peut plus avoir un nouvel ordre.
             $requpdatedeplacement->execute(array());
 
             // Cela permet d'avoir l'item nécessaire pour le consommer.
-            $repcategorie['itemnecessaire'] = $repconcenptioninfo['idnouvcomposant'];
+            $repcategorie['itemnecessaire'] = $repconceptioninfo['idnouvcomposant'];
             $repcategorie['typeitem'] = "conception" ;
             $repcategorie['nombatiment'] = "Rénovation du " ; 
-            $repcategorie['nombatiment'] .= $repconcenptioninfo['nomvaisseau'] ;
+            $repcategorie['nombatiment'] .= $repconceptioninfo['nomvaisseau'] ;
             // 2 dernière lignes = Permet de donner un nom pour le message au joueur.  
             }
         else
@@ -101,9 +101,9 @@ $reqjoueur = $bdg->query('SELECT
                 $reqsupprimercontruction->execute(array($repconstruction['idconst']));
                 if ($repconstruction['trucaconstruire'] == -1)
                     // Supprimer la conception en cours.
-                    $reqsupprimerconception->execute(array($repconcenptioninfo['idvaisseauconception'], $repconcenptioninfo['typecomposant']));
+                    $reqsupprimerconception->execute(array($repconceptioninfo['idvaisseauconception'], $repconceptioninfo['typecomposant']));
                     // Supprimer l'ordre de déplacement.
-                    $reqsupprimerdeplacement->execute(array($repconcenptioninfo['idvaisseauconception']));
+                    $reqsupprimerdeplacement->execute(array($repconceptioninfo['idvaisseauconception']));
                 break;
                 }
             }
@@ -200,19 +200,19 @@ $reqjoueur = $bdg->query('SELECT
                 if ($repconstruction['trucaconstruire'] == -1)
                     {
                     // Supprimer précédent composant
-                    $reqsupprimercomposant->execute(array($repconcenptioninfo['idvaisseauconception'], $repconcenptioninfo['typecomposant']));
+                    $reqsupprimercomposant->execute(array($repconceptioninfo['idvaisseauconception'], $repconceptioninfo['typecomposant']));
 
                     // Puis insérer le nouveau
-                    $reqinsertcomposant->execute(array($repconcenptioninfo['idvaisseauconception'], $repconcenptioninfo['idnouvcomposant'], $repconcenptioninfo['typecomposant']));
+                    $reqinsertcomposant->execute(array($repconceptioninfo['idvaisseauconception'], $repconceptioninfo['idnouvcomposant'], $repconceptioninfo['typecomposant']));
                     }
                 // Permet de gérer le cas des réparations (les PV du vaisseau = PV max lors du recalcul des PV car PV composant =! PV max vaisseau dans update des vaisseaux.)
                 $requpdatevaisseau->execute(array());
                 
                 // Supprimer la conception en cours.
-                $reqsupprimerconception->execute(array($repconcenptioninfo['idvaisseauconception'], $repconcenptioninfo['typecomposant']));
+                $reqsupprimerconception->execute(array($repconceptioninfo['idvaisseauconception'], $repconceptioninfo['typecomposant']));
 
                 // Supprimer l'ordre de déplacement.
-                $reqsupprimerdeplacement->execute(array($repconcenptioninfo['idvaisseauconception']));
+                $reqsupprimerdeplacement->execute(array($repconceptioninfo['idvaisseauconception']));
                 }
 
             elseif ($repconstruction['trucaconstruire'] == 7)

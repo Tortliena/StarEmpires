@@ -56,9 +56,10 @@
                 {
                 echo '<a class ="lienmenu" href="silo.php">Silo</a></br>';
                 }
+            echo '<a class ="lienmenu" href="design.php">Conception</a></br>';
 
             $ecrirehangars = 1 ;
-            $reqvaiss = $bdg->prepare('SELECT idvaisseau , nomvaisseau FROM vaisseau WHERE idjoueurbat = ? ORDER BY idvaisseau');
+            $reqvaiss = $bdg->prepare('SELECT idvaisseau , nomvaisseau FROM vaisseau WHERE idjoueurbat = ? AND typevaisseau = 5 ORDER BY idvaisseau');
             $reqvaiss->execute(array($_SESSION['id']));
             while ($repvaiss = $reqvaiss->fetch())
                 {
@@ -71,7 +72,7 @@
             $reqvaiss->closeCursor();
             }
     		?>
-  		
+
     		<!-- Passer le tour manuellement -->
 			<form action="tour/Gestionglobale.php">
 			<p>
