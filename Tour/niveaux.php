@@ -45,28 +45,11 @@ $reqcountbat = $bdg->prepare('SELECT COUNT(*) AS nb FROM batiments WHERE idjoueu
 // Pour lvl 9 à 10 :
 $reqepavedetruite = $bdg->prepare('SELECT COUNT(*) AS nb FROM vaisseau WHERE idjoueurbat = 0 AND univers = ?');
 
+// Pour lvl 10 à 11 :
+$reqnoyaudanslesilo = $bdg->prepare('SELECT COUNT(*) AS nb FROM silo WHERE idjoueursilo = ? AND iditems = ?');
 
-// Fonction permettant de créer une recherche :
-function creerrecherche($idrecherche, $idjoueur)
-	{
-	include("../include/BDDconnection.php");
-  
-  $reqrechercheexistedeja = $bdg->prepare('SELECT COUNT(*) AS nb FROM rech_joueur WHERE idrech = ? AND idjoueurrecherche = ?');
-  $reqrechercheexistedeja->execute(array($idrecherche, $idjoueur));
-  $reprechercheexistedeja = $reqrechercheexistedeja->fetch();
-  if ($reprechercheexistedeja['nb'] == 0)
-    {
-  	$prixrech = $bdd->prepare("SELECT prixrecherche FROM recherche WHERE idrecherche = ? ");
-  	$reqcreerrecherche = $bdg->prepare("INSERT INTO rech_joueur(idjoueurrecherche, idrech, rechnesc) VALUES (?,?,?)");	
-      $prixrech->execute(array($idrecherche));
-      $repprixrech = $prixrech->fetch();
-      $aleatoirerecherche = rand(100 , 200) ;
-      $reelprixrech = $aleatoirerecherche * $repprixrech['prixrecherche'] / 100 ;
-      $reqcreerrecherche->execute(array($idjoueur, $idrecherche, $reelprixrech));
-    }
-  }
-// À utiliser :  creerrecherche( X (= num recherche) , $replvl['id']); 
-
+//Pour lvl 11 à 12 :
+// Passer dans une autre dimension.
 
 $reqlvl = $bdg->QUERY('SELECT lvl, id from utilisateurs ORDER BY id ASC');
 WHILE($replvl = $reqlvl->fetch())
@@ -85,8 +68,8 @@ WHILE($replvl = $reqlvl->fetch())
         		{
         		$reqlvlup->execute(array($replvl['id']));
 	            
-            // Recherche des moteurs interstellaires.
-            creerrecherche(4, $replvl['id']); 
+	            // Recherche des moteurs interstellaires.
+	            creerrecherche(4, $replvl['id']); 
         		}
       break;
 
@@ -97,10 +80,6 @@ WHILE($replvl = $reqlvl->fetch())
         	if ($reprechechemoteur['nb']>0)
         		{
         		$reqlvlup->execute(array($replvl['id']));
-
-        		// Cela donne accès aux centre de recherche et au chantier.
-        		creerrecherche(3, $replvl['id']);
-        		creerrecherche(1, $replvl['id']);
 
             $reqmessageinterne->execute(array('Conseil civil', $replvl['id'], 0, 'Développement', 'Nous entrons dans une nouvelle ère. Nous pourrions avoir besoin de massivement investir dans notre puissance industrielle et scienfique. Nous avons besoin de développer des labos de recherche de taille mondiale et des chantiers de construction capable de réaliser d\'énormes projets.'));
    	        }
@@ -139,11 +118,6 @@ WHILE($replvl = $reqlvl->fetch())
           if (isset($repvaisseau['idvaisseau']))
             {
             $reqlvlup->execute(array($replvl['id']));
-            // Cela donne accès aux moteurs améliorés.
-            creerrecherche(5, $replvl['id']);
-
-            // Cela donne accès aux soutes.
-            creerrecherche(7, $replvl['id']);
 
             // Cela donne accès aux lasers miniers.
             creerrecherche(6, $replvl['id']);
@@ -191,16 +165,6 @@ WHILE($replvl = $reqlvl->fetch())
       break;
 
       case 8:
-          // Pour monter de niveau, il faut explorer plus en avant l'univers (20 cases)
-          $reqcompterexplo->execute(array($replvl['id']));
-          $repcompterexplo = $reqcompterexplo->fetch();
-          if ($repcompterexplo['nb']>20)
-              {
-              $reqlvlup->execute(array($replvl['id']));
-              }        
-      break;
-
-      case 9:
           // Pour monter de niveau, il faut détruire l'épave.
           $reqepavedetruite->execute(array($replvl['id']));
           $repepavedetruite = $reqepavedetruite->fetch();
@@ -208,15 +172,28 @@ WHILE($replvl = $reqlvl->fetch())
             {
             $reqlvlup->execute(array($replvl['id']));
             $reqmessageinterne->execute(array('Amirauté', $replvl['id'], 0, 'Victoire !', 'Nous avons réussi à détruire les défenses automatiques de l\'épave. Le vaisseau était en très mauvais état et la bataille à d\'autant plus dégradé le peu qu\'il en restait. Nous devrions cependant récupérer un maximum. Les débris contiennent de nombreuses matières rares et nous devrions trouver quelque chose d\'intéressant. Nous avons exploré quasiment intégralement notre univers et c\'est le seul artefact provenant d\'une civilisation ancienne. Ce vaisseau était bien armé et sans son état avancé de dégradation et avec un équipage, nous aurions était incapable d\'en venir à bout. Il ne nous semble pas possible qu\'une civilisation aussi avancée puisse disparaitre. Et surtout qu\'elle puisse disparaitre sans laisser de ruines ou une multitude d\'épaves derrière elle.'));
-            }   
+            }  
+      break;
+
+      case 9:
+          // Pour monter de niveau, analyser le composant inconnu.
+          $reqnoyaudanslesilo->execute(array($replvl['id'], 17));
+          $repnoyaudanslesilo = $reqnoyaudanslesilo->fetch();
+
+            // Compter les ouvriers et les scientifiques, si au moins 1, alors monter de niveau.
+          if ($repnoyaudanslesilo['nb']>0)
+            {
+            $reqlvlup->execute(array($replvl['id']));
+            $reqmessageinterne->execute(array('Département scientifique', $replvl['id'], 0, 'Propulseur non physique', 'L\'étude de l\'artefact trouvé dans l\'épave laisse à penser que nous sommes face à une sorte de propulseur non classique. Il semble que nous puissions voyager à travers une dimension différente que les 4 classiques. Cette théorie pourrait expliquer pourquoi nous n\'avons pas trouvé la moindre trace de civilisation dans notre univers en dehors de cette épave. Nous avons restauré dans la mesure de nos moyens le noyau et nous allons tenter de copier cette technologie. Mais notre maitrise de cette technologie est bien faible, et il n\'est pas sûr que notre maitrise approche celle de la race ayant produit ça'));
+            }
       break;
 
       case 10:
-          // Pour monter de niveau, analyser le composant inconnu.          
+          // Pour monter de niveau, arriver dans l'univers 2.
       break;
 
       case 11:
-          // Pour monter de niveau, arriver dans l'univers 2.       
+       
       break;
   	}
 	}

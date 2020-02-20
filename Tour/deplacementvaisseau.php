@@ -248,7 +248,19 @@ while ($repordredep = $reqordredep->fetch())
         $mess = 'Ce vient de sortir du hangars et se trouve maintenant en orbite de notre monde.'; 
         $message ->execute(array($repordredep['idjoueurduvaisseau'] , $mess , 'Vaisseau' , $repordredep['idvaisseaudeplacement']));
         // Et appliquer l'ordre.
-        $applicationdeplacement->execute(array(3 , 3, $repordredep['idjoueurduvaisseau'], $repordredep['idvaisseaudeplacement']));         
+        $applicationdeplacement->execute(array(3 , 3, $repordredep['idjoueurduvaisseau'], $repordredep['idvaisseaudeplacement']));
+
+        // Exploration si case inconnue :
+        $reqexplorationexistante->execute(array(3 , 3 , $repordredep['idjoueurduvaisseau'], $repordredep['idjoueurduvaisseau']));
+        $repexplorationexistante = $reqexplorationexistante->fetch(); 
+        if (empty($repexplorationexistante['idexplore']))
+            {
+            $exploration ->execute(array(3 , 3, $repordredep['idjoueurduvaisseau'], $repordredep['idjoueurduvaisseau'], $touractuel['id'])) ;
+
+            //Créer message pour le joueur.
+            $messexplo = 'Première sortie du système. Notre vaisseau explore les environs immédiats.'  ; 
+            $message ->execute(array($repordredep['idjoueurduvaisseau'] , $messexplo , 'Vaisseau' , $repordredep['idvaisseaudeplacement'])) ;
+            }
         }
     $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement'])); 
     }

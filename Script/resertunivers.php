@@ -19,7 +19,7 @@ else
 		if ($repnomtable['TABLE_NAME'] != 'afaire')
 			{
 			if ($repnomtable['TABLE_SCHEMA'] == 'autre')  
-				{
+				{ // Besoin de faire 2 requetes différentes car nom de la variable de connection différente !
 				$reqtruncateautre = $bda->prepare('TRUNCATE TABLE '.$repnomtable['TABLE_NAME'].'');
 				$reqtruncateautre->execute(array());
 				}	
@@ -31,6 +31,21 @@ else
 			}
 		}
 	}
+
+
+/*
+$reqtruncateautre = $bda->prepare("
+    SELECT *
+    FROM tour
+    INTO OUTFILE '/basededonnee/tour.cvs'
+    FIELDS ENCLOSED BY '\"'
+    TERMINATED BY ';'
+    ESCAPED BY '\"'
+    LINES TERMINATED BY '\r\n'");
+$reqtruncateautre->execute(array());
+
+// Pas possible de passer la sécurité ! ! !
+*/
 
 // Suppression des variables de session et de la session
 $_SESSION = array();

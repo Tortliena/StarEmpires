@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le :  lun. 10 fév. 2020 à 06:58
+-- Généré le :  jeu. 20 fév. 2020 à 20:18
 -- Version du serveur :  5.7.26
 -- Version de PHP :  7.2.18
 
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `bataille` (
   `idvaisseaudefensif` int(11) NOT NULL,
   `active` int(11) NOT NULL DEFAULT '1',
   PRIMARY KEY (`idbataille`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS `cargovaisseau` (
   `typeitems` int(11) NOT NULL,
   `quantiteitems` int(11) NOT NULL,
   PRIMARY KEY (`idcargovaisseau`)
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -94,14 +94,14 @@ CREATE TABLE IF NOT EXISTS `choixevents` (
   `eventsuite3` int(11) DEFAULT NULL,
   `textechoix3` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`idchoix`)
-) ENGINE=MyISAM AUTO_INCREMENT=164 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=129 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `choixevents`
 --
 
 INSERT INTO `choixevents` (`idchoix`, `idjoueurevent`, `texteevent`, `eventsuite1`, `textechoix1`, `eventsuite2`, `textechoix2`, `eventsuite3`, `textechoix3`) VALUES
-(163, 1, 'Le pégu qui râlait hier s\'est fatigué et est rentré chez lui', NULL, NULL, NULL, NULL, NULL, NULL);
+(128, 1, 'event9', NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -117,33 +117,39 @@ CREATE TABLE IF NOT EXISTS `composantvaisseau` (
   `typecomposant` varchar(64) NOT NULL,
   `tirrestant` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idtable`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `composantvaisseau`
 --
 
 INSERT INTO `composantvaisseau` (`idtable`, `idvaisseaucompo`, `iditemcomposant`, `typecomposant`, `tirrestant`) VALUES
-(2, 1, 11, 'arme', 2),
-(3, 1, 10, 'moteur', 0),
-(4, 1, 12, 'soute', 0),
-(8, 4, 13, 'arme', 4);
+(9, 2, 10, 'moteur', 0),
+(7, 2, 12, 'soute', 0),
+(10, 1, 10, 'moteur', 0),
+(11, 4, 10, 'moteur', 0),
+(12, 1, 14, 'arme', 2),
+(13, 2, 14, 'arme', 2),
+(14, 4, 11, 'arme', 2),
+(15, 1, 15, 'coque', 0),
+(16, 4, 15, 'coque', 0),
+(17, 2, 15, 'coque', 0);
 
 -- --------------------------------------------------------
 
 --
--- Structure de la table `concenptionencours`
+-- Structure de la table `conceptionencours`
 --
 
-DROP TABLE IF EXISTS `concenptionencours`;
-CREATE TABLE IF NOT EXISTS `concenptionencours` (
+DROP TABLE IF EXISTS `conceptionencours`;
+CREATE TABLE IF NOT EXISTS `conceptionencours` (
   `idconception` int(11) NOT NULL AUTO_INCREMENT,
   `idvaisseauconception` int(11) NOT NULL,
   `idconstruction` int(11) NOT NULL,
   `typecomposant` varchar(32) NOT NULL,
   `idnouvcomposant` int(11) NOT NULL,
   PRIMARY KEY (`idconception`)
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -162,7 +168,7 @@ CREATE TABLE IF NOT EXISTS `construction` (
   `prixtitane` int(11) NOT NULL,
   `idjoueurconst` int(11) NOT NULL,
   PRIMARY KEY (`idconst`)
-) ENGINE=MyISAM AUTO_INCREMENT=30 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=45 DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -179,22 +185,37 @@ CREATE TABLE IF NOT EXISTS `explore` (
   `idexplorateur` int(11) NOT NULL,
   `tourexploration` int(11) NOT NULL,
   PRIMARY KEY (`idexplore`)
-) ENGINE=MyISAM AUTO_INCREMENT=35 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=25 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `explore`
 --
 
 INSERT INTO `explore` (`idexplore`, `univers`, `x`, `y`, `idexplorateur`, `tourexploration`) VALUES
-(34, 1, 3, 3, 1, 163),
-(33, 1, 4, 4, 1, 159),
-(32, 1, 2, 4, 1, 158),
-(31, 1, 2, 3, 1, 157),
-(30, 1, 1, 1, 1, 155),
-(29, 1, 1, 3, 1, 154),
-(28, 1, 3, 5, 1, 151),
-(27, 1, 3, 4, 1, 150),
-(26, 1, 3, 2, 1, 147);
+(1, 1, 3, 3, 1, 11),
+(2, 1, 2, 3, 1, 12),
+(3, 1, 1, 2, 1, 13),
+(4, 1, 1, 1, 1, 14),
+(5, 1, 2, 2, 1, 15),
+(6, 1, 3, 2, 1, 16),
+(7, 1, 4, 2, 1, 17),
+(8, 1, 4, 4, 1, 27),
+(9, 1, 5, 5, 1, 28),
+(10, 1, 5, 4, 1, 29),
+(11, 1, 1, 3, 1, 41),
+(12, 1, 1, 4, 1, 42),
+(13, 1, 1, 5, 1, 43),
+(14, 1, 2, 1, 1, 105),
+(15, 1, 4, 1, 1, 106),
+(16, 1, 3, 4, 1, 123),
+(17, 1, 2, 4, 1, 123),
+(18, 1, 4, 3, 1, 123),
+(19, 1, 3, 1, 1, 125),
+(20, 1, 3, 5, 1, 125),
+(21, 1, 2, 5, 1, 125),
+(22, 1, 5, 3, 1, 126),
+(23, 1, 4, 5, 1, 126),
+(24, 1, 5, 1, 1, 126);
 
 -- --------------------------------------------------------
 
@@ -258,14 +279,7 @@ CREATE TABLE IF NOT EXISTS `messagerieinterne` (
   `titre` varchar(64) NOT NULL,
   `texte` text NOT NULL,
   PRIMARY KEY (`idmessagerieinterne`)
-) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;
-
---
--- Déchargement des données de la table `messagerieinterne`
---
-
-INSERT INTO `messagerieinterne` (`expediteur`, `idmessagerieinterne`, `destinataire`, `lu`, `titre`, `texte`) VALUES
-('Amirauté', 10, 0, 0, 'Perte d\'un vaisseau', 'Nous avons perdu le vaisseau Épave spatiale en 4-3 lors d\'une bataille spatiale.');
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -281,15 +295,7 @@ CREATE TABLE IF NOT EXISTS `messagetour` (
   `domainemess` varchar(32) NOT NULL,
   `numspemessage` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idmessage`)
-) ENGINE=MyISAM AUTO_INCREMENT=285 DEFAULT CHARSET=latin1;
-
---
--- Déchargement des données de la table `messagetour`
---
-
-INSERT INTO `messagetour` (`idmessage`, `idjoumess`, `message`, `domainemess`, `numspemessage`) VALUES
-(283, 1, 'Ce vaisseau vient de se déplacer. Il était avant en 3-5', 'Vaisseau', 1),
-(284, 1, 'Ce vaisseau vient d\'explorer le parsec (3 - 3).', 'Vaisseau', 1);
+) ENGINE=MyISAM AUTO_INCREMENT=293 DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -308,7 +314,7 @@ CREATE TABLE IF NOT EXISTS `ordredeplacement` (
   `typeordre` int(11) NOT NULL DEFAULT '0',
   `bloque` int(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idordredeplacement`)
-) ENGINE=MyISAM AUTO_INCREMENT=100 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=86 DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -334,11 +340,11 @@ INSERT INTO `population` (`idpop`, `joueurpop`, `typepop`, `typepoparrivee`) VAL
 (2, 1, 2, 0),
 (3, 1, 3, 0),
 (4, 1, 3, 0),
-(5, 1, 3, 0),
-(6, 1, 2, 0),
-(7, 1, 2, 0),
-(8, 1, 2, 0),
-(9, 1, 3, 0),
+(5, 1, 2, 0),
+(6, 1, 3, 0),
+(7, 1, 1, 0),
+(8, 1, 1, 0),
+(9, 1, 1, 0),
 (10, 1, 1, 0);
 
 -- --------------------------------------------------------
@@ -350,28 +356,31 @@ INSERT INTO `population` (`idpop`, `joueurpop`, `typepop`, `typepoparrivee`) VAL
 DROP TABLE IF EXISTS `rech_joueur`;
 CREATE TABLE IF NOT EXISTS `rech_joueur` (
   `idrechprinc` int(11) NOT NULL AUTO_INCREMENT,
+  `ordrerecherche` int(11) NOT NULL,
   `idjoueurrecherche` int(11) NOT NULL,
   `idrech` int(11) NOT NULL,
   `avrech` int(11) NOT NULL DEFAULT '0',
   `rechnesc` int(11) NOT NULL DEFAULT '1000',
   `rechposs` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idrechprinc`)
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `rech_joueur`
 --
 
-INSERT INTO `rech_joueur` (`idrechprinc`, `idjoueurrecherche`, `idrech`, `avrech`, `rechnesc`, `rechposs`) VALUES
-(1, 1, 4, 4, 4, 1),
-(8, 1, 3, 9, 7, 1),
-(3, 1, 1, 13, 13, 1),
-(4, 1, 2, 18, 16, 1),
-(5, 1, 5, 36, 35, 1),
-(6, 1, 7, 32, 30, 1),
-(7, 1, 6, 22, 21, 1),
-(9, 1, 10, 50, 49, 1),
-(10, 1, 11, 28, 27, 1);
+INSERT INTO `rech_joueur` (`idrechprinc`, `ordrerecherche`, `idjoueurrecherche`, `idrech`, `avrech`, `rechnesc`, `rechposs`) VALUES
+(1, 1, 1, 4, 3, 3, 1),
+(2, 2, 1, 1, 3, 3, 1),
+(3, 3, 1, 3, 4, 4, 1),
+(4, 4, 1, 5, 30, 30, 1),
+(5, 5, 1, 7, 30, 29, 1),
+(6, 3, 1, 2, 18, 18, 1),
+(7, 6, 1, 6, 18, 16, 1),
+(8, 7, 1, 10, 39, 36, 1),
+(9, 8, 1, 11, 24, 24, 1),
+(12, 11, 1, 15, 28, 151, 0),
+(13, 12, 1, 14, 0, 41, 0);
 
 -- --------------------------------------------------------
 
@@ -386,20 +395,18 @@ CREATE TABLE IF NOT EXISTS `silo` (
   `iditems` int(11) NOT NULL,
   `quantite` int(11) NOT NULL,
   UNIQUE KEY `idsilo` (`idsilo`)
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `silo`
 --
 
 INSERT INTO `silo` (`idsilo`, `idjoueursilo`, `iditems`, `quantite`) VALUES
-(1, 1, 6, 0),
-(2, 1, 8, 0),
-(3, 1, 11, 0),
-(4, 1, 12, 0),
-(5, 1, 10, 0),
-(6, 1, 15, 0),
-(7, 1, 14, 0);
+(15, 1, 6, 2),
+(14, 1, 12, 1),
+(16, 1, 8, 2),
+(20, 1, 19, 1),
+(19, 1, 17, 1);
 
 -- --------------------------------------------------------
 
@@ -426,7 +433,7 @@ CREATE TABLE IF NOT EXISTS `utilisateurs` (
 --
 
 INSERT INTO `utilisateurs` (`id`, `pseudo`, `motdepasse`, `dateinscription`, `biens`, `titane`, `idevent`, `ideventsuivant`, `lvl`) VALUES
-(1, 'qw', '$2y$10$c02CALTqP.L3z5rrQlhAm.cwCXxhYZuKGFEGacR3uDOQNjKE8yyMu', '2020-02-09', 105, 56, -1, 0, 10);
+(1, 'qw', '$2y$10$8kCNoB4CEESwaHKVKf.vwe7I8v0nIN18waCx9UpmqqBeQb7ZMQST.', '2020-02-20', 426, 73, 9, 0, 10);
 
 -- --------------------------------------------------------
 
@@ -448,6 +455,8 @@ CREATE TABLE IF NOT EXISTS `vaisseau` (
   `capaciteminage` int(11) NOT NULL DEFAULT '1',
   `HPmaxvaisseau` int(11) NOT NULL DEFAULT '3',
   `HPvaisseau` int(11) NOT NULL DEFAULT '3',
+  `biensvaisseau` int(11) DEFAULT '0',
+  `titanevaisseau` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idvaisseau`)
 ) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 
@@ -455,9 +464,10 @@ CREATE TABLE IF NOT EXISTS `vaisseau` (
 -- Déchargement des données de la table `vaisseau`
 --
 
-INSERT INTO `vaisseau` (`idvaisseau`, `idjoueurbat`, `typevaisseau`, `univers`, `x`, `y`, `nomvaisseau`, `vitesse`, `capacitedesoute`, `capaciteminage`, `HPmaxvaisseau`, `HPvaisseau`) VALUES
-(1, 1, 5, 1, 3, 3, 'Blop !', 2, 5, 3, 11, 1),
-(4, 0, 5, 1, 4, 4, 'Épave spatiale', 1, 1, 1, 18, 18);
+INSERT INTO `vaisseau` (`idvaisseau`, `idjoueurbat`, `typevaisseau`, `univers`, `x`, `y`, `nomvaisseau`, `vitesse`, `capacitedesoute`, `capaciteminage`, `HPmaxvaisseau`, `HPvaisseau`, `biensvaisseau`, `titanevaisseau`) VALUES
+(1, 1, 5, 1, 5, 1, 'Gros bilou', 2, 3, 1, 17, 15, 240, 0),
+(2, 1, 5, 1, 4, 5, 'Petit Bib', 2, 10, 1, 21, 17, 280, 0),
+(4, 1, 5, 1, 0, 0, 'Stackanov', 2, 3, 3, 17, 17, 190, 0);
 
 -- --------------------------------------------------------
 
@@ -474,14 +484,14 @@ CREATE TABLE IF NOT EXISTS `variationstour` (
   `recherche` int(11) NOT NULL DEFAULT '5',
   `consobiens` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idtable`)
-) ENGINE=MyISAM AUTO_INCREMENT=164 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=129 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `variationstour`
 --
 
 INSERT INTO `variationstour` (`idtable`, `idjoueur`, `prodbiens`, `chantier`, `recherche`, `consobiens`) VALUES
-(163, 1, 5, 80, 5, 10);
+(128, 1, 20, 40, 4, 10);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

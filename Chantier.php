@@ -88,7 +88,7 @@ $a = 0; ?> <!-- Variable permettant de gérer le cas avec 0 construction possibl
         RIGHT JOIN items
         ON rech_joueur.idrech = items.technescessaire
         WHERE (items.technescessaire = 0 OR (rech_joueur.idjoueurrecherche = ? AND rech_joueur.rechposs = 1))
-        AND (items.typeitem = "batiments" OR items.typeitem = "vaisseau" OR items.typeitem = "composant")
+        AND (items.typeitem <> "autre" AND items.typeitem <> "artefact")
         ');
         $reqmenuderoulantconstruction->execute(array($_SESSION['id']));
         while ($repmenuderoulantconstruction = $reqmenuderoulantconstruction->fetch())
@@ -108,9 +108,8 @@ $a = 0; ?> <!-- Variable permettant de gérer le cas avec 0 construction possibl
 
             if (!isset($repmenuderoulantconstruction['nomlimite']) OR $replimite['0']>$repcomptechantier['nb'])
               {
-              $a++;  // Variable permettant de gérer le cas ou on a aucune construction possible. ?>
-              <option value="<?php echo $repmenuderoulantconstruction['iditem']; ?>"><?php echo $repmenuderoulantconstruction['nombatiment']; ?></option>
-              <?php
+              $a++;  // Variable permettant de gérer le cas ou on a aucune construction possible.
+              echo '<option value="'.$repmenuderoulantconstruction['iditem'].'">'.$repmenuderoulantconstruction['nombatiment'].'</option>';
               } 
           }
           $reqmenuderoulantconstruction->closeCursor();
@@ -121,15 +120,13 @@ $a = 0; ?> <!-- Variable permettant de gérer le cas avec 0 construction possibl
         FROM silo
         RIGHT JOIN datawebsite.items
         ON items.itemnecessaire = silo.iditems
-        WHERE silo.idjoueursilo = ? AND silo.quantite > 0
+        WHERE silo.idjoueursilo = ? AND silo.quantite > 0 AND items.typeitem <> "artefact"
         ');
         $reqmenuderoulantitems->execute(array($_SESSION['id']));
         while ($repmenuderoulantitems = $reqmenuderoulantitems ->fetch())
           {
           $a++;
-          ?>
-          <option value="<?php echo $repmenuderoulantitems['iditem']; ?>"><?php echo $repmenuderoulantitems['nombatiment']; ?></option>
-          <?php
+          echo '<option value="'.$repmenuderoulantitems['iditem'].'">'.$repmenuderoulantitems['nombatiment'].'b</option>';
           }
           $reqmenuderoulantconstruction->closeCursor();
           if ($a == 0)

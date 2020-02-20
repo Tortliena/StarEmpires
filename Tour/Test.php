@@ -1,61 +1,15 @@
 <?php
 session_start();
 include("../include/BDDconnection.php");
-
-$reqmajvitessevaisseau = $bdg->prepare('UPDATE vaisseau SET vitesse = ? WHERE idvaisseau = ?');
-$reqmajsoutevaisseau = $bdg->prepare('UPDATE vaisseau SET capacitedesoute = ? WHERE idvaisseau = ?');
-$reqmajcapaciteminage = $bdg->prepare('UPDATE vaisseau SET capaciteminage = ? WHERE idvaisseau = ?');
-
-$reqinformationvaisseau = $bdg ->query('
-    SELECT c.idcomposant, c.typebonus, c.totalbonus, v.idvaisseau
-    FROM gamer.composantvaisseau cv
-    INNER JOIN gamer.vaisseau v ON v.idvaisseau = cv.idvaisseaucompo 
-    INNER JOIN datawebsite.composant c ON c.idcomposant = cv.iditemcomposant
-    ORDER BY v.idvaisseau');
- while ($repinformationvaisseau = $reqinformationvaisseau->fetch())
+// Rien n'est fait ici. Juste contient des fonctions.
+include("fonctionsdutour.php");
+// Permet de créer une recherche lorsqu'on a un artefact en stock.
+$reqinfoartefact = $bdg->prepare("SELECT s.idjoueursilo, i.technescessaire FROM silo AS s INNER JOIN datawebsite.items AS i ON s.iditems = i.iditem WHERE typeitem = 'artefact'");
+$reqinfoartefact->execute(array());
+while ($repinfoartefact = $reqinfoartefact->fetch())
     {
-    switch ($repinformationvaisseau['typebonus'])
-        { 
-        case 1: // 1 = bonus à la vitesse.
-        $reqmajvitessevaisseau->execute(array($repinformationvaisseau['totalbonus'], $repinformationvaisseau['idvaisseau']));
-        break;
-
-        case 2: // capacité des soutes.
-        $reqmajsoutevaisseau->execute(array($repinformationvaisseau['totalbonus'], $repinformationvaisseau['idvaisseau']));
-        break;
-        case 3: // capacité du minage.
-        $reqmajcapaciteminage->execute(array($repinformationvaisseau['totalbonus'], $repinformationvaisseau['idvaisseau']));
-        break;
-        } 
-    }
-
-$reqcomposant = $bdg ->prepare('SELECT c.HPcomposant, i.coutbien, i.couttitane
-    FROM gamer.composantvaisseau cv
-    INNER JOIN datawebsite.composant c ON c.idcomposant = cv.iditemcomposant
-    INNER JOIN datawebsite.items i ON c.idcomposant = i.iditem
-    WHERE cv.idvaisseaucompo = ? ORDER BY cv.idtable');
-
-$requpdatePVmaxvaisseau = $bdg ->prepare('UPDATE vaisseau SET HPmaxvaisseau = ? , HPvaisseau = ? , biensvaisseau = ? , titanevaisseau = ? WHERE idvaisseau = ?');
-
-$reqvaisseau = $bdg ->query('SELECT idvaisseau, HPmaxvaisseau FROM vaisseau ORDER BY idvaisseau');
- while ($repvaisseau = $reqvaisseau->fetch())
-    {
-    $coutbien = 100;
-    $couttitane = 0;
-    $HPvaisseau = 3;
-    $reqcomposant->execute(array($repvaisseau['idvaisseau']));
-    while ($repcomposant = $reqcomposant->fetch())
-        {
-        $HPvaisseau = $HPvaisseau + $repcomposant['HPcomposant'];
-        $coutbien = $coutbien + $repcomposant['coutbien'];
-        $couttitane = $couttitane + $repcomposant['couttitane'];
-        }
-
-    if ($repvaisseau['HPmaxvaisseau'] != $HPvaisseau)
-        {
-        echo $HPvaisseau . ' Nouvel HP du vaisseau</br>' ;
-                echo $repvaisseau['HPmaxvaisseau'] . ' ancien HP du vaisseau</br>' ;
-        $requpdatePVmaxvaisseau->execute(array($HPvaisseau, $HPvaisseau, $coutbien, $couttitane, $repvaisseau['idvaisseau']));
-        }
+    echo $repinfoartefact['technescessaire'] . 'tech</br>';
+    echo $repinfoartefact['idjoueursilo'] . 'tech</br>';
+    creerrecherche($repinfoartefact['technescessaire'], $repinfoartefact['idjoueursilo']); 
     }
 ?>

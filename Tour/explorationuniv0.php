@@ -57,7 +57,8 @@ while ($repexplorationexistante = $reqexploration->fetch())
 
         case 6:     
             $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Champ d\'astéroides exploitables', 'Nous venons de détecter un champs d\'astéroides et il semble qu\'il est possible d\'exploiter ces ressources. Ils regorge de ressources précieuses et nous pourrions en tirer un grand bénéfice.'));
-            $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 8, 3));
+            $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 8, 1));
+            $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 6, 2));
         break;
 
         case 7:
@@ -66,6 +67,14 @@ while ($repexplorationexistante = $reqexploration->fetch())
         break;
 
         case 8:
+
+        break;
+
+        case 9:
+            
+        break;
+
+        case 10:
             $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Vaisseau inconnu détecté', 'Nous venons de trouver un vaisseau inconnu. Nous avons tenté de communiquer avec lui, mais aucune réaction de sa part. Il est en très mauvais état et semble abandonné depuis des siècles. Nous allons tenter de l\'aborder.'));
             
             $reqinfovaisseauexplorateur->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers']));
@@ -74,19 +83,12 @@ while ($repexplorationexistante = $reqexploration->fetch())
             $reqsupprimerordreprecedent->execute(array($repinfovaisseauexplorateur['idvaisseau']));
             $reqcreerordredeplacement->execute(array($repinfovaisseauexplorateur['idvaisseau'], $repexplorationexistante['x'], $repexplorationexistante['y'], 0, $repexplorationexistante['idexplorateur'], 8 ,2));
 
-            $reqcreervaiseau->execute(array(0, 5, $repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 'Épave spatiale', 20, 20));
+            // Type vaisseau 2 = vaisseau spécifique qui lache un noyau transdimentionnel.
+            $reqcreervaiseau->execute(array(0, 2, $repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 'Épave spatiale', 20, 20));
             $reqinfovaisseau->execute(array());
             $repinfovaisseau = $reqinfovaisseau->fetch();
 
             $reqcreercomposant->execute(array($repinfovaisseau['idvaisseau'], 13, 'arme'));
-        break;
-
-        case 9:
-            
-        break;
-
-        case 10:
-
         break;
 
         case 11:

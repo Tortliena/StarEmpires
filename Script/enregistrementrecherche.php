@@ -8,19 +8,32 @@ echo $_SESSION['id'] . '</br>' ;
 echo $_POST['idrecherche'] . '</br>';
 */
 
+// Permet de récupérer les infos sur la recherche en cours !
 $reqrechercheafaire = $bdg->prepare(
-    "SELECT idrech, avrech , rechnesc
+    "SELECT ordrerecherche, idrechprinc
     FROM rech_joueur
     WHERE idjoueurrecherche =  ? AND idrech = ?");
 $reqrechercheafaire->execute(array($_SESSION['id'] , $_POST['idrecherche']));
 $reprechafaire = $reqrechercheafaire->fetch();
 
-$supanciennerech = "DELETE FROM rech_joueur WHERE idjoueurrecherche = ? AND idrech = ? " ;
-$bdg->prepare($supanciennerech)->execute([$_SESSION['id'], $_POST['idrecherche']]);
+$reqrechercheencours = $bdg->prepare(
+    "SELECT ordrerecherche, idrechprinc
+    FROM rech_joueur
+    WHERE idjoueurrecherche =  ?
+    AND rechposs = 0
+    ORDER BY ordrerecherche ASC
+    LIMIT 1");
+$reqrechercheencours->execute(array($_SESSION['id']));
+$reprechercheencours = $reqrechercheencours->fetch();
 
-$reqrelancerrech = $bdg->prepare("INSERT INTO rech_joueur(idjoueurrecherche, idrech, avrech, rechnesc) VALUES (?,?,?,?)");
-$reqrelancerrech->execute(array($_SESSION['id'],$_POST['idrecherche'],$reprechafaire['avrech'],$reprechafaire['rechnesc']));	
-$_SESSION['message1'] = $_POST['combien'];
-$_SESSION['message2'] = $info[0];
+$reprechercheencours['ordrerecherche'];
+$reprechafaire['ordrerecherche'];
+
+$requpdaterecherche = $bdg->prepare('UPDATE rech_joueur
+	SET ordrerecherche = ?
+    WHERE idrechprinc =  ?');
+$requpdaterecherche->execute(array($reprechercheencours['ordrerecherche'], $reprechafaire['idrechprinc']));
+$requpdaterecherche->execute(array($reprechafaire['ordrerecherche'], $reprechercheencours['idrechprinc']));
+
 header('Location: ../recherche.php?message=17');
 ?>

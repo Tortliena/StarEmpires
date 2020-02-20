@@ -6,6 +6,9 @@ include("../include/BDDconnection.php");
 <?php
 $Commentairestour = 'Le tour commence.' ;
 
+// Rien n'est fait ici. Juste contient des fonctions.
+include("fonctionsdutour.php");
+
 // Changer le numéro du tour.
 include("incrementerletour.php");
 
@@ -33,9 +36,6 @@ include("finchangpop.php");
 // Si stocks arrivent à 0 ... 
 include("criseeconomique.php");
 
-// Applique la production du tour de recherche sur les recherches en cours.
-include("recherchetour.php");
-
 // Faire augmenter la pop.
 include("croissancepop.php");
 
@@ -50,6 +50,9 @@ include("deplacementvaisseau.php");
 
 // Évents lors de l'exploration de l'univers du joueur !
 include("explorationuniv0.php");
+
+// Applique la production du tour de recherche sur les recherches en cours.
+include("recherchetour.php");
 
 // Mise à jour des limites des joueurs (pop, bat).
 include("limitesjoueurs.php");

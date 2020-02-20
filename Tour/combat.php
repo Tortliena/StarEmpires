@@ -37,23 +37,24 @@ function gestiondegats($idvaisseau, $pvvaisseau, $degatdutir, $idarme, $idvaisse
 	if ($nvpv < 0)
 		{
 		$reqinfopvvaisseau = $bdg->prepare('
-			SELECT nomvaisseau, x, y, univers, idjoueurbat, biensvaisseau, titanevaisseau
+			SELECT *
 			FROM vaisseau WHERE idvaisseau = ?');
 		$reqinfopvvaisseau->execute(array($idvaisseau));
 		$repinfopvvaisseau = $reqinfopvvaisseau->fetch();
 
+		$reqcreerasteroides = $bda->prepare('INSERT INTO champsasteroides (xaste , yaste , uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)');
+
 		if ($repinfopvvaisseau['idjoueurbat'] != 0)
-			{ // Problème avec les vaisseaux bot ici !
+			{ // On envoit ce message uniquement aux joueurs.
 			$textemessage = 'Nous avons perdu le vaisseau ' . $repinfopvvaisseau['nomvaisseau'] . ' en ' . $repinfopvvaisseau['x'] . '-' . $repinfopvvaisseau['y'] . ' lors d\'une bataille spatiale.' ; 
 			$reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)');
 			$reqmessageinterne->execute(array('Amirauté', $repinfopvvaisseau['idjoueurbat'], 0, 'Perte d\'un vaisseau', $textemessage));
 			}
-
+	
 		// Créer champs d'astéroides : Reprendre le prix du vaisseau
 		$nbchampsastebien = floor(($repinfopvvaisseau['biensvaisseau'] / 150));
 		$nbchampsastetitane = floor(($repinfopvvaisseau['titanevaisseau'] / 30));
 
-		$reqcreerasteroides = $bda->prepare('INSERT INTO champsasteroides (xaste , yaste , uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)');
 		if ($nbchampsastebien > 0)
 			{
 			$reqcreerasteroides->execute(array($repinfopvvaisseau['x'], $repinfopvvaisseau['y'], $repinfopvvaisseau['univers'], 6, $nbchampsastebien));
@@ -61,7 +62,12 @@ function gestiondegats($idvaisseau, $pvvaisseau, $degatdutir, $idarme, $idvaisse
 		if ($nbchampsastetitane > 0)
 			{
 			$reqcreerasteroides->execute(array($repinfopvvaisseau['x'], $repinfopvvaisseau['y'], $repinfopvvaisseau['univers'], 8, $nbchampsastetitane));
-			}		
+			}
+		if ($repinfopvvaisseau['typevaisseau'] == 2)
+			{ // Cas d'un vaisseau trouvé dans le 1er univers
+			$reqcreerasteroides->execute(array($repinfopvvaisseau['x'], $repinfopvvaisseau['y'], $repinfopvvaisseau['univers'], 16, 1));
+			$reqcreerasteroides->execute(array($repinfopvvaisseau['x'], $repinfopvvaisseau['y'], $repinfopvvaisseau['univers'], 18, 1));
+			}
 
 		// Bataille défenseur ou attaquant
 		$reqdeletebataille = $bdg->prepare("DELETE FROM bataille WHERE idvaisseauoffensif = ? OR idvaisseaudefensif = ?");

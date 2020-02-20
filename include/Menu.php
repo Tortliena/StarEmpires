@@ -47,16 +47,24 @@
             </a></br>
             </br>
             <a class ="lienmenu"  href="Capitale.php">Capitale</a> </br>
-            <a class ="lienmenu"  href="Chantier.php">Chantier</a> </br>
-			<a class ="lienmenu" href="recherche.php">Recherche</a> </br>
 
-			<?php
-            // Permet d'afficher le lien vers le silo si on a le niveau pour y accéder.
+            <?php
+            if ($replvl['lvl'] > 1)
+                {
+                echo '<a class ="lienmenu" href="Chantier.php">Chantier</a></br>';
+                echo '<a class ="lienmenu" href="recherche.php">Recherche</a></br>';
+			    }
+
             if ($replvl['lvl'] > 5) 
                 {
                 echo '<a class ="lienmenu" href="silo.php">Silo</a></br>';
                 }
-            echo '<a class ="lienmenu" href="design.php">Conception</a></br>';
+
+            if ($replvl['lvl'] > 7) 
+                {
+                echo '<a class ="lienmenu" href="design.php">Conception</a></br>';
+                }
+            
 
             $ecrirehangars = 1 ;
             $reqvaiss = $bdg->prepare('SELECT idvaisseau , nomvaisseau FROM vaisseau WHERE idjoueurbat = ? AND typevaisseau = 5 ORDER BY idvaisseau');
