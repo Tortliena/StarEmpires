@@ -105,6 +105,12 @@ function annulerordrededeplacement($typeordre, $idvaisseau, $xdest, $ydest, $blo
       case 8:
         $messageannulerdeplacement = 'Votre vaisseau est actuellement occupé et ne réponds pas à vos tentatives de communication. ';
       break;
+      case 10:
+        $messageannulerdeplacement = 'Votre vaisseau prépare un saut dimensionnel ';
+      break;
+      default :
+        $messageannulerdeplacement = 'ORDRE NON PREVU ! Voir fonction hangars/annuler ';
+      break;
     }
     echo '<form method="post" action="script/ordredeplacement.php"><p>';
     echo $messageannulerdeplacement ;
@@ -147,6 +153,13 @@ function formulaireordredeplacement($typeordre, $idvaisseau, $texteexplication, 
     break;
     case 7:
       $textevalidation = 'Réparer';
+    break;
+    case 10:
+      $texteexplication = 'Saut dimensionnel : ';
+      $textevalidation = 'Sauter';
+    break;
+    default :
+      $textevalidation = 'ORDRE NON PREVU ! Voir fonction hangars/ordre ';
     break;
     }
 
