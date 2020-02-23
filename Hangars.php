@@ -116,9 +116,9 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
           INNER JOIN items i
           ON i.iditem = c.iditemcomposant
           WHERE c.idvaisseaucompo = ?
-          AND c.typecomposant = 'arme'
+          AND c.typecomposant = ?
           ");
-    $reqcomposantsurlevaisseau->execute(array($_GET['id']));
+    $reqcomposantsurlevaisseau->execute(array($_GET['id'], 'arme'));
     $repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch();
     echo '&emsp; Armement : ';
       if (isset($repcomposantsurlevaisseau['nombatiment']))
@@ -130,6 +130,13 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
         echo 'Vaisseau non armé.';
         }
     echo '</p>';
+
+    $reqcomposantsurlevaisseau->execute(array($_GET['id'], 'noyau'));
+    $repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch();
+    if (isset($repcomposantsurlevaisseau['nombatiment']))
+        {
+        formulaireordredeplacement(10, $_GET['id'], 'Saut dimensionnel : ', 0, 0, 0);
+        }
     }
 
 // requetes pour la carte et/ou les ordres.
@@ -213,6 +220,12 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
       composanthangars('coque', $_SESSION['id'], $_GET['id']);
       }
 
+    if ($replvl['lvl']>=10)
+      {
+      // Donner accès à cette partie plus tard dans les niveaux.
+      composanthangars('noyau', $_SESSION['id'], $_GET['id']);
+      }
+
     echo '<h2>Composants dans les stocks :</h2>';
     $reqsiloitems = $bdd->prepare("
                     SELECT s.quantite, i.description, i.nombatiment
@@ -242,14 +255,21 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
 // Si le vaisseau est de sortie sur la carte :
 else
   {
-  $xymax = 5 ; // valeurs maximales de la carte.
+  if ($repvaisseau['univers'] > 0)
+    {
+    $xymax = 5 ; // valeurs maximales de la carte.
+    }
+  else
+    {
+    $xymax = 5 ; // valeurs maximales de la carte.
+    }
 
-    // Si le vaisseau se trouve en orbite de la planète mère :
-    if ($repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3 AND $repvaisseau['univers'] == $_SESSION['id'])
-      {
-      // Formulaire pour rentrer en orbite : ordre de type 3.
-      formulaireordredeplacement(3, $_GET['id'], 0, 0, 0, 0);
-      }
+  // Si le vaisseau se trouve en orbite de la planète mère :
+  if ($repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3 AND $repvaisseau['univers'] == $_SESSION['id'])
+    {
+    // Formulaire pour rentrer en orbite : ordre de type 3.
+    formulaireordredeplacement(3, $_GET['id'], 0, 0, 0, 0);
+    }
 
     // Si il y a un ordre de déplacement en cours : 
     if (isset($reponseordredeplacementactuel['typeordre']))
@@ -266,7 +286,7 @@ else
       }
     else
       {
-      formulaireordredeplacement(0, $_GET['id'], 0, $repvaisseau['x'], $repvaisseau['y'], 0);
+      formulaireordredeplacement(0, $_GET['id'], 0, $repvaisseau['x'], $repvaisseau['y'], $xymax);
       }
 
     // Carte spatiale :

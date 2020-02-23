@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le :  jeu. 20 fév. 2020 à 20:18
+-- Généré le :  mar. 25 fév. 2020 à 14:25
 -- Version du serveur :  5.7.26
 -- Version de PHP :  7.2.18
 
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `afaire` (
   `texteafaire` text NOT NULL,
   `priorite` varchar(128) NOT NULL,
   PRIMARY KEY (`idafaire`)
-) ENGINE=MyISAM AUTO_INCREMENT=368 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=371 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `afaire`
@@ -42,14 +42,13 @@ CREATE TABLE IF NOT EXISTS `afaire` (
 
 INSERT INTO `afaire` (`idafaire`, `texteafaire`, `priorite`) VALUES
 (346, 'Quand recherche se finie, mettre message avec le nom de la recherche et éventuellement faire un message personnalisé si étude', 'petittrucrapide'),
-(348, 'Cacher conception en fonction du niveau.', 'petittrucrapide'),
 (335, 'Exporter base de données + importer base de données ', 'grosetapesouspeu'),
-(313, 'Vaisseau avec ordre : Mettre une alerte', 'petittrucplustard'),
+(370, 'Revoir les réparations : Faire en fonction prix vaisseau', 'petittrucrapide'),
 (349, 'Gérer les conceptions dans les constructions.', 'grosetapesouspeu'),
+(369, 'Changer ordre des constructions', 'petittrucrapide'),
 (205, 'Sur la carte, mettre en évidence les endroits accessibles ?', 'grosseetapeplustard'),
 (17, 'Gestion de crise économique (rétrograder travailleurs ?)', 'grosseetapeplustard'),
 (307, 'Affichage carte : Afficher vaisseau ennemis', 'petittrucrapide'),
-(367, 'Ajouter possibilité d\'équiper les noyaux.', 'encours'),
 (264, 'Mettre un avertissement dans le cas ou un vaisseau ne peut pas atteindre la destination', 'petittrucplustard'),
 (22, 'Ajouter sécurité sur les champs entrés par les utilisateurs.', 'lancementsite'),
 (23, 'Passer par http://validator.w3.org', 'lancementsite'),
@@ -58,7 +57,6 @@ INSERT INTO `afaire` (`idafaire`, `texteafaire`, `priorite`) VALUES
 (276, 'Rénovation : Afficher les rénovations en cours.', 'petittrucrapide'),
 (360, '1ere dimension', 'grosetapesouspeu'),
 (361, 'Bug : Parfois recherche avec même id ! Dou cela vient ?!', 'encours'),
-(333, 'Revoir les réparations : Faire en fonction prix vaisseau', 'petittrucrapide'),
 (364, 'Bug : Si 2 rénovations en cours et qu\'un seul composant en stock alors on arrive quand même a rénover les 2 vaisseaux.', 'encours');
 
 -- --------------------------------------------------------
@@ -124,7 +122,7 @@ CREATE TABLE IF NOT EXISTS `tour` (
   `datetour` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `resume` text,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=129 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=131 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `tour`
@@ -258,7 +256,9 @@ INSERT INTO `tour` (`id`, `datetour`, `resume`) VALUES
 (125, '2020-02-20 15:07:52', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
 (126, '2020-02-20 15:08:04', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
 (127, '2020-02-20 15:12:45', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
-(128, '2020-02-20 15:12:52', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop');
+(128, '2020-02-20 15:12:52', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(129, '2020-02-22 13:11:44', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop'),
+(130, '2020-02-22 13:42:20', 'Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

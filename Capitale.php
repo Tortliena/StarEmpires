@@ -231,14 +231,11 @@ while ($reppoptransf = $reqpoptransf->fetch())
           echo "La priorité est de préparer deux vaisseaux lourdement armés et attaquer cette épave. Nous allons pouvoir l'étudier par la suite.</br>";
       break;
       case 9:
-          echo "Notre univers est vide de vie avancée en dehors de cette épave. Nous ne sommes pas en mesure d'expliquer comment cette chose à pu arriver là. Nous allons devoir l'étudier et pour cela, nous devons détruire ses défenses automatiques.</br>";
+          echo "Nos dernières explorations semblent indiquer que notre univers est vide de vie avancée en dehors de cette épave et de nous. Nous ne sommes pas en mesure d'expliquer comment cette chose à pu arriver là.</br>";
           echo "Récoltez ce que vous pouvez sur les restes de l'épave. Ramenez le tout sur la planète et étudions ce qui peut encore l'être.";
       break;
       case 10:
           echo "Équipez un vaisseau avec le dispositif inconnu et utilisez-le.";
-      break;
-      case 11:
-
       break;
       default:
           echo "Vous etes arrivé au bout du jeu ! Bonne chance !"; 

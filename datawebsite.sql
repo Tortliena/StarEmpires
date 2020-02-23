@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le :  jeu. 20 fév. 2020 à 20:18
+-- Généré le :  mar. 25 fév. 2020 à 14:25
 -- Version du serveur :  5.7.26
 -- Version de PHP :  7.2.18
 
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `composant` (
   `nbtir` int(11) NOT NULL DEFAULT '0',
   `degatpartir` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idcomposant`)
-) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
 
 --
 -- Déchargement des données de la table `composant`
@@ -49,9 +49,10 @@ INSERT INTO `composant` (`idcomposant`, `nomcomposant`, `typecomposant`, `typebo
 (10, 'Moteur II', 'moteur', 1, 2, 2, 0, 0),
 (11, 'Laser minier', 'arme', 3, 3, 2, 2, 1),
 (12, 'Soutes Larges', 'soute', 2, 10, 4, 0, 0),
+(13, 'Arme alienne pour le 1er vaisseau', 'arme', 0, 0, 15, 4, 2),
 (14, 'Torpille supraluminique', 'arme', 0, 0, 2, 2, 4),
 (15, 'Coque polycarbonique', 'coque', 0, 0, 10, 0, 0),
-(13, 'Arme alienne pour le 1er vaisseau', 'arme', 0, 0, 15, 4, 2);
+(17, 'Noyau alien adapté', 'noyau', 0, 0, 2, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -97,8 +98,8 @@ INSERT INTO `items` (`iditem`, `nombatiment`, `coutbien`, `couttitane`, `typeite
 (16, 'débris de technologie alienne', 100, 0, 'artefact', 12, 17, 'Trouvé au cœur de l\'épave spatiale, ce morceau était particulièrement blindé sans qu\'on ne puisse comprendre sa fonction.', NULL, ''),
 (17, 'Noyau alien adapté', 100, 100, 'composant', 12, 16, 'Trouvé au cœur de l\'épave spatiale, ce noyau a été partiellement restauré et adapté à notre technologie. Il n\'est sans doute pas aussi efficace que par le passé, mais il marche.', NULL, 'noyau'),
 (18, 'débris de technologie alienne', 100, 0, 'artefact', 13, 19, 'Les premières études laissent à penser que nous avons ici une arme d\'origine alienne. Nous devrions pouvoir le restaurer, voir de l\'imiter pour en produire nous même. ', NULL, ''),
-(19, 'Missile alienne adapté', 100, 0, 'composant', 13, 18, NULL, NULL, 'arme'),
-(20, 'Missile enrichi', 100, 50, 'composant', 14, 0, NULL, NULL, 'arme');
+(19, 'Missile alienne adapté', 100, 0, 'composant', 13, 18, 'Système de missiles récupérés sur une épave et restauré.', NULL, 'arme'),
+(20, 'Missile enrichi', 100, 50, 'composant', 14, 0, 'Système de missiles développés dont la technologie est tirée de l\'étude de restes aliens.', NULL, 'arme');
 
 -- --------------------------------------------------------
 

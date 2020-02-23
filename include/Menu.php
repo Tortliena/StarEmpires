@@ -67,54 +67,55 @@
             
 
             $ecrirehangars = 1 ;
-            $reqvaiss = $bdg->prepare('SELECT idvaisseau, nomvaisseau, typeordre FROM vaisseau LEFT JOIN ordredeplacement ON idvaisseaudeplacement = idvaisseau WHERE idjoueurbat = ? AND typevaisseau = 5 ORDER BY idvaisseau');
+            $reqvaiss = $bdg->prepare('SELECT v.idvaisseau, v.nomvaisseau, o.typeordre FROM vaisseau v LEFT JOIN ordredeplacement o ON o.idvaisseaudeplacement = v.idvaisseau WHERE v.idjoueurbat = ? AND v.typevaisseau = 5 ORDER BY v.idvaisseau');
             $reqvaiss->execute(array($_SESSION['id']));
             while ($repvaiss = $reqvaiss->fetch())
                 {
                 if ($ecrirehangars == 1) {echo '</br><span class = "hangars">Hangars</span></br>' ; }
                     $ecrirehangars = 2 ;
                 
-                echo '<a class ="lienmenu" href="hangars.php?id=' . $repvaiss['idvaisseau'] . '">' . $repvaiss['nomvaisseau'] . '</a>';
-                if (isset(repvaisseau['typeordre']))
+                echo '<a class ="lienmenu" href="hangars.php?id=' . $repvaiss['idvaisseau'] . '">' . $repvaiss['nomvaisseau'] . '</a></br>';
+
+                switch ($repvaiss['typeordre'])
                     {
-                    switch (repvaisseau['typeordre'])
-                        {
-                        case 0:
-                        echo "Deplacement en cours";
-                        break;
+                    case '':
+						echo "Aucun ordre.";
+                    break;
+					
+                    case 0:
+                    echo "Se déplace";
+                    break;
+                    
+                    case 1:
+                    echo "Mine";
+                    break;
+                    
+                    case 2:
+                    echo "Decharge";
+                    break;
+                    
+                    case 3:
+                    echo "Rentre a la base";
+                    break;
+                    
+                    case 4:
+                    echo "Quitte l'orbite";
+                    break;
+                    
+                    case 5:
+                    echo "BATAILLE";
+                    break;
+                    
+                    case 6:
+                    case 7:
+                    echo "En cours de renovation";
+                    break;
                         
-                        case 1:
-                        echo "Minage en cours";
-                        break;
-                        
-                        case 2:
-                        echo "Decharge";
-                        break;
-                        
-                        case 3:
-                        echo "Rentre a la base";
-                        break;
-                        
-                        case 4:
-                        echo "Quitte l'orbite";
-                        break;
-                        
-                        case 5:
-                        echo "BATAILLE";
-                        break;
-                        
-                        case 6:
-                        case 7:
-                        echo "En cours de renovation";
-                        break;
-                            
-                        
-                        default:
-                        echo "ordre special !";
-                        }   
+                    default:
+                    echo "ordre special !";
                     }
-                echo '</br>';
-                }//}
+                echo '</br></br>'; 
+                }
 
             $reqvaiss->closeCursor();
             }
