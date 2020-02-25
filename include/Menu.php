@@ -49,7 +49,7 @@
             <a class ="lienmenu"  href="Capitale.php">Capitale</a> </br>
 
             <?php
-            if ($replvl['lvl'] > 1)
+            if ($replvl['lvl'] > 0)
                 {
                 echo '<a class ="lienmenu" href="Chantier.php">Chantier</a></br>';
                 echo '<a class ="lienmenu" href="recherche.php">Recherche</a></br>';

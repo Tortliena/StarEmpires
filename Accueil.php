@@ -4,7 +4,7 @@ include("include/bddconnection.php");
 
 if (isset($_COOKIE['id']) AND !isset($_SESSION['id']))
   {
-  header('Location: Script/connection');
+  header('Location: Script/connection.php');
   exit();
   }
 

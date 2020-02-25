@@ -9,7 +9,7 @@ function creerrecherche($idrecherche, $idjoueur)
 
   if ($reprechercheexistedeja['nb'] == 0)
     {
-    $prixrech = $bdd->prepare("SELECT prixrecherche FROM recherche WHERE idrecherche = ? ");
+    $prixrech = $bdd->prepare("SELECT prixrecherche, nomrecherche FROM recherche WHERE idrecherche = ? ");
     $reqcreerrecherche = $bdg->prepare("INSERT INTO rech_joueur(idjoueurrecherche, ordrerecherche, idrech, rechnesc) VALUES (?,?,?,?)");  
     
     $reqdernieridderecherche = $bdg->query('SELECT idrechprinc FROM rech_joueur ORDER BY idrechprinc DESC LIMIT 1');
@@ -20,6 +20,11 @@ function creerrecherche($idrecherche, $idjoueur)
     $aleatoirerecherche = rand(100 , 200) ;
     $reelprixrech = $aleatoirerecherche * $repprixrech['prixrecherche'] / 100 ;
     $reqcreerrecherche->execute(array($idjoueur, $repdernieridderecherche['idrechprinc'], $idrecherche, $reelprixrech));
+      
+    $reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)');
+    
+    $mess = 'Nous pouvons maintenant recherche "'.$repprixrech['nomrecherche'].'". Vous pouvez prioritiser cette recherche sur la page dediee a la recherche.'; 
+    $reqmessageinterne->execute(array('Ministre de la recherche', $idjoueur, 0, 'Nouvelle recherche disponible', $mess));
     }
   }
 // À utiliser :  creerrecherche( X (= num recherche) , $replvl['id']);

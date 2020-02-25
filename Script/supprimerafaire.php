@@ -7,6 +7,5 @@ include("../include/BDDconnection.php");
     $stmt->bindParam(':idafaire', $_POST['idafaire'], PDO::PARAM_INT);
     $stmt->execute();
    
-header('Location: ../afaire');
-
+header('Location: ../afaire.php');
     ?>
