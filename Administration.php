@@ -68,6 +68,22 @@ elseif (isset($_GET["voir"]))
 </p>
 </form>
 
+<h3>Gestion de la base de donnees :</h3>
+<!-- exporter la base de donnees ! -->
+<form action="script/exporterbdd.php">
+<p>
+  <input type="submit" value="Exporter" />
+</p>
+</form>
+
+    
+<!-- importer la base de donnees ! -->
+<form action="script/importerbdd.php">
+<p>
+  <input type="submit" value="Importer" />
+</p>
+</form>
+    
 </div>
   </body>
 </html>

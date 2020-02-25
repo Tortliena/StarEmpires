@@ -27,14 +27,11 @@ include("debchangpop.php");
 // Permet de remplir la table *variationstour* qui permet de gérer après les chantiers et les biens.
 include("proddutour.php");
 
-// Applique la production du tour des biens sur les stocks et la consommation des pops.
+// Applique la production du tour des biens sur les stocks et la consommation des pops. Gestion des crises economiques aussi.
 include("gestionbiens.php");
 
 // Fin changement des pops + annulation des ordres.
 include("finchangpop.php");
-
-// Si stocks arrivent à 0 ... 
-include("criseeconomique.php");
 
 // Faire augmenter la pop.
 include("croissancepop.php");
@@ -66,5 +63,5 @@ include("niveaux.php");
 // Permet de créer un résumé du tour pour vérifier les bugs.
 include("resumetour.php");
 
-header('Location: ../administration?voir=');
+header('Location: ../administration.php?voir=');
 ?>
