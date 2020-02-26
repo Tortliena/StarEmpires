@@ -126,7 +126,7 @@ $a = 0; ?> <!-- Variable permettant de gérer le cas avec 0 construction possibl
         while ($repmenuderoulantitems = $reqmenuderoulantitems ->fetch())
           {
           $a++;
-          echo '<option value="'.$repmenuderoulantitems['iditem'].'">'.$repmenuderoulantitems['nombatiment'].'b</option>';
+          echo '<option value="'.$repmenuderoulantitems['iditem'].'">'.$repmenuderoulantitems['nombatiment'].'</option>';
           }
           $reqmenuderoulantconstruction->closeCursor();
           if ($a == 0)

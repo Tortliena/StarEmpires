@@ -185,14 +185,10 @@ echo $_POST['confirmer'] . '</br>'; //'on' si case coché, 'off' si non cochée,
         }
 
     if ($_POST['typeordre'] == 7 OR $_POST['typeordre'] == 6)
-        { // 7 = réparer
+        { // 7 = réparer ; // 6 = changer composant.
         // Vérifier localisation du vaisseau
         if  ($repvaisseau['univers'] == $_SESSION['id'] AND $repvaisseau['x'] == 0 OR $repvaisseau['y'] == 0)
             {
-            // Calculer le prix de réparation avec les dégats.
-            $nbHPareparer = $repvaisseau['HPmaxvaisseau'] - $repvaisseau['HPvaisseau']; 
-            $prixbienreparation = $nbHPareparer *10;
-
             if ($_POST['typeordre'] == 7)
                 {
                 if($repvaisseau['HPvaisseau'] == $repvaisseau['HPmaxvaisseau'])
@@ -202,11 +198,16 @@ echo $_POST['confirmer'] . '</br>'; //'on' si case coché, 'off' si non cochée,
                     }
                 else
                     {
+                    // Calculer le prix de réparation avec les dégats.
+                    $prixbienreparation = ROUND($repvaisseau['biensvaisseau']*(1 - $repvaisseau['HPvaisseau']/$repvaisseau['HPmaxvaisseau']));
+
+                    $prixtitanereparation = ROUND($repvaisseau['titanevaisseau']*(1 - $repvaisseau['HPvaisseau']/$repvaisseau['HPmaxvaisseau']));
+
                     // Insérer construction/prix
                     $reqcreerconstruction = $bdg->prepare('INSERT INTO construction
                     (trucaconstruire, nombre, idjoueurconst, avancementbiens, avancementtitane, prixbiens, prixtitane)
                     VALUES(?, ?, ?, ?, ?, ?, ?)');
-                    $reqcreerconstruction->execute(array(-2, 1, $_SESSION['id'], $prixbienreparation, 0, $prixbienreparation, 0));
+                    $reqcreerconstruction->execute(array(-2, 1, $_SESSION['id'], $prixbienreparation, $prixtitanereparation, $prixbienreparation, $prixtitanereparation));
 
                     $reqnumconstruction = $bdg->QUERY('SELECT idconst FROM construction ORDER BY idconst DESC LIMIT 1'); 
                     $repnumconstruction = $reqnumconstruction ->fetch();

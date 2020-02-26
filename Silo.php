@@ -34,25 +34,19 @@ $quantbiens = $reqbiens->fetch();
 ?><table class="silo"><caption>Inventaire</caption><tr><td class="silo1ereligne">Objet</td><td class="silo1ereligne">Quantité</td><td class="silo1ereligne">Utilité</td></tr>
   <?php
   if ($quantbiens['biens']>0)
-    {?>
-    <tr>
-    <td class="silonom">Biens divers</td>
-    <td class="siloquantite"><?php echo $quantbiens['biens']; ?></td>
-    <td class="silodescription">Sous ce nom, vous retrouvez tout un ensemble de biens divers, allant des outils quotidiens aux grosses machines sans ressources particulières. Ils sont consommé lorsque vous lancez des productions, formez de la population ou régulièrement par toute la population. Ils sont produits par les citoyens. Cela représente le système économique classique de votre monde.</td>
-    </tr>
-  <?php }
+    {
+    echo '<tr><td class="silonom">Biens divers</td>';
+    echo '<td class="siloquantite">'.$quantbiens['biens'].'</td>';
+    echo '<td class="silodescription">Sous ce nom, vous retrouvez tout un ensemble de biens divers, allant des outils quotidiens aux grosses machines sans ressources particulières. Ils sont consommé lorsque vous lancez des productions, formez de la population ou régulièrement par toute la population. Ils sont produits par les citoyens. Cela représente le système économique classique de votre monde.</td></tr>';
+    }
   if ($quantbiens['titane']>0)
-    { ?>  
-    <tr>
-    <td class="silonom">Métaux rares</td>
-    <td class="siloquantite"><?php echo $quantbiens['titane']; ?></td>
-    <td class="silodescription">Cela représente les métaux rares raffinés et prêts à être utilisés. Notre monde est extrêmement pauvres et l'espace semble être un endroit propice pour en récupérer.</td>
-    </tr>
+    {
+    echo '<tr><td class="silonom">Métaux rares</td>';
+    echo '<td class="siloquantite">'.$quantbiens['titane'].'</td>';
+    echo '<td class="silodescription">Cela représente les métaux rares raffinés et prêts à être utilisés. Notre monde est extrêmement pauvres et l\'espace semble être un endroit propice pour en récupérer.</td></tr>';
+    }
 
-<?php }
-
-$reqSiloItems = $bdd->prepare('
-									SELECT s.quantite, i.description, i.nombatiment
+$reqSiloItems = $bdd->prepare('     SELECT s.quantite, i.description, i.nombatiment
 									FROM gamer.silo s
 									INNER JOIN items i
 									ON i.iditem = s.iditems
@@ -62,15 +56,13 @@ $reqSiloItems->execute(array($_SESSION['id']));
 while($repSiloItems = $reqSiloItems->fetch())
 	{ 
 	if ($repSiloItems['quantite']>0)
-    { ?>
-    <tr>
-  	<td class="silonom"><?php echo $repSiloItems['nombatiment']; ?></td>
-  	<td class="siloquantite"><?php echo $repSiloItems['quantite']; ?></td>
-  	<td class="silodescription"><?php echo $repSiloItems['description']; ?></td>
-  	</tr>
-	<?php
-	} } ?>
-
+        {
+        echo '<tr><td class="silonom">'. ucfirst($repSiloItems['nombatiment']); 
+        echo '</td><td class="siloquantite">'.$repSiloItems['quantite'];
+        echo '</td><td class="silodescription">'.$repSiloItems['description'];
+        echo '</td></tr>';
+        }
+    } ?> 
 </table>
 
   </div>
