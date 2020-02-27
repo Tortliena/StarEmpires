@@ -103,20 +103,18 @@ $population = $compterpop->fetch();
 $comptercit = $bdg->prepare('SELECT COUNT(*) AS citoyens FROM population WHERE joueurpop = ? AND typepop = 1');
 $comptercit->execute(array($_SESSION['id']));
 $citoyens = $comptercit->fetch();
-?>
 
-<?php 
-  if ($citoyens[0] == 0)
+if ($citoyens['citoyens'] == 0)
   {
-    echo 'Il n\'y a aucun citoyen dans le secteur privé et donc la production de biens va être nulle.';
+  echo 'Il n\'y a aucun citoyen dans le secteur privé et donc la production de biens va être nulle.';
   }
-  if ($citoyens[0] == 1)
+if ($citoyens['citoyens'] == 1)
   {
-    echo 'Il n\'y a qu\'un citoyen travaillant dans le secteur privé pour produire des biens.';
+  echo 'Il n\'y a qu\'un citoyen travaillant dans le secteur privé pour produire des biens.';
   }
-  if ($citoyens[0] > 1)
+if ($citoyens['citoyens'] > 1)
   {
-  echo 'Parmi eux, il y a ' . $citoyens[0] . ' citoyens travaillant dans le secteur privé pour produire des biens divers.';
+echo 'Parmi eux, il y a ' . $citoyens['citoyens'] . ' citoyens travaillant dans le secteur privé pour produire des biens divers.';
   }
 ?>
 
@@ -149,7 +147,7 @@ $reqtypepop->closeCursor();
        </select><label for="poparrivee"> en </label><select name="poparrivee" id="poparrivee">
 
 <?php
-$reqtypepop = $bdd->query('SELECT idtypepop , nompop , technecessaire FROM typepop ORDER BY idtypepop DESC');
+$reqtypepop = $bdd->query('SELECT idtypepop, nompop, technecessaire FROM typepop ORDER BY idtypepop DESC');
 while ($reptypepop = $reqtypepop->fetch())
 	{
 	echo '<option value="'. $reptypepop['idtypepop'] . '">'. $reptypepop['nompop'] .'</option>'; 

@@ -23,7 +23,7 @@ include("eventsuite.php");
 
 // Début de changement des pops avec retrait des ressources. 
 include("debchangpop.php");
-
+echo 'ici !' ; 
 // Permet de remplir la table *variationstour* qui permet de gérer après les chantiers et les biens.
 include("proddutour.php");
 
@@ -63,5 +63,5 @@ include("niveaux.php");
 // Permet de créer un résumé du tour pour vérifier les bugs.
 include("resumetour.php");
 
-header('Location: ../administration.php?voir=');
+// header('Location: ../administration.php?voir=');
 ?>

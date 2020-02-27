@@ -185,7 +185,12 @@ while ($repconstencours = $reqconstencours->fetch())
       WHERE c.idconstruction = ?");
       $reqnomvaisseau->execute(array($repconstencours['idconst']));
       $repnomvaisseau = $reqnomvaisseau->fetch() ;
-      echo 'Le vaisseau \'' . $repnomvaisseau['nomvaisseau'] . '\' est en cours de renovation pour un coût restant de ' . $repconstencours['avancementbiens'] . '.</br>' ;
+      echo 'Le vaisseau \'' . $repnomvaisseau['nomvaisseau'] . '\' est en cours de rénovation pour un coût restant de ' . $repconstencours['avancementbiens'] . ' biens';
+      if ($repconstencours['avancementtitane']>0)
+        {
+        echo ' et de ' . $repconstencours['avancementtitane'] . ' titane';
+        }
+      echo '.</br></br>';
       }
   }
 $reqconstencours->closeCursor();

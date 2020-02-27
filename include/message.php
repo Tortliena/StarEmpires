@@ -48,15 +48,15 @@ switch ($_GET["message"])
         }
         else
         {
-        echo "Vous lancé la transformation de ";
-        echo $_SESSION['message1'];
-        echo ' ';
-        echo $_SESSION['message2'];
-        echo " en ";
-        echo $_SESSION['message3'];
-        echo " ! Cela va vous couter ";
-        echo $_SESSION['message4'];
-        echo " biens.";
+        echo 'Vous lancé la transformation de ' . $_SESSION['message1'] . ' ' . $_SESSION['message2'] . ' en ' . $_SESSION['message3'] . '. ';
+        if ($_SESSION['message4'] >= 0)
+            {
+            echo 'Cela va vous couter ' . $_SESSION['message4'] . ' biens.' ;
+            }
+        else
+            {
+            echo 'Cela va vous rapporter ' . -$_SESSION['message4'] . ' biens.' ;
+            }
         }
     break;
 

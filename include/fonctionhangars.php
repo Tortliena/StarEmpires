@@ -125,12 +125,12 @@ function annulerordrededeplacement($typeordre, $idvaisseau, $xdest, $ydest, $blo
     echo '</p></form>';
   }
 
-function formulaireordredeplacement($typeordre, $idvaisseau, $texteexplication, $valeur1, $valeur2, $xymax)
+function formulaireordredeplacement($typeordre, $idvaisseau, $texteexplication, $valeur1, $valeur2, $valeur3)
   {
   switch ($typeordre)
     {
     case 0:
-      $texteexplication = '<input type="number" name="xobjectif" value="' . $valeur1 . '" min="1" max="' . $xymax . '"><input type="number" name="yobjectif" value="' . $valeur2 . '" min="1" max="' . $xymax . '">';
+      $texteexplication = '<input type="number" name="xobjectif" value="' . $valeur1 . '" min="1" max="' . $valeur3 . '"><input type="number" name="yobjectif" value="' . $valeur2 . '" min="1" max="' . $valeur3 . '">';
       $textevalidation = 'déplacer';
     break;
     case 1:
