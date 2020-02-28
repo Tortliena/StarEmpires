@@ -28,7 +28,7 @@ echo 'ici !' ;
 include("proddutour.php");
 
 // Applique la production du tour des biens sur les stocks et la consommation des pops. Gestion des crises economiques aussi.
-include("gestionbiens.php");
+// include("gestionbiens.php");
 
 // Fin changement des pops + annulation des ordres.
 include("finchangpop.php");

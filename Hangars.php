@@ -143,6 +143,7 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
 $reqdect = $bdg->prepare('SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? LIMIT 1');
 $reqplanete = $bda->prepare('SELECT idplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? LIMIT 1');
 $reqasteroide = $bda->prepare('SELECT idasteroide , quantite , typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
+$reqvaisseaucarte = $bdg->prepare('SELECT idvaisseau FROM vaisseau WHERE x = ? AND y = ? AND univers = ? AND idjoueurbat <> ? LIMIT 1');
 
 // Permet de récupérer les ordres de déplacement en cours.
 $ordredeplacementactuel = $bdg->prepare('SELECT * FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
@@ -300,6 +301,8 @@ else
         }
       elseif ($x > 0 AND $x <= $xymax AND $y > 0 AND $y <= $xymax)
         { // interieur du tableau
+        $reqvaisseaucarte->execute(array($x , $y, $repvaisseau['univers'], $_SESSION['id']));
+        $repvaisseaucarte = $reqvaisseaucarte->fetch();
         $reqplanete->execute(array($x , $y, $repvaisseau['univers']));
         $repplanete = $reqplanete->fetch();
         $reqasteroide->execute(array($x , $y, $repvaisseau['univers']));
@@ -309,6 +312,10 @@ else
           if ($repvaisseau['x'] == $x AND $repvaisseau['y'] == $y) // Si je suis sur mon vaisseau, afficher mon vaisseau.
             {
             echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/monvaisseau.png" alt="monvaisseau" /></a></td>';
+            }
+          elseif (isset($repvaisseaucarte['idvaisseau']))
+            {// Sinon, si la case est occupée par un vaisseau n'appartement pas au joueur, l'afficher.
+            echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/vaisseaumechant.png" alt="vaisseaumechant" /></a></td>' ;
             }
           elseif (isset($repplanete['idplanete']))
             { // Sinon, si la case est occupée par une planète, l'afficher.

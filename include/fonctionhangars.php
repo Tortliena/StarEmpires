@@ -97,7 +97,13 @@ function annulerordrededeplacement($typeordre, $idvaisseau, $xdest, $ydest, $blo
         $messageannulerdeplacement = 'Vous allez attaquer un vaisseau. ';
       break;
       case 6:
-        $messageannulerdeplacement = 'Vous venez juste de débuter la rénovation du vaisseau. ';
+        include("include/BDDconnection.php");
+        $reqcomposant = $bdd->prepare(" SELECT i.nombatiment FROM gamer.conceptionencours c
+                                        INNER JOIN items i ON i.iditem = c.idnouvcomposant
+                                        WHERE c.idvaisseauconception = ?");
+        $reqcomposant ->execute(array($idvaisseau));
+        $repcomposant = $reqcomposant->fetch();
+        $messageannulerdeplacement = 'Vous etes en train d\'equiper un "'.$repcomposant['nombatiment'].'". ';
       break;
       case 7:
         $messageannulerdeplacement = 'Votre vaisseau est en réparation. ';
@@ -172,6 +178,4 @@ function formulaireordredeplacement($typeordre, $idvaisseau, $texteexplication, 
   echo '<input type="submit" value="' . $textevalidation . '" />';
   echo '</p></form>';
   }
-
-  // Gérer cas ordre 5 ! 
   ?>
