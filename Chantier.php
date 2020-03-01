@@ -38,36 +38,33 @@ $reqcompterouvrier->closeCursor();
 
 <?php 
   if ($ouvriers['ouvriers'] == 0)
-  {
+    {
     echo 'Tu n\'as aucun ouvrier dans tes usines.';
-  }
+    }
   if ($ouvriers['ouvriers'] == 1)
-  {
+    {
     echo 'Tu n\'as qu\'un ouvrier dans tes usines.';
-  }
+    }
   if ($ouvriers['ouvriers'] > 1)
-  {
-  echo 'Tu as ' . $ouvriers['ouvriers'] . ' ouvriers prêts à travailler pour la nation.';
-  }
-?>
+    {
+    echo 'Tu as ' . $ouvriers['ouvriers'] . ' ouvriers prêts à travailler pour la nation.';
+    }
+echo '</br>';
 
-</br>
-
-<?php
 $reqcompterchantier = $bdg->prepare('SELECT COUNT(*) AS nbdechantier FROM batiments WHERE idjoueurbat = ? AND typebat = 2');
 $reqcompterchantier->execute(array($_SESSION['id']));
 $repcompterchantier = $reqcompterchantier->fetch();
 $reqcompterchantier->closeCursor();
 
-  if ($repcompterchantier['nbdechantier'] == 0)
+if ($repcompterchantier['nbdechantier'] == 0)
   {
-    echo 'Tu n\'as aucun chantier (une place d\'ouvrier offerte).';
+  echo 'Tu n\'as aucun chantier (une place d\'ouvrier offerte).';
   }
-  if ($repcompterchantier['nbdechantier'] == 1)
+if ($repcompterchantier['nbdechantier'] == 1)
   {
-    echo 'Tu as un chantier, ce qui donne 5 places d\'ouvriers.';
+  echo 'Tu as un chantier, ce qui donne 5 places d\'ouvriers.';
   }
-  if ($repcompterchantier['nbdechantier'] > 1)
+if ($repcompterchantier['nbdechantier'] > 1)
   {
   $placeouvrier = $repcompterchantier['nbdechantier']*5 ;
   echo 'Tu as ' . $repcompterchantier['nbdechantier'] . ' chantiers (= '. $placeouvrier .' places pour les ouvriers).';
@@ -135,63 +132,90 @@ $a = 0; ?> <!-- Variable permettant de gérer le cas avec 0 construction possibl
             }
           else
             {
-            echo '</select><input type="submit" value="Valider" />';
+            echo '</select> <input type="submit" value="Valider" />';
             } ?>
    </p>
 </form>
 
 <?php
 // Affichage des constructions en cours.
-$reqconstencours = $bdg->prepare('SELECT trucaconstruire , nombre , avancementbiens, avancementtitane, prixbiens, prixtitane, idconst FROM construction WHERE idjoueurconst= ? ORDER BY idconst');
+$reqconstencours = $bdg->prepare('SELECT * FROM construction WHERE idjoueurconst= ? ORDER BY ordredeconstruction');
 $reqconstencours->execute(array($_SESSION['id']));
-$a = 0 ; // Variable pour creer un formulaire spécifique à chacune des construction en cours.
-// Question bête un mois après avoir fait cette page : Pourquoi je n'utilise pas l'idconst pour faire le formulaire de suppression ?!
 
 $reqnomitemencoursdeconstruction = $bdd->prepare('SELECT nombatiment FROM items WHERE iditem = ?');
 $reqmess = $bdg->prepare("SELECT message FROM messagetour WHERE domainemess = ? AND numspemessage = ?");
 
 while ($repconstencours = $reqconstencours->fetch())
   {
-    $a = $a +1 ; 
-    if ($repconstencours['trucaconstruire'] > 0)
-      { // Dans le cas ou le truc à contreuire possède un numéro d'item :
-      $reqnomitemencoursdeconstruction->execute(array($repconstencours['trucaconstruire']));
-      $repnomitemencoursdeconstruction = $reqnomitemencoursdeconstruction->fetch() ; ?>
-      <form method="post" action="script/annulationdesconstructions.php"> 
-      <?php echo $repconstencours['nombre'] . ' ' . $repnomitemencoursdeconstruction['nombatiment'] ;?>
-      en construction. Reste à investir <?php echo $repconstencours['avancementbiens'] ;?> biens 
-      <?php if($repconstencours['avancementtitane']>0){echo 'et ' . $repconstencours['avancementtitane'] . ' métaux rares';}?>
-      pour le prochain.
-      <input id = "checkbox<?php echo $a ;?>" type="checkbox" name="perdreressources" /> <label for="checkbox<?php echo $a ;?>"></label>
-      <input type="hidden" name="idconstruction" value="<?php echo $repconstencours['idconst'] ;?>">
-      <input type="hidden" name="avancementbiens" value="<?php echo $repconstencours['avancementbiens'] ;?>">
-      <input type="hidden" name="avancementtitane" value="<?php echo $repconstencours['avancementtitane'] ;?>">
-      <input type="hidden" name="prixbiens" value="<?php echo $repconstencours['prixbiens'] ;?>">
-      <input type="hidden" name="prixtitane" value="<?php echo $repconstencours['prixtitane'] ;?>">
-      <input type="submit" value="Annuler" />
-      </form></br><?php
-      $reqmess->execute(array($typemessage , $repconstencours['idconst']));
-      $message = $reqmess->fetch() ;
-      if (!empty($message['message']))
-        {echo $message['message'] . '</br></br>' ; }
-      $reqnomitemencoursdeconstruction->closeCursor();
+  if ($repconstencours['trucaconstruire']>0)
+    { // Dans le cas ou le truc à contreuire possède un numéro d'item (-1 = conception par exemple) :
+    $reqnomitemencoursdeconstruction->execute(array($repconstencours['trucaconstruire']));
+    $repnomitemencoursdeconstruction = $reqnomitemencoursdeconstruction->fetch() ;
+    
+    // Formulaire pour gérer la construction :
+    echo '<form method="post" action="script/gererconstruction.php">';
+    echo $repconstencours['nombre'].' '.$repnomitemencoursdeconstruction['nombatiment'].' en construction. Reste à investir '.$repconstencours['avancementbiens'].' biens';
+    if($repconstencours['avancementtitane']>0)
+      {
+      echo 'et ' . $repconstencours['avancementtitane'] . ' métaux rares';
       }
-    elseif ($repconstencours['trucaconstruire'] == -1 OR $repconstencours['trucaconstruire'] == -2)
-      { // cas d'une conception
-      $reqnomvaisseau = $bdg->prepare("
-      SELECT v.nomvaisseau
-      FROM vaisseau v INNER JOIN conceptionencours c
-      ON c.idvaisseauconception = v.idvaisseau
-      WHERE c.idconstruction = ?");
-      $reqnomvaisseau->execute(array($repconstencours['idconst']));
-      $repnomvaisseau = $reqnomvaisseau->fetch() ;
-      echo 'Le vaisseau \'' . $repnomvaisseau['nomvaisseau'] . '\' est en cours de rénovation pour un coût restant de ' . $repconstencours['avancementbiens'] . ' biens';
-      if ($repconstencours['avancementtitane']>0)
-        {
-        echo ' et de ' . $repconstencours['avancementtitane'] . ' titane';
-        }
-      echo '.</br></br>';
+    echo ' pour le prochain.';
+    echo '<input id = "checkbox'.$repconstencours['idconst'].'" type="checkbox" name="perdreressources"/> <label for="checkbox'.$repconstencours['idconst'].'"></label>';
+    echo '<input type="hidden" name="idconstruction" value="'.$repconstencours['idconst'].'">';
+    echo '<input type="submit" formaction="script/gererconstruction.php?action=annuler" value="Annuler"/>';
+    if ($repconstencours['ordredeconstruction']>0)
+      { // La construction est en cours.
+      echo ' <input type="submit" formaction="script/gererconstruction.php?action=deprioriser" value="Déprioriser"/>';
+      echo ' <input type="submit" formaction="script/gererconstruction.php?action=pause" value="En pause"/>';
       }
+    elseif ($repconstencours['ordredeconstruction']<1)
+      { // La construction est sur pause.
+      echo ' CONTRUCTION ARRÊTÉE <input type="submit" formaction="script/gererconstruction.php?action=reprise" value="Reprendre"/>';
+      }
+    
+    echo '</form></br>';
+    
+    $reqmess->execute(array($typemessage , $repconstencours['idconst']));
+    $message = $reqmess->fetch() ;
+    if (!empty($message['message']))
+      {echo $message['message'] . '</br></br>' ; }
+    else
+      {echo '</br>' ; }
+    }
+  elseif ($repconstencours['trucaconstruire'] == -1 OR $repconstencours['trucaconstruire'] == -2)
+    { // cas d'une conception
+    $reqnomvaisseau = $bdg->prepare("
+    SELECT v.nomvaisseau, v.idvaisseau
+    FROM vaisseau v INNER JOIN conceptionencours c
+    ON c.idvaisseauconception = v.idvaisseau
+    WHERE c.idconstruction = ?");
+    $reqnomvaisseau->execute(array($repconstencours['idconst']));
+    $repnomvaisseau = $reqnomvaisseau->fetch() ;
+    
+    // Formulaire pour gérer la construction :
+    echo '<form method="post" action="script/gererconstruction.php">';
+    echo 'Le vaisseau \'' . $repnomvaisseau['nomvaisseau'] . '\' est en cours de rénovation pour un coût restant de ' . $repconstencours['avancementbiens'] . ' biens';
+    if ($repconstencours['avancementtitane']>0)
+      {
+      echo ' et de ' . $repconstencours['avancementtitane'] . ' titane';
+      }
+    echo '<input name="idvaisseau" type="hidden" value="' . $repnomvaisseau['idvaisseau'] . '">';
+    echo '<input type="hidden" name="idconstruction" value="'.$repconstencours['idconst'].'">';
+    echo '<input type="hidden" name="confirmer" value="off"/>'; 
+    echo '<input id = "checkbox" type="checkbox" name="confirmer"/> <label for="checkbox"></label>  ';  
+    echo '<input name="typeordre" type="hidden" value="-1">';
+    echo '<input type="submit" formaction="script/ordredeplacement.php" value="Supprimer l\'ordre"/>'; 
+    if ($repconstencours['ordredeconstruction']>0)
+      { // La construction est en cours.
+      echo ' <input type="submit" formaction="script/gererconstruction.php?action=deprioriser" value="Déprioriser"/>';
+      echo ' <input type="submit" formaction="script/gererconstruction.php?action=pause" value="En pause"/>';
+      }
+    elseif ($repconstencours['ordredeconstruction']<1)
+      { // La construction est sur pause.
+      echo ' CONTRUCTION ARRÊTÉE <input type="submit" formaction="script/gererconstruction.php?action=reprise" value="Reprendre"/>';
+      }
+    echo '</form></br></br>';
+    }
   }
 $reqconstencours->closeCursor();
 ?>

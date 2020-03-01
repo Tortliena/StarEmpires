@@ -1,12 +1,12 @@
 <?php
 /*
 session_start();
-include("../script/BDDconnection.php");
+include("../include/BDDconnection.php");
 */
 
-$applicationvariationdutour = $bdg->prepare("	UPDATE utilisateurs SET biens = 
-												(CASE WHEN (biens < ?) THEN 0 ELSE (biens - ?) END)
-												where id = ? ");
+$applicationvariationdutour = $bdg->prepare("   UPDATE utilisateurs SET biens = 
+                                                (CASE WHEN (biens < ?) THEN 0 ELSE (biens - ?) END)
+                                                where id = ? ");
 
 $reqbienutilisateur = $bdg->prepare("SELECT biens FROM utilisateurs WHERE id = ?");
 

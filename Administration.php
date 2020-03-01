@@ -70,20 +70,11 @@ elseif (isset($_GET["voir"]))
 
 <h3>Gestion de la base de donnees :</h3>
 <!-- exporter la base de donnees ! -->
-<form action="script/exporterbdd.php">
-<p>
-  <input type="submit" value="Exporter" />
-</p>
-</form>
+<a class ="lienmenu" href="script/exporterbdd.php?table=autre&amp;backup=non">Exporter la table</a></br></br></br>
 
-    
 <!-- importer la base de donnees ! -->
-<form action="script/importerbdd.php">
-<p>
-  <input type="submit" value="Importer" />
-</p>
-</form>
-    
+<a class ="lienmenu" href="script/importerbdd.php?table=autre">Importer la table</a></br>
+
 </div>
   </body>
 </html>

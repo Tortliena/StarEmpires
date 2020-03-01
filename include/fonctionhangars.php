@@ -103,7 +103,7 @@ function annulerordrededeplacement($typeordre, $idvaisseau, $xdest, $ydest, $blo
                                         WHERE c.idvaisseauconception = ?");
         $reqcomposant ->execute(array($idvaisseau));
         $repcomposant = $reqcomposant->fetch();
-        $messageannulerdeplacement = 'Vous etes en train d\'equiper un "'.$repcomposant['nombatiment'].'". ';
+        $messageannulerdeplacement = 'Vous êtes en train d\'équiper un "'.$repcomposant['nombatiment'].'". ';
       break;
       case 7:
         $messageannulerdeplacement = 'Votre vaisseau est en réparation. ';

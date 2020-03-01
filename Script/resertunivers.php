@@ -2,8 +2,6 @@
 session_start();
 include("../include/BDDconnection.php");
 
-echo $_GET['confirmer'] . ' A</br>' ;
-
 if (!isset($_GET['confirmer']))
     {
 	header('Location: ../administration.php?message=42');
@@ -12,7 +10,6 @@ if (!isset($_GET['confirmer']))
 
 else
 	{
-	echo $_POST['confirmer'] . ' C</br>' ;
 	$reqnomtable = $bda->query("SELECT distinct TABLE_SCHEMA, TABLE_NAME from INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'autre' OR TABLE_SCHEMA = 'gamer'");
 	while ($repnomtable  = $reqnomtable ->fetch())
 		{
@@ -31,21 +28,6 @@ else
 			}
 		}
 	}
-
-
-/*
-$reqtruncateautre = $bda->prepare("
-    SELECT *
-    FROM tour
-    INTO OUTFILE '/basededonnee/tour.cvs'
-    FIELDS ENCLOSED BY '\"'
-    TERMINATED BY ';'
-    ESCAPED BY '\"'
-    LINES TERMINATED BY '\r\n'");
-$reqtruncateautre->execute(array());
-
-// Pas possible de passer la sécurité ! ! !
-*/
 
 // Suppression des variables de session et de la session
 $_SESSION = array();

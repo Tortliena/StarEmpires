@@ -28,13 +28,6 @@ $reqordreactuel = $bdg->prepare('SELECT * FROM ordredeplacement WHERE idvaisseau
 $reqordreactuel->execute(array($_POST['idvaisseau']));
 $repordreactuel = $reqordreactuel->fetch();
 
-// Ordre totalement bloqué : 
-if ($repordreactuel['bloque'] == 2)
-    {
-    $message = 47 ;
-    goto a;
-    }
-
 // Il faut avoir coché la case pour annuler un ordre bloqué. 
 if ($repordreactuel['bloque'] == 1)
     { // Cas du vaisseau en cours de rénovation !
@@ -52,7 +45,13 @@ if ($repordreactuel['bloque'] == 1)
         goto a;
         }
     }
-   
+
+// Ordre totalement bloqué : 
+if ($repordreactuel['bloque'] == 2)
+    {
+    $message = 47 ;
+    goto a;
+    }
 if ($_POST['typeordre'] == 0)
     { // Ordre de déplacement classique
     //Vérifier que les coordonnées sont différentes. 
@@ -80,8 +79,6 @@ if ($_POST['typeordre'] == 1)
     $message = 39 ;
     }
 
-// ordre de rentrée vers la planète (= typeordre 3). Faire ici une vérification ?
-
 if ($_POST['typeordre'] == 2)
     { // 2 = décharger
     // Vérifier localisation du vaisseau
@@ -105,6 +102,8 @@ if ($_POST['typeordre'] == 2)
         }
     $message = 40 ;
     }
+
+// ordre de rentrée vers la planète (= typeordre 3). Faire ici une vérification ?
 
 if ($_POST['typeordre'] == 4)
     { // Ordre de sortie vers la carte.
@@ -142,6 +141,18 @@ if (isset($repnumerodeconstruction['idconstruction']))
     $reqsupprimerconceptionencours = $bdg->prepare('DELETE FROM conceptionencours WHERE idvaisseauconception = ?');
     $reqsupprimerconceptionencours->execute(array($_POST['idvaisseau']));
     } 
+
+if ($_POST['typeordre'] == 10)
+    { // Ordre de saut.
+	if ($repvaisseau['univers'] >0)
+		{
+		$repvaisseau['univers'] = -2;
+		}
+	elseif ($repvaisseau['univers'] ==-2)
+		{
+		$repvaisseau['univers'] = $repvaisseau['idjoueurbat'];
+		}
+    }
 
 if ($_POST['typeordre'] == -1)
     { // Cas de l'annulation d'un ordre.
@@ -190,53 +201,52 @@ if ($_POST['typeordre'] == 7 OR $_POST['typeordre'] == 6)
     if  ($repvaisseau['univers'] == $_SESSION['id'] AND $repvaisseau['x'] == 0 OR $repvaisseau['y'] == 0)
         {
         if ($_POST['typeordre'] == 7)
-            {
+            { // Cas et variables spécifiques aux réparations 
             if($repvaisseau['HPvaisseau'] == $repvaisseau['HPmaxvaisseau'])
                 { // Le vaisseau est full HP !
                 $message = 37 ;
                 goto a;
                 }
-            else
-                {
-                // Calculer le prix de réparation avec les dégats.
-                $prixbienreparation = ROUND(
-                	$repvaisseau['biensvaisseau']*(1 - $repvaisseau['HPvaisseau']/$repvaisseau['HPmaxvaisseau'])/2
-                	+ ($repvaisseau['HPmaxvaisseau']-$repvaisseau['HPvaisseau'])*10);
+            $trucaconstruire = -2;
+            $prixrenovation = 0;
+            $typecomposant = 0;
+            $idnouvcomposant = 0;
+            $message = 44; 
 
-                $prixtitanereparation = ROUND($repvaisseau['titanevaisseau']*(1 - $repvaisseau['HPvaisseau']/$repvaisseau['HPmaxvaisseau'])/2);
-
-                // Insérer construction/prix
-                $reqcreerconstruction = $bdg->prepare('INSERT INTO construction
-                (trucaconstruire, nombre, idjoueurconst, avancementbiens, avancementtitane, prixbiens, prixtitane)
-                VALUES(?, ?, ?, ?, ?, ?, ?)');
-                $reqcreerconstruction->execute(array(-2, 1, $_SESSION['id'], $prixbienreparation, $prixtitanereparation, $prixbienreparation, $prixtitanereparation));
-
-                $reqnumconstruction = $bdg->QUERY('SELECT idconst FROM construction ORDER BY idconst DESC LIMIT 1'); 
-                $repnumconstruction = $reqnumconstruction ->fetch();
-
-                // Insérer conception (besoin pour garder un lien vers le vaisseau)
-                $reqcreerconception = $bdg->prepare('INSERT INTO conceptionencours(idconstruction, idvaisseauconception, typecomposant, idnouvcomposant) VALUES(?, ?, ?, ?)');
-                $reqcreerconception->execute(array($repnumconstruction['idconst'], $_POST['idvaisseau'], 0 , 0)); 
-                $message = 44 ; 
-                }
             }
         elseif ($_POST['typeordre'] == 6)
-            { // 6 = Conception de vaisseau.
+            { // Cas et variables spécifiques aux rénovations.
             $result = $_POST['composant'];
             $result_explode = explode('|', $result);
-            $reqcreerconstruction = $bdg->prepare('INSERT INTO construction
-                (trucaconstruire, nombre, idjoueurconst, avancementbiens, avancementtitane, prixbiens, prixtitane)
-                VALUES(?, ?, ?, ?, ?, ?, ?)');
-            $reqcreerconstruction->execute(array(-1, 1, $_SESSION['id'], 20+$prixbienreparation, 0, 20+$prixbienreparation, 0));
-
-            $reqnumconstruction = $bdg->QUERY('SELECT idconst FROM construction ORDER BY idconst DESC LIMIT 1'); 
-            $repnumconstruction = $reqnumconstruction ->fetch();
-
-            $reqcreerconception = $bdg->prepare('INSERT INTO conceptionencours(idconstruction, idvaisseauconception, typecomposant, idnouvcomposant) VALUES(?, ?, ?, ?)');
-            $reqcreerconception->execute(array($repnumconstruction['idconst'], $_POST['idvaisseau'], $result_explode[1], $result_explode[0]));
-
+            $typecomposant = $result_explode[1];
+            $idnouvcomposant = $result_explode[0];
+            $trucaconstruire = -1;
+            $prixrenovation = 20; 
             $message = 32 ; 
-            }            
+            }
+
+        // Gestion des réparations et des rénovations avec les constructions :
+        // Calculer le prix de réparation avec les dégats.
+        $prixbienreparation = ROUND(
+            $repvaisseau['biensvaisseau']*(1 - $repvaisseau['HPvaisseau']/$repvaisseau['HPmaxvaisseau'])/2
+            + ($repvaisseau['HPmaxvaisseau']-$repvaisseau['HPvaisseau'])*10);
+
+        $prixtitanereparation = ROUND($repvaisseau['titanevaisseau']*(1 - $repvaisseau['HPvaisseau']/$repvaisseau['HPmaxvaisseau'])/2);
+
+        // Requete pour gérer l'ordre des constructions.
+        $reqderniereconst = $bdg->query('SELECT ordredeconstruction FROM construction ORDER BY ordredeconstruction DESC LIMIT 1');
+        $repderniereconst = $reqderniereconst ->fetch();
+
+        // Insérer construction/prix
+        $reqcreerconstruction = $bdg->prepare('INSERT INTO construction
+            (trucaconstruire, nombre, idjoueurconst, avancementbiens, avancementtitane, prixbiens, prixtitane, ordredeconstruction)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?)');
+        $reqcreerconstruction->execute(array($trucaconstruire, 1, $_SESSION['id'], $prixbienreparation+$prixrenovation, $prixtitanereparation, $prixbienreparation+$prixrenovation, $prixtitanereparation, $repderniereconst['ordredeconstruction']+1));
+
+        $dernierID = $bdg->lastInsertId();
+
+        $reqcreerconception = $bdg->prepare('INSERT INTO conceptionencours(idconstruction, idvaisseauconception, typecomposant, idnouvcomposant) VALUES(?, ?, ?, ?)');
+        $reqcreerconception->execute(array($dernierID, $_POST['idvaisseau'], $typecomposant, $idnouvcomposant)); 
         }
     else
         { // Pas au bon endroit pour réparer le vaisseau.
@@ -248,7 +258,6 @@ if ($_POST['typeordre'] == 7 OR $_POST['typeordre'] == 6)
 if (isset($message))
     {
     a:
-    echo $message; 
     header("location: ../hangars.php?message=" . $message . "&id=" . urlencode($_POST['idvaisseau']));
     exit(); 
     }

@@ -147,4 +147,17 @@ function caracteristiquesvaisesau ($idvaisseau, $idjoueur)
     $requpdatePVvaisseau->execute(array($HPvaisseau, $idvaisseau));
     }
   }
+
+function nombrealeatoireavecpoid(array $ValeurPoid)
+  {
+  $rand = RAND(1, (int) array_sum($ValeurPoid));
+  foreach ($ValeurPoid as $key => $value)
+    {
+    $rand -= $value;
+    if ($rand <= 0)
+      {
+      return $key;
+      }
+    }
+  }
 ?>

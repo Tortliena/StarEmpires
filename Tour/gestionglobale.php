@@ -23,12 +23,12 @@ include("eventsuite.php");
 
 // Début de changement des pops avec retrait des ressources. 
 include("debchangpop.php");
-echo 'ici !' ; 
+
 // Permet de remplir la table *variationstour* qui permet de gérer après les chantiers et les biens.
 include("proddutour.php");
 
 // Applique la production du tour des biens sur les stocks et la consommation des pops. Gestion des crises economiques aussi.
-// include("gestionbiens.php");
+include("gestionbiens.php");
 
 // Fin changement des pops + annulation des ordres.
 include("finchangpop.php");
@@ -46,7 +46,7 @@ include("combat.php");
 include("deplacementvaisseau.php");
 
 // Évents lors de l'exploration de l'univers du joueur !
-include("explorationuniv0.php");
+include("exploration.php");
 
 // Applique la production du tour de recherche sur les recherches en cours.
 include("recherchetour.php");
@@ -63,5 +63,5 @@ include("niveaux.php");
 // Permet de créer un résumé du tour pour vérifier les bugs.
 include("resumetour.php");
 
-// header('Location: ../administration.php?voir=');
+header('Location: ../administration.php?voir=');
 ?>
