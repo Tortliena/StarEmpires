@@ -73,21 +73,27 @@ echo $_POST['trucaconstruire'] . '</br>';
                 }
             }
             
-            $reqcreerconstruction = $bdg->prepare('INSERT INTO construction(trucaconstruire, nombre, idjoueurconst, avancementbiens, avancementtitane, prixbiens, prixtitane) VALUES(:trucaconstruire, :nombre, :idjoueurconst, :avancementbiens, :avancementtitane, :prixbiens, :prixtitane)');
-            $reqcreerconstruction->execute(array(
-                'trucaconstruire' => $_POST['trucaconstruire'],
-                'nombre' => $_POST['combien'],
-                'idjoueurconst' => $_SESSION['id'],
-                'avancementbiens' => $repinfoitem['coutbien'],
-                'avancementtitane' => $repinfoitem['couttitane'], 
-                'prixbiens' => $repinfoitem['coutbien'],
-                'prixtitane' => $repinfoitem['couttitane']));
+        $reqcreerconstruction = $bdg->prepare('INSERT INTO construction(trucaconstruire, nombre, idjoueurconst, avancementbiens, avancementtitane, prixbiens, prixtitane) VALUES(:trucaconstruire, :nombre, :idjoueurconst, :avancementbiens, :avancementtitane, :prixbiens, :prixtitane)');
+        $reqcreerconstruction->execute(array(
+            'trucaconstruire' => $_POST['trucaconstruire'],
+            'nombre' => $_POST['combien'],
+            'idjoueurconst' => $_SESSION['id'],
+            'avancementbiens' => $repinfoitem['coutbien'],
+            'avancementtitane' => $repinfoitem['couttitane'], 
+            'prixbiens' => $repinfoitem['coutbien'],
+            'prixtitane' => $repinfoitem['couttitane']));
 
-        // Transforme  $_POST['trucaconstruire'] (nombre pour la table des items) en le nom du truc à construire ($info[0]).
+        // Permet de gérer l'ordre de construction.
+        $dernierID = $bdg->lastInsertId();
+        $reqderniereconst = $bdg->query('SELECT ordredeconstruction FROM construction ORDER BY ordredeconstruction DESC LIMIT 1');
+        $repderniereconst = $reqderniereconst ->fetch();
+        $reqordredeconstruction = $bdg->prepare('UPDATE construction SET ordredeconstruction = ? WHERE idconst = ?');
+        $reqordredeconstruction->execute(array($repderniereconst['ordredeconstruction']+1, $dernierID));
+
+        // Permet de gérer le message de construction. 
 		$reqtransformernom = $bdd->prepare('SELECT nombatiment FROM items WHERE iditem = ?');
 		$reqtransformernom ->execute(array($_POST['trucaconstruire']));
 		$reptransformernom  = $reqtransformernom ->fetch();
-
 		$_SESSION['message1'] = $_POST['combien'];
 		$_SESSION['message2'] = $reptransformernom['nombatiment'];
 

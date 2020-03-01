@@ -259,6 +259,19 @@ switch ($_GET["message"])
     case 56:
         echo "Vous devez nommer votre design. Le nom ne doit pas être seulement des chiffres.";
     break;
+
+    case 57:
+        echo "Cette construction devrait apparaitre en dernier dans la liste de construction et sera executé après toutes les autres. </br>Vous allez néanmoins dépenser des ressources pour cette construction si vous ne pouvez pas les dépenser pour les autres.";
+    break;
+
+    case 58:
+        echo "Cette construction est sur pause. Aucune ressource ne sera dépensée pour elle.";
+    break;
+
+    case 59:
+        echo "Vous reprenez la construction.";
+    break;
+
     }
 
 unset($_SESSION['message1']);

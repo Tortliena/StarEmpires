@@ -79,7 +79,7 @@
                 switch ($repvaiss['typeordre'])
                     {
                     case '':
-						echo "Aucun ordre.";
+					echo "Aucun ordre.";
                     break;
 					
                     case 0:
@@ -110,6 +110,10 @@
                     case 7:
                     echo "En cours de renovation";
                     break;
+
+                    case 10:
+                    echo "Saut dimensionnel";
+                    break;
                         
                     default:
                     echo "ordre special !";
@@ -130,6 +134,7 @@
             <b><a class ="lienmenu" href="Administration.php">Admin</a></b></br> </br>
             <a class ="lienmenu" href="tour/test.php">test du tour</a> </br> 
             <a class ="lienmenu" href="test.php?id=2">test de page</a> </br>
+            <a class ="lienmenu" href="script/test.php?table=autre&amp;backup=non">test de script</a> </br>
             <a class ="lienmenu" href="afaire.php">À faire</a> </br> </br>
         
     </div>    

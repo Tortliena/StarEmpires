@@ -36,6 +36,10 @@ include("include/resume.php");
 
 include("include/fonctionhangars.php");
 
+$reqcomposantsurlevaisseau = $bdd->prepare("SELECT i.nombatiment FROM gamer.composantvaisseau c
+          INNER JOIN items i ON i.iditem = c.iditemcomposant
+          WHERE c.idvaisseaucompo = ? AND c.typecomposant = ?");
+
 ?>
 <form method="post" action="script/renommervaisseau.php">
     <p> 
@@ -109,15 +113,6 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
     	echo '<p>PV : ' . number_format($PourcentHP, 0) . '%'; 
     	}
     
-    $reqcomposantsurlevaisseau
-          = $bdd->prepare("
-          SELECT i.nombatiment
-          FROM gamer.composantvaisseau c
-          INNER JOIN items i
-          ON i.iditem = c.iditemcomposant
-          WHERE c.idvaisseaucompo = ?
-          AND c.typecomposant = ?
-          ");
     $reqcomposantsurlevaisseau->execute(array($_GET['id'], 'arme'));
     $repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch();
     echo '&emsp; Armement : ';
@@ -130,13 +125,6 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
         echo 'Vaisseau non armé.';
         }
     echo '</p>';
-
-    $reqcomposantsurlevaisseau->execute(array($_GET['id'], 'noyau'));
-    $repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch();
-    if (isset($repcomposantsurlevaisseau['nombatiment']))
-        {
-        formulaireordredeplacement(10, $_GET['id'], 'Saut dimensionnel : ', 0, 0, 0);
-        }
     }
 
 // requetes pour la carte et/ou les ordres.
@@ -194,6 +182,14 @@ while($repdetectionvaisseau = $reqdetectionvaisseau->fetch())
 // Si le vaisseau est au hangars : 
 if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'] == $_SESSION['id'])
   {
+
+  $reqcomposantsurlevaisseau->execute(array($_GET['id'], 'noyau'));
+  $repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch();
+  if (isset($repcomposantsurlevaisseau['nombatiment']))
+      {
+      formulaireordredeplacement(10, $_GET['id'], 'Saut dimensionnel : ', 0, 0, 0);
+      }
+
   echo '<h3></br>Votre vaisseau est au hangars.</h3>' ;
   if (isset($reponseordredeplacementactuel['typeordre']))
     {
@@ -253,16 +249,29 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
     } // Fin de la partie sur les modules. 
   } // Fin de la partie dans le hangars.
 
+elseif ($repvaisseau['univers'] == 0)
+  {// Si le vaisseau est dans l'hyperespace :
+  $jourrestant = $reponseordredeplacementactuel['xdestination']+1;
+  echo '<p>Votre vaisseau est en cours de voyage. Reste '.$jourrestant.' jours.</p>';
+  }
+
 // Si le vaisseau est de sortie sur la carte :
 else
   {
+  $reqcomposantsurlevaisseau->execute(array($_GET['id'], 'noyau'));
+  $repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch();
+  if (isset($repcomposantsurlevaisseau['nombatiment']))
+      {
+      formulaireordredeplacement(10, $_GET['id'], 'Saut dimensionnel : ', 0, 0, 0);
+      }
+  
   if ($repvaisseau['univers'] > 0)
     {
     $xymax = 5 ; // valeurs maximales de la carte.
     }
   else
     {
-    $xymax = 5 ; // valeurs maximales de la carte.
+    $xymax = 20 ; // valeurs maximales de la carte.
     }
 
   // Si le vaisseau se trouve en orbite de la planète mère :

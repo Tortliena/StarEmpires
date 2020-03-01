@@ -5,9 +5,7 @@ $message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domaine
 // Gestion construction :
 $reqsupprimercontruction = $bdg->prepare('DELETE FROM construction WHERE idconst =  ? ');
 $diminutiondeun = $bdg->prepare('UPDATE construction SET nombre = nombre - 1 , avancementbiens = ? , avancementtitane = ?  WHERE idconst = ? ' );
-$reqconstruction = $bdg->prepare(
-    "SELECT idconst, nombre, avancementbiens, avancementtitane, idjoueurconst, idconst, trucaconstruire, prixbiens , prixtitane 
-    FROM construction WHERE idjoueurconst = ? ORDER BY idconst");
+$reqconstruction = $bdg->prepare("SELECT * FROM construction WHERE idjoueurconst = ? AND ordredeconstruction > 0 ORDER BY ordredeconstruction ASC");
 $avancement = $bdg->prepare("UPDATE construction SET avancementbiens = ? , avancementtitane = ? WHERE idconst = ?");
 $construirebatiment = $bdg->prepare('INSERT INTO batiments (typebat, idjoueurbat) VALUES (?, ?)');
 $construirevaisseau = $bdg->prepare('INSERT INTO vaisseau (typevaisseau, idjoueurbat, univers) VALUES (?, ?, ?)');

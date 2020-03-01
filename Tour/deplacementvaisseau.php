@@ -295,17 +295,19 @@ $reqordredep->closeCursor();
 $reqordredep->execute(array(10)); // = Saut dimentionnel
 while ($repordredep = $reqordredep->fetch())
     {
-    echo 'a';
     if ($repordredep['bloque'] == 0)
         { // Cas d'un ordre qui vient d'être donné. Le gérer pour en faire un 'vrai' ordre et le bloquer.
         if ($repordredep['universdestination']>0)
-            { // Dans ce cas, le vaisseau est dans l'univers d'origine du joueur.
-            $universdestination = -2;
-            $temps = 3;
-            $requpdateordre->execute(array($temps, 0, $universdestination, 2, $repordredep['idvaisseaudeplacement']));
-            echo 'b';
-            $applicationdeplacement->execute(array(0 , 0, 0, $repordredep['idvaisseaudeplacement']));
+            { // Dans ce cas, le vaisseau va vers l'univers d'origine du joueur.
+            $universdestination = $repordredep['idjoueurduvaisseau'];
             }
+        else
+        	{ // Dans ce cas, le vaisseau va vers un autre univers :
+            $universdestination = $repordredep['universdestination'];
+            }
+        $temps = 2;
+        $requpdateordre->execute(array($temps, 0, $universdestination, 2, $repordredep['idvaisseaudeplacement']));
+        $applicationdeplacement->execute(array(0, 0, 0, $repordredep['idvaisseaudeplacement']));
         }
     else
         { // Dans ce cas, l'ordre est bloqué, donc le vaisseau est en voyage.
@@ -314,14 +316,21 @@ while ($repordredep = $reqordredep->fetch())
             $universdestination = $repordredep['universdestination'];
             $temps = $repordredep['xdestination']-1;
             $requpdateordre->execute(array($temps, 0, $universdestination, 2, $repordredep['idvaisseaudeplacement']));
-            echo 'c';
             }
         elseif ($repordredep['xdestination'] == 0)
             { // Dans ce cas, le vaisseau est arrivé
+            if ($repordredep['universdestination'] > 0)
+            	{ // Dans ce cas, le vaisseau va vers l'univers d'origine du joueur.
+            	$xeffectif = rand(1,5);
+            	$yeffectif = rand(1,5);
+            	}
+            else
+            	{ // Dans ce cas, le vaisseau va vers un autre univers :
+	            $xeffectif = rand(1,20);
+	            $yeffectif = rand(1,20);
+            	}
             $universdestination = $repordredep['universdestination'];
-            $xeffectif = rand(1,20);
-            $yeffectif = rand(1,20);
-            
+                        
             //Créer message pour le joueur.
             $mess = 'Ce vaisseau vient de se univorter.' ; 
             $message ->execute(array($repordredep['idjoueurduvaisseau'] , $mess , 'Vaisseau' , $repordredep['idvaisseaudeplacement'])) ;
@@ -329,14 +338,12 @@ while ($repordredep = $reqordredep->fetch())
             // Applique le déplacement :
             $applicationdeplacement->execute(array($xeffectif , $yeffectif , $universdestination, $repordredep['idvaisseaudeplacement']));
             $reqsupprimerordreprecedent->execute(array($repordredep['idvaisseaudeplacement']));
-            echo 'd';
             // Exploration si case inconnue :
             $reqexplorationexistante->execute(array($xeffectif , $yeffectif , $universdestination, $repordredep['idjoueurduvaisseau']));
             $repexplorationexistante = $reqexplorationexistante->fetch(); 
             if (empty($repexplorationexistante['idexplore']))
                 {
                 $exploration ->execute(array($xeffectif , $yeffectif , $universdestination, $repordredep['idjoueurduvaisseau'], $touractuel['id'])) ;
-                echo 'e';
                 //Créer message pour le joueur.
                 $messexplo = 'Ce vaisseau vient d\'explorer le parsec (' . $xeffectif  . ' - ' . $yeffectif .').'  ; 
                 $message ->execute(array($repordredep['idjoueurduvaisseau'] , $messexplo , 'Vaisseau' , $repordredep['idvaisseaudeplacement'])) ;
