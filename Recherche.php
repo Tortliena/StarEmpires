@@ -25,36 +25,6 @@ include("include/BDDconnection.php");
     $typemessage = 'recherche' ;
     include("include/resume.php");
 
-// Compter nombre de scientifiques
-$reponse = $bdg->prepare('SELECT COUNT(*) AS scient FROM population WHERE joueurpop= ? AND typepop = 3');
-$reponse->execute(array($_SESSION['id']));                                   
-$ouvriers = $reponse->fetch();
-$reponse->closeCursor();
-
-// Afficher le nombre de centre de recherche :
-$reqcountrecherche = $bdg->prepare('SELECT COUNT(*) AS nbdecentrederecherche FROM batiments WHERE idjoueurbat = ? AND typebat = 1');
-$reqcountrecherche->execute(array($_SESSION['id']));
-$repcountrecherche = $reqcountrecherche->fetch();
-
-$reqlimitechercheur = $bdg->prepare('SELECT scientmax FROM limitesjoueurs WHERE id = ?');
-$reqlimitechercheur->execute(array($_SESSION['id']));
-$replimitechercheur = $reqlimitechercheur->fetch();
-
-echo '<p> Il y a ' . $repcountrecherche['nbdecentrederecherche'] . ' centre de recherche qui peut acceuillir ' . $replimitechercheur['scientmax'] . ' chercheurs.</br> ';
-
-if ($ouvriers['scient'] == 0)
-  {
-    echo 'Tu n\'as aucun scientifique.';
-  }
-elseif ($ouvriers['scient'] == 1)
-  {
-    echo 'Tu n\'as qu\'un scientifique qui y travaille.';
-  }
-elseif ($ouvriers['scient'] > 1)
-  {
-  echo 'Tu as ' . $ouvriers['scient'] . ' scientifiques qui y travaillent.';
-  }
-
 // Afficher la recherche en cours !
 $reqrecherencours = $bdd->prepare("
       SELECT recherche.nomrecherche 
@@ -76,26 +46,15 @@ $reprecherencours = $reqrecherencours->fetch() ;
       {
       echo '<p> La recherche en cours est ' . $reprecherencours['nomrecherche'] . '</p>'  ;
       }
-    $reqrecherencours->closeCursor();
-?>
 
-  <h2>Recherches possibles :</h2>
-  <?php
+echo '<h2>Recherches possibles :</h2>';
 
-  // Recherche actuelle : Permet d'évaluer la difficulté d'une recherche plus loin.
-  $afficherrecherche = $bdg->prepare('SELECT recherche FROM variationstour WHERE idjoueur= ?');
-  $afficherrecherche->execute(array($_SESSION['id']));
-  $recherche = $afficherrecherche->fetch();
+// Recherche actuelle : Permet d'évaluer la difficulté d'une recherche plus loin.
+$afficherrecherche = $bdg->prepare('SELECT recherche FROM utilisateurs WHERE id = ?');
+$afficherrecherche->execute(array($_SESSION['id']));
+$recherche = $afficherrecherche->fetch();
 
-$reqrechercheencours = $bdd->prepare("  SELECT  recherche.nomrecherche , recherche.descriptionrecherche,
-                                                rech_joueur.avrech, rech_joueur.rechnesc,
-                                                recherche.idrecherche, rech_joueur.avrech
-                                        FROM recherche
-                                        INNER JOIN gamer.rech_joueur
-                                        ON recherche.idrecherche = rech_joueur.idrech
-                                        WHERE rech_joueur.idjoueurrecherche = ?
-                                          AND rech_joueur.rechposs = 0
-                                        ORDER BY rech_joueur.ordrerecherche ASC");
+$reqrechercheencours = $bdd->prepare("SELECT * FROM recherche INNER JOIN gamer.rech_joueur ON recherche.idrecherche = rech_joueur.idrech WHERE rech_joueur.idjoueurrecherche = ? AND rech_joueur.rechposs = 0 ORDER BY rech_joueur.ordrerecherche ASC");
 $reqrechercheencours->execute(array($_SESSION['id']));
      while ($reprechercheencours = $reqrechercheencours->fetch())
       {
@@ -151,7 +110,6 @@ $reqrecherchefinie->execute(array($_SESSION['id']));
       }
 $reqrecherchefinie->closeCursor();
 ?>
-
   </div>
   </body>
 </html>

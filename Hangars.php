@@ -129,7 +129,7 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
 
 // requetes pour la carte et/ou les ordres.
 $reqdect = $bdg->prepare('SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? LIMIT 1');
-$reqplanete = $bda->prepare('SELECT idplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? LIMIT 1');
+$reqplanete = $bdg->prepare('SELECT idplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? LIMIT 1');
 $reqasteroide = $bda->prepare('SELECT idasteroide , quantite , typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
 $reqvaisseaucarte = $bdg->prepare('SELECT idvaisseau FROM vaisseau WHERE x = ? AND y = ? AND univers = ? AND idjoueurbat <> ? LIMIT 1');
 

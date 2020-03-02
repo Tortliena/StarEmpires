@@ -55,10 +55,10 @@ CREATE TABLE `choixevents` (
   `eventsuite3` int(11) DEFAULT NULL,
   `textechoix3` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`idchoix`)
-) ENGINE=MyISAM AUTO_INCREMENT=318 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=354 DEFAULT CHARSET=latin1;
 
-INSERT INTO `choixevents` VALUES (316,1,"Étoiles filantes prévues.",NULL,NULL,NULL,NULL,NULL,NULL),
-(317,2,"event9",NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `choixevents` VALUES (352,1,"Un pegu a été chiant. Que voulez-vous faire ?",1,"Ne rien faire",2,"L\'exécuter",3,"l\'exécuter de manière originale"),
+(353,2,"Le pégu qui râlait hier s\'est fatigué et est rentré chez lui",NULL,NULL,NULL,NULL,NULL,NULL);
 
 
 DROP TABLE IF EXISTS `composantvaisseau`;
@@ -70,7 +70,7 @@ CREATE TABLE `composantvaisseau` (
   `typecomposant` varchar(64) NOT NULL,
   `tirrestant` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idtable`)
-) ENGINE=MyISAM AUTO_INCREMENT=23 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
 
 INSERT INTO `composantvaisseau` VALUES (18,4,17,"noyau",0),
 (9,2,10,"moteur",0),
@@ -85,7 +85,8 @@ INSERT INTO `composantvaisseau` VALUES (18,4,17,"noyau",0),
 (16,4,15,"coque",0),
 (17,2,15,"coque",0),
 (21,5,12,"soute",0),
-(22,5,17,"noyau",0);
+(22,5,17,"noyau",0),
+(23,7,12,"soute",0);
 
 
 DROP TABLE IF EXISTS `conceptionencours`;
@@ -97,8 +98,9 @@ CREATE TABLE `conceptionencours` (
   `typecomposant` varchar(32) NOT NULL,
   `idnouvcomposant` int(11) NOT NULL,
   PRIMARY KEY (`idconception`)
-) ENGINE=MyISAM AUTO_INCREMENT=25 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=35 DEFAULT CHARSET=latin1;
 
+INSERT INTO `conceptionencours` VALUES (34,7,91,0,0);
 
 
 DROP TABLE IF EXISTS `construction`;
@@ -114,8 +116,11 @@ CREATE TABLE `construction` (
   `idjoueurconst` int(11) NOT NULL,
   `ordredeconstruction` int(11) DEFAULT '1',
   PRIMARY KEY (`idconst`)
-) ENGINE=MyISAM AUTO_INCREMENT=56 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=92 DEFAULT CHARSET=latin1;
 
+INSERT INTO `construction` VALUES (84,1,1,20,0,60,0,1,9),
+(85,2,1,30,0,50,0,1,11),
+(91,-2,1,99,0,99,0,1,12);
 
 
 DROP TABLE IF EXISTS `explore`;
@@ -244,8 +249,9 @@ CREATE TABLE `messagetour` (
   `domainemess` varchar(32) NOT NULL,
   `numspemessage` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idmessage`)
-) ENGINE=MyISAM AUTO_INCREMENT=427 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=453 DEFAULT CHARSET=latin1;
 
+INSERT INTO `messagetour` VALUES (452,1,"Manque d\'ouvriers !","Construction",84);
 
 
 DROP TABLE IF EXISTS `ordredeplacement`;
@@ -260,8 +266,9 @@ CREATE TABLE `ordredeplacement` (
   `typeordre` int(11) NOT NULL DEFAULT '0',
   `bloque` int(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idordredeplacement`)
-) ENGINE=MyISAM AUTO_INCREMENT=132 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=142 DEFAULT CHARSET=latin1;
 
+INSERT INTO `ordredeplacement` VALUES (141,7,0,0,1,1,7,0);
 
 
 DROP TABLE IF EXISTS `population`;
@@ -274,16 +281,16 @@ CREATE TABLE `population` (
   PRIMARY KEY (`idpop`)
 ) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;
 
-INSERT INTO `population` VALUES (1,1,1,0),
-(2,1,3,0),
+INSERT INTO `population` VALUES (1,1,2,0),
+(2,1,1,0),
 (3,1,1,0),
-(4,1,3,0),
+(4,1,1,0),
 (5,1,1,0),
 (6,1,3,0),
 (7,1,1,0),
 (8,1,1,0),
-(9,1,2,0),
-(10,1,2,0),
+(9,1,1,0),
+(10,1,1,0),
 (11,2,3,0),
 (12,2,2,0),
 (13,2,1,0),
@@ -323,7 +330,7 @@ INSERT INTO `rech_joueur` VALUES (1,1,1,4,3,3,1),
 (15,14,2,1,5,5,1),
 (16,15,2,3,5,5,1),
 (17,16,2,5,27,27,1),
-(18,17,2,7,11,26,0);
+(18,17,2,7,26,26,1);
 
 
 DROP TABLE IF EXISTS `silo`;
@@ -337,7 +344,6 @@ CREATE TABLE `silo` (
 ) ENGINE=MyISAM AUTO_INCREMENT=22 DEFAULT CHARSET=latin1;
 
 INSERT INTO `silo` VALUES (15,1,6,2),
-(14,1,12,1),
 (16,1,8,2),
 (21,1,17,5);
 
@@ -357,8 +363,8 @@ CREATE TABLE `utilisateurs` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
-INSERT INTO `utilisateurs` VALUES (1,"qw","$2y$10$8kCNoB4CEESwaHKVKf.vwe7I8v0nIN18waCx9UpmqqBeQb7ZMQST.","2020-02-20",880,63,5,0,10),
-(2,"rt","$2y$10$.8CGB1B3Tz0rmKKTjKwnQ.AC3UNKUP/vkTtMNF0r8Up3UeNoxUW5a","2020-02-28",871,0,9,0,2);
+INSERT INTO `utilisateurs` VALUES (1,"qw","$2y$10$8kCNoB4CEESwaHKVKf.vwe7I8v0nIN18waCx9UpmqqBeQb7ZMQST.","2020-02-20",405,63,7,1,10),
+(2,"rt","$2y$10$.8CGB1B3Tz0rmKKTjKwnQ.AC3UNKUP/vkTtMNF0r8Up3UeNoxUW5a","2020-02-28",1339,0,-1,0,2);
 
 
 DROP TABLE IF EXISTS `vaisseau`;
@@ -379,9 +385,10 @@ CREATE TABLE `vaisseau` (
   `biensvaisseau` int(11) DEFAULT '0',
   `titanevaisseau` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idvaisseau`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 
-INSERT INTO `vaisseau` VALUES (4,1,5,-2,17,16,"Stackanov",2,3,1,19,19,340,100);
+INSERT INTO `vaisseau` VALUES (4,1,5,-2,17,16,"Stackanov",2,3,1,19,19,340,100),
+(7,1,5,1,0,0,"Vaisseau",1,10,1,7,1,90,0);
 
 
 DROP TABLE IF EXISTS `variationstour`;
@@ -394,10 +401,10 @@ CREATE TABLE `variationstour` (
   `recherche` int(11) NOT NULL DEFAULT '5',
   `consobiens` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idtable`)
-) ENGINE=MyISAM AUTO_INCREMENT=315 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=351 DEFAULT CHARSET=latin1;
 
-INSERT INTO `variationstour` VALUES (313,1,25,40,3,10),
-(314,2,35,20,1,9);
+INSERT INTO `variationstour` VALUES (349,1,40,20,1,10),
+(350,2,35,20,1,9);
 
 
 SET foreign_key_checks = 1;
