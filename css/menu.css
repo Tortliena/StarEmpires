@@ -1,41 +1,41 @@
 .menu
-{
+    {
     position:absolute;
-    width: 120px;
+    width: 130px;
     vertical-align: top;
     border: 3px blue double;
     padding-left:10px;   
-}
+    }
 
 .menu ul
-{
+    {
 	padding-top: 1px;
 	padding-left:20px;
-}
+    }
 
 .lienmenu
-{
+    {
     color: rgb(53,55,132);
-}
+    }
 
 .lienmenu:hover /* Apparence au survol des liens */
-{
+    {
 	text-decoration: underline;
 	color: green;
-}
+    }
 
-.hangars
-{
-    color: rgb(80,80,80);
+.titremenu
+    {
+    color: rgb(80,80,80);   
     font-family: Impact;
     font-size: large;
-}
+    }
 
 .nvmessage
-{
+    {
     color: rgb(180,0,0);
     font-size: normal;
     font-weight:bold;
     margin-bottom:-10px;
     margin-right:-10px;
-}
+    }

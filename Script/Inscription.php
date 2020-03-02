@@ -38,47 +38,26 @@ $reponse->closeCursor();
 // Dans le cas d'une inscription réussie :
 // Hachage du mot de passe
 $pass_hache = password_hash($_POST['pass'], PASSWORD_DEFAULT);
-$requtilisateur = $bdg->prepare('INSERT INTO utilisateurs(pseudo, motdepasse, dateinscription, biens) VALUES(:pseudo, :pass, CURDATE(), :biens)');
+$requtilisateur = $bdg->prepare('INSERT INTO utilisateurs(pseudo, motdepasse, dateinscription) VALUES(:pseudo, :pass, CURDATE())');
 $requtilisateur->execute(array(
     'pseudo' => $_POST["pseudo"],
-    'pass' => $pass_hache,
-    'biens' => 300));
+    'pass' => $pass_hache,));
+$dernierIDjoueur = $bdg->lastInsertId();
 
-$dernierID = $bdg->lastInsertId() ;
-
-$reqlimite = $bdg->prepare('INSERT INTO limitesjoueurs(id) VALUES(:id)');
-$reqlimite->execute(array(
-    'id' => $dernierID));
+$reqcreerplanete = $bdg->prepare('INSERT INTO planete(xplanete, yplanete, universplanete, idjoueurplanete, biens) VALUES(?, ?, ?, ?, ?)');
+$reqcreerplanete->execute(array(3, 3, $dernierIDjoueur, $dernierIDjoueur, 300));
+$dernierIDplanete = $bdg->lastInsertId();
 
 // Permet de créer des citoyens de multiples fois
-$reqpop = $bdg->prepare('INSERT INTO population(joueurpop, typepop) VALUES(:joueurpop, :typepop)');
-$reqpop->execute(array(
-    'joueurpop'=> $dernierID,
-    'typepop'=> 1));
-$reqpop->execute(array(
-    'joueurpop'=> $dernierID,
-    'typepop'=> 1));
-$reqpop->execute(array(
-    'joueurpop'=> $dernierID,
-    'typepop'=> 1));
-$reqpop->execute(array(
-    'joueurpop' => $dernierID,
-    'typepop'=> 1));
-$reqpop->execute(array(
-    'joueurpop' => $dernierID,
-    'typepop'=> 1));
-$reqpop->execute(array(
-    'joueurpop' => $dernierID,
-    'typepop'=> 1)); // 6eme fois.
+$reqpop = $bdg->prepare('INSERT INTO population(idplanetepop, typepop) VALUES(?, ?)');
 
-$reqcreerplanete = $bda->prepare('INSERT INTO planete(xplanete, yplanete, universplanete) VALUES(:xplanete, :yplanete, :universplanete)');
-$reqcreerplanete->execute(array(
-    'xplanete'=> 3,
-    'yplanete'=> 3,
-    'universplanete'=> $dernierID));
+for ($i = 1; $i < 7; $i++)
+    { // Permet d'inserer 6 citoyens sur la planete cree.
+    $reqpop->execute(array($dernierIDplanete, 1));
+    }
 
 $_SESSION['pseudo'] = $_POST["pseudo"];
-$_SESSION['id'] = $dernierID;
+$_SESSION['id'] = $dernierIDjoueur;
 
 header('Location: ../capitale.php?message=4');
 ?>

@@ -3,15 +3,13 @@
 include("../script/BDDconnection.php");
 */
 
-// Actuellement : Si pop max sup à pop actuelle de pégu, alors la pop augmente de 1. 
-
 function commentairecroissancedelapopdebut(&$Commentairestour)
-{
+    {
     $Commentairestour .= '</br> Début de la croissance des pop';
-}
+    }
 commentairecroissancedelapopdebut($Commentairestour);
 
-$req = $bdg->prepare('SELECT COUNT(*) AS nbpopulation FROM population WHERE joueurpop= ?');
+$reqcompterpop = $bdg->prepare('SELECT COUNT(*) AS nbpopulation FROM population WHERE idplanetepop = ?');
 $creationpop = $bdg->prepare('INSERT INTO population(joueurpop) VALUES(:joueurpop)');
 
 $message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess) VALUES (?, ?, ?)") ; 
@@ -19,7 +17,7 @@ $message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domaine
 $reponse = $bdg->query('SELECT id, popmax FROM limitesjoueurs');
 while ($donnees = $reponse->fetch())
 	{ // Compter le nombre de pop.
-	$req->execute(array($donnees['id']));
+	$reqcompterpop->execute(array($donnees['id']));
 	$nbdepopulation = $req->fetch();
 	
 	// change d'avoir une pop de plus :

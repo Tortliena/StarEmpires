@@ -11,18 +11,16 @@ CREATE TABLE `afaire` (
   `texteafaire` text NOT NULL,
   `priorite` varchar(128) NOT NULL,
   PRIMARY KEY (`idafaire`)
-) ENGINE=MyISAM AUTO_INCREMENT=390 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=394 DEFAULT CHARSET=latin1;
 
-INSERT INTO `afaire` VALUES (335,"Exporter base de données + importer base de données ","grosetapesouspeu"),
-(377,"Rendre possible la construction d\'un design de vaisseau","grosetapesouspeu"),
+INSERT INTO `afaire` VALUES (377,"Rendre possible la construction d\'un design de vaisseau","grosetapesouspeu"),
 (205,"Sur la carte, mettre en évidence les endroits accessibles ?","grosseetapeplustard"),
-(374,"Bug : Exporter-importer ne marche pas. Erreur 500 de droit ou de réponse du serveur.","grosseetapeplustard"),
+(393,"Gestion des planètes et non de l\'empire !","encours"),
 (264,"Mettre un avertissement dans le cas ou un vaisseau ne peut pas atteindre la destination","petittrucplustard"),
 (22,"Ajouter sécurité sur les champs entrés par les utilisateurs.","lancementsite"),
 (23,"Passer par http://validator.w3.org","lancementsite"),
 (24,"Faire le CRON","lancementsite"),
 (25,"Faire de la compression : http://php-minify.com/#","lancementsite"),
-(387,"Organiser les constructions sur le mac ! ","petittrucrapide"),
 (385,"Créer station","grosetapesouspeu"),
 (389,"Faire une dizaine d\'évènements sur le mac !","petittrucrapide"),
 (364,"Bug : Si 2 rénovations en cours et qu\'un seul composant en stock alors on arrive quand même a rénover les 2 vaisseaux.","encours");
@@ -93,7 +91,7 @@ CREATE TABLE `tour` (
   `datetour` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `resume` text,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=266 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=284 DEFAULT CHARSET=latin1;
 
 INSERT INTO `tour` VALUES (1,"2020-02-20 12:24:06","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
 (2,"2020-02-20 12:24:13","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la production des biens</br> Fin de la production des biens</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
@@ -359,7 +357,25 @@ INSERT INTO `tour` VALUES (1,"2020-02-20 12:24:06","Le tour commence.</br> le nu
 (262,"2020-02-28 22:57:13","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
 (263,"2020-02-28 22:57:14","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
 (264,"2020-02-28 22:57:15","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
-(265,"2020-02-28 22:57:15","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop");
+(265,"2020-02-28 22:57:15","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
+(266,"2020-02-29 18:33:33","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
+(267,"2020-02-29 18:33:36","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
+(268,"2020-02-29 18:42:59","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
+(269,"2020-02-29 18:43:08","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
+(270,"2020-02-29 19:57:26","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
+(271,"2020-02-29 20:02:32","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
+(272,"2020-02-29 20:07:30","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
+(273,"2020-02-29 20:07:37","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
+(274,"2020-02-29 20:07:45","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
+(275,"2020-02-29 20:07:52","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
+(276,"2020-02-29 20:08:01","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
+(277,"2020-02-29 20:08:06","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
+(278,"2020-02-29 20:08:11","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
+(279,"2020-02-29 20:08:15","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
+(280,"2020-02-29 20:10:13","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
+(281,"2020-02-29 20:10:20","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
+(282,"2020-02-29 20:11:06","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop"),
+(283,"2020-02-29 20:11:14","Le tour commence.</br> le numéro du tour a été augmenté</br> Début de la croissance des pop</br> Fin de la croissance des pop");
 
 
 SET foreign_key_checks = 1;

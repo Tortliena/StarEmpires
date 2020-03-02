@@ -27,7 +27,10 @@ include("include/BDDconnection.php");
   ?>
 
   <div class="corps">
-    <h1>Hangars : <?php echo $repvaisseau['nomvaisseau'] ;?></h1>
+<form method="post" action="script/renommervaisseau.php"><h1>Vaisseau : <?php echo $repvaisseau['nomvaisseau'] ;?>
+<input type="text" name="nouveaunom" id="nouveaunom" placeholder="nouveau nom" size="25" maxlength="80" />
+<input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>">
+<input type="submit" value="Renommer"/></h1></form>
 
 <?php
 include("include/message.php");
@@ -39,19 +42,8 @@ include("include/fonctionhangars.php");
 $reqcomposantsurlevaisseau = $bdd->prepare("SELECT i.nombatiment FROM gamer.composantvaisseau c
           INNER JOIN items i ON i.iditem = c.iditemcomposant
           WHERE c.idvaisseaucompo = ? AND c.typecomposant = ?");
-
-?>
-<form method="post" action="script/renommervaisseau.php">
-    <p> 
-        <input type="text" name="nouveaunom" id="nouveaunom" placeholder="nouveau nom" size="25" maxlength="80" />
-        <input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>">
-        <input type="submit" value="Renommer" />
-    </p>
-</form>
-
-<?php
-
-  if ($replvl['lvl']>=3)
+      
+if ($replvl['lvl']>=3)
     {
     echo '<p>Vitesse du vaisseau : ' . $repvaisseau['vitesse'] . ' parsec/cycle</p>'; 
     }
@@ -129,7 +121,7 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
 
 // requetes pour la carte et/ou les ordres.
 $reqdect = $bdg->prepare('SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? LIMIT 1');
-$reqplanete = $bda->prepare('SELECT idplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? LIMIT 1');
+$reqplanete = $bdg->prepare('SELECT idplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? LIMIT 1');
 $reqasteroide = $bda->prepare('SELECT idasteroide , quantite , typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
 $reqvaisseaucarte = $bdg->prepare('SELECT idvaisseau FROM vaisseau WHERE x = ? AND y = ? AND univers = ? AND idjoueurbat <> ? LIMIT 1');
 
