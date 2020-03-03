@@ -1,39 +1,32 @@
 <?php
 /*
 session_start();
-include("../script/BDDconnection.php");
+include("../include/BDDconnection.php");
 */
 
-$reqselectpop = $bdg->prepare('SELECT idpop , joueurpop , typepop, typepoparrivee FROM population WHERE NOT typepoparrivee = ?');
-$reqressources = $bdg->prepare("SELECT biens FROM utilisateurs WHERE id = ?");
-$reqtypepop = $bdd->prepare("SELECT prixchangementpop , technecessaire FROM typepop WHERE idtypepop = ?");
+$reqselectpop = $bdd->prepare('SELECT p.idplanetepop, t.prixchangementpop FROM gamer.population p INNER JOIN typepop t ON t.idtypepop = p.typepoparrivee WHERE NOT typepoparrivee = ?');
+
+$reqressources = $bdg->prepare("SELECT biens FROM planete WHERE idplanete = ?");
 $miseajourdesressources = $bdg->prepare("UPDATE utilisateurs SET biens = ? WHERE id = ?");
-$miseajourpop = $bdg->prepare("UPDATE population SET typepop = ? , typepoparrivee = ? WHERE joueurpop = ? AND idpop = ?");
+$miseajourpop = $bdg->prepare("UPDATE population SET typepop = ? , typepoparrivee = ? WHERE idpop = ?");
 $message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess) VALUES (? , ?, ?)") ;
 
 $reqselectpop->execute(array(0));
 while ($repselectpop = $reqselectpop->fetch())
   {
-  $reqressources->execute(array($repselectpop['joueurpop']));
+  $reqressources->execute(array($repselectpop['idplanetepop']));
   $repressources = $reqressources->fetch(); 
-  //echo $repressources['biens'] . ' biens du joueur</br>'; 
-
-  $reqtypepop->execute(array($repselectpop['typepoparrivee']));
-  $reptypepop = $reqtypepop->fetch(); 
-  //echo $reptypepop['prixchangementpop']. ' prix changement </br>'; 
-
+  
   if ($repressources['biens'] >= $reptypepop['prixchangementpop'])
-      {
+      { // Si on a assez de ressources, on paye et la pop devient inactive.
       $biens = $repressources['biens'] - $reptypepop['prixchangementpop'] ; 
-      //echo 'faire le changement ! </br>';
       $miseajourdesressources ->execute(array($biens,  $repselectpop['joueurpop']));
-      $miseajourpop ->execute(array(0, $repselectpop['typepoparrivee'], $repselectpop['joueurpop'], $repselectpop['idpop']));
+      $miseajourpop ->execute(array(0, $repselectpop['typepoparrivee'], $repselectpop['idpop']));
       }
   else
-      {
-      //echo 'Ne pas faire le changement ! </br>';
-      $miseajourpop ->execute(array($repselectpop['typepop'], 0, $repselectpop['joueurpop'], $repselectpop['idpop']));
-      $message ->execute(array($repselectpop['joueurpop']  , 'Conversion de pop raté faute de biens' , 'capitale')) ;
+      { // Sinon l'ordre est annulé.
+      $miseajourpop ->execute(array($repselectpop['typepop'], 0, $repselectpop['idpop']));
+      $message ->execute(array($repselectpop['joueurpop']  , 'Conversion de pop raté faute de biens' , 'planete')) ;
       }
   }
 ?>

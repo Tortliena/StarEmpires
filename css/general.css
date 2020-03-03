@@ -1,23 +1,18 @@
 body
-{
-
+    {
     background-color: rgb(165,192,201);;
     color: black;
     padding-top: 25px;
     padding-left:10px;
-}
+    }
 
 .corps
-{
-    margin-left:140px;
+    {
+    margin-left:150px;
     display: flex;
     flex-wrap: nowrap;
     flex-direction: column;
     display: inline-block;    
     vertical-align: top;
     padding-left:10px;
-}
-
-
-
-
+    }

@@ -1,60 +1,34 @@
 <?php
 /*
 session_start();
-include("../script/BDDconnection.php");
+include("../include/BDDconnection.php");
 */
 
-// 
-/* function ajcomproddutourdebut(&$Commentairestour)
-{
-    $Commentairestour .= '</br> Début des prods du tour.';
-}
-ajcomproddutourdebut($Commentairestour);
-*/
+$creationvariationdutour = $bdg->prepare('INSERT INTO variationstour (idplanetevariation, prodbiens, chantier, recherche, consobiens) VALUES (?, ?, ?, ?, ?)');
 
-// Permet de gérer les joueurs un par un.
-// Ajouter une valeur 'pause' sur les joueurs pour leur désactiver la pause ?
-
-$compterpop = $bdg->prepare('SELECT COUNT(*) AS nb FROM population WHERE joueurpop = ? and typepop like ?');
-$creationvariationdutour = $bdg->prepare('INSERT INTO variationstour (idjoueur, prodbiens, chantier, recherche, consobiens) VALUES (?, ?, ?, ?, ?)');
-
-$reqjoueur = $bdg->query('SELECT id, lvl FROM utilisateurs ORDER BY id');
-while ($repjoueur = $reqjoueur->fetch())
+// Gerer les planetes une par une.
+$reqcompterpop = $bdg->prepare('SELECT  po.idplanetepop,
+                                        COUNT(*) AS population,
+                                        sum(case when po.typepop = 1 then 1 else 0 end) AS citoyens,
+                                        sum(case when po.typepop = 2 then 1 else 0 end) AS ouvriers,
+                                        sum(case when po.typepop = 3 then 1 else 0 end) AS scientifiques
+                                        FROM population AS po
+                                        INNER JOIN planete AS pl ON po.idplanetepop = pl.idplanete
+                                        GROUP BY po.idplanetepop');
+while ($repcompterpop = $reqcompterpop->fetch())
 	{
 	// Production des citoyens :
-	$compterpop->execute(array($repjoueur['id'], 1));
-	$nbcitoyens = $compterpop->fetch();
-	$prodbiens = $nbcitoyens['nb'] * 5  ;
+	$prodbiens = $repcompterpop['citoyens'] * 5;
 
 	// Production des ouvriers :
-	$compterpop->execute(array($repjoueur['id'], 2));
-	$nbouvriers = $compterpop->fetch();
-	$prodchantier = $nbouvriers['nb'] * 20  ;
+	$prodchantier = $repcompterpop['ouvriers'] * 20;
 
 	// Production de recherche :
-	if ($repjoueur['lvl']==0) // Si niveau 0 (donc pas de chercheur et de recherche) alors 1 pt de recherche
-		{$prodrecherche = 1;}
-	else
-		{ // Sinon prod dep du nb de chercheurs.
-	$compterpop->execute(array($repjoueur['id'], 3));
-	$nbchercheur = $compterpop->fetch();
-	$prodrecherche = $nbchercheur['nb'] * 1  ;
-		}
-
+    $prodrecherche = $repcompterpop['scientifiques'] * 1;
+   
 	// consommation de la population :
-	$compterpop->execute(array($repjoueur['id'] , '%'));
-	$reponseconsommation = $compterpop->fetch();
-	$consommation = $reponseconsommation['nb'] * 1  ;
+	$consommation = $repcompterpop['population'] * 1  ;
 
-	$creationvariationdutour->execute(array($repjoueur['id'], $prodbiens, $prodchantier, $prodrecherche, $consommation));
+	$creationvariationdutour->execute(array($repcompterpop['idplanetepop'], $prodbiens, $prodchantier, $prodrecherche, $consommation));
 	}
-$reqjoueur->closeCursor();
-
-/*
-function add_some_extra5(&$Commentairestour)
-{
-    $Commentairestour .= '</br> Fin de la croissance des pop';
-}
-add_some_extra5($Commentairestour);
-*/
 ?>

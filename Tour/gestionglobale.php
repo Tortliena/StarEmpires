@@ -16,10 +16,10 @@ include("incrementerletour.php");
 include("vidertable.php");
 
 // Évènements aléatoires qui arrivent aux joueurs qui ne sont pas dans une chaine d'évènements.
-include("eventaleatoire.php");
+// include("eventaleatoire.php");
 
 // Évènements aléatoires qui arrivent aux joueurs qui ne sont pas dans une chaine d'évènements.
-include("eventsuite.php");
+// include("eventsuite.php");
 
 // Début de changement des pops avec retrait des ressources. 
 include("debchangpop.php");
@@ -34,10 +34,10 @@ include("gestionbiens.php");
 include("finchangpop.php");
 
 // Faire augmenter la pop.
-include("croissancepop.php");
+// include("croissancepop.php");
 
 // Gestion de la page chantier et utilise 'proddutour'.
-include("construction.php");
+// include("construction.php");
 
 // Boum ! ! 
 include("combat.php");
@@ -49,16 +49,16 @@ include("deplacementvaisseau.php");
 include("exploration.php");
 
 // Applique la production du tour de recherche sur les recherches en cours.
-include("recherchetour.php");
+// include("recherchetour.php");
 
 // Mise à jour des limites des joueurs (pop, bat).
-include("limitesjoueurs.php");
+// include("limitesjoueurs.php");
 
 // MAJ vaisseaux
 include("gestionvaisseau.php");
 
 // Mise à jour des niveaux des joueurs.
-include("niveaux.php");
+// include("niveaux.php");
 
 // Permet de créer un résumé du tour pour vérifier les bugs.
 include("resumetour.php");
