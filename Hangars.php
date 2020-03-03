@@ -1,33 +1,28 @@
 <?php
 session_start();
-If (!$_SESSION['pseudo'])
-{
-    header('Location: Accueil.php');
-    exit(); 
-}
+if (!$_SESSION['pseudo'])
+  {
+  header('Location: Accueil.php');
+  exit(); 
+  }
 include("include/BDDconnection.php");
 ?>
+<!DOCTYPE html><html><head><meta charset="utf-8" /><link rel="stylesheet" href="style.css" /><title>Mon super site</title></head>
 
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="style.css" />
-    <title>Mon super site</title>
-  </head>
-<body>
-  <?php include("include/menu.php"); 
+<body><?php include("include/menu.php"); 
 
-  $reqvaisseau = $bdg->prepare('SELECT * FROM vaisseau WHERE idvaisseau = ?');
-  $reqvaisseau->execute(array($_GET['id']));
-  $repvaisseau = $reqvaisseau->fetch();
+$reqvaisseau = $bdg->prepare('SELECT * FROM vaisseau WHERE idvaisseau = ?');
+$reqvaisseau->execute(array($_GET['id']));
+$repvaisseau = $reqvaisseau->fetch();
+if ($repvaisseau['idjoueurbat'] != $_SESSION['id'])
+  { header('Location: Accueil.php'); exit(); } ?>
 
-  if ($repvaisseau['idjoueurbat'] != $_SESSION['id'])
-    { header('Location: Accueil.php'); exit(); }
-  ?>
-
-  <div class="corps">
-    <h1>Hangars : <?php echo $repvaisseau['nomvaisseau'] ;?></h1>
+<div class="corps">
+<form method="post" action="script/renommer.php"><h1>Vaisseau : <?php echo $repvaisseau['nomvaisseau'] ;?>
+<input type="text" name="nouveaunom" id="nouveaunom" placeholder="nouveau nom" size="25" maxlength="80" />
+<input name="id" type="hidden" value="<?php echo $_GET['id'] ;?>">
+<input name="type" type="hidden" value="vaisseau">
+<input type="submit" value="Renommer"/></h1></form>
 
 <?php
 include("include/message.php");
@@ -39,19 +34,8 @@ include("include/fonctionhangars.php");
 $reqcomposantsurlevaisseau = $bdd->prepare("SELECT i.nombatiment FROM gamer.composantvaisseau c
           INNER JOIN items i ON i.iditem = c.iditemcomposant
           WHERE c.idvaisseaucompo = ? AND c.typecomposant = ?");
-
-?>
-<form method="post" action="script/renommervaisseau.php">
-    <p> 
-        <input type="text" name="nouveaunom" id="nouveaunom" placeholder="nouveau nom" size="25" maxlength="80" />
-        <input name="idvaisseau" type="hidden" value="<?php echo $_GET['id'] ;?>">
-        <input type="submit" value="Renommer" />
-    </p>
-</form>
-
-<?php
-
-  if ($replvl['lvl']>=3)
+      
+if ($replvl['lvl']>=3)
     {
     echo '<p>Vitesse du vaisseau : ' . $repvaisseau['vitesse'] . ' parsec/cycle</p>'; 
     }

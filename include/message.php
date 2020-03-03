@@ -99,7 +99,7 @@ switch ($_GET["message"])
     break;
 
     case 18:
-        echo "Veuillez entrer un nouveau nom pour votre vaisseau.";
+        echo "Veuillez entrer un nouveau nom pour renommer.";
     break;
 
     case 19:
@@ -131,7 +131,7 @@ switch ($_GET["message"])
     break;
 
     case 26:
-        echo "Vaisseau renommé.";
+        echo "Renommage effectif !";
     break;
 
     case 27:

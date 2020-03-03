@@ -7,31 +7,41 @@ If (!$_SESSION['pseudo'])
   }
 include("include/BDDconnection.php");
 ?>
-
 <!DOCTYPE html><html><head><meta charset="utf-8" /><link rel="stylesheet" href="style.css" /><title>Mon super site</title></head>
+
 <body><?php include("include/menu.php");
+
 $reqplanete = $bdg->prepare('SELECT * FROM planete WHERE idplanete= ?');
 $reqplanete->execute(array($_GET['id']));
 $repplanete = $reqplanete->fetch();
-echo '<div class="corps">';
-echo '<h1>'.$repplanete['nomplanete'].'</h1>';
-    
+if ($repplanete['idjoueurplanete'] != $_SESSION['id'])
+  { /*header('Location: Accueil.php'); exit(); */} ?>
+
+<div class="corps">   
+<form method="post" action="script/renommer.php"><h1>Planete : <?php echo $repplanete['nomplanete'] ;?> 
+<input type="text" name="nouveaunom" id="nouveaunom" placeholder="nouveau nom" size="25" maxlength="80" />
+<input name="id" type="hidden" value="<?php echo $_GET['id'] ;?>">
+<input name="type" type="hidden" value="planete">
+<input type="submit" value="Renommer"/></h1></form>
+
+<?php
 include("include/message.php") ;
 $typemessage = 'planete' ; 
 include("include/resume.php");
 
-// Compter pop
-$reqcompterpop = $bdg->prepare('SELECT COUNT(*) AS nb FROM population WHERE idplanetepop = ? AND typepop = ?');
-$reqcompterpop->execute(array($_SESSION['id'], 2));                                   
-$ouvriers = $reqcompterpop->fetch();
-$reqcompterpop->execute(array($_SESSION['id'], 1));                                   
-$citoyens = $reqcompterpop->fetch();
-$reqcompterpop->execute(array($_SESSION['id'], 3));                                   
-$scientifiques = $reqcompterpop->fetch();
-$poptotale = $scientifiques['nb'] + $citoyens['nb'] + $ouvriers['nb'];
+    
+// Gerer les planetes une par une.
+$reqcompterpop = $bdg->prepare('SELECT  COUNT(*) AS population,
+                                        sum(case when typepop = 1 then 1 else 0 end) AS citoyens,
+                                        sum(case when typepop = 2 then 1 else 0 end) AS ouvriers,
+                                        sum(case when typepop = 3 then 1 else 0 end) AS scientifiques
+                                        FROM population
+                                        WHERE idplanetepop = ?');
+$reqcompterpop->execute(array($_GET['id']));                                   
+$repcompterpop = $reqcompterpop->fetch();
 
 echo '<h2>Population et bâtiments :</h2>';
-echo $poptotale. ' unités de population au totale, composée de '.$citoyens['nb'].' citoyen(s) ; '.$ouvriers['nb'].' ouvrier(s) ; '.$scientifiques['nb'].' scientifique(s)' ;
+echo $repcompterpop['population']. ' unités de population au totale, composée de '.$repcompterpop['citoyens'].' citoyen(s) ; '.$repcompterpop['ouvriers'].' ouvrier(s) ; '.$repcompterpop['scientifiques'].' scientifique(s)' ;
 
 
 // Formulaire de conversion des pops
@@ -49,7 +59,7 @@ while ($reptypepop = $reqtypepop->fetch())
   {
   echo '<option value="'. $reptypepop['idtypepop'] . '">'. $reptypepop['nompop'] .'</option>'; 
   }
-echo '</select><input type="submit" value="Valider"/></p></form>';
+echo '</select><input name="id" type="hidden" value="'.$_GET['id'].'"><input type="submit" value="Valider"/></p></form>';
 
 // Permet de visualiser les ordres de conversion de pop en cours. 
 $reqpoptransf = $bdd->prepare('SELECT p.typepop, p.typepoparrivee, p.idpop, t.nompop AS depart, y.nompop AS arrivee
