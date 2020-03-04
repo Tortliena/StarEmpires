@@ -75,7 +75,8 @@ if (isset($eventencours['texteevent']))
       case 0:
           echo "Former un chercheur et un ouvrier.</br>";
           echo "Vous pouvez passer des tours en cliquant sur 'passer le tour'.</br>";
-          echo "Pour former des population, vous pouvez utiliser cette page.</br>";
+          echo "Pour former des specialistes, vous pouvez passer par la page planete.</br>";
+          echo "Facultatif : Donner un meilleur nom a votre planete.</br>";
       break;
       case 1:
           echo "Finir la recherche sur les moteurs.</br>";
@@ -83,7 +84,7 @@ if (isset($eventencours['texteevent']))
       break;
       case 2:
           echo "Construire un vaisseau spatial et le sortir dans l'espace.</br>";
-          echo "Construction : Page chantier.</br>";
+          echo "Construction : Aller sur la page dediee a votre planete, dans la partie chantier.</br>";
           echo "Pour diriger le vaisseau, aller sur la page dédiée qui devrait apparaitre après sa construction.</br>";
           echo "Facultatif : Finir les recherches sur les chantiers et les centres de recherche. Vous pourrez plus tard recruter plus d'ouvriers et de chercheurs.</br>";
           echo "Facultatif : Renommer votre vaisseau quand il est construit. Cela pourra vous aider.</br>";

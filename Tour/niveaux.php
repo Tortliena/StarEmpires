@@ -1,7 +1,7 @@
 <?php
 /*
 session_start();
-include("../script/BDDconnection.php");
+include("../include/BDDconnection.php");
 */
 
 $reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)');
@@ -10,25 +10,24 @@ $reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , 
 $reqlvlup = $bdg->prepare('UPDATE utilisateurs SET lvl = lvl + 1 WHERE id = ?');
 
 // Pour lvl 0 à 1
-$reqcountpop = $bdg->prepare('SELECT COUNT(*) AS nb FROM population WHERE joueurpop = ? AND typepop = ?');
-
+$reqcountpop = $bdg->prepare('SELECT  	sum(case when po.typepop = ? then 1 else 0 end) AS nb
+                                        FROM population AS po
+                                        INNER JOIN planete AS pl ON po.idplanetepop = pl.idplanete
+                                        WHERE pl.idjoueurplanete = ?');
 // Pour lvl 1 à 2
-$reqrechechemoteur = $bdg->prepare('SELECT COUNT(*) AS nb FROM rech_joueur WHERE 
-idjoueurrecherche = ? AND rechposs = 1');
+$reqrechechemoteur = $bdg->prepare('SELECT COUNT(*) AS nb FROM rech_joueur WHERE idjoueurrecherche = ? AND rechposs = 1');
 
 // Pour lvl 2 à 3
-$reqvaisseausorti = $bdg->prepare('SELECT COUNT(*) AS nb FROM vaisseau WHERE 
-idjoueurbat = ? AND x = ?');
+$reqvaisseausorti = $bdg->prepare('SELECT COUNT(*) AS nb FROM vaisseau WHERE idjoueurbat = ? AND x = ?');
 
 // Pour lvl 3 à 4
 $reqcompterexplo = $bdg->prepare('SELECT COUNT(*) AS nb FROM explore WHERE idexplorateur = ?') ; 
-$reqlimitebaselunaire = $bdg->prepare('UPDATE limitesjoueurs SET maxbaselunaire = ? WHERE id = ?');
 
 // Pour lvl 4 à 5
 $reqvaisseau = $bdg->prepare("SELECT idvaisseau FROM vaisseau WHERE HPmaxvaisseau <> HPvaisseau AND idjoueurbat = ?");
 
 // Pour lvl 5 à 6
-$reqcomptersilo = $bdg->prepare('SELECT COUNT(*) AS nb FROM silo WHERE idjoueursilo = ?');
+// $reqcomptersilo = $bdg->prepare('SELECT COUNT(*) AS nb FROM silo WHERE idjoueursilo = ?');
 
 // Pour lvl 6 à 7
 $reqcomposantsurlevaisseau = $bdg->prepare("SELECT COUNT(*) AS nb 
@@ -37,7 +36,7 @@ $reqcomposantsurlevaisseau = $bdg->prepare("SELECT COUNT(*) AS nb
       WHERE v.idjoueurbat = ?");
 
 // Pour lvl 7 à 8
-$reqcountbat = $bdg->prepare('SELECT COUNT(*) AS nb FROM batiments WHERE idjoueurbat = ? AND typebat = ?');
+// $reqcountbat = $bdg->prepare('SELECT COUNT(*) AS nb FROM batiments WHERE idjoueurbat = ? AND typebat = ?');
 
 // Pour lvl 8 à 9 :
 // Compter plus d'exploration.
@@ -57,12 +56,14 @@ WHILE($replvl = $reqlvl->fetch())
 	switch ($replvl['lvl'])
   	{ 
       case 0:
-        	$reqcountpop->execute(array($replvl['id'], 2));
+            
+        	$reqcountpop->execute(array(2, $replvl['id']));
         	$repcountouvrier = $reqcountpop->fetch();
 
-        	$reqcountpop->execute(array($replvl['id'], 3));
+        	$reqcountpop->execute(array(3, $replvl['id']));
         	$repcountscient = $reqcountpop->fetch();
-
+            echo $repcountouvrier['nb'];
+            echo $replvl['id'];
           	// Compter les ouvriers et les scientifiques, si au moins 1, alors monter de niveau.
         	if ($repcountouvrier['nb']>0 AND $repcountscient['nb']>0)
         		{

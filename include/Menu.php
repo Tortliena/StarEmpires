@@ -5,7 +5,7 @@
 $reponse = $bda->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1');
 $touractuel = $reponse->fetch();
 $reponse->closeCursor(); 
-echo 'Tour'.$touractuel['id'].'</br>' ; 
+echo 'Tour '.$touractuel['id'].'</br>' ; 
 
 // Partie non connectée
 if (!isset($_SESSION['pseudo'])) 

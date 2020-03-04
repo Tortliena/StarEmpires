@@ -1,6 +1,6 @@
 <?php
 session_start();
-If (!$_SESSION['pseudo'])
+if (!$_SESSION['pseudo'])
   {
   header('Location: Accueil.php');
   exit();
@@ -10,12 +10,13 @@ include("include/BDDconnection.php");
 <!DOCTYPE html><html><head><meta charset="utf-8" /><link rel="stylesheet" href="style.css" /><title>Mon super site</title></head>
 
 <body><?php include("include/menu.php");
-
-$reqplanete = $bdg->prepare('SELECT * FROM planete WHERE idplanete= ?');
+$reqplanete = $bdg->prepare('SELECT * FROM planete p INNER JOIN limiteplanete l ON l.idlimiteplanete WHERE p.idplanete = ?');
 $reqplanete->execute(array($_GET['id']));
 $repplanete = $reqplanete->fetch();
 if ($repplanete['idjoueurplanete'] != $_SESSION['id'])
-  { /*header('Location: Accueil.php'); exit(); */} ?>
+    {
+    //header('Location: Accueil.php'); exit();
+    } ?>
 
 <div class="corps">   
 <form method="post" action="script/renommer.php"><h1>Planete : <?php echo $repplanete['nomplanete'] ;?> 
@@ -41,7 +42,7 @@ $reqcompterpop->execute(array($_GET['id']));
 $repcompterpop = $reqcompterpop->fetch();
 
 echo '<h2>Population et bâtiments :</h2>';
-echo $repcompterpop['population']. ' unités de population au totale, composée de '.$repcompterpop['citoyens'].' citoyen(s) ; '.$repcompterpop['ouvriers'].' ouvrier(s) ; '.$repcompterpop['scientifiques'].' scientifique(s)' ;
+echo $repcompterpop['population']. '/'.$repplanete['popmax'].' unités de population au total, composée de '.$repcompterpop['citoyens'].' citoyen(s) ; '.$repcompterpop['ouvriers'].' ouvrier(s) ; '.$repcompterpop['scientifiques'].' scientifique(s)' ;
 
 
 // Formulaire de conversion des pops
@@ -59,7 +60,7 @@ while ($reptypepop = $reqtypepop->fetch())
   {
   echo '<option value="'. $reptypepop['idtypepop'] . '">'. $reptypepop['nompop'] .'</option>'; 
   }
-echo '</select><input name="id" type="hidden" value="'.$_GET['id'].'"><input type="submit" value="Valider"/></p></form>';
+echo '</select><input type="hidden" name="id" value="'.$_GET['id'].'"><input type="hidden" name="supprimer" value="non"><input type="submit" value="Valider"/></p></form>';
 
 // Permet de visualiser les ordres de conversion de pop en cours. 
 $reqpoptransf = $bdd->prepare('SELECT p.typepop, p.typepoparrivee, p.idpop, t.nompop AS depart, y.nompop AS arrivee
@@ -71,7 +72,9 @@ $reqpoptransf = $bdd->prepare('SELECT p.typepop, p.typepoparrivee, p.idpop, t.no
 $reqpoptransf->execute(array($_GET['id']));
 while ($reppoptransf = $reqpoptransf->fetch())
   {
-  echo '<form method="post" action="script/supprimerconversion.php">';
+  echo '<form method="post" action="script/conversionpop.php">';
+  echo '<input type="hidden" name="supprimer" value="oui">';
+  echo '<input type="hidden" name="id" value="'.$_GET['id'].'">';
   echo '<input type="hidden" name="idpop" value="'.$reppoptransf['idpop'].'">';
   echo 'Vous êtes en train de transformer un ' . $reppoptransf['depart'] . ' en ' . $reppoptransf['arrivee'] ;
   echo ' <input type="submit" value="Annuler"/></form></br>';
