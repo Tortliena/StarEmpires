@@ -34,7 +34,7 @@ include("gestionbiens.php");
 include("finchangpop.php");
 
 // Faire augmenter la pop.
-// include("croissancepop.php");
+include("croissancepop.php");
 
 // Gestion de la page chantier et utilise 'proddutour'.
 // include("construction.php");

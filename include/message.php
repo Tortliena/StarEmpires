@@ -272,6 +272,10 @@ switch ($_GET["message"])
         echo "Vous reprenez la construction.";
     break;
 
+    case 60:
+        echo "Conversion de pop annulée.";
+    break;
+
     }
 
 unset($_SESSION['message1']);

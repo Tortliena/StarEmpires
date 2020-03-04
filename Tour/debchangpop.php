@@ -5,7 +5,7 @@ include("../include/BDDconnection.php");
 */
 
 $reqselectpop = $bdd->prepare('
-	SELECT p.idplanetepop, t.prixchangementpop, pl.biens
+	SELECT p.idplanetepop, t.prixchangementpop, pl.biens, p.typepoparrivee, p.idpop, p.typepop, pl.idjoueurplanete
 	FROM gamer.population p
 	INNER JOIN typepop t ON t.idtypepop = p.typepoparrivee
 	INNER JOIN gamer.planete pl ON p.idplanetepop = pl.idplanete
@@ -27,7 +27,7 @@ while ($repselectpop = $reqselectpop->fetch())
 	else
 		{ // Sinon l'ordre est annulé.
 		$miseajourpop ->execute(array($repselectpop['typepop'], 0, $repselectpop['idpop']));
-		$message ->execute(array($repselectpop['idplanetepop'], 'Conversion de pop raté faute de biens', 'planete', $repselectpop['idplanetepop'])) ;
+		$message ->execute(array($repselectpop['idjoueurplanete'], 'Conversion de pop ratée faute de biens', 'planete', $repselectpop['idplanetepop'])) ;
 		}
 	}
 ?>
