@@ -7,8 +7,8 @@ $reqsupprimercontruction = $bdg->prepare('DELETE FROM construction WHERE idconst
 $diminutiondeun = $bdg->prepare('UPDATE construction SET nombre = nombre - 1, avancementbiens = ?, avancementtitane = ? WHERE idconst = ?');
 $reqconstruction = $bdg->prepare("SELECT * FROM construction WHERE idplaneteconst = ? AND ordredeconstruction > 0 ORDER BY ordredeconstruction ASC");
 $avancement = $bdg->prepare("UPDATE construction SET avancementbiens = ?, avancementtitane = ? WHERE idconst = ?");
-$construirebatiment = $bdg->prepare('INSERT INTO batiments (typebat, idplanetebat) VALUES (?, ?)');
-$construirevaisseau = $bdg->prepare('INSERT INTO vaisseau (typevaisseau, idjoueurbat, univers, x, y) VALUES (?, ?, ?, ?, ?)');
+$construirebatiment = $bdg->prepare('INSERT INTO batiment (typebat, idplanetebat) VALUES (?, ?)');
+$construirevaisseau = $bdg->prepare('INSERT INTO vaisseau (typevaisseau, idjoueurvaisseau, univers, x, y) VALUES (?, ?, ?, ?, ?)');
 
 // Cas des conceptions :
 $reqconceptioninfo = $bdg->prepare('SELECT v.nomvaisseau, c.idvaisseauconception, c.idnouvcomposant, c.typecomposant
@@ -25,19 +25,15 @@ $requpdatedeplacement = $bdg->prepare('UPDATE ordredeplacement SET bloque = 1 WH
 // Par ailleurs :
 $miseajourdesressources = $bdg->prepare("UPDATE planete SET biens = ?, titane = ? WHERE idplanete = ?");
 $reqcategorie = $bdd->prepare("SELECT typeitem, nombatiment, itemnecessaire, nomlimite FROM items WHERE iditem = ?");
-$reqcomptebat = $bdg->prepare('SELECT COUNT(idbat) as nb FROM batiments WHERE typebat = ? AND idplanetebat = ?');
+$reqcomptebat = $bdg->prepare('SELECT COUNT(idbat) as nb FROM batiment WHERE typebat = ? AND idplanetebat = ?');
 
 //Gestion des construction joueur par joueur.
-$reqplanete = $bdg->query('SELECT
-                        v.idplanetevariation idj ,
-                        v.chantier chantier ,
-                        p.biens biens ,
-                        p.titane ti
-                        FROM variationstour v
-                        INNER JOIN planete p
+$reqplanete = $bdg->query('SELECT v.idplanetevariation idj,
+                        v.chantier chantier, p.biens biens, p.titane ti
+                        FROM variationstour v INNER JOIN planete p
                         ON p.idplanete = v.idplanetevariation
-                        ORDER BY idj');
-    while ($repplanete = $reqplanete->fetch())
+                        ORDER BY p.idjoueurplanete');
+while ($repplanete = $reqplanete->fetch())
     { // Créer les variables qui vont être utilisées dans les boucles :
     $chantier =  $repplanete['chantier'] ;
     $biens = $repplanete['biens'] ;
@@ -82,12 +78,12 @@ $reqplanete = $bdg->query('SELECT
         if (isset($repcategorie['nomlimite'])) // S'il y a un maximum sur l'un de ces batiments.
           {
           // On récupère la limite.
-          $reqlimite = $bdg->prepare('SELECT '.$repcategorie['nomlimite'].' FROM limitesjoueurs WHERE id = ?');
+          $reqlimite = $bdg->prepare('SELECT '.$repcategorie['nomlimite'].' FROM limiteplanete WHERE idlimiteplanete = ?');
           $reqlimite->execute(array($repplanete['idj']));
           $replimite = $reqlimite->fetch(); // $replimite['0']
 
           // On récupère le nombre de batiments actuels.
-      $reqcomptebat->execute(array($repconstruction['trucaconstruire'], $repplanete['idj']));
+          $reqcomptebat->execute(array($repconstruction['trucaconstruire'], $repplanete['idj']));
           $repcomptebat = $reqcomptebat->fetch();  // $repcomptechantier['nb']
                
           if ($replimite['0']<=$repcomptebat['nb'])
@@ -129,7 +125,7 @@ $reqplanete = $bdg->query('SELECT
         // Si je peux finir le chantier : 
         if ($nouvavbien == 0 AND $nouvavtitane == 0)
             {
-            if ($repcategorie['typeitem'] == 'batiments')
+            if ($repcategorie['typeitem'] == 'batiment')
                 { // cas des batiments
                 $construirebatiment->execute(array($repconstruction['trucaconstruire'], $repplanete['idj'] ));
                 }

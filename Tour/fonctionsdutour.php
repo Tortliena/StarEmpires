@@ -134,7 +134,7 @@ function caracteristiquesvaisesau ($idvaisseau, $idjoueur)
     $totalprixtitane = $totalprixtitane + $repinformationcomposant['couttitane'];
     }
 
-  $requpdatedesignvaisseau = $bdg->prepare('UPDATE vaisseau SET idjoueurbat = ?, biensvaisseau = ?, titanevaisseau = ?, vitesse = ?, capacitedesoute = ?, capaciteminage = ?, HPmaxvaisseau = ? WHERE idvaisseau = ?'); 
+  $requpdatedesignvaisseau = $bdg->prepare('UPDATE vaisseau SET idjoueurvaisseau = ?, biensvaisseau = ?, titanevaisseau = ?, vitesse = ?, capacitedesoute = ?, capaciteminage = ?, HPmaxvaisseau = ? WHERE idvaisseau = ?'); 
   // Updater le design du vaisseau avec les prix et l'ID du joueur.
   $requpdatedesignvaisseau->execute(array($idjoueur, $totalprixbien, $totalprixtitane, $vitesse, $capacitedesoute, $capaciteminage, $HPvaisseau, $idvaisseau));
 

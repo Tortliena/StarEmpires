@@ -36,11 +36,10 @@ while ($repgestionplanete = $reqgestionplanete->fetch())
             $message ->execute(array($repgestionplanete['idjoueurplanete'], 'Vous disposez de la place nécessaire pour accueillir une nouvelle population qui devrait arriver prochainement.', 'planete', $repgestionplanete['idplanetepop']));
             }
         }
-    elseif ($repgestionplanete['tailleeffective'] > $nbdepopulation['population'])
+    else
         {
         $message ->execute(array($repgestionplanete['idjoueurplanete'], 'Votre population ne pouvait pas grandir faute de place.', 'planete', $repgestionplanete['idplanetepop']));
         }
-
     }
 
 function commentairecroissancedelapopfin(&$Commentairestour)

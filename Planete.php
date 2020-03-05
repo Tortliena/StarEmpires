@@ -9,7 +9,7 @@ include("include/BDDconnection.php");
 ?>
 <!DOCTYPE html><html><head><meta charset="utf-8" /><link rel="stylesheet" href="style.css" /><title>Mon super site</title></head>
 
-<body><?php include("include/menu.php");
+<body><?php include("include/menu.php");?><div class="corps"><?php
 $reqplanete = $bdg->prepare('SELECT * FROM planete p INNER JOIN limiteplanete l ON l.idlimiteplanete WHERE p.idplanete = ?');
 $reqplanete->execute(array($_GET['id']));
 $repplanete = $reqplanete->fetch();
@@ -17,8 +17,7 @@ if ($repplanete['idjoueurplanete'] != $_SESSION['id'])
     {
     //header('Location: Accueil.php'); exit();
     } ?>
-
-<div class="corps">   
+   
 <form method="post" action="script/renommer.php"><h1>Planete : <?php echo $repplanete['nomplanete'] ;?> 
 <input type="text" name="nouveaunom" id="nouveaunom" placeholder="nouveau nom" size="25" maxlength="80" />
 <input name="id" type="hidden" value="<?php echo $_GET['id'] ;?>">
@@ -30,8 +29,6 @@ include("include/message.php") ;
 $typemessage = 'planete' ; 
 include("include/resume.php");
 
-    
-// Gerer les planetes une par une.
 $reqcompterpop = $bdg->prepare('SELECT  COUNT(*) AS population,
                                         sum(case when typepop = 1 then 1 else 0 end) AS citoyens,
                                         sum(case when typepop = 2 then 1 else 0 end) AS ouvriers,
@@ -80,6 +77,14 @@ while ($reppoptransf = $reqpoptransf->fetch())
   echo ' <input type="submit" value="Annuler"/></form></br>';
   }
 
+$reqcompterbatiment = $bdg->prepare('SELECT sum(case when typebat = 1 then 1 else 0 end) AS centrederecherche,
+                                            sum(case when typebat = 2 then 1 else 0 end) AS chantier,
+                                            sum(case when typebat = 3 then 1 else 0 end) AS megalopole,
+                                            sum(case when typebat = 4 then 1 else 0 end) AS baselunaire
+                                            FROM batiment WHERE idplanetebat = ?');
+$reqcompterbatiment->execute(array($_GET['id']));
+$repcompterbatiment = $reqcompterbatiment->fetch();
+
 /*
 // Afficher le nombre de centre de recherche :
 $reqcountrecherche = $bdg->prepare('SELECT COUNT(*) AS nbdecentrederecherche FROM batiments WHERE idjoueurbat = ? AND typebat = 1');
@@ -120,60 +125,51 @@ $reqmenuderoulantitems = $bdg->prepare('
         WHERE silo.idplanetesilo = ? AND silo.quantite > 0 AND items.typeitem <> "artefact"
         ');
 
-// Requete pour la liste de construction et basé sur une limite :
-/* NE MARCHE PLUS AVEC LES MODIFS SUR LA GESTION PAR PLANÈTE ! ! ! 
-$reqmenuderoulantconstruction = $bdd->prepare('
-        SELECT  items.iditem, items.nombatiment, items.nomlimite
-        FROM gamer.rech_joueur
-        RIGHT JOIN items
-        ON rech_joueur.idrech = items.technescessaire
-        WHERE (items.technescessaire = 0 OR (rech_joueur.idjoueurrecherche = ? AND rech_joueur.rechposs = 1))
-        AND (items.typeitem <> "autre" AND items.typeitem <> "artefact")
-        ');
-$reqmenuderoulantconstruction->execute(array($_SESSION['id']));
-while ($repmenuderoulantconstruction = $reqmenuderoulantconstruction->fetch())
-  {
-    if (isset($repmenuderoulantconstruction['nomlimite'])) // S'il y a un maximum sur l'un de ces batiments.
-      {
-      // On récupère la limite.
-      $reqlimite = $bdg->prepare('SELECT '.$repmenuderoulantconstruction['nomlimite'].' FROM limitesjoueurs WHERE id = ?');
-      $reqlimite->execute(array($_SESSION['id']));
-      $replimite = $reqlimite->fetch(); // $replimite['0']
-
-      // On récupère le nombre de batiments actuels.
-      $reqcomptechantier = $bdg->prepare('SELECT COUNT(idbat) as nb FROM batiments WHERE typebat = ? AND idjoueurbat = ?');
-      $reqcomptechantier->execute(array($repmenuderoulantconstruction['iditem'], $_SESSION['id']));
-      $repcomptechantier = $reqcomptechantier->fetch();  // $repcomptechantier['nb']
-      }
-
-    if (!isset($repmenuderoulantconstruction['nomlimite']) OR $replimite['0']>$repcomptechantier['nb'])
-      {
-      $a++;  // Variable permettant de gérer le cas ou on a aucune construction possible.
-      echo '<option value="'.$repmenuderoulantconstruction['iditem'].'">'.$repmenuderoulantconstruction['nombatiment'].'</option>';
-      } 
-  }
-  $reqmenuderoulantconstruction->closeCursor();
-*/
-
-$a = 0; //Variable permettant de gérer le cas avec 0 construction possible
-
 // Début formulaire pour les constructions. 
+$a = 0; //Variable permettant de gérer le cas avec 0 construction possible.
 echo '<form method="post" action="script/ordreconstruction.php"><p><label for="combien">Construire </label>';
-echo '<input type="number" name="combien" value="1" min="1"><select name="trucaconstruire" id="trucaconstruire">';
+echo '<input type="number" name="combien" value="1" min="1">';
+echo '<select name="trucaconstruire" id="trucaconstruire">';
 $reqmenuderoulantitems->execute(array($_GET['id']));
-  while ($repmenuderoulantitems = $reqmenuderoulantitems ->fetch())
-    {
+while ($repmenuderoulantitems = $reqmenuderoulantitems ->fetch())
+    { // Gestion des trucs ayant besoin d'un machin dans les stocks.
     $a++;
     echo '<option value="'.$repmenuderoulantitems['iditem'].'">'.$repmenuderoulantitems['nombatiment'].'</option>';
     }
-    if ($a == 0)
-      {
-      echo '<option disabled selected>Pas de construction possible</option></select>';
-      }
-    else
-      {
-      echo '</select> <input type="submit" value="Valider" />';
-      } 
+
+$reqcountbatatiment = $bdg->prepare('SELECT COUNT(*) AS nb FROM batiment WHERE idplanetebat = ? AND typebat = ?');
+// Requete pour la liste de construction et basé sur une limite :
+$reqmenuderoulantconstruction = $bdd->prepare('
+        SELECT  items.iditem, items.nombatiment, items.nomlimite FROM gamer.rech_joueur
+        RIGHT JOIN items ON rech_joueur.idrech = items.technescessaire
+        WHERE (items.technescessaire = 0 OR (rech_joueur.idjoueurrecherche = ? AND rech_joueur.rechposs = 1))
+        AND (items.typeitem <> "autre" AND items.typeitem <> "artefact")');
+$reqmenuderoulantconstruction->execute(array($_SESSION['id']));
+while ($repmenuderoulantconstruction = $reqmenuderoulantconstruction->fetch())
+    {
+    if(isset($repmenuderoulantconstruction['nomlimite']))
+        {
+        $limite = $repplanete["{$repmenuderoulantconstruction['nomlimite']}"] ;
+        $reqcountbatatiment->execute(array($_GET['id'], $repmenuderoulantconstruction['iditem']));
+        $repcountbatatiment = $reqcountbatatiment->fetch();
+        }
+    
+    if (!isset($repmenuderoulantconstruction['nomlimite']) OR $limite > $repcountbatatiment['nb'])
+        {
+        $a++;  // Variable permettant de gérer le cas ou on a aucune construction possible.
+        echo '<option value="'.$repmenuderoulantconstruction['iditem'].'">'.$repmenuderoulantconstruction['nombatiment'].'</option>';
+        }
+    }
+
+if ($a == 0)
+    {
+    echo '<option disabled selected>Pas de construction possible</option></select>';
+    }
+else
+    {
+    echo '</select> <input type="submit" value="Valider" />';
+    }
+echo '<input type="hidden" name="id" value="'.$_GET['id'].'">';
 echo '</p></form>'; // Fin formulaire pour les constructions.
  
 
@@ -198,7 +194,8 @@ while ($repconstencours = $reqconstencours->fetch())
       {
       echo 'et ' . $repconstencours['avancementtitane'] . ' métaux rares';
       }
-    echo ' pour le prochain.';
+    echo ' pour le prochain.';  
+    echo '<input type="hidden" name="id" value="'.$_GET['id'].'">';
     echo '<input id = "checkbox'.$repconstencours['idconst'].'" type="checkbox" name="perdreressources"/> <label for="checkbox'.$repconstencours['idconst'].'"></label>';
     echo '<input type="hidden" name="idconstruction" value="'.$repconstencours['idconst'].'">';
     echo '<input type="submit" formaction="script/gererconstruction.php?action=annuler" value="Annuler"/>';
@@ -210,11 +207,10 @@ while ($repconstencours = $reqconstencours->fetch())
     elseif ($repconstencours['ordredeconstruction']<1)
       { // La construction est sur pause.
       echo ' CONTRUCTION ARRÊTÉE <input type="submit" formaction="script/gererconstruction.php?action=reprise" value="Reprendre"/>';
-      }
-    
+      } 
     echo '</form></br>';
     
-    $reqmess->execute(array($typemessage , $repconstencours['idconst']));
+    $reqmess->execute(array($typemessage, $repconstencours['idconst']));
     $message = $reqmess->fetch() ;
     if (!empty($message['message']))
       {echo $message['message'] . '</br></br>' ; }
@@ -256,7 +252,6 @@ while ($repconstencours = $reqconstencours->fetch())
     echo '</form></br></br>';
     }
   }
-$reqconstencours->closeCursor();
 
 echo '<table class="silo"><caption><h3>Entrepôts</h3></caption><tr><td class="silo1ereligne">Objet</td><td class="silo1ereligne">Quantité</td><td class="silo1ereligne">Utilité</td></tr>';
 if ($repplanete['biens']>0)

@@ -59,7 +59,7 @@ else
         }
 
     $ecrirehangars = 1 ;
-    $reqvaiss = $bdg->prepare('SELECT v.idvaisseau, v.nomvaisseau, o.typeordre FROM vaisseau v LEFT JOIN ordredeplacement o ON o.idvaisseaudeplacement = v.idvaisseau WHERE v.idjoueurbat = ? AND v.typevaisseau = 5 ORDER BY v.idvaisseau');
+    $reqvaiss = $bdg->prepare('SELECT v.idvaisseau, v.nomvaisseau, o.typeordre FROM vaisseau v LEFT JOIN ordredeplacement o ON o.idvaisseaudeplacement = v.idvaisseau WHERE v.idjoueurvaisseau = ? AND v.typevaisseau = 5 ORDER BY v.idvaisseau');
     $reqvaiss->execute(array($_SESSION['id']));
     while ($repvaiss = $reqvaiss->fetch())
         {
@@ -125,7 +125,7 @@ else
 </form>
 <b><a class ="lienmenu" href="Administration.php">Admin</a></b></br> </br>
 <a class ="lienmenu" href="tour/test.php">test du tour</a> </br> 
-<a class ="lienmenu" href="test.php?id=2">test de page</a> </br>
+<a class ="lienmenu" href="test.php?id=4">test de page</a> </br>
 <a class ="lienmenu" href="script/test.php?table=autre&amp;backup=non">test de script</a> </br>
 <a class ="lienmenu" href="afaire.php">À faire</a> </br> </br>
 
