@@ -1,7 +1,14 @@
 <?php
 /* session_start();
-include("../script/BDDconnection.php");
+include("../include/BDDconnection.php");
 */
+
+$reqcreervariation = $bdg->prepare('INSERT INTO limiteplanete(idlimiteplanete) VALUES(?)');
+$reqplanetesansvariation = $bdg->query('SELECT p.idplanete FROM planete p LEFT JOIN limiteplanete l ON p.idplanete = l.idlimiteplanete WHERE l.idlimiteplanete IS NULL');
+while ($repplanetesansvariation = $reqplanetesansvariation->fetch())
+    {
+    $reqcreervariation->execute(array($repplanetesansvariation['idplanete']));
+    }
 
 // Vider la table de messages du tour.
 $bdg->exec('DELETE FROM messagetour');

@@ -15,17 +15,17 @@ $creationpop = $bdg->prepare('INSERT INTO population (idplanetepop) VALUES (?)')
 $message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess, numspemessage) VALUES (?, ?, ?, ?)") ; 
 
 // Gerer les planetes une par une.
-$reqgestionplanete = $bdg->query('SELECT    pl.tailleeffective, pl.idjoueurplanete, po.idplanetepop,
+$reqgestionplanete = $bdg->query('SELECT    l.popmax, pl.idjoueurplanete, p.idplanetepop,
                                             COUNT(*) AS population
-                                            FROM population AS po
-                                            INNER JOIN planete AS pl ON po.idplanetepop = pl.idplanete
-                                            GROUP BY po.idplanetepop');
-
+                                            FROM population AS p
+                                            INNER JOIN limiteplanete AS l ON p.idplanetepop = l.idlimiteplanete
+                                            INNER JOIN planete AS pl ON p.idplanetepop = pl.idplanete
+                                            GROUP BY p.idplanetepop');
 while ($repgestionplanete = $reqgestionplanete->fetch())
     {
-    if ($repgestionplanete['tailleeffective'] > $repgestionplanete['population'])
+    if ($repgestionplanete['popmax'] > $repgestionplanete['population'])
         {
-        $popenplus = rand(1 , 100) ;
+        $popenplus = rand(1, 100) ;
         if ($popenplus > 90) // change d'avoir une pop de plus : 10% de chance d'avoir une pop de plus !
             {
             $creationpop ->execute(array($repgestionplanete['idplanetepop']));

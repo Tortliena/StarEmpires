@@ -22,10 +22,10 @@ $reqinforecherche = $bdd->prepare('SELECT itemnecessaire, idrecherche FROM reche
 $reqinfoitem = $bdd->prepare('SELECT itemnecessaire FROM items WHERE technescessaire  = ?'); 
 $reqarbretechno = $bdd->prepare('SELECT idrecherche FROM recherche WHERE recherchenecessaire = ?'); 
 
-$reqprodrecherchejoueur = $bdg->query('SELECT idjoueur , recherche FROM variationstour ORDER BY idjoueur');
+$reqprodrecherchejoueur = $bdg->query('SELECT id, recherche FROM utilisateurs ORDER BY id');
   while ($infojoueur = $reqprodrecherchejoueur->fetch())
     {
-    $reqrecherencours ->execute(array($infojoueur['idjoueur']));
+    $reqrecherencours ->execute(array($infojoueur['id']));
     while ($reprecherencours = $reqrecherencours->fetch())
         { // Si pas assez de recherche, avancer la recherche. 
         if ($infojoueur['recherche'] + $reprecherencours['avrech'] < $reprecherencours['rechnesc'])
@@ -36,7 +36,7 @@ $reqprodrecherchejoueur = $bdg->query('SELECT idjoueur , recherche FROM variatio
         // Si assez de recherche, alors avancer la rechercher + la marquée comme possédée. 
         else
             {
-            $message->execute(array($infojoueur['idjoueur'], 'Vous venez de finir une recherche', 'recherche'));
+            $message->execute(array($infojoueur['id'], 'Vous venez de finir une recherche', 'recherche'));
             $reqinforecherche->execute(array($reprecherencours['idrech']));
             $repinforecherche = $reqinforecherche->fetch(); 
             
@@ -58,14 +58,13 @@ $reqprodrecherchejoueur = $bdg->query('SELECT idjoueur , recherche FROM variatio
             $reqarbretechno->execute(array($reprecherencours['idrech']));
             while ($reparbretechno = $reqarbretechno->fetch())
             	{
-            	creerrecherche($reparbretechno['idrecherche'], $infojoueur['idjoueur']);
+            	creerrecherche($reparbretechno['idrecherche'], $infojoueur['id']);
             	}
             }    
     	}
     }
-$reqrecherencours->closeCursor();
-$reponse->closeCursor();
 
+/*
 // Permet de créer une recherche lorsqu'on a un artefact en stock.
 $reqinfoartefact = $bdg->prepare("SELECT s.idjoueursilo, i.technescessaire FROM silo AS s INNER JOIN datawebsite.items AS i ON s.iditems = i.iditem WHERE i.typeitem = 'artefact'");
 $reqinfoartefact->execute(array());
@@ -75,4 +74,5 @@ while ($repinfoartefact = $reqinfoartefact->fetch())
     echo $repinfoartefact['idjoueursilo'] . ' id du joueur. </br>';
     creerrecherche($repinfoartefact['technescessaire'], $repinfoartefact['idjoueursilo']); 
     }
+*/
 ?>

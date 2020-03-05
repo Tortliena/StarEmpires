@@ -1,14 +1,14 @@
 <?php
 // Preparation des requêtes sql :
-$message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess , numspemessage) VALUES (? , ?, ? , ?)") ;
+$message = $bdg->prepare("INSERT INTO messagetour (idjoumess, message, domainemess, numspemessage) VALUES (?, ?, ? , ?)") ;
 
 // Gestion construction :
 $reqsupprimercontruction = $bdg->prepare('DELETE FROM construction WHERE idconst =  ? ');
-$diminutiondeun = $bdg->prepare('UPDATE construction SET nombre = nombre - 1 , avancementbiens = ? , avancementtitane = ?  WHERE idconst = ? ' );
-$reqconstruction = $bdg->prepare("SELECT * FROM construction WHERE idjoueurconst = ? AND ordredeconstruction > 0 ORDER BY ordredeconstruction ASC");
-$avancement = $bdg->prepare("UPDATE construction SET avancementbiens = ? , avancementtitane = ? WHERE idconst = ?");
-$construirebatiment = $bdg->prepare('INSERT INTO batiments (typebat, idjoueurbat) VALUES (?, ?)');
-$construirevaisseau = $bdg->prepare('INSERT INTO vaisseau (typevaisseau, idjoueurbat, univers) VALUES (?, ?, ?)');
+$diminutiondeun = $bdg->prepare('UPDATE construction SET nombre = nombre - 1, avancementbiens = ?, avancementtitane = ? WHERE idconst = ?');
+$reqconstruction = $bdg->prepare("SELECT * FROM construction WHERE idplaneteconst = ? AND ordredeconstruction > 0 ORDER BY ordredeconstruction ASC");
+$avancement = $bdg->prepare("UPDATE construction SET avancementbiens = ?, avancementtitane = ? WHERE idconst = ?");
+$construirebatiment = $bdg->prepare('INSERT INTO batiments (typebat, idplanetebat) VALUES (?, ?)');
+$construirevaisseau = $bdg->prepare('INSERT INTO vaisseau (typevaisseau, idjoueurbat, univers, x, y) VALUES (?, ?, ?, ?, ?)');
 
 // Cas des conceptions :
 $reqconceptioninfo = $bdg->prepare('SELECT v.nomvaisseau, c.idvaisseauconception, c.idnouvcomposant, c.typecomposant
@@ -23,28 +23,28 @@ $requpdatevaisseau = $bdg->prepare('UPDATE vaisseau SET HPmaxvaisseau = 1 WHERE 
 $requpdatedeplacement = $bdg->prepare('UPDATE ordredeplacement SET bloque = 1 WHERE idvaisseaudeplacement = ?');
 
 // Par ailleurs :
-$miseajourdesressources = $bdg->prepare("UPDATE utilisateurs SET biens = ? , titane = ? WHERE id = ?");
-$reqcategorie = $bdd->prepare("SELECT typeitem , nombatiment, itemnecessaire, nomlimite FROM items WHERE iditem = ?");
-$reqcomptebat = $bdg->prepare('SELECT COUNT(idbat) as nb FROM batiments WHERE typebat = ? AND idjoueurbat = ?');
+$miseajourdesressources = $bdg->prepare("UPDATE planete SET biens = ?, titane = ? WHERE idplanete = ?");
+$reqcategorie = $bdd->prepare("SELECT typeitem, nombatiment, itemnecessaire, nomlimite FROM items WHERE iditem = ?");
+$reqcomptebat = $bdg->prepare('SELECT COUNT(idbat) as nb FROM batiments WHERE typebat = ? AND idplanetebat = ?');
 
 //Gestion des construction joueur par joueur.
-$reqjoueur = $bdg->query('SELECT
-                        v.idjoueur idj ,
+$reqplanete = $bdg->query('SELECT
+                        v.idplanetevariation idj ,
                         v.chantier chantier ,
-                        u.biens biens ,
-                        u.titane ti
+                        p.biens biens ,
+                        p.titane ti
                         FROM variationstour v
-                        INNER JOIN utilisateurs u
-                        ON u.id = v.idjoueur
+                        INNER JOIN planete p
+                        ON p.idplanete = v.idplanetevariation
                         ORDER BY idj');
-    while ($repjoueur = $reqjoueur->fetch())
+    while ($repplanete = $reqplanete->fetch())
     { // Créer les variables qui vont être utilisées dans les boucles :
-    $chantier =  $repjoueur['chantier'] ;
-    $biens = $repjoueur['biens'] ;
-    $titane = $repjoueur['ti'] ;
+    $chantier =  $repplanete['chantier'] ;
+    $biens = $repplanete['biens'] ;
+    $titane = $repplanete['ti'] ;
 
     // Gestion des constructions une par une et uniquement celles du joueur sélectionné.
-    $reqconstruction->execute(array($repjoueur['idj']));
+    $reqconstruction->execute(array($repplanete['idj']));
     while ($repconstruction = $reqconstruction->fetch())
         { // Créer les variables qui vont être utilisées dans les boucles :
         $nb = $repconstruction['nombre'];
@@ -83,11 +83,11 @@ $reqjoueur = $bdg->query('SELECT
           {
           // On récupère la limite.
           $reqlimite = $bdg->prepare('SELECT '.$repcategorie['nomlimite'].' FROM limitesjoueurs WHERE id = ?');
-          $reqlimite->execute(array($repjoueur['idj']));
+          $reqlimite->execute(array($repplanete['idj']));
           $replimite = $reqlimite->fetch(); // $replimite['0']
 
           // On récupère le nombre de batiments actuels.
-          $reqcomptebat->execute(array($repconstruction['trucaconstruire'], $repjoueur['idj']));
+      $reqcomptebat->execute(array($repconstruction['trucaconstruire'], $repplanete['idj']));
           $repcomptebat = $reqcomptebat->fetch();  // $repcomptechantier['nb']
                
           if ($replimite['0']<=$repcomptebat['nb'])
@@ -106,7 +106,7 @@ $reqjoueur = $bdg->query('SELECT
             $biens = $biens - $minbiens ;
             if ($biens == 0)
                 {
-                $message ->execute(array($repjoueur['idj']  , 'Manque de biens !' , 'Construction' , $repconstruction['idconst'])) ;
+                $message ->execute(array($repplanete['idj']  , 'Manque de biens !' , 'Construction' , $repconstruction['idconst'])) ;
                 }
             }
         else {$nouvavbien = 0;}
@@ -123,7 +123,7 @@ $reqjoueur = $bdg->query('SELECT
 
         if ($chantier == 0 OR ($chantier < 5 AND $titane > 0)) 
             {
-            $message ->execute(array($repjoueur['idj']  , 'Manque d\'ouvriers !' , 'Construction' , $repconstruction['idconst'])) ;
+            $message ->execute(array($repplanete['idj']  , 'Manque d\'ouvriers !' , 'Construction' , $repconstruction['idconst'])) ;
             }
 
         // Si je peux finir le chantier : 
@@ -131,12 +131,12 @@ $reqjoueur = $bdg->query('SELECT
             {
             if ($repcategorie['typeitem'] == 'batiments')
                 { // cas des batiments
-                $construirebatiment->execute(array($repconstruction['trucaconstruire'], $repjoueur['idj'] ));
+                $construirebatiment->execute(array($repconstruction['trucaconstruire'], $repplanete['idj'] ));
                 }
 
             elseif ($repcategorie['typeitem'] == 'vaisseau')
                 { // cas des vaisseaux
-                $construirevaisseau->execute(array($repconstruction['trucaconstruire'], $repjoueur['idj'], $repjoueur['idj']));
+                $construirevaisseau->execute(array($repconstruction['trucaconstruire'], $repplanete['idj'], $repplanete['idj']));
                 }
 
             elseif ($repcategorie['typeitem'] == 'composant')
@@ -169,7 +169,7 @@ $reqjoueur = $bdg->query('SELECT
                 $recdebris = rand(75 , 150);
                 $biens = $biens + $recdebris;
                 $mess = 'Le recyclage des débris vous a rapporté ' . $recdebris . ' biens divers.' ;
-                $message ->execute(array($repjoueur['idj'] , $mess , 'Construction', 0));
+                $message ->execute(array($repplanete['idj'] , $mess , 'Construction', 0));
                 }
 
             elseif ($repconstruction['trucaconstruire'] == 9)
@@ -177,16 +177,16 @@ $reqjoueur = $bdg->query('SELECT
                 $recdebrisrare = rand(15 , 30);
                 $titane = $titane + $recdebrisrare;
                 $mess = 'Le recyclage des débris vous a rapporté ' . $recdebrisrare . ' unités de titane.' ;
-                $message ->execute(array($repjoueur['idj'] , $mess , 'Construction', 0));
+                $message ->execute(array($repplanete['idj'] , $mess , 'Construction', 0));
                 }
 
             if ($repconstruction['trucaconstruire'] != 7 AND $repconstruction['trucaconstruire'] != 9)
                 {
                 $mess = $repcategorie['nombatiment'].' : Construction finie' ;
-                $message ->execute(array($repjoueur['idj'] , $mess , 'Construction', 0));
+                $message ->execute(array($repplanete['idj'] , $mess , 'Construction', 0));
                 }
 
-            creerconsommeritems($repcategorie['itemnecessaire'], $itemaajouteraustock, $repjoueur['idj']);
+            creerconsommeritems($repcategorie['itemnecessaire'], $itemaajouteraustock, $repplanete['idj']);
             
             // Si je n'ai qu'un bâtiment à faire avant ou s'il ne me reste qu'un seul item en réserver :
             if ($nb < 2 OR $quantiteitemsnecessaire == 1)
@@ -215,8 +215,6 @@ $reqjoueur = $bdg->query('SELECT
             $avancement ->execute(array($nouvavbien, $nouvavtitane, $repconstruction['idconst']));
             }
         }
-    $miseajourdesressources->execute(array($biens, $titane, $repjoueur['idj'])); 
-    } 
-$reqconstruction->closeCursor();
-$reqjoueur->closeCursor();
+    $miseajourdesressources->execute(array($biens, $titane, $repplanete['idj'])); 
+    }
 ?>

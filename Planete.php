@@ -10,7 +10,7 @@ include("include/BDDconnection.php");
 <!DOCTYPE html><html><head><meta charset="utf-8" /><link rel="stylesheet" href="style.css" /><title>Mon super site</title></head>
 
 <body><?php include("include/menu.php");
-$reqplanete = $bdg->prepare('SELECT * FROM planete WHERE idplanete= ?');
+$reqplanete = $bdg->prepare('SELECT * FROM planete p INNER JOIN limiteplanete l ON l.idlimiteplanete WHERE p.idplanete = ?');
 $reqplanete->execute(array($_GET['id']));
 $repplanete = $reqplanete->fetch();
 if ($repplanete['idjoueurplanete'] != $_SESSION['id'])
@@ -40,7 +40,7 @@ $reqcompterpop->execute(array($_GET['id']));
 $repcompterpop = $reqcompterpop->fetch();
 
 echo '<h2>Population et bâtiments :</h2>';
-echo $repcompterpop['population']. '/'.$repplanete['tailleeffective'].' unités de population au total, composée de '.$repcompterpop['citoyens'].' citoyen(s) ; '.$repcompterpop['ouvriers'].' ouvrier(s) ; '.$repcompterpop['scientifiques'].' scientifique(s)' ;
+echo $repcompterpop['population']. '/'.$repplanete['popmax'].' unités de population au total, composée de '.$repcompterpop['citoyens'].' citoyen(s) ; '.$repcompterpop['ouvriers'].' ouvrier(s) ; '.$repcompterpop['scientifiques'].' scientifique(s)' ;
 
 
 // Formulaire de conversion des pops
