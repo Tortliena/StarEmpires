@@ -8,7 +8,7 @@ echo $_SESSION['id'] . '</br>' ;
 echo $_POST['combien'] . '</br>';
 echo $_POST['popdepart'] . '</br>';
 echo $_POST['poparrivee'] . '</br>';
-echo $_POST['idplanete'] . '</br>';
+echo $_POST['id'] . '</br>';
 echo $_POST['supprimer'] . '</br>';
 */
 
