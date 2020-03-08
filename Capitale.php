@@ -1,30 +1,21 @@
 <?php
 session_start();
-If (!$_SESSION['pseudo'])
-{
+if (!$_SESSION['pseudo'])
+	{
     header('Location: Accueil.php');
     exit(); 
-}
+	}
 include("include/BDDconnection.php");
 ?>
 
-<!DOCTYPE html>
-<html>
-    <head>
-           <meta charset="utf-8" />
-           <link rel="stylesheet" href="style.css" />
-           <title>Mon super site</title>
-	</head>
-  <body>
-    <?php include("include/menu.php"); ?>
-
-  <div class="corps">
-    <h1>CAPITALE</h1>
+<!DOCTYPE html><html><head><meta charset="utf-8"/><link rel="stylesheet" href="style.css"/><title>Mon super site</title></head>
+<body><?php include("include/menu.php"); ?><div class="corps">
+<h1>CAPITALE</h1>
     
-    <?php
-    include("include/message.php") ; 
-    $typemessage = 'capitale' ;
-    include("include/resume.php");
+<?php
+include("include/message.php") ; 
+$typemessage = 'capitale' ;
+include("include/resume.php");
 
 $reqinfoutilisateur = $bdg->prepare('SELECT * FROM utilisateurs WHERE id= ?');
 $reqinfoutilisateur->execute(array($_SESSION['id']));
@@ -33,6 +24,17 @@ $repinfoutilisateur = $reqinfoutilisateur->fetch();
 $recuperereventencours = $bdg->prepare('SELECT * FROM choixevents WHERE idjoueurevent= ?');
 $recuperereventencours->execute(array($_SESSION['id']));
 $eventencours = $recuperereventencours->fetch();
+
+echo '<h3>Stats d\'empire :</h3>';
+$reqcompterpop = $bdg->prepare('SELECT  COUNT(*) AS nbpop,
+                                        COUNT(DISTINCT pl.idplanete) AS nbpla
+                                        FROM population po
+                                        INNER JOIN planete pl ON pl.idplanete = po.idplanetepop
+                                        WHERE pl.idjoueurplanete = ?');
+$reqcompterpop->execute(array($_SESSION['id']));                                   
+$repcompterpop = $reqcompterpop->fetch();
+
+echo 'Votre empire compte '.$repcompterpop['nbpop'].' de population réparti sur '.$repcompterpop['nbpla'].' planètes.</br>'; 
 
 if (isset($eventencours['texteevent']))
   {
@@ -69,14 +71,14 @@ if (isset($eventencours['texteevent']))
     }
   }
 
-  echo '<h2>Objectifs :</h2>';
+  echo '</br><h3>Objectifs :</h3>';
   switch ($repinfoutilisateur['lvl'])
   { 
       case 0:
           echo "Former un chercheur et un ouvrier.</br>";
           echo "Vous pouvez passer des tours en cliquant sur 'passer le tour'.</br>";
-          echo "Pour former des specialistes, vous pouvez passer par la page planete.</br>";
-          echo "Facultatif : Donner un meilleur nom a votre planete.</br>";
+          echo "Pour former des spécialistes, vous pouvez passer par la page planète.</br>";
+          echo "Facultatif : Donner un meilleur nom a votre planète.</br>";
       break;
       case 1:
           echo "Finir la recherche sur les moteurs.</br>";
@@ -84,21 +86,21 @@ if (isset($eventencours['texteevent']))
       break;
       case 2:
           echo "Construire un vaisseau spatial et le sortir dans l'espace.</br>";
-          echo "Construction : Aller sur la page dediee a votre planete, dans la partie chantier.</br>";
+          echo "Construction : Aller sur la page dediée à votre planète, dans la partie chantier.</br>";
           echo "Pour diriger le vaisseau, aller sur la page dédiée qui devrait apparaitre après sa construction.</br>";
           echo "Facultatif : Finir les recherches sur les chantiers et les centres de recherche. Vous pourrez plus tard recruter plus d'ouvriers et de chercheurs.</br>";
           echo "Facultatif : Renommer votre vaisseau quand il est construit. Cela pourra vous aider.</br>";
       break;
       case 3:
-          echo "Explorer les environs et trouver quelque chose d'intéressant.</br>";
+          echo "Explorer les environs et trouver un nouveau monde pour le coloniser.</br>";
           echo "Pour se déplacer : Vous pouvez cliquer sur la carte puis valider l'ordre.</br>";
+          echo "Vous devriez avoir des options pour intéragir avec ce que vous allez trouver dans l'espace.</br>";
           echo "Facultatif : Avec deux vaisseaux, cela ira plus vite. Et avec plus d'ouvriers et de chercheurs, vous pourrez progresser plus vite.</br>";
       break;
       case 4:
           echo "Vous venez de trouver quelques astéroides et une planète. Cela va assurer à votre peuple une prospérité à court-moyen terme.</br>";
-          echo "Vous pouvez déplacer un vaisseau sur un champs d'astéroides, et vous aurez une option pour miner. Ramener le vaisseau avec sa cargaison sur votre planète et vous aurez une option pour déposer votre butin.</br>";
-          echo "Continuez d'explorer en parallèle.</br>";
-          echo "Facultatif : Faire la recherche sur les bases lunaires et commencer la production.</br>";
+          echo "Continuez d'explorer et de vous développer.</br>";
+          echo "Facultatif : Faire la recherche sur les bases lunaires et commencer la production de celle-ci sur votre seconde planète.</br>";
       break;
       case 5:
           echo "Votre vaisseau d'exploration est lourdement endommagé. Vous avez aussi trouvé de multiples ressources à exploiter et une nouvelle planète nécessitant un gros investissement.</br>";

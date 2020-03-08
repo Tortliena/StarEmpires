@@ -55,7 +55,7 @@ $reqdeplacementbloque = $bdg->prepare('INSERT INTO ordredeplacement (idvaisseaud
 // 9 = ordre spécial pour les design. bloque = 2 = impossible de supprimer/modifier.
 $reqdeplacementbloque->execute(array($dernierID, -1, -1, -1, $_SESSION['id'], 9, 2));
 
-include("../tour/fonctionsdutour.php");
+include("../function/caracteristiquesvaisseau.php");
 caracteristiquesvaisesau ($dernierID, $_SESSION['id']);
 
 header('Location: ../design.php?message=55');
