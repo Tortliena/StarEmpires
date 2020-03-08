@@ -1,14 +1,12 @@
 <?php
 /*
 session_start();
-include("../script/BDDconnection.php");
+include("../include/BDDconnection.php");
 */
 
 // Tour en cours : $touractuel['id']
 $reponse = $bda->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1');
 $touractuel = $reponse->fetch();
-$reponse->closeCursor();
-// echo $touractuel['id'] . '</br>'; 
 
 // Compter le nombre de case explorées et seulement celles AVANT et du joueur.
 $reqexploration = $bdg->prepare('SELECT idexplore , x , y, univers, idexplorateur FROM explore WHERE tourexploration = ?');
@@ -16,10 +14,10 @@ $reqcompterexplo = $bdg->prepare('SELECT COUNT(*) AS nbcaseexplo  FROM explore W
 
 $reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)');
 $reqcreerasteroides = $bda->prepare('INSERT INTO champsasteroides (xaste , yaste , uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)');
-$reqcreerplanete = $bda->prepare('INSERT INTO planete(xplanete, yplanete, universplanete, taille, lune) VALUES(?, ?, ?, ?, ?)');
+$reqcreerplanete = $bdg->prepare('INSERT INTO planete(xplanete, yplanete, universplanete, taille, lune, biens) VALUES(?, ?, ?, ?, ?)');
 
 // Créer vaisseau
-$reqcreervaiseau = $bdg->prepare('INSERT INTO vaisseau(idjoueurbat, typevaisseau, x, y, univers, nomvaisseau, HPmaxvaisseau, HPvaisseau) VALUES(?, ?, ?, ?, ?, ?, ?, ?)');
+$reqcreervaiseau = $bdg->prepare('INSERT INTO vaisseau(idjoueurvaisseau, x, y, univers, nomvaisseau, HPmaxvaisseau, HPvaisseau) VALUES(?, ?, ?, ?, ?, ?, ?)');
 $reqinfovaisseau = $bdg->prepare('SELECT idvaisseau FROM vaisseau ORDER BY idvaisseau DESC LIMIT 1');
 $reqcreercomposant = $bdg->prepare('INSERT INTO composantvaisseau(idvaisseaucompo, iditemcomposant, typecomposant) VALUES(?, ?, ?)');
 $reqcreerordredeplacement = $bdg->prepare('INSERT INTO ordredeplacement(idvaisseaudeplacement, xdestination, ydestination, universdestination, idjoueurduvaisseau, typeordre, bloque) VALUES(?, ?, ?, ?, ?, ?, ?)');
@@ -54,7 +52,7 @@ while ($repexplorationexistante = $reqexploration->fetch())
             break;
 
             case 7:
-            	$reqcreerplanete->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 4, 1));
+              $reqcreerplanete->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 4, 1, 10));
                 $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Planète habitable', 'Nous venons de trouver une nouvelle planète. Nous allons pouvoir la coloniser. Elle dispose aussi d\'une lune sur laquelle nous allons pouvoir installer une base en déployant d\'énormes ressources. Nous devrions commencer les recherches pour développer l\'équipement nécessaire.'));   
             break;
 
@@ -119,4 +117,3 @@ while ($repexplorationexistante = $reqexploration->fetch())
             }
         }
     }
-

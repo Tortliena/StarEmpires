@@ -25,8 +25,8 @@ if (empty($_POST['nouveaunom']))
 
 if ($_POST['type'] == 'vaisseau')
 	{
-	$renommervaisseau = $bdg->prepare('UPDATE vaisseau SET nomvaisseau = ? WHERE idvaisseau = ? AND idjoueurbat = ?' );
-	$renommervaisseau->execute(array($_POST['nouveaunom'] , $_POST['id'], $_SESSION['id']));
+	$renommervaisseau = $bdg->prepare('UPDATE vaisseau SET nomvaisseau = ? WHERE idvaisseau = ? AND idjoueurvaisseau = ?' );
+	$renommervaisseau->execute(array($_POST['nouveaunom'], $_POST['id'], $_SESSION['id']));
 	header("location: ../hangars.php?message=26&id=" . urlencode($_POST['id']));
 	exit();
 	}

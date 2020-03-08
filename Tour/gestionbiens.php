@@ -8,7 +8,6 @@ $applicationvariationdutour = $bdg->prepare("   UPDATE planete SET biens =
                                                 (CASE WHEN (biens < ?) THEN 0 ELSE (biens - ?) END)
                                                 where idplanete = ? ");
 
-
 $message = $bdg->prepare("INSERT INTO messagetour (idjoumess, message, domainemess, numspemessage) VALUES ( ? , ? , ?, ?)"); 
 
 // Changer des pops dans les cas :

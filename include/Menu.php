@@ -42,12 +42,12 @@ else
     echo '<a class ="lienmenu"  href="Capitale.php">Capitale</a> </br>';
 	if ($replvl['lvl'] > 0)
         { 
-        echo '<a class ="lienmenu" href="recherche.php">Recherche</a></br>';
+        echo '<a class ="lienmenu" href="Recherche.php">Recherche</a></br>';
 	    }
 
 	if ($replvl['lvl'] > 7) 
         {
-        echo '<a class ="lienmenu" href="design.php">Conception</a></br>';
+        echo '<a class ="lienmenu" href="Conception.php">Conception</a></br>';
         }
 
  	echo '</br><span class = "titremenu">Planètes</span></br>';
@@ -59,7 +59,7 @@ else
         }
 
     $ecrirehangars = 1 ;
-    $reqvaiss = $bdg->prepare('SELECT v.idvaisseau, v.nomvaisseau, o.typeordre FROM vaisseau v LEFT JOIN ordredeplacement o ON o.idvaisseaudeplacement = v.idvaisseau WHERE v.idjoueurvaisseau = ? AND v.typevaisseau = 5 ORDER BY v.idvaisseau');
+    $reqvaiss = $bdg->prepare('SELECT v.idvaisseau, v.nomvaisseau, o.typeordre FROM vaisseau v LEFT JOIN ordredeplacement o ON o.idvaisseaudeplacement = v.idvaisseau WHERE v.idjoueurvaisseau = ? ORDER BY v.idvaisseau');
     $reqvaiss->execute(array($_SESSION['id']));
     while ($repvaiss = $reqvaiss->fetch())
         {
@@ -106,6 +106,10 @@ else
             case 10:
             echo "Saut dimensionnel";
             break;
+
+            case 11:
+            echo "Colonisation";
+            break;
                 
             default:
             echo "ordre special !";
@@ -125,7 +129,7 @@ else
 </form>
 <b><a class ="lienmenu" href="Administration.php">Admin</a></b></br> </br>
 <a class ="lienmenu" href="tour/test.php">test du tour</a> </br> 
-<a class ="lienmenu" href="test.php?id=4">test de page</a> </br>
+<a class ="lienmenu" href="test.php?id=1">test de page</a> </br>
 <a class ="lienmenu" href="script/test.php?table=autre&amp;backup=non">test de script</a> </br>
 <a class ="lienmenu" href="afaire.php">À faire</a> </br> </br>
 

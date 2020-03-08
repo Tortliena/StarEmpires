@@ -3,7 +3,7 @@ session_start();
 if (!$_SESSION['pseudo'])
   {
   header('Location: Accueil.php');
-  exit(); 
+  exit();
   }
 include("include/BDDconnection.php");
 ?>
@@ -14,11 +14,26 @@ include("include/BDDconnection.php");
 $reqvaisseau = $bdg->prepare('SELECT * FROM vaisseau WHERE idvaisseau = ?');
 $reqvaisseau->execute(array($_GET['id']));
 $repvaisseau = $reqvaisseau->fetch();
-if ($repvaisseau['idjoueurbat'] != $_SESSION['id'])
-  { header('Location: Accueil.php'); exit(); } ?>
+if ($repvaisseau['idjoueurvaisseau'] != $_SESSION['id'])
+  { header('Location: Accueil.php'); exit(); }
+
+if ($repvaisseau['univers'] == 0)
+  {
+  $reqplanete = $bdg->prepare('SELECT idplanete, idjoueurplanete FROM planete WHERE idplanete = ? LIMIT 1');
+  $reqplanete->execute(array($repvaisseau['x']));
+  $repplanete = $reqplanete->fetch();
+  }
+else 
+  {
+  $reqplanete = $bdg->prepare('SELECT idplanete, idjoueurplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? LIMIT 1');
+  $reqplanete->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers']));
+  $repplanete = $reqplanete->fetch();
+  }
+
+?>
 
 <div class="corps">
-<form method="post" action="script/renommer.php"><h1>Vaisseau : <?php echo $repvaisseau['nomvaisseau'] ;?>
+<form method="post" action="script/renommer.php"><h1>Vaisseau : <?php echo $repvaisseau['nomvaisseau'] ;?> 
 <input type="text" name="nouveaunom" id="nouveaunom" placeholder="nouveau nom" size="25" maxlength="80" />
 <input name="id" type="hidden" value="<?php echo $_GET['id'] ;?>">
 <input name="type" type="hidden" value="vaisseau">
@@ -29,7 +44,7 @@ include("include/message.php");
 $typemessage = 'vaisseau' ;
 include("include/resume.php");
 
-include("include/fonctionhangars.php");
+include("function/fonctionhangars.php");
 
 $reqcomposantsurlevaisseau = $bdd->prepare("SELECT i.nombatiment FROM gamer.composantvaisseau c
           INNER JOIN items i ON i.iditem = c.iditemcomposant
@@ -65,11 +80,7 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
   if ($a != 0)
     {
     $texteexplication .= '. ';
-    if  ($repvaisseau['univers'] == $_SESSION['id']
-        AND
-        (($repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3) // Proche de la planète
-        OR
-        ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0))) // Au hangars
+    if  ($repplanete['idjoueurplanete'] == $_SESSION['id'] OR $repvaisseau['y'] == 0) // Au hangars
       { // Formulaire pour décharger le cargo. Ne s'exécute que si on a quelque chose en soute ($a)
       formulaireordredeplacement(2, $_GET['id'], $texteexplication, 0, 0, 0);
       }
@@ -113,9 +124,8 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
 
 // requetes pour la carte et/ou les ordres.
 $reqdect = $bdg->prepare('SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? LIMIT 1');
-$reqplanete = $bdg->prepare('SELECT idplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? LIMIT 1');
 $reqasteroide = $bda->prepare('SELECT idasteroide , quantite , typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
-$reqvaisseaucarte = $bdg->prepare('SELECT idvaisseau FROM vaisseau WHERE x = ? AND y = ? AND univers = ? AND idjoueurbat <> ? LIMIT 1');
+$reqvaisseaucarte = $bdg->prepare('SELECT idvaisseau FROM vaisseau WHERE x = ? AND y = ? AND univers = ? AND idjoueurvaisseau <> ? LIMIT 1');
 
 // Permet de récupérer les ordres de déplacement en cours.
 $ordredeplacementactuel = $bdg->prepare('SELECT * FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
@@ -142,7 +152,7 @@ $reqarmesurvaisseau->execute(array($_GET['id']));
 $reparmesurvaisseau = $reqarmesurvaisseau->fetch();
 
 // Détection 
-$reqdetectionvaisseauennemi = $bdg->prepare("SELECT idvaisseau, nomvaisseau FROM vaisseau WHERE idjoueurbat <> ? AND univers = ? AND x = ? AND y = ? AND x <> 0");
+$reqdetectionvaisseauennemi = $bdg->prepare("SELECT idvaisseau, nomvaisseau FROM vaisseau WHERE idjoueurvaisseau <> ? AND univers = ? AND x = ? AND y = ? AND x <> 0");
 $reqdetectionvaisseauennemi->execute(array($_SESSION['id'], $repvaisseau['univers'], $repvaisseau['x'], $repvaisseau['y']));
 while($repdetectionvaisseauennemi = $reqdetectionvaisseauennemi->fetch())
   {
@@ -156,7 +166,7 @@ while($repdetectionvaisseauennemi = $reqdetectionvaisseauennemi->fetch())
     }
   }
 
-$reqdetectionvaisseau = $bdg->prepare("SELECT idvaisseau, nomvaisseau FROM vaisseau WHERE idjoueurbat = ? AND univers = ? AND x = ? AND y = ? AND  idvaisseau <> ? AND x <> 0");
+$reqdetectionvaisseau = $bdg->prepare("SELECT idvaisseau, nomvaisseau FROM vaisseau WHERE idjoueurvaisseau = ? AND univers = ? AND x = ? AND y = ? AND  idvaisseau <> ? AND x <> 0");
 $reqdetectionvaisseau->execute(array($_SESSION['id'], $repvaisseau['univers'], $repvaisseau['x'], $repvaisseau['y'], $repvaisseau['idvaisseau']));
 while($repdetectionvaisseau = $reqdetectionvaisseau->fetch())
   {
@@ -164,9 +174,8 @@ while($repdetectionvaisseau = $reqdetectionvaisseau->fetch())
   }
 
 // Si le vaisseau est au hangars : 
-if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'] == $_SESSION['id'])
+if ($repvaisseau['y'] == 0 AND $repvaisseau['univers'] == 0)
   {
-
   $reqcomposantsurlevaisseau->execute(array($_GET['id'], 'noyau'));
   $repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch();
   if (isset($repcomposantsurlevaisseau['nombatiment']))
@@ -180,8 +189,11 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
     annulerordrededeplacement($reponseordredeplacementactuel['typeordre'], $_GET['id'], $reponseordredeplacementactuel['xdestination'], $reponseordredeplacementactuel['ydestination'], $reponseordredeplacementactuel['bloque']);
     }
 
+  $reqinfoplanete = $bdg->prepare('SELECT nomplanete, xplanete, yplanete, universplanete FROM planete WHERE idplanete = ?');
+  $reqinfoplanete->execute(array($repvaisseau['x']));
+  $repinfoplanete = $reqinfoplanete->fetch();
   // Ordre de sortir du hangars.
-  formulaireordredeplacement(4, $_GET['id'], 0, 0, 0, 0);
+  formulaireordredeplacement(4, $_GET['id'], 0, 0, 0, $repinfoplanete['nomplanete']);
 
   // Permet d'afficher cette partie avec le niveau suffisant.
   if ($replvl['lvl']>=6)
@@ -189,22 +201,22 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
     // Afficher ce qui est actuellement sur votre vaisseau. 
     echo '<h2>Composants dans votre vaisseau :</h2>';
     
-    composanthangars('moteur', $_SESSION['id'], $_GET['id']);
+    composanthangars('moteur', $_SESSION['id'], $_GET['id'], $repplanete['idplanete']);
 
-    composanthangars('soute', $_SESSION['id'], $_GET['id']);
+    composanthangars('soute', $_SESSION['id'], $_GET['id'], $repplanete['idplanete']);
 
-    composanthangars('arme', $_SESSION['id'], $_GET['id']);
+    composanthangars('arme', $_SESSION['id'], $_GET['id'], $repplanete['idplanete']);
 
     if ($replvl['lvl']>=8)
       {
       // Donner accès à cette partie plus tard dans les niveaux.
-      composanthangars('coque', $_SESSION['id'], $_GET['id']);
+      composanthangars('coque', $_SESSION['id'], $_GET['id'], $repplanete['idplanete']);
       }
 
     if ($replvl['lvl']>=10)
       {
       // Donner accès à cette partie plus tard dans les niveaux.
-      composanthangars('noyau', $_SESSION['id'], $_GET['id']);
+      composanthangars('noyau', $_SESSION['id'], $_GET['id'], $repplanete['idplanete']);
       }
 
     echo '<h2>Composants dans les stocks :</h2>';
@@ -213,13 +225,14 @@ if ($repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'
                     FROM gamer.silo s
                     INNER JOIN items i
                     ON i.iditem = s.iditems
-                    WHERE s.idjoueursilo = ?
+                    WHERE s.idplanetesilo = ?
                     AND i.typeitem = 'composant'");
-    $reqsiloitems->execute(array($_SESSION['id']));
+    $reqsiloitems->execute(array($repplanete['idplanete']));
 
     $b = 0; // Permet de gérer le cas avec 0 composant en stock
     while($repsiloitems = $reqsiloitems->fetch())
-      { 
+      {
+
       if ($repsiloitems['quantite']>0)
         {
         $b++;
@@ -258,8 +271,8 @@ else
     $xymax = 20 ; // valeurs maximales de la carte.
     }
 
-  // Si le vaisseau se trouve en orbite de la planète mère :
-  if ($repvaisseau['x'] == 3 AND $repvaisseau['y'] == 3 AND $repvaisseau['univers'] == $_SESSION['id'])
+  // Si le vaisseau se trouve proche de l'une de nos planètes.
+  if ($repplanete['idjoueurplanete'] == $_SESSION['id'])
     {
     // Formulaire pour rentrer en orbite : ordre de type 3.
     formulaireordredeplacement(3, $_GET['id'], 0, 0, 0, 0);
@@ -282,6 +295,13 @@ else
       {
       formulaireordredeplacement(0, $_GET['id'], 0, $repvaisseau['x'], $repvaisseau['y'], $xymax);
       }
+
+    // Formulaire pour coloniser
+    if (isset($repplanete['idjoueurplanete']) AND $repplanete['idjoueurplanete'] != $_SESSION['id'])
+      {
+      formulaireordredeplacement(11, $_GET['id'], 0, $repplanete['idplanete'], 0, 0);
+      }
+
 
     // Carte spatiale :
     for ($y = 0 ; $y <= $xymax ; $y++)

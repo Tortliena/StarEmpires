@@ -2,13 +2,13 @@
 session_start();
 include("../include/BDDconnection.php");
 
-/*
+
 echo $_SESSION['pseudo'] . '</br>' ;
 echo $_SESSION['id'] . '</br>' ;
 echo $_POST['perdreressources'] . '</br>' ;
 echo $_POST['idconstruction'] . '</br>' ;
 echo $_POST['id'] . '</br>' ;
-*/
+
 
 //Vérifier propriétaire de la construction.  
 $reqproprietaireordreconstruction = $bdg->prepare('SELECT * FROM construction WHERE idconst = ?');
@@ -22,35 +22,35 @@ if ($repproprietaireordreconstruction['idplaneteconst'] != $_POST['id'])
 
 if ($_GET['action'] == 'annuler' AND $repproprietaireordreconstruction['trucaconstruire'] > 0) 
     { // Truc à construire doit être supérieur à 1, car sinon on a aussi des conceptions et problème avec déplacement/conception.
-    // Si pas d'avancement, on supprime tout.
-    if ($repproprietaireordreconstruction['avancementbiens'] == $repproprietaireordreconstruction['prixbiens'] AND $repproprietaireordreconstruction['avancementtitane'] == $repproprietaireordreconstruction['prixtitane'])
+    $reqinfoitem = $bdd->prepare('SELECT itemnecessaire FROM items WHERE iditem = ?');
+    $reqinfoitem->execute(array($repproprietaireordreconstruction['trucaconstruire'])); 
+    $repinfoitem = $reqinfoitem->fetch();
+
+    include("../function/consommercreeritemsplanetemultiple.php");
+
+    // Si pas d'avancement ou si on a coché la case on supprime tout.
+    if (($repproprietaireordreconstruction['avancementbiens'] == $repproprietaireordreconstruction['prixbiens'] AND $repproprietaireordreconstruction['avancementtitane'] == $repproprietaireordreconstruction['prixtitane']) OR isset($_POST['perdreressources']))
         {
         $stmt = $bdg->prepare("DELETE FROM construction WHERE idconst = :idconst");
         $stmt->bindParam(':idconst', $_POST['idconstruction'], PDO::PARAM_INT);
         $stmt->execute();
+        consommercreeritemsplanetemultiple(0, $repinfoitem['itemnecessaire'], $_POST['id'], $repproprietaireordreconstruction['nombre']);
         header("location: ../planete.php?message=13&id=" . urlencode($_POST['id']));
         exit(); 
-        }
-
-    // Si avancé et pas coché, alors on ne laisse qu'une seule construction et on renvoie vers la page avec un message d'alerte.
-    elseif (!isset($_POST['perdreressources']))
-        {
+        }  
+    else
+        {// Si avancé et pas coché, alors on ne laisse qu'une seule construction et on renvoie vers la page avec un message d'alerte.
         $stmt = $bdg->prepare("UPDATE construction SET nombre = 1 WHERE idconst = :idconst");
         $stmt->bindParam(':idconst', $_POST['idconstruction'], PDO::PARAM_INT);
         $stmt->execute();
+        for ($i = 2; $i <= $repproprietaireordreconstruction['nombre']; $i++)
+            { // On va rembourser la quantité en cours -1 (intérêt du 2)
+            creerconsommeritems(0, $repinfoitem['itemnecessaire'], $_POST['id']);
+            }
         header("location: ../planete.php?message=14&id=" . urlencode($_POST['id']));
         exit(); 
         }
 
-    // Si avancé et coché, on delete.
-    else
-        {
-        $stmt = $bdg->prepare("DELETE FROM construction WHERE idconst = :idconst");
-        $stmt->bindParam(':idconst', $_POST['idconstruction'], PDO::PARAM_INT); 
-        $stmt->execute();
-        header("location: ../planete.php?message=13&id=" . urlencode($_POST['id']));
-        exit(); 
-        }
     } // Fin annulation de la construction.
 
 elseif ($_GET['action'] == 'deprioriser')

@@ -10,16 +10,16 @@ include("include/BDDconnection.php");
 <!DOCTYPE html><html><head><meta charset="utf-8" /><link rel="stylesheet" href="style.css" /><title>Mon super site</title></head>
 
 <body><?php include("include/menu.php");?><div class="corps"><?php
-$reqplanete = $bdg->prepare('SELECT * FROM planete p INNER JOIN limiteplanete l ON l.idlimiteplanete WHERE p.idplanete = ?');
+$reqplanete = $bdg->prepare('SELECT * FROM planete p LEFT JOIN limiteplanete l ON l.idlimiteplanete = p.idplanete WHERE p.idplanete = ?');
 $reqplanete->execute(array($_GET['id']));
 $repplanete = $reqplanete->fetch();
 if ($repplanete['idjoueurplanete'] != $_SESSION['id'])
     {
-    //header('Location: Accueil.php'); exit();
+    header('Location: Accueil.php'); exit();
     } ?>
    
 <form method="post" action="script/renommer.php"><h1>Planete : <?php echo $repplanete['nomplanete'] ;?> 
-<input type="text" name="nouveaunom" id="nouveaunom" placeholder="nouveau nom" size="25" maxlength="80" />
+<input type="text" name="nouveaunom" id="nouveaunom" placeholder="nouveau nom" size="25" maxlength="80"/>
 <input name="id" type="hidden" value="<?php echo $_GET['id'] ;?>">
 <input name="type" type="hidden" value="planete">
 <input type="submit" value="Renommer"/></h1></form>
@@ -38,9 +38,20 @@ $reqcompterpop = $bdg->prepare('SELECT  COUNT(*) AS population,
 $reqcompterpop->execute(array($_GET['id']));                                   
 $repcompterpop = $reqcompterpop->fetch();
 
-echo '<h2>Population et bâtiments :</h2>';
-echo $repcompterpop['population']. '/'.$repplanete['popmax'].' unités de population au total, composée de '.$repcompterpop['citoyens'].' citoyen(s) ; '.$repcompterpop['ouvriers'].' ouvrier(s) ; '.$repcompterpop['scientifiques'].' scientifique(s)' ;
+echo 'Taille : '.$repplanete['taille'].' (population maximale de base de la planète).</br>';
+if ($repplanete['lune'] > 0)
+  {
+  echo 'Lunes : '.$repplanete['lune'].' (permet de construire des bâtiments particuliers).</br>'; 
+  }
 
+echo '</br><h2>Population et bâtiments :</h2>';
+echo $repcompterpop['population']. '/'.$repplanete['popmax'].' unités de population au total, composée de '.$repcompterpop['citoyens'].' citoyen(s) ; '.$repcompterpop['ouvriers'].'/'.$repplanete['ouvriermax'].' ouvrier(s) ; '.$repcompterpop['scientifiques'].'/'.$repplanete['scientmax'].' scientifique(s).</br>' ;
+
+// Affichage de la prod des biens.
+$reqprod = $bdg->prepare('SELECT prodbiens, consobiens FROM variationstour WHERE idplanetevariation = ?');
+$reqprod->execute(array($_GET['id']));
+$prodbiens = $reqprod->fetch();
+echo 'Au dernier tour, tu en as produit '.$prodbiens['prodbiens'].' et consommé '.$prodbiens['consobiens'].' biens divers.</br>';
 
 // Formulaire de conversion des pops
 echo '<form method="post" action="script/conversionpop.php"><p>';
@@ -85,37 +96,29 @@ $reqcompterbatiment = $bdg->prepare('SELECT sum(case when typebat = 1 then 1 els
 $reqcompterbatiment->execute(array($_GET['id']));
 $repcompterbatiment = $reqcompterbatiment->fetch();
 
-/*
-// Afficher le nombre de centre de recherche :
-$reqcountrecherche = $bdg->prepare('SELECT COUNT(*) AS nbdecentrederecherche FROM batiments WHERE idjoueurbat = ? AND typebat = 1');
-$reqcountrecherche->execute(array($_SESSION['id']));
-$repcountrecherche = $reqcountrecherche->fetch();
-
-$reqlimitechercheur = $bdg->prepare('SELECT scientmax FROM limitesjoueurs WHERE id = ?');
-$reqlimitechercheur->execute(array($_SESSION['id']));
-$replimitechercheur = $reqlimitechercheur->fetch();
-*/
-
-/*
-$total = $repcompterbaselunaire['nb'] + $repcomptermegalopole['nb'] + 8 ; 
-echo '</br></br>Population max : 8 + ' . $repcomptermegalopole['nb'] . '/' . $repinfolimites['maxmegalopole'] . ' mégalopole ';
-if ($repinfoutilisateur['lvl']>4)
+if(!isset($repcompterbatiment['centrederecherche'])){$repcompterbatiment['centrederecherche']=0;}
+if(!isset($repcompterbatiment['chantier'])){$repcompterbatiment['chantier']=0;}
+if(!isset($repcompterbatiment['megalopole'])){$repcompterbatiment['megalopole']=0;}
+if(!isset($repcompterbatiment['baselunaire'])){$repcompterbatiment['baselunaire']=0;}
+echo 'Chantier : '.$repcompterbatiment['chantier'].'/'.$repplanete['maxchantier'].' (permet d\'avoir 5 ouvriers).</br>';
+echo 'Centre de recherche : '.$repcompterbatiment['centrederecherche'].'/'.$repplanete['maxcentrederecherche'].' (permet d\'avoir 5 scientifiques).</br>';
+echo 'Mégalopoles : '.$repcompterbatiment['megalopole'].'/'.$repplanete['maxmegalopole'].' (augmente la pop max et une constructible par tranche de 4 pop).</br>';
+if ($repplanete['lune'] > 0)
   {
-  echo '+ ' . $repcompterbaselunaire['nb'] . '/' . $repinfolimites['maxbaselunaire'] . ' base lunaire ';
+  echo 'Base lunaire : '.$repcompterbatiment['baselunaire'].'/'.$repplanete['maxbaselunaire'].' (augmente la pop max et une constructible par lune).</br>';
   }
-echo '= '. $total . ' max';
-*/
 
-/*
-// Affichage de la prod des biens.
-$reqprod = $bdg->prepare('SELECT prodbiens, consobiens FROM variationstour WHERE idjoueur= ?');
-$reqprod->execute(array($_SESSION['id']));
-$prodbiens = $reqprod->fetch();
-$reqprod->closeCursor();
-Au dernier tour, tu en as produit <?php echo $prodbiens['prodbiens'];?> et consommé <?php echo $prodbiens['consobiens'];?> biens divers.
-*/
-
+if ($repcompterpop['ouvriers']>0)
+{
 echo '</br><h2>Chantier de construction :</h2>';
+
+// Début formulaire pour les constructions. 
+$a = 0; //Variable permettant de gérer le cas avec 0 construction possible.
+echo '<form method="post" action="script/ordreconstruction.php"><p><label for="combien">Construire </label>';
+echo '<input type="number" name="combien" value="1" min="1">';
+echo '<select name="trucaconstruire" id="trucaconstruire">';
+
+
 // Requête pour la liste de construction et basé sur la présence d'un item.
 $reqmenuderoulantitems = $bdg->prepare('
         SELECT  items.iditem, items.nombatiment
@@ -124,12 +127,6 @@ $reqmenuderoulantitems = $bdg->prepare('
         ON items.itemnecessaire = silo.iditems
         WHERE silo.idplanetesilo = ? AND silo.quantite > 0 AND items.typeitem <> "artefact"
         ');
-
-// Début formulaire pour les constructions. 
-$a = 0; //Variable permettant de gérer le cas avec 0 construction possible.
-echo '<form method="post" action="script/ordreconstruction.php"><p><label for="combien">Construire </label>';
-echo '<input type="number" name="combien" value="1" min="1">';
-echo '<select name="trucaconstruire" id="trucaconstruire">';
 $reqmenuderoulantitems->execute(array($_GET['id']));
 while ($repmenuderoulantitems = $reqmenuderoulantitems ->fetch())
     { // Gestion des trucs ayant besoin d'un machin dans les stocks.
@@ -161,6 +158,15 @@ while ($repmenuderoulantconstruction = $reqmenuderoulantconstruction->fetch())
         }
     }
 
+// Permet de construire des vaisseaux.
+$reqmenuderoulantvaisseau = $bdg->prepare('SELECT idvaisseau, nomvaisseau FROM vaisseau WHERE idjoueurvaisseau = ?');
+$reqmenuderoulantvaisseau->execute(array(-$_SESSION['id']));
+while ($repmenuderoulantvaisseau = $reqmenuderoulantvaisseau ->fetch())
+    { // Gestion des trucs ayant besoin d'un machin dans les stocks.
+    $a++;
+    echo '<option value="'.-$repmenuderoulantvaisseau['idvaisseau'].'">'.$repmenuderoulantvaisseau['nomvaisseau'].'</option>';
+    }
+
 if ($a == 0)
     {
     echo '<option disabled selected>Pas de construction possible</option></select>';
@@ -171,87 +177,60 @@ else
     }
 echo '<input type="hidden" name="id" value="'.$_GET['id'].'">';
 echo '</p></form>'; // Fin formulaire pour les constructions.
- 
+
+// Requete pour gérer les constructions :
+$reqnomitemencoursdeconstruction = $bdd->prepare('SELECT nombatiment FROM items WHERE iditem = ?');
+$reqnomvaisseau = $bdg->prepare("SELECT nomvaisseau FROM vaisseau WHERE idvaisseau = ?");
+$reqmess = $bdg->prepare("SELECT message FROM messagetour WHERE domainemess = ? AND numspemessage = ?");
 
 // Affichage des constructions en cours.
 $reqconstencours = $bdg->prepare('SELECT * FROM construction WHERE idplaneteconst = ? ORDER BY ordredeconstruction');
 $reqconstencours->execute(array($_GET['id']));
-
-$reqnomitemencoursdeconstruction = $bdd->prepare('SELECT nombatiment FROM items WHERE iditem = ?');
-$reqmess = $bdg->prepare("SELECT message FROM messagetour WHERE domainemess = ? AND numspemessage = ?");
-
 while ($repconstencours = $reqconstencours->fetch())
   {
+  // Formulaire pour gérer la construction :
+  echo '<form method="post" action="script/gererconstruction.php">';
+
   if ($repconstencours['trucaconstruire']>0)
-    { // Dans le cas ou le truc à contreuire possède un numéro d'item (-1 = conception par exemple) :
+    { // Cas des constructions d'items.
     $reqnomitemencoursdeconstruction->execute(array($repconstencours['trucaconstruire']));
-    $repnomitemencoursdeconstruction = $reqnomitemencoursdeconstruction->fetch() ;
-    
-    // Formulaire pour gérer la construction :
-    echo '<form method="post" action="script/gererconstruction.php">';
-    echo $repconstencours['nombre'].' '.$repnomitemencoursdeconstruction['nombatiment'].' en construction. Reste à investir '.$repconstencours['avancementbiens'].' biens';
-    if($repconstencours['avancementtitane']>0)
-      {
-      echo 'et ' . $repconstencours['avancementtitane'] . ' métaux rares';
-      }
-    echo ' pour le prochain.';  
-    echo '<input type="hidden" name="id" value="'.$_GET['id'].'">';
-    echo '<input id = "checkbox'.$repconstencours['idconst'].'" type="checkbox" name="perdreressources"/> <label for="checkbox'.$repconstencours['idconst'].'"></label>';
-    echo '<input type="hidden" name="idconstruction" value="'.$repconstencours['idconst'].'">';
-    echo '<input type="submit" formaction="script/gererconstruction.php?action=annuler" value="Annuler"/>';
-    if ($repconstencours['ordredeconstruction']>0)
-      { // La construction est en cours.
-      echo ' <input type="submit" formaction="script/gererconstruction.php?action=deprioriser" value="Déprioriser"/>';
-      echo ' <input type="submit" formaction="script/gererconstruction.php?action=pause" value="En pause"/>';
-      }
-    elseif ($repconstencours['ordredeconstruction']<1)
-      { // La construction est sur pause.
-      echo ' CONTRUCTION ARRÊTÉE <input type="submit" formaction="script/gererconstruction.php?action=reprise" value="Reprendre"/>';
-      } 
-    echo '</form></br>';
-    
-    $reqmess->execute(array($typemessage, $repconstencours['idconst']));
-    $message = $reqmess->fetch() ;
-    if (!empty($message['message']))
-      {echo $message['message'] . '</br></br>' ; }
-    else
-      {echo '</br>' ; }
+    $repnom = $reqnomitemencoursdeconstruction->fetch();
+    echo $repconstencours['nombre'].' '.$repnom['nombatiment'].' en construction.';
     }
-  elseif ($repconstencours['trucaconstruire'] == -1 OR $repconstencours['trucaconstruire'] == -2)
-    { // cas d'une conception
-    $reqnomvaisseau = $bdg->prepare("
-    SELECT v.nomvaisseau, v.idvaisseau
-    FROM vaisseau v INNER JOIN conceptionencours c
-    ON c.idvaisseauconception = v.idvaisseau
-    WHERE c.idconstruction = ?");
-    $reqnomvaisseau->execute(array($repconstencours['idconst']));
-    $repnomvaisseau = $reqnomvaisseau->fetch() ;
-    
-    // Formulaire pour gérer la construction :
-    echo '<form method="post" action="script/gererconstruction.php">';
-    echo 'Le vaisseau \'' . $repnomvaisseau['nomvaisseau'] . '\' est en cours de rénovation pour un coût restant de ' . $repconstencours['avancementbiens'] . ' biens';
-    if ($repconstencours['avancementtitane']>0)
-      {
-      echo ' et de ' . $repconstencours['avancementtitane'] . ' titane';
-      }
-    echo '.<input name="idvaisseau" type="hidden" value="' . $repnomvaisseau['idvaisseau'] . '">';
-    echo '<input type="hidden" name="idconstruction" value="'.$repconstencours['idconst'].'">';
-    echo '<input type="hidden" name="confirmer" value="off"/>'; 
-    echo '<input id = "checkbox" type="checkbox" name="confirmer"/> <label for="checkbox"></label>  ';  
-    echo '<input name="typeordre" type="hidden" value="-1">';
-    echo '<input type="submit" formaction="script/ordredeplacement.php" value="Supprimer l\'ordre"/>'; 
-    if ($repconstencours['ordredeconstruction']>0)
-      { // La construction est en cours.
-      echo ' <input type="submit" formaction="script/gererconstruction.php?action=deprioriser" value="Déprioriser"/>';
-      echo ' <input type="submit" formaction="script/gererconstruction.php?action=pause" value="En pause"/>';
-      }
-    elseif ($repconstencours['ordredeconstruction']<1)
-      { // La construction est sur pause.
-      echo ' CONTRUCTION ARRÊTÉE <input type="submit" formaction="script/gererconstruction.php?action=reprise" value="Reprendre"/>';
-      }
-    echo '</form></br></br>';
+  elseif ($repconstencours['trucaconstruire'] < 0)
+    { // Cas des vaisseaux
+    $reqnomvaisseau->execute(array(-$repconstencours['trucaconstruire']));
+    $repnom = $reqnomvaisseau->fetch();
+    echo 'Un vaisseau de type \'' . $repnom['nomvaisseau'] . '\' est en cours de construction.';
     }
-  }
+  echo ' Reste à investir '.$repconstencours['avancementbiens'].' biens';
+  if($repconstencours['avancementtitane']>0)
+    {
+    echo ' et ' . $repconstencours['avancementtitane'] . ' métaux rares';
+    }
+  echo ' pour le prochain.';  
+  echo '<input type="hidden" name="id" value="'.$_GET['id'].'">';
+  echo '<input id = "checkbox'.$repconstencours['idconst'].'" type="checkbox" name="perdreressources"/> <label for="checkbox'.$repconstencours['idconst'].'"></label>';
+  echo '<input type="hidden" name="idconstruction" value="'.$repconstencours['idconst'].'">';
+  echo '<input type="submit" formaction="script/gererconstruction.php?action=annuler" value="Annuler"/>';
+  if ($repconstencours['ordredeconstruction']>0)
+    { // La construction est en cours.
+    echo ' <input type="submit" formaction="script/gererconstruction.php?action=deprioriser" value="Déprioriser"/>';
+    echo ' <input type="submit" formaction="script/gererconstruction.php?action=pause" value="En pause"/>';
+    }
+  elseif ($repconstencours['ordredeconstruction']<1)
+    { // La construction est sur pause.
+    echo ' CONTRUCTION ARRÊTÉE <input type="submit" formaction="script/gererconstruction.php?action=reprise" value="Reprendre"/>';
+    } 
+  echo '</form></br>';
+  $reqmess->execute(array('Construction', $repconstencours['idconst']));
+  $message = $reqmess->fetch() ;
+  if (!empty($message['message']))
+    {echo 'Non finit car : '.$message['message'] . '</br></br>' ; }
+  else
+    {echo '</br>' ; }
+  } // Fin de la partie sur les constructions en cours.
+} // Fin de la partie si la planète possède au moins 1 ouvrier.
 
 echo '<table class="silo"><caption><h3>Entrepôts</h3></caption><tr><td class="silo1ereligne">Objet</td><td class="silo1ereligne">Quantité</td><td class="silo1ereligne">Utilité</td></tr>';
 if ($repplanete['biens']>0)

@@ -1,67 +1,20 @@
 <?php
 session_start();
-If (!$_SESSION['pseudo'])
-{
+if (!$_SESSION['pseudo'])
+	{
     header('Location: Accueil.php');
     exit(); 
-}
+	}
 include("include/BDDconnection.php");
 ?>
 
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="style.css" />
-    <title>Mon super site</title>
-  </head>
-<body>
-  <?php include("include/menu.php"); ?>
-
-  <div class="corps">
-    <h1>Design des vaisseau</h1>
+<!DOCTYPE html><html><head><meta charset="utf-8" /><link rel="stylesheet" href="style.css" /><title>Mon super site</title></head>
+<body><?php include("include/menu.php"); ?><div class="corps">
+ <h1>Design des vaisseau</h1>
 
 <?php
 include("include/message.php");
-
-
-function composantdesign($idjoueur, $typecomposant, $textepourrien)
-	{
-	include("include/BDDconnection.php");
-
-	echo '<select name="' . $typecomposant . '" id="' . $typecomposant. '">'; 
-	echo '<option value="0">' . $textepourrien . '</option>';
-
-	$reqmenuderoulantdesign = $bdd->prepare('
-	    SELECT  items.iditem, items.nombatiment
-	    FROM gamer.rech_joueur
-	    RIGHT JOIN items
-	    ON rech_joueur.idrech = items.technescessaire
-	    WHERE rech_joueur.idjoueurrecherche = ? AND rech_joueur.rechposs = 1
-	    AND souscategorie = ? ');
-	$reqmenuderoulantdesign->execute(array($idjoueur, $typecomposant));
-	while ($repmenuderoulantdesign = $reqmenuderoulantdesign->fetch())
-		{
-		echo '<option value="' . $repmenuderoulantdesign['iditem'] . '">' . $repmenuderoulantdesign['nombatiment'] . '</option>' ;
-		}
-
-
-	$reqmenuderoulantartefact = $bdd->prepare('SELECT  items.iditem, items.nombatiment
-	    FROM gamer.silo
-	    RIGHT JOIN items
-	    ON silo.iditems = items.iditem
-	    WHERE silo.idjoueursilo = ? AND items.itemnecessaire > 0
-	    AND souscategorie = ?');
-
-	$reqmenuderoulantartefact->execute(array($idjoueur, $typecomposant));
-	while ($repmenuderoulantartefact = $reqmenuderoulantartefact->fetch())
-		{
-		echo '<option value="' . $repmenuderoulantartefact['iditem'] . '">' . $repmenuderoulantartefact['nombatiment'] . '</option>' ;
-		}
-	
-	echo '</select></br>'; 
-	}
-
+include("function/fonctionconception.php");
 
 echo '<h2>Création d\'un nouveau design :</h2>';
 // Formulaire pour créer un design.
@@ -90,7 +43,7 @@ echo '&emsp;&emsp;&emsp;&emsp;&emsp;<input type="submit" value="Créer" /></p></
 // Voir modèle + liste ici avec un lien vers l'affichage.
 
 $ecrirehangars = 1 ;
-$reqvaiss = $bdg->prepare('SELECT * FROM vaisseau WHERE idjoueurbat = ? AND typevaisseau = 1 ORDER BY idvaisseau');
+$reqvaiss = $bdg->prepare('SELECT * FROM vaisseau WHERE idjoueurvaisseau = ? ORDER BY idvaisseau');
 $reqcomposantsurlevaisseau
       = $bdd->prepare("
       SELECT i.nombatiment
@@ -102,7 +55,7 @@ $reqcomposantsurlevaisseau
       ");
 
 
-$reqvaiss->execute(array($_SESSION['id']));
+$reqvaiss->execute(array(-$_SESSION['id']));
 while ($repvaiss = $reqvaiss->fetch())
     {
     if ($ecrirehangars == 1) {echo '<h2>Design existants :</h2>' ; }

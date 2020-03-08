@@ -48,14 +48,14 @@ switch ($_GET["message"])
         }
         else
         {
-        echo 'Vous lancé la transformation de ' . $_SESSION['message1'] . ' ' . $_SESSION['message2'] . ' en ' . $_SESSION['message3'] . '. ';
+        echo 'Vous lancez la transformation de ' . $_SESSION['message1'] . ' ' . $_SESSION['message2'] . ' en ' . $_SESSION['message3'] . '. ';
         if ($_SESSION['message4'] >= 0)
             {
-            echo 'Cela va vous couter ' . $_SESSION['message4'] . ' biens.' ;
+            echo 'Cela va couter ' . $_SESSION['message4'] . ' biens.' ;
             }
         else
             {
-            echo 'Cela va vous rapporter ' . -$_SESSION['message4'] . ' biens.' ;
+            echo 'Cela va rapporter ' . -$_SESSION['message4'] . ' biens.' ;
             }
         }
     break;
@@ -69,7 +69,7 @@ switch ($_GET["message"])
         {
         }
         else
-        {   
+        {
         echo "Vous avez lancé la production de " . $_SESSION['message1'] . " " . $_SESSION['message2'] . " !";
         }  
     break;
@@ -95,7 +95,7 @@ switch ($_GET["message"])
     break;
 
     case 17:
-        echo "Recherche lancée !";
+        echo "Recherche prioritisé !";
     break;
 
     case 18:
@@ -274,6 +274,10 @@ switch ($_GET["message"])
 
     case 60:
         echo "Conversion de pop annulée.";
+    break;
+
+    case 61:
+        echo "Les composants nécessaire pour vaisseau vont être produit. Revenez une fois les composants présents sur votre planète.";
     break;
 
     }

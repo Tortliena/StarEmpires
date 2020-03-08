@@ -34,7 +34,7 @@ while ($repcompterpop = $reqcompterpop->fetch())
 	}
 
 $reqinsertrecherhche = $bdg->prepare('UPDATE utilisateurs SET recherche = ? WHERE id = ?');
-$reqrecherche = $bdg->query('SELECT	sum(recherche) AS recherche, p.idjoueurplanete FROM variationstour AS v INNER JOIN planete AS p ON v.idplanetevariation = p.idplanete GROUP BY idjoueurplanete');
+$reqrecherche = $bdg->query('SELECT	sum(v.recherche) AS recherche, p.idjoueurplanete FROM variationstour AS v INNER JOIN planete AS p ON v.idplanetevariation = p.idplanete INNER JOIN utilisateurs AS u ON u.id = p.idjoueurplanete WHERE u.lvl <> 0 GROUP BY idjoueurplanete');
 while ($reprecherche = $reqrecherche->fetch())
 	{
 	$reqinsertrecherhche->execute(array($reprecherche['recherche'], $reprecherche['idjoueurplanete']));

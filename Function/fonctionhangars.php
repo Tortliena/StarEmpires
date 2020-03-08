@@ -1,6 +1,6 @@
 <?php
-// Utiliser avec composanthangars(NOMTYPECOMPOSANT, $_SESSION['id'], $_GET['id'])
-function composanthangars($typecomposant, $idjoueur, $idvaisseau)
+// Utiliser avec composanthangars(NOMTYPECOMPOSANT, $_SESSION['id'], $_GET['id'], )
+function composanthangars($typecomposant, $idjoueur, $idvaisseau, $idplanete)
   {
   include("include/BDDconnection.php");
   $reqcomposantsurlevaisseau
@@ -41,9 +41,9 @@ function composanthangars($typecomposant, $idjoueur, $idvaisseau)
                     FROM gamer.silo s
                     INNER JOIN items i
                     ON i.iditem = s.iditems
-                    WHERE s.idjoueursilo = ?
+                    WHERE s.idplanetesilo = ?
                     AND i.souscategorie = ?");
-      $reqsilo ->execute(array($idjoueur, $typecomposant));
+      $reqsilo ->execute(array($idplanete, $typecomposant));
 
       while($repsilo = $reqsilo->fetch())
         { 
@@ -112,7 +112,10 @@ function annulerordrededeplacement($typeordre, $idvaisseau, $xdest, $ydest, $blo
         $messageannulerdeplacement = 'Votre vaisseau est actuellement occupé et ne réponds pas à vos tentatives de communication. ';
       break;
       case 10:
-        $messageannulerdeplacement = 'Votre vaisseau prépare un saut dimensionnel ';
+        $messageannulerdeplacement = 'Votre vaisseau prépare un saut dimensionnel. ';
+      break;
+      case 11:
+        $messageannulerdeplacement = 'Conquête/colonisation en cours. ';
       break;
       default :
         $messageannulerdeplacement = 'ORDRE NON PREVU ! Voir fonction hangars/annuler ';
@@ -147,11 +150,11 @@ function formulaireordredeplacement($typeordre, $idvaisseau, $texteexplication, 
       $textevalidation = 'Décharger';
     break;
     case 3:
-      $texteexplication = 'Votre vaisseau se trouve à proximité de votre planète mère (3 - 3). ';
+      $texteexplication = 'Votre vaisseau se trouve à proximité d\'une de vos planètes. ';
       $textevalidation = 'Rentrer en orbite';
     break;
     case 4:
-      $texteexplication = 'Votre vaisseau se trouve à proximité de votre planète. ';
+      $texteexplication = 'Votre vaisseau se trouve au hangars de la planète '.$valeur3.'. ';
       $textevalidation = 'Quitter l\'orbite';
     break;
     case 5:
@@ -163,6 +166,10 @@ function formulaireordredeplacement($typeordre, $idvaisseau, $texteexplication, 
     case 10:
       $texteexplication = 'Saut dimensionnel : ';
       $textevalidation = 'Sauter';
+    break;
+    case 11:
+      $texteexplication = 'Un monde se trouve à proximité : ';
+      $textevalidation = 'Coloniser';
     break;
     default :
       $textevalidation = 'ORDRE NON PREVU ! Voir fonction hangars/ordre ';

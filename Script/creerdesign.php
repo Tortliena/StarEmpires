@@ -13,19 +13,16 @@ echo $_POST['moteur'] . ' id du composant moteur </br>';
 
 if (is_numeric($_POST['nom']) OR empty($_POST['nom']))
     {
-    header('Location: ../design.php?message=56');
-    exit();    
+    header('Location: ../conception.php?message=56');
+    exit();
     }
 
 // Créer design global.
-$reqcreerdesign = $bdg->prepare('INSERT INTO vaisseau (idjoueurbat, nomvaisseau, univers, x, y, typevaisseau) VALUES (?, ?, ?, ?, ?, ?)'); 
-$reqcreerdesign->execute(array($_SESSION['id'], $_POST['nom'], -1, -1, -1, 1));
-// -ID pour que je puisse garder une trace des joueurs qui tentent de créer un design et que cela bug sans que eux puissent le voir.
-// Type vaisseau = 5 = vrai vaisseau, type vaisseau = 1 = designvaisseau.
+$reqcreerdesign = $bdg->prepare('INSERT INTO vaisseau (idjoueurvaisseau, nomvaisseau, univers, x, y) VALUES (?, ?, ?, ?, ?)'); 
+$reqcreerdesign->execute(array(-$_SESSION['id'], $_POST['nom'], 0, 0, 0));
+$dernierID = $bdg->lastInsertId();
 
-$dernierID = $bdg->lastInsertId() ;
-
-$reqcreercomposantdesign = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)');  
+$reqcreercomposantdesign = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)');
 
 // Permet d'introduire les composants dans le plan du vaisseau fictif.
 $reqcomposant = $bdd ->prepare('SELECT i.souscategorie, i.typeitem
@@ -47,16 +44,12 @@ foreach($_POST as $value)
         }
     }
 
-$requpdatedesignvaisseau = $bdg->prepare('UPDATE vaisseau SET idjoueurbat = ? WHERE idvaisseau = ?'); 
-// Updater le design du vaisseau avec les prix et l'ID du joueur.
-$requpdatedesignvaisseau->execute(array($_SESSION['id'], $dernierID));
-
-$reqdeplacementbloque = $bdg->prepare('INSERT INTO ordredeplacement (idvaisseaudeplacement , xdestination , ydestination , universdestination, idjoueurduvaisseau, typeordre, bloque) VALUES(?, ?, ?, ?, ?, ?, ?)');
+$reqdeplacementbloque = $bdg->prepare('INSERT INTO ordredeplacement (idvaisseaudeplacement, xdestination, ydestination, universdestination, idjoueurduvaisseau, typeordre, bloque) VALUES(?, ?, ?, ?, ?, ?, ?)');
 // 9 = ordre spécial pour les design. bloque = 2 = impossible de supprimer/modifier.
 $reqdeplacementbloque->execute(array($dernierID, -1, -1, -1, $_SESSION['id'], 9, 2));
 
-include("../tour/fonctionsdutour.php");
-caracteristiquesvaisesau ($dernierID, $_SESSION['id']);
+include("../function/caracteristiquesvaisseau.php");
+caracteristiquesvaisesau ($dernierID, -$_SESSION['id']);
 
-header('Location: ../design.php?message=55');
+header('Location: ../conception.php?message=55');
 ?>

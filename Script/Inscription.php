@@ -33,7 +33,6 @@ while ($donnees = $reponse->fetch())
     exit();
         }
     }
-$reponse->closeCursor();
 
 // Dans le cas d'une inscription réussie :
 // Hachage du mot de passe
@@ -51,10 +50,24 @@ $dernierIDplanete = $bdg->lastInsertId();
 // Permet de créer des citoyens de multiples fois
 $reqpop = $bdg->prepare('INSERT INTO population(idplanetepop, typepop) VALUES(?, ?)');
 
-for ($i = 1; $i < 7; $i++)
+$nbdepop = 6;
+for ($i = 0; $i < $nbdepop; $i++)
     { // Permet d'inserer 6 citoyens sur la planete cree.
     $reqpop->execute(array($dernierIDplanete, 1));
     }
+
+$reqcreervariation = $bdg->prepare('INSERT INTO variationstour (idplanetevariation, prodbiens, consobiens) VALUES(?, ?, ?)');
+$reqcreervariation->execute(array($dernierIDplanete, 5*$nbdepop, $nbdepop));
+$reqcreerlimiteplanete = $bdg->prepare('INSERT INTO limiteplanete (idlimiteplanete ) VALUES(?)');
+$reqcreerlimiteplanete->execute(array($dernierIDplanete));
+
+
+$reqcreerdesign = $bdg->prepare('INSERT INTO vaisseau (idjoueurvaisseau, nomvaisseau, univers, x, y) VALUES (?, ?, ?, ?, ?)'); 
+$reqcreerdesign->execute(array(-$dernierIDjoueur, 'Vaisseau d\'exploration', 0, 0, 0));
+$dernierIDvaisseau = $bdg->lastInsertId();
+$reqdeplacementbloque = $bdg->prepare('INSERT INTO ordredeplacement (idvaisseaudeplacement, xdestination, ydestination, universdestination, idjoueurduvaisseau, typeordre, bloque) VALUES(?, ?, ?, ?, ?, ?, ?)');
+// 9 = ordre spécial pour les design. bloque = 2 = impossible de supprimer/modifier.
+$reqdeplacementbloque->execute(array($dernierIDvaisseau, -1, -1, -1, $dernierIDjoueur, 9, 2));
 
 $_SESSION['pseudo'] = $_POST["pseudo"];
 $_SESSION['id'] = $dernierIDjoueur;
