@@ -59,7 +59,7 @@ else
         }
 
     $ecrirehangars = 1 ;
-    $reqvaiss = $bdg->prepare('SELECT v.idvaisseau, v.nomvaisseau, o.typeordre FROM vaisseau v LEFT JOIN ordredeplacement o ON o.idvaisseaudeplacement = v.idvaisseau WHERE v.idjoueurvaisseau = ? AND v.typevaisseau = 5 ORDER BY v.idvaisseau');
+    $reqvaiss = $bdg->prepare('SELECT v.idvaisseau, v.nomvaisseau, o.typeordre FROM vaisseau v LEFT JOIN ordredeplacement o ON o.idvaisseaudeplacement = v.idvaisseau WHERE v.idjoueurvaisseau = ? ORDER BY v.idvaisseau');
     $reqvaiss->execute(array($_SESSION['id']));
     while ($repvaiss = $reqvaiss->fetch())
         {
@@ -105,6 +105,10 @@ else
 
             case 10:
             echo "Saut dimensionnel";
+            break;
+
+            case 11:
+            echo "Colonisation";
             break;
                 
             default:

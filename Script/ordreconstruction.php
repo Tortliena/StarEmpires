@@ -13,7 +13,7 @@ echo $_POST['id'] . '</br>';
 //Vérifier que la quantité est correcte. 
     if (empty($_POST['combien']) or $_POST['combien'] == NULL or $_POST['combien'] < 1 )
         {
-        header('Location: ../chantier.php?message=11');
+        header("Location: ../planete.php?message=11&id=" . urlencode($_POST['id']));
         exit();  
         }
 
@@ -47,30 +47,25 @@ echo $_POST['id'] . '</br>';
 	            {
 	            $_SESSION['message1'] = $replimite['0'];
 	            $_SESSION['message2'] = $repcomptechantier['nb'];
-	            header('Location: ../chantier.php?message=29');
+                header("Location: ../planete.php?message=29&id=" . urlencode($_POST['id']));
 	            exit();  
 	            }
 	        }
 
         if ($repinfoitem['itemnecessaire'] > 1)
             { // Cas ou l'on a besoin d'un item en stock pour faire cette construction
-            $reqverifsilo = $bdg->prepare('SELECT quantite FROM silo WHERE idjoueursilo = ? AND iditems = ?');
-            $reqverifsilo->execute(array($_SESSION['id'], $repinfoitem['itemnecessaire']));
+            $reqverifsilo = $bdg->prepare('SELECT quantite FROM silo WHERE idplanetesilo = ? AND iditems = ?');
+            $reqverifsilo->execute(array($_POST['id'], $repinfoitem['itemnecessaire']));
             $repverifsilo = $reqverifsilo->fetch();       
-            // $repverifsilo['quantite'] = quantité dans les stocks necessaire pour la construction. 
-
-            $constencours = 0; //Permet de récupérer le nombre de construction en cours utilisant l'item étudié.
-	        $reqconstructionencours = $bdg->prepare('SELECT nombre FROM construction WHERE trucaconstruire = ? AND idjoueurconst = ?');
-	        $reqconstructionencours->execute(array($_POST['trucaconstruire'], $_SESSION['id']));
-	        while($repconstructionencours=$reqconstructionencours->fetch())
-	        	{
-	        	$constencours = $constencours + $repconstructionencours['nombre'];
-	        	}
-
-            if ($repverifsilo['quantite']<$_POST['combien']+$constencours)
+            if ($repverifsilo['quantite']<$_POST['combien'])
                 { // Vous n'avez pas assez en stock pour faire autant de construction !
                 header("Location: ../planete.php?message=28&id=" . urlencode($_POST['id'])); 
-                exit();  
+                exit();
+                }
+            else
+                { // On a du stock, donc on le consomme.
+                include("../function/consommercreeritemsplanetemultiple.php");
+                consommercreeritemsplanetemultiple($repinfoitem['itemnecessaire'], 0, $_POST['id'], $_POST['combien']);
                 }
             }
             

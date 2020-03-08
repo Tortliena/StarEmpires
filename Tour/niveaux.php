@@ -2,6 +2,7 @@
 /*
 session_start();
 include("../include/BDDconnection.php");
+include("fonctionsdutour.php");
 */
 
 $reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)');
@@ -18,13 +19,13 @@ $reqcountpop = $bdg->prepare('SELECT  	sum(case when po.typepop = ? then 1 else 
 $reqrechechemoteur = $bdg->prepare('SELECT COUNT(*) AS nb FROM rech_joueur WHERE idjoueurrecherche = ? AND rechposs = 1');
 
 // Pour lvl 2 à 3
-$reqvaisseausorti = $bdg->prepare('SELECT COUNT(*) AS nb FROM vaisseau WHERE idjoueurbat = ? AND x = ?');
+$reqvaisseausorti = $bdg->prepare('SELECT COUNT(*) AS nb FROM vaisseau WHERE idjoueurvaisseau = ? AND x = ?');
 
 // Pour lvl 3 à 4
-$reqcompterexplo = $bdg->prepare('SELECT COUNT(*) AS nb FROM explore WHERE idexplorateur = ?') ; 
+$reqcompterplanete = $bdg->prepare('SELECT COUNT(*) AS nb FROM planete WHERE idjoueurplanete = ?') ; 
 
 // Pour lvl 4 à 5
-$reqvaisseau = $bdg->prepare("SELECT idvaisseau FROM vaisseau WHERE HPmaxvaisseau <> HPvaisseau AND idjoueurbat = ?");
+$reqvaisseau = $bdg->prepare("SELECT idvaisseau FROM vaisseau WHERE HPmaxvaisseau <> HPvaisseau AND idjoueurvaisseau = ?");
 
 // Pour lvl 5 à 6
 // $reqcomptersilo = $bdg->prepare('SELECT COUNT(*) AS nb FROM silo WHERE idjoueursilo = ?');
@@ -39,7 +40,7 @@ $reqcomposantsurlevaisseau = $bdg->prepare("SELECT COUNT(*) AS nb
 // $reqcountbat = $bdg->prepare('SELECT COUNT(*) AS nb FROM batiments WHERE idjoueurbat = ? AND typebat = ?');
 
 // Pour lvl 8 à 9 :
-// Compter plus d'exploration.
+$reqcompterexplo = $bdg->prepare('SELECT COUNT(*) AS nb FROM explore WHERE idexplorateur = ?') ; 
 
 // Pour lvl 9 à 10 :
 $reqepavedetruite = $bdg->prepare('SELECT COUNT(*) AS nb FROM vaisseau WHERE idjoueurbat = 0 AND univers = ?');
@@ -51,26 +52,24 @@ $reqnoyaudanslesilo = $bdg->prepare('SELECT COUNT(*) AS nb FROM silo WHERE idjou
 // Passer dans une autre dimension.
 
 $reqlvl = $bdg->QUERY('SELECT lvl, id from utilisateurs ORDER BY id ASC');
-WHILE($replvl = $reqlvl->fetch())
+while($replvl = $reqlvl->fetch())
 	{
 	switch ($replvl['lvl'])
   	{ 
-      case 0:
-            
+      case 0:  
         	$reqcountpop->execute(array(2, $replvl['id']));
         	$repcountouvrier = $reqcountpop->fetch();
 
         	$reqcountpop->execute(array(3, $replvl['id']));
         	$repcountscient = $reqcountpop->fetch();
-            echo $repcountouvrier['nb'];
-            echo $replvl['id'];
-          	// Compter les ouvriers et les scientifiques, si au moins 1, alors monter de niveau.
+
+          // Compter les ouvriers et les scientifiques, si au moins 1, alors monter de niveau.
         	if ($repcountouvrier['nb']>0 AND $repcountscient['nb']>0)
         		{
         		$reqlvlup->execute(array($replvl['id']));
 	            
-	            // Recherche des moteurs interstellaires.
-	            creerrecherche(4, $replvl['id']); 
+	          // Recherche des moteurs interstellaires.
+            creerrecherche(4, $replvl['id']);
         		}
       break;
 
@@ -97,16 +96,13 @@ WHILE($replvl = $reqlvl->fetch())
       break;
 
       case 3:
-	        $reqcompterexplo->execute(array($replvl['id']));
-	        $repcompterexplo = $reqcompterexplo->fetch();
-	        // Si on a fait au moins 6 exploration, alors on monte de niveau. 6eme explo = planète.
-	        if ($repcompterexplo['nb']>6)
+	        $reqcompterplanete->execute(array($replvl['id']));
+	        $repcompterplanete = $reqcompterplanete->fetch();
+	        // Si on a 2 planètes, alors on monte de niveau. 6eme explo = planète.
+	        if ($repcompterplanete['nb']>1)
 	            {
 	            $reqlvlup->execute(array($replvl['id']));
 
-              // Cela permet de construire la première base lunaire.
-              $reqlimitebaselunaire->execute(array(1, $replvl['id']));
-              
 	            // Donner accès à la recherche sur les bases lunaires.
 	            creerrecherche(2, $replvl['id']);
 	            }

@@ -10,16 +10,16 @@ include("include/BDDconnection.php");
 <!DOCTYPE html><html><head><meta charset="utf-8" /><link rel="stylesheet" href="style.css" /><title>Mon super site</title></head>
 
 <body><?php include("include/menu.php");?><div class="corps"><?php
-$reqplanete = $bdg->prepare('SELECT * FROM planete p INNER JOIN limiteplanete l ON l.idlimiteplanete WHERE p.idplanete = ?');
+$reqplanete = $bdg->prepare('SELECT * FROM planete p LEFT JOIN limiteplanete l ON l.idlimiteplanete = p.idplanete WHERE p.idplanete = ?');
 $reqplanete->execute(array($_GET['id']));
 $repplanete = $reqplanete->fetch();
 if ($repplanete['idjoueurplanete'] != $_SESSION['id'])
     {
-    //header('Location: Accueil.php'); exit();
+    header('Location: Accueil.php'); exit();
     } ?>
    
 <form method="post" action="script/renommer.php"><h1>Planete : <?php echo $repplanete['nomplanete'] ;?> 
-<input type="text" name="nouveaunom" id="nouveaunom" placeholder="nouveau nom" size="25" maxlength="80" />
+<input type="text" name="nouveaunom" id="nouveaunom" placeholder="nouveau nom" size="25" maxlength="80"/>
 <input name="id" type="hidden" value="<?php echo $_GET['id'] ;?>">
 <input name="type" type="hidden" value="planete">
 <input type="submit" value="Renommer"/></h1></form>
@@ -38,9 +38,20 @@ $reqcompterpop = $bdg->prepare('SELECT  COUNT(*) AS population,
 $reqcompterpop->execute(array($_GET['id']));                                   
 $repcompterpop = $reqcompterpop->fetch();
 
-echo '<h2>Population et bâtiments :</h2>';
-echo $repcompterpop['population']. '/'.$repplanete['popmax'].' unités de population au total, composée de '.$repcompterpop['citoyens'].' citoyen(s) ; '.$repcompterpop['ouvriers'].' ouvrier(s) ; '.$repcompterpop['scientifiques'].' scientifique(s)' ;
+echo 'Taille : '.$repplanete['taille'].' (population maximale de base de la planète).</br>';
+if ($repplanete['lune'] > 0)
+  {
+  echo 'Lunes : '.$repplanete['lune'].' (permet de construire des bâtiments particuliers).</br>'; 
+  }
 
+echo '</br><h2>Population et bâtiments :</h2>';
+echo $repcompterpop['population']. '/'.$repplanete['popmax'].' unités de population au total, composée de '.$repcompterpop['citoyens'].' citoyen(s) ; '.$repcompterpop['ouvriers'].'/'.$repplanete['ouvriermax'].' ouvrier(s) ; '.$repcompterpop['scientifiques'].'/'.$repplanete['scientmax'].' scientifique(s).</br>' ;
+
+// Affichage de la prod des biens.
+$reqprod = $bdg->prepare('SELECT prodbiens, consobiens FROM variationstour WHERE idplanetevariation = ?');
+$reqprod->execute(array($_GET['id']));
+$prodbiens = $reqprod->fetch();
+echo 'Au dernier tour, tu en as produit '.$prodbiens['prodbiens'].' et consommé '.$prodbiens['consobiens'].' biens divers.</br>';
 
 // Formulaire de conversion des pops
 echo '<form method="post" action="script/conversionpop.php"><p>';
@@ -85,36 +96,20 @@ $reqcompterbatiment = $bdg->prepare('SELECT sum(case when typebat = 1 then 1 els
 $reqcompterbatiment->execute(array($_GET['id']));
 $repcompterbatiment = $reqcompterbatiment->fetch();
 
-/*
-// Afficher le nombre de centre de recherche :
-$reqcountrecherche = $bdg->prepare('SELECT COUNT(*) AS nbdecentrederecherche FROM batiments WHERE idjoueurbat = ? AND typebat = 1');
-$reqcountrecherche->execute(array($_SESSION['id']));
-$repcountrecherche = $reqcountrecherche->fetch();
-
-$reqlimitechercheur = $bdg->prepare('SELECT scientmax FROM limitesjoueurs WHERE id = ?');
-$reqlimitechercheur->execute(array($_SESSION['id']));
-$replimitechercheur = $reqlimitechercheur->fetch();
-*/
-
-/*
-$total = $repcompterbaselunaire['nb'] + $repcomptermegalopole['nb'] + 8 ; 
-echo '</br></br>Population max : 8 + ' . $repcomptermegalopole['nb'] . '/' . $repinfolimites['maxmegalopole'] . ' mégalopole ';
-if ($repinfoutilisateur['lvl']>4)
+if(!isset($repcompterbatiment['centrederecherche'])){$repcompterbatiment['centrederecherche']=0;}
+if(!isset($repcompterbatiment['chantier'])){$repcompterbatiment['chantier']=0;}
+if(!isset($repcompterbatiment['megalopole'])){$repcompterbatiment['megalopole']=0;}
+if(!isset($repcompterbatiment['baselunaire'])){$repcompterbatiment['baselunaire']=0;}
+echo 'Chantier : '.$repcompterbatiment['chantier'].'/'.$repplanete['maxchantier'].' (permet d\'avoir 5 ouvriers).</br>';
+echo 'Centre de recherche : '.$repcompterbatiment['centrederecherche'].'/'.$repplanete['maxcentrederecherche'].' (permet d\'avoir 5 scientifiques).</br>';
+echo 'Mégalopoles : '.$repcompterbatiment['megalopole'].'/'.$repplanete['maxmegalopole'].' (augmente la pop max et une constructible par tranche de 4 pop).</br>';
+if ($repplanete['lune'] > 0)
   {
-  echo '+ ' . $repcompterbaselunaire['nb'] . '/' . $repinfolimites['maxbaselunaire'] . ' base lunaire ';
+  echo 'Base lunaire : '.$repcompterbatiment['baselunaire'].'/'.$repplanete['maxbaselunaire'].' (augmente la pop max et une constructible par lune).</br>';
   }
-echo '= '. $total . ' max';
-*/
 
-/*
-// Affichage de la prod des biens.
-$reqprod = $bdg->prepare('SELECT prodbiens, consobiens FROM variationstour WHERE idjoueur= ?');
-$reqprod->execute(array($_SESSION['id']));
-$prodbiens = $reqprod->fetch();
-$reqprod->closeCursor();
-Au dernier tour, tu en as produit <?php echo $prodbiens['prodbiens'];?> et consommé <?php echo $prodbiens['consobiens'];?> biens divers.
-*/
-
+if ($repcompterpop['ouvriers']>0)
+{
 echo '</br><h2>Chantier de construction :</h2>';
 // Requête pour la liste de construction et basé sur la présence d'un item.
 $reqmenuderoulantitems = $bdg->prepare('
@@ -210,10 +205,10 @@ while ($repconstencours = $reqconstencours->fetch())
       } 
     echo '</form></br>';
     
-    $reqmess->execute(array($typemessage, $repconstencours['idconst']));
+    $reqmess->execute(array('Construction', $repconstencours['idconst']));
     $message = $reqmess->fetch() ;
     if (!empty($message['message']))
-      {echo $message['message'] . '</br></br>' ; }
+      {echo 'Non finit car : '.$message['message'] . '</br></br>' ; }
     else
       {echo '</br>' ; }
     }
@@ -252,7 +247,7 @@ while ($repconstencours = $reqconstencours->fetch())
     echo '</form></br></br>';
     }
   }
-
+}
 echo '<table class="silo"><caption><h3>Entrepôts</h3></caption><tr><td class="silo1ereligne">Objet</td><td class="silo1ereligne">Quantité</td><td class="silo1ereligne">Utilité</td></tr>';
 if ($repplanete['biens']>0)
   {

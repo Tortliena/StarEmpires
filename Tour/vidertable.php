@@ -3,11 +3,11 @@
 include("../include/BDDconnection.php");
 */
 
-$reqcreervariation = $bdg->prepare('INSERT INTO limiteplanete(idlimiteplanete) VALUES(?)');
-$reqplanetesansvariation = $bdg->query('SELECT p.idplanete FROM planete p LEFT JOIN limiteplanete l ON p.idplanete = l.idlimiteplanete WHERE l.idlimiteplanete IS NULL');
-while ($repplanetesansvariation = $reqplanetesansvariation->fetch())
+$reqcreerlimite = $bdg->prepare('INSERT INTO limiteplanete(idlimiteplanete) VALUES(?)');
+$reqplanetesanslimite = $bdg->query('SELECT p.idplanete FROM planete p LEFT JOIN limiteplanete l ON p.idplanete = l.idlimiteplanete WHERE l.idlimiteplanete IS NULL');
+while ($repplanetesanslimite = $reqplanetesanslimite->fetch())
     {
-    $reqcreervariation->execute(array($repplanetesansvariation['idplanete']));
+    $reqcreerlimite->execute(array($repplanetesanslimite['idplanete']));
     }
 
 // Vider la table de messages du tour.
