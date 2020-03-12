@@ -42,19 +42,34 @@ function caracteristiquesvaisesau ($idvaisseau, $idjoueur)
         break;
         }
       }
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
     $HPmax = $repinformationcomposant['HPmaxvaisseau'] ;
     $HPvaisseau = $HPvaisseau + $repinformationcomposant['HPcomposant'];
     $totalprixbien = $totalprixbien + $repinformationcomposant['coutbien'];
     $totalprixtitane = $totalprixtitane + $repinformationcomposant['couttitane'];
     }
 
+<<<<<<< HEAD
   $requpdatedesignvaisseau = $bdg->prepare('UPDATE vaisseau SET biensvaisseau = ?, titanevaisseau = ?, vitesse = ?, capacitedesoute = ?, capaciteminage = ?, HPmaxvaisseau = ? WHERE idvaisseau = ?'); 
   // Updater le design du vaisseau avec les prix et l'ID du joueur.
   $requpdatedesignvaisseau->execute(array($totalprixbien, $totalprixtitane, $vitesse, $capacitedesoute, $capaciteminage, $HPvaisseau, $idvaisseau));
 
   if ($HPmax != $HPvaisseau)
     {
+=======
+  $requpdatedesignvaisseau = $bdg->prepare('UPDATE vaisseau SET idjoueurvaisseau = ?, biensvaisseau = ?, titanevaisseau = ?, vitesse = ?, capacitedesoute = ?, capaciteminage = ?, HPmaxvaisseau = ? WHERE idvaisseau = ?'); 
+  // Updater le design du vaisseau avec les prix et l'ID du joueur.
+  $requpdatedesignvaisseau->execute(array($idjoueur, $totalprixbien, $totalprixtitane, $vitesse, $capacitedesoute, $capaciteminage, $HPvaisseau, $idvaisseau));
+
+  if ($HPmax != $HPvaisseau)
+    {
+    echo $HPmax.'a !</br>';
+    echo $HPvaisseau.'a !</br>';
+    echo 'a !</br>';
+>>>>>>> master
     $requpdatePVvaisseau = $bdg ->prepare('UPDATE vaisseau SET HPvaisseau = ? WHERE idvaisseau = ?');
     $requpdatePVvaisseau->execute(array($HPvaisseau, $idvaisseau));
     }

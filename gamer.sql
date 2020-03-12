@@ -11716,6 +11716,7 @@ INSERT INTO `variationstour` VALUES (57,1,40,20,1,10),
 
 
 SET foreign_key_checks = 1;
+<<<<<<< HEAD
 CREATE DATABASE IF NOT EXISTS `gamer`;
 
 USE `gamer`;
@@ -12103,3 +12104,5 @@ INSERT INTO `variationstour` VALUES (164,1,15,60,4,10),
 
 
 SET foreign_key_checks = 1;
+=======
+>>>>>>> master

@@ -17,6 +17,7 @@ $repvaisseau = $reqvaisseau->fetch();
 if ($repvaisseau['idjoueurvaisseau'] != $_SESSION['id'])
   { header('Location: Accueil.php'); exit(); }
 
+<<<<<<< HEAD
 if ($repvaisseau['univers'] == 0)
   {
   $reqplanete = $bdg->prepare('SELECT idplanete, idjoueurplanete FROM planete WHERE idplanete = ? LIMIT 1');
@@ -30,6 +31,11 @@ else
   $repplanete = $reqplanete->fetch();
   }
 
+=======
+$reqplanete = $bdg->prepare('SELECT idplanete, idjoueurplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? LIMIT 1');
+$reqplanete->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers']));
+$repplanete = $reqplanete->fetch();
+>>>>>>> master
 ?>
 
 <div class="corps">

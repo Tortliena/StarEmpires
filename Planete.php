@@ -194,8 +194,42 @@ while ($repconstencours = $reqconstencours->fetch())
   if ($repconstencours['trucaconstruire']>0)
     { // Cas des constructions d'items.
     $reqnomitemencoursdeconstruction->execute(array($repconstencours['trucaconstruire']));
+<<<<<<< HEAD
     $repnom = $reqnomitemencoursdeconstruction->fetch();
     echo $repconstencours['nombre'].' '.$repnom['nombatiment'].' en construction.';
+=======
+    $repnomitemencoursdeconstruction = $reqnomitemencoursdeconstruction->fetch() ;
+    
+    // Formulaire pour gérer la construction :
+    echo '<form method="post" action="script/gererconstruction.php">';
+    echo $repconstencours['nombre'].' '.$repnomitemencoursdeconstruction['nombatiment'].' en construction. Reste à investir '.$repconstencours['avancementbiens'].' biens';
+    if($repconstencours['avancementtitane']>0)
+      {
+      echo 'et ' . $repconstencours['avancementtitane'] . ' métaux rares';
+      }
+    echo ' pour le prochain.';  
+    echo '<input type="hidden" name="id" value="'.$_GET['id'].'">';
+    echo '<input id = "checkbox'.$repconstencours['idconst'].'" type="checkbox" name="perdreressources"/> <label for="checkbox'.$repconstencours['idconst'].'"></label>';
+    echo '<input type="hidden" name="idconstruction" value="'.$repconstencours['idconst'].'">';
+    echo '<input type="submit" formaction="script/gererconstruction.php?action=annuler" value="Annuler"/>';
+    if ($repconstencours['ordredeconstruction']>0)
+      { // La construction est en cours.
+      echo ' <input type="submit" formaction="script/gererconstruction.php?action=deprioriser" value="Déprioriser"/>';
+      echo ' <input type="submit" formaction="script/gererconstruction.php?action=pause" value="En pause"/>';
+      }
+    elseif ($repconstencours['ordredeconstruction']<1)
+      { // La construction est sur pause.
+      echo ' CONTRUCTION ARRÊTÉE <input type="submit" formaction="script/gererconstruction.php?action=reprise" value="Reprendre"/>';
+      } 
+    echo '</form></br>';
+    
+    $reqmess->execute(array('Construction', $repconstencours['idconst']));
+    $message = $reqmess->fetch() ;
+    if (!empty($message['message']))
+      {echo 'Non finit car : '.$message['message'] . '</br></br>' ; }
+    else
+      {echo '</br>' ; }
+>>>>>>> master
     }
   elseif ($repconstencours['trucaconstruire'] < 0)
     { // Cas des vaisseaux
@@ -203,6 +237,7 @@ while ($repconstencours = $reqconstencours->fetch())
     $repnom = $reqnomvaisseau->fetch();
     echo 'Un vaisseau de type \'' . $repnom['nomvaisseau'] . '\' est en cours de construction.';
     }
+<<<<<<< HEAD
   echo ' Reste à investir '.$repconstencours['avancementbiens'].' biens';
   if($repconstencours['avancementtitane']>0)
     {
@@ -232,6 +267,10 @@ while ($repconstencours = $reqconstencours->fetch())
   } // Fin de la partie sur les constructions en cours.
 } // Fin de la partie si la planète possède au moins 1 ouvrier.
 
+=======
+  }
+}
+>>>>>>> master
 echo '<table class="silo"><caption><h3>Entrepôts</h3></caption><tr><td class="silo1ereligne">Objet</td><td class="silo1ereligne">Quantité</td><td class="silo1ereligne">Utilité</td></tr>';
 if ($repplanete['biens']>0)
   {

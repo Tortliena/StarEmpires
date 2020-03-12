@@ -17,7 +17,11 @@ $reqcreerasteroides = $bda->prepare('INSERT INTO champsasteroides (xaste , yaste
 $reqcreerplanete = $bdg->prepare('INSERT INTO planete(xplanete, yplanete, universplanete, taille, lune, biens) VALUES(?, ?, ?, ?, ?)');
 
 // Créer vaisseau
+<<<<<<< HEAD
 $reqcreervaiseau = $bdg->prepare('INSERT INTO vaisseau(idjoueurvaisseau, x, y, univers, nomvaisseau, HPmaxvaisseau, HPvaisseau) VALUES(?, ?, ?, ?, ?, ?, ?)');
+=======
+$reqcreervaiseau = $bdg->prepare('INSERT INTO vaisseau(idjoueurvaisseau, typevaisseau, x, y, univers, nomvaisseau, HPmaxvaisseau, HPvaisseau) VALUES(?, ?, ?, ?, ?, ?, ?, ?)');
+>>>>>>> master
 $reqinfovaisseau = $bdg->prepare('SELECT idvaisseau FROM vaisseau ORDER BY idvaisseau DESC LIMIT 1');
 $reqcreercomposant = $bdg->prepare('INSERT INTO composantvaisseau(idvaisseaucompo, iditemcomposant, typecomposant) VALUES(?, ?, ?)');
 $reqcreerordredeplacement = $bdg->prepare('INSERT INTO ordredeplacement(idvaisseaudeplacement, xdestination, ydestination, universdestination, idjoueurduvaisseau, typeordre, bloque) VALUES(?, ?, ?, ?, ?, ?, ?)');

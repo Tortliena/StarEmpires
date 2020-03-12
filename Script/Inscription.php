@@ -61,6 +61,7 @@ $reqcreervariation->execute(array($dernierIDplanete, 5*$nbdepop, $nbdepop));
 $reqcreerlimiteplanete = $bdg->prepare('INSERT INTO limiteplanete (idlimiteplanete ) VALUES(?)');
 $reqcreerlimiteplanete->execute(array($dernierIDplanete));
 
+<<<<<<< HEAD
 
 $reqcreerdesign = $bdg->prepare('INSERT INTO vaisseau (idjoueurvaisseau, nomvaisseau, univers, x, y) VALUES (?, ?, ?, ?, ?)'); 
 $reqcreerdesign->execute(array(-$dernierIDjoueur, 'Vaisseau d\'exploration', 0, 0, 0));
@@ -69,6 +70,8 @@ $reqdeplacementbloque = $bdg->prepare('INSERT INTO ordredeplacement (idvaisseaud
 // 9 = ordre spécial pour les design. bloque = 2 = impossible de supprimer/modifier.
 $reqdeplacementbloque->execute(array($dernierIDvaisseau, -1, -1, -1, $dernierIDjoueur, 9, 2));
 
+=======
+>>>>>>> master
 $_SESSION['pseudo'] = $_POST["pseudo"];
 $_SESSION['id'] = $dernierIDjoueur;
 

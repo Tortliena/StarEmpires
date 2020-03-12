@@ -25,6 +25,7 @@ $recuperereventencours = $bdg->prepare('SELECT * FROM choixevents WHERE idjoueur
 $recuperereventencours->execute(array($_SESSION['id']));
 $eventencours = $recuperereventencours->fetch();
 
+<<<<<<< HEAD
 if ($replvl['lvl'] > 3)
   {
   echo '<h3>Stats d\'empire :</h3>';
@@ -38,6 +39,18 @@ if ($replvl['lvl'] > 3)
 
   echo 'Votre empire compte '.$repcompterpop['nbpop'].' de population réparti sur '.$repcompterpop['nbpla'].' planètes.</br>'; 
   }
+=======
+echo '<h3>Stats d\'empire :</h3>';
+$reqcompterpop = $bdg->prepare('SELECT  COUNT(*) AS nbpop,
+                                        COUNT(DISTINCT pl.idplanete) AS nbpla
+                                        FROM population po
+                                        INNER JOIN planete pl ON pl.idplanete = po.idplanetepop
+                                        WHERE pl.idjoueurplanete = ?');
+$reqcompterpop->execute(array($_SESSION['id']));                                   
+$repcompterpop = $reqcompterpop->fetch();
+
+echo 'Votre empire compte '.$repcompterpop['nbpop'].' de population réparti sur '.$repcompterpop['nbpla'].' planètes.</br>'; 
+>>>>>>> master
 
 if (isset($eventencours['texteevent']))
   {

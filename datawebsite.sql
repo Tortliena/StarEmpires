@@ -3049,6 +3049,7 @@ INSERT INTO `typepop` VALUES (1,"citoyen",-50,0),
 
 
 SET foreign_key_checks = 1;
+<<<<<<< HEAD
 CREATE DATABASE IF NOT EXISTS `datawebsite`;
 
 USE `datawebsite`;
@@ -3161,3 +3162,5 @@ INSERT INTO `typepop` VALUES (1,"citoyen",-50,0),
 
 
 SET foreign_key_checks = 1;
+=======
+>>>>>>> master

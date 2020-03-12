@@ -19,7 +19,11 @@ $reqcountpop = $bdg->prepare('SELECT  	sum(case when po.typepop = ? then 1 else 
 $reqrechechemoteur = $bdg->prepare('SELECT COUNT(*) AS nb FROM rech_joueur WHERE idjoueurrecherche = ? AND rechposs = 1');
 
 // Pour lvl 2 à 3
+<<<<<<< HEAD
 $reqvaisseausorti = $bdg->prepare('SELECT COUNT(*) AS nb FROM vaisseau WHERE idjoueurvaisseau = ? AND univers <> 0');
+=======
+$reqvaisseausorti = $bdg->prepare('SELECT COUNT(*) AS nb FROM vaisseau WHERE idjoueurvaisseau = ? AND x = ?');
+>>>>>>> master
 
 // Pour lvl 3 à 4
 $reqcompterplanete = $bdg->prepare('SELECT COUNT(*) AS nb FROM planete WHERE idjoueurplanete = ?') ; 

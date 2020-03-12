@@ -67,6 +67,10 @@ $reqinfoitem = $bdd->prepare('SELECT coutbien, couttitane, itemnecessaire, nomli
                 }
             else
                 { // On a du stock, donc on le consomme.
+<<<<<<< HEAD
+=======
+                include("../function/consommercreeritemsplanetemultiple.php");
+>>>>>>> master
                 consommercreeritemsplanetemultiple($repinfoitem['itemnecessaire'], 0, $_POST['id'], $_POST['combien']);
                 }
             }
