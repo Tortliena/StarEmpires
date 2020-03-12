@@ -17,16 +17,20 @@ $reqlocalisationplanete = $bdg->prepare('SELECT xplanete, yplanete, universplane
 $construirevaisseau = $bdg->prepare('INSERT INTO vaisseau (idjoueurvaisseau, univers, x, y) VALUES (?, ?, ?, ?)');
 
 // Cas des conceptions :
+$reqinsertcomposant = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)');
+$reqcomposant = $bdg->prepare('SELECT iditemcomposant, typecomposant FROM composantvaisseau WHERE idvaisseaucompo = ?');
+$reqinfovaisseau = $bdg->prepare('SELECT idjoueurvaisseau FROM vaisseau WHERE idvaisseau = ?');
+$reqsupprimerdeplacement = $bdg->prepare('DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
+$requpdatevaisseau = $bdg->prepare('UPDATE vaisseau SET HPmaxvaisseau = 1 WHERE idvaisseau = ?');
+
+/*
+$reqsupprimercomposant = $bdg->prepare('DELETE FROM composantvaisseau WHERE idvaisseaucompo = ? AND typecomposant = ?');
+$requpdatedeplacement = $bdg->prepare('UPDATE ordredeplacement SET bloque = 1 WHERE idvaisseaudeplacement = ?');
 $reqconceptioninfo = $bdg->prepare('SELECT v.nomvaisseau, c.idvaisseauconception, c.idnouvcomposant, c.typecomposant
     FROM vaisseau v INNER JOIN conceptionencours c
     ON c.idvaisseauconception = v.idvaisseau
     WHERE idconstruction = ?');
-$reqinsertcomposant = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)');
-$reqsupprimercomposant = $bdg->prepare('DELETE FROM composantvaisseau WHERE idvaisseaucompo = ? AND typecomposant = ?');
-$reqsupprimerconception = $bdg->prepare('DELETE FROM conceptionencours WHERE idvaisseauconception = ? AND typecomposant = ?');
-$reqsupprimerdeplacement = $bdg->prepare('DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
-$requpdatevaisseau = $bdg->prepare('UPDATE vaisseau SET HPmaxvaisseau = 1 WHERE idvaisseau = ?');
-$requpdatedeplacement = $bdg->prepare('UPDATE ordredeplacement SET bloque = 1 WHERE idvaisseaudeplacement = ?');
+*/
 
 // Par ailleurs :
 $miseajourdesressources = $bdg->prepare("UPDATE planete SET biens = ?, titane = ? WHERE idplanete = ?");
@@ -56,6 +60,7 @@ while ($repplanete = $reqplanete->fetch())
         $nouvavtitane = $repconstruction['avancementbiens'] ;
         $itemaajouteraustock = 0;
 
+/*
         // Si c'est une rénovation de vaisseau (-1 = changer composant, -2 = réparer) :
         if ($repconstruction['trucaconstruire'] == -1 OR $repconstruction['trucaconstruire'] == -2)
             {
@@ -77,6 +82,7 @@ while ($repplanete = $reqplanete->fetch())
             $reqcategorie ->execute(array($repconstruction['trucaconstruire']));
             $repcategorie = $reqcategorie ->fetch();
             }
+*/
 
         a: // Revenir ici si prod se finie et qu'il y a un round 2.
 
@@ -130,17 +136,12 @@ while ($repplanete = $reqplanete->fetch())
         // Si je peux finir le chantier : 
         if ($nouvavbien == 0 AND $nouvavtitane == 0)
             {
+            $reqcategorie ->execute(array($repconstruction['trucaconstruire']));
+            $repcategorie = $reqcategorie ->fetch();
+
             if ($repcategorie['typeitem'] == 'batiment')
                 { // cas des batiments
                 $construirebatiment->execute(array($repconstruction['trucaconstruire'], $repplanete['idplanetevariation'] ));
-                }
-
-            elseif ($repcategorie['typeitem'] == 'vaisseau')
-                { // cas des vaisseaux
-                $reqlocalisationplanete->execute(array($repplanete['idplanetevariation']));
-                $replocalisationplanete = $reqlocalisationplanete->fetch();
-
-                $construirevaisseau->execute(array($repplanete['idjoueurplanete'], 0, $repplanete['idplanetevariation'], 0));             
                 }
 
             elseif ($repcategorie['typeitem'] == 'composant')
@@ -148,6 +149,7 @@ while ($repplanete = $reqplanete->fetch())
                 $itemaajouteraustock = $repconstruction['trucaconstruire'];
                 }
 
+/*
             elseif ($repcategorie['typeitem'] == 'conception')
                 { // Cas d'un changement de composant dans un vaisseau
                 if ($repconstruction['trucaconstruire'] == -1)
@@ -167,6 +169,32 @@ while ($repplanete = $reqplanete->fetch())
                 // Supprimer l'ordre de déplacement.
                 $reqsupprimerdeplacement->execute(array($repconceptioninfo['idvaisseauconception']));
                 }
+*/
+
+            elseif ($repconstruction['trucaconstruire'] < 0)
+                { // cas des vaisseaux
+                $reqlocalisationplanete->execute(array($repplanete['idplanetevariation']));
+                $replocalisationplanete = $reqlocalisationplanete->fetch();
+
+                $reqinfovaisseau->execute(array(-$repconstruction['trucaconstruire']));
+                $repinfovaisseau = $reqinfovaisseau->fetch();
+
+                if ($repinfovaisseau['idjoueurvaisseau'] < 0)
+                	{ // Si propriétaire est négatif, alors c'est un plan, donc c'est un nouveau vaisseau.
+					$construirevaisseau->execute(array($repplanete['idjoueurplanete'], 0, $repplanete['idplanetevariation'], 0));
+                	$IDdunouveauvaisseau = $bdg->lastInsertId();
+	                $reqcomposant->execute(array(-$repconstruction['trucaconstruire']));
+	                while ($repcomposant= $reqcomposant->fetch())
+	                    {// Insérer les composants dans le nouveau vaisseau
+	                    $reqinsertcomposant->execute(array($IDdunouveauvaisseau, $repcomposant['iditemcomposant'], $repcomposant['typecomposant']));
+	                    }
+					}
+				else
+					{ // Cas des rénovation des vaisseaux :
+					$reqsupprimerdeplacement->execute(array(-$repconstruction['trucaconstruire']));
+					$requpdatevaisseau->execute(array($repplanete['idjoueurplanete'], -$repconstruction['trucaconstruire']));
+					}
+                 }
 
             elseif ($repconstruction['trucaconstruire'] == 7)
                 { // 7 = recycler des débris de biens

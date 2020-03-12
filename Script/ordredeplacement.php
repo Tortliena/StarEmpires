@@ -112,13 +112,7 @@ if ($_POST['typeordre'] == 4)
 // supprimer ordre précédent. 
 $reqsupprimerordreprecedent = $bdg->prepare('DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?'); 
 $reqsupprimerordreprecedent->execute(array($_POST['idvaisseau'])); 
- 
-// Cas d'une suppression d'un ordre de rénovation de vaisseau : 
-// Récupérer l'ordre de construction : 
-$reqnumerodeconstruction = $bdg->prepare('SELECT idconstruction FROM conceptionencours WHERE idvaisseauconception = ?'); 
-$reqnumerodeconstruction->execute(array($_POST['idvaisseau'])); 
-$repnumerodeconstruction = $reqnumerodeconstruction->fetch(); 
- 
+
 // Supprimer ordre de bataille : 
 $reqsupprimerbataille = $bdg->prepare('DELETE FROM bataille WHERE idvaisseauoffensif  = ?'); 
 $reqsupprimerbataille->execute(array($_POST['idvaisseau'])); 
@@ -128,27 +122,16 @@ if ($_POST['typeordre'] == 5)
     $reqcreerbataille = $bdg->prepare('INSERT INTO bataille (idvaisseauoffensif,   idvaisseaudefensif) VALUES(?, ?)') ; 
     $reqcreerbataille ->execute(array($_POST['idvaisseau'], $_POST['xobjectif'])); 
     $message = 46; 
-    } 
- 
-if (isset($repnumerodeconstruction['idconstruction'])) 
-    { 
-    // Supprimer la construction en cours : 
-    $reqsupprimerconstructionencours = $bdg->prepare('DELETE FROM construction WHERE idconst = ?'); 
-    $reqsupprimerconstructionencours->execute(array($repnumerodeconstruction['idconstruction'])); 
- 
-    // Supprimer la partie spéciale liée à la conception en cours : 
-    $reqsupprimerconceptionencours = $bdg->prepare('DELETE FROM conceptionencours WHERE idvaisseauconception = ?'); 
-    $reqsupprimerconceptionencours->execute(array($_POST['idvaisseau'])); 
-    }  
+    }
  
 if ($_POST['typeordre'] == 10) 
     { // Ordre de saut. 
     if ($repvaisseau['univers'] >0) 
-        { 
+        { // Univers commun
         $repvaisseau['univers'] = -2; 
         } 
     elseif ($repvaisseau['univers'] ==-2) 
-        { 
+        { // univers du joueur.
         $repvaisseau['univers'] = $repvaisseau['idjoueurvaisseau']; 
         } 
     }
@@ -175,14 +158,6 @@ if ($_POST['typeordre'] == -1)
         { // Rentrer en orbite. 
         $message = 53 ; 
         }  
-    elseif ($repordreactuel['typeordre'] == 6) 
-        { // Rentrer en orbite. 
-        $message = 33 ; 
-        }  
-    elseif ($repordreactuel['typeordre'] == 7) 
-        { // Rentrer en orbite. 
-        $message = 54 ; 
-        }  
     else 
         {// Par défaut, message générique. 
         $message = 20 ; 
@@ -193,7 +168,8 @@ else
     $req = $bdg->prepare('INSERT INTO ordredeplacement(idvaisseaudeplacement , xdestination , ydestination , universdestination, idjoueurduvaisseau, typeordre) VALUES(?, ?, ?, ?, ?, ?)'); 
     $req->execute(array($_POST['idvaisseau'], $_POST['xobjectif'], $_POST['yobjectif'], $repvaisseau['univers'], $_SESSION['id'], $_POST['typeordre'])); 
     } 
- 
+
+/*
 if ($_POST['typeordre'] == 7 OR $_POST['typeordre'] == 6) 
     { // 7 = réparer ; // 6 = changer composant. 
     // Vérifier localisation du vaisseau 
@@ -223,7 +199,7 @@ if ($_POST['typeordre'] == 7 OR $_POST['typeordre'] == 6)
             $prixrenovation = 20;  
             $message = 32 ;  
             } 
- 
+
         // Gestion des réparations et des rénovations avec les constructions : 
         // Calculer le prix de réparation avec les dégats. 
         $prixbienreparation = ROUND( 
@@ -253,7 +229,8 @@ if ($_POST['typeordre'] == 7 OR $_POST['typeordre'] == 6)
         goto a;  
         } 
     } 
- 
+ */
+    
 if (isset($message)) 
     { 
     a: 

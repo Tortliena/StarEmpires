@@ -61,7 +61,6 @@ $reqcreervariation->execute(array($dernierIDplanete, 5*$nbdepop, $nbdepop));
 $reqcreerlimiteplanete = $bdg->prepare('INSERT INTO limiteplanete (idlimiteplanete ) VALUES(?)');
 $reqcreerlimiteplanete->execute(array($dernierIDplanete));
 
-
 $reqcreerdesign = $bdg->prepare('INSERT INTO vaisseau (idjoueurvaisseau, nomvaisseau, univers, x, y) VALUES (?, ?, ?, ?, ?)'); 
 $reqcreerdesign->execute(array(-$dernierIDjoueur, 'Vaisseau d\'exploration', 0, 0, 0));
 $dernierIDvaisseau = $bdg->lastInsertId();

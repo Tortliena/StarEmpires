@@ -11084,6 +11084,7 @@ INSERT INTO `tour` VALUES (1,"2020-03-07 23:25:48","Le tour commence.</br> le nu
 
 
 SET foreign_key_checks = 1;
+<<<<<<< HEAD
 CREATE DATABASE IF NOT EXISTS `autre`;
 
 USE `autre`;
@@ -11245,3 +11246,5 @@ INSERT INTO `tour` VALUES (1,"2020-03-07 23:25:48","Le tour commence.</br> le nu
 
 
 SET foreign_key_checks = 1;
+=======
+>>>>>>> master

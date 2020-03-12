@@ -1,6 +1,6 @@
 <?php
-// Utiliser avec composanthangars(NOMTYPECOMPOSANT, $_SESSION['id'], $_GET['id'], )
-function composanthangars($typecomposant, $idjoueur, $idvaisseau, $idplanete)
+// Utiliser avec composanthangars(NOMTYPECOMPOSANT, $_SESSION['id'], $_GET['id'])
+function composanthangars($typecomposant, $idjoueur, $idvaisseau)
   {
   include("include/BDDconnection.php");
   $reqcomposantsurlevaisseau
@@ -41,9 +41,9 @@ function composanthangars($typecomposant, $idjoueur, $idvaisseau, $idplanete)
                     FROM gamer.silo s
                     INNER JOIN items i
                     ON i.iditem = s.iditems
-                    WHERE s.idplanetesilo = ?
+                    WHERE s.idjoueursilo = ?
                     AND i.souscategorie = ?");
-      $reqsilo ->execute(array($idplanete, $typecomposant));
+      $reqsilo ->execute(array($idjoueur, $typecomposant));
 
       while($repsilo = $reqsilo->fetch())
         { 

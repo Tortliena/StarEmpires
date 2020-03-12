@@ -280,6 +280,20 @@ switch ($_GET["message"])
         echo "Les composants nécessaire pour vaisseau vont être produit. Revenez une fois les composants présents sur votre planète.";
     break;
 
+    case 62:
+        echo "Vous êtes en train d'essayer d'annuler une construction d'un vaisseau (cas particulier). Vous devez cocher la case pour annuler et aucune ressource ne vous sera remboursée (composants inclus).";
+    break;
+
+    case 63:
+        if (empty($_SESSION['message1']) or !isset($_SESSION['message1']))
+        {
+        }
+        else
+        {
+        echo "Vous avez lancé la production de " . $_SESSION['message1'] . " " . $_SESSION['message2'] . " ! Notez que vous ne pouvez lancer la production de vaisseau que un par un.";
+        }
+    break;
+
     }
 
 unset($_SESSION['message1']);

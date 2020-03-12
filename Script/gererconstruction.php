@@ -1,7 +1,7 @@
 <?php
 session_start();
 include("../include/BDDconnection.php");
-
+include("../function/consommercreeritemsplanetemultiple.php");
 
 echo $_SESSION['pseudo'] . '</br>' ;
 echo $_SESSION['id'] . '</br>' ;
@@ -20,37 +20,44 @@ if ($repproprietaireordreconstruction['idplaneteconst'] != $_POST['id'])
     header('Location: ../Accueil.php'); exit();
     }
 
-if ($_GET['action'] == 'annuler' AND $repproprietaireordreconstruction['trucaconstruire'] > 0) 
-    { // Truc à construire doit être supérieur à 1, car sinon on a aussi des conceptions et problème avec déplacement/conception.
-    $reqinfoitem = $bdd->prepare('SELECT itemnecessaire FROM items WHERE iditem = ?');
-    $reqinfoitem->execute(array($repproprietaireordreconstruction['trucaconstruire'])); 
-    $repinfoitem = $reqinfoitem->fetch();
-
-    include("../function/consommercreeritemsplanetemultiple.php");
+if ($_GET['action'] == 'annuler') 
+    {
+    if ($repproprietaireordreconstruction['trucaconstruire'] > 0)
+        { // On est ici en train de gérer les items classique, et si on a consommé quelque chose, alors on le rends.
+        $reqinfoitem = $bdd->prepare('SELECT itemnecessaire FROM items WHERE iditem = ?');
+        $reqinfoitem->execute(array($repproprietaireordreconstruction['trucaconstruire'])); 
+        $repinfoitem = $reqinfoitem->fetch();
+        $nummessage = 14;
+        }
+    elseif ($repproprietaireordreconstruction['trucaconstruire'] < 0)
+        { // On est ici en train de gérer les vaisseaux
+        if (!isset($_POST['perdreressources']))
+            { // Cette partie force à cocher la case pour annuler un vaisseau.
+            $repproprietaireordreconstruction['avancementbiens'] = -1;
+            }
+        $nummessage = 62;
+        $repinfoitem['itemnecessaire'] = 0;
+        }
 
     // Si pas d'avancement ou si on a coché la case on supprime tout.
     if (($repproprietaireordreconstruction['avancementbiens'] == $repproprietaireordreconstruction['prixbiens'] AND $repproprietaireordreconstruction['avancementtitane'] == $repproprietaireordreconstruction['prixtitane']) OR isset($_POST['perdreressources']))
         {
+        $nbitemrembourses = $repproprietaireordreconstruction['nombre'];
+        $nummessage = 13;
         $stmt = $bdg->prepare("DELETE FROM construction WHERE idconst = :idconst");
         $stmt->bindParam(':idconst', $_POST['idconstruction'], PDO::PARAM_INT);
         $stmt->execute();
-        consommercreeritemsplanetemultiple(0, $repinfoitem['itemnecessaire'], $_POST['id'], $repproprietaireordreconstruction['nombre']);
-        header("location: ../planete.php?message=13&id=" . urlencode($_POST['id']));
-        exit(); 
         }  
     else
         {// Si avancé et pas coché, alors on ne laisse qu'une seule construction et on renvoie vers la page avec un message d'alerte.
+        $nbitemrembourses = $repproprietaireordreconstruction['nombre']-1;
         $stmt = $bdg->prepare("UPDATE construction SET nombre = 1 WHERE idconst = :idconst");
         $stmt->bindParam(':idconst', $_POST['idconstruction'], PDO::PARAM_INT);
         $stmt->execute();
-        for ($i = 2; $i <= $repproprietaireordreconstruction['nombre']; $i++)
-            { // On va rembourser la quantité en cours -1 (intérêt du 2)
-            creerconsommeritems(0, $repinfoitem['itemnecessaire'], $_POST['id']);
-            }
-        header("location: ../planete.php?message=14&id=" . urlencode($_POST['id']));
-        exit(); 
         }
-
+    consommercreeritemsplanetemultiple(0, $repinfoitem['itemnecessaire'], $_POST['id'], $nbitemrembourses);
+    header("location: ../planete.php?message=" . urlencode($nummessage) . "&id=" . urlencode($_POST['id']));
+    exit();
     } // Fin annulation de la construction.
 
 elseif ($_GET['action'] == 'deprioriser')
