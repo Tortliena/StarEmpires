@@ -22,6 +22,9 @@ include("vidertable.php");
 // include("eventsuite.php");
 
 // Début de changement des pops avec retrait des ressources. 
+// include("organisationplanete.php");
+
+// Début de changement des pops avec retrait des ressources. 
 include("debchangpop.php");
 
 // Permet de remplir la table *variationstour* qui permet de gérer après les chantiers et les biens.
@@ -49,7 +52,7 @@ include("deplacementvaisseau.php");
 include("exploration.php");
 
 // Applique la production du tour de recherche sur les recherches en cours.
-include("recherchetour.php");
+// include("recherchetour.php");
 
 // Mise à jour des limites des joueurs (pop, bat).
 include("limiteplanete.php");
