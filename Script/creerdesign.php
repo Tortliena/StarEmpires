@@ -49,9 +49,6 @@ $reqdeplacementbloque = $bdg->prepare('INSERT INTO ordredeplacement (idvaisseaud
 $reqdeplacementbloque->execute(array($dernierID, -1, -1, -1, $_SESSION['id'], 9, 2));
 
 include("../function/caracteristiquesvaisseau.php");
-<<<<<<< HEAD
-caracteristiquesvaisesau ($dernierID, -$_SESSION['id']);
-=======
 caracteristiquesvaisesau ($dernierID, $_SESSION['id']);
 >>>>>>> master
 

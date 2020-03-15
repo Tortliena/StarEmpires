@@ -339,6 +339,12 @@ while ($repvaisseau = $reqvaisseau->fetch())
         {
         $reqchangementproprioplanete->execute(array($repvaisseau['idjoueurvaisseau'], $repvaisseau['xdestination']));
         $reqpop->execute(array($repvaisseau['xdestination'], 1));
+        
+        $messcolonisation = 'Ce vaisseau vient de coloniser une planete.'  ; 
+        $message ->execute(array($repvaisseau['idjoueurduvaisseau'] , $messcolonisation, 'Vaisseau' , $repvaisseau['idvaisseaudeplacement'])) ;
+        
+        $reqmessageinterne->execute(array('Conseil civil', $repvaisseau['idjoueurvaisseau'], 0, 'planete colonisee', 'Nous venons de coloniser une nouvelle planete.'));
+        
         }
     $reqsupprimerordreprecedent->execute(array($repvaisseau['idvaisseaudeplacement']));
     }
