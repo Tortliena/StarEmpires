@@ -1,4 +1,3 @@
-
 <?php 
 session_start(); 
 if (!$_SESSION['pseudo']) 
@@ -43,7 +42,9 @@ echo 'Taille : '.$repplanete['taille'].' (population maximale de base de la plan
 if ($repplanete['lune'] > 0) 
   { 
   echo 'Lunes : '.$repplanete['lune'].' (permet de construire des bâtiments particuliers).</br>';  
-  } 
+  }
+$efficacite = MIN($repplanete['efficacite'], 100);
+echo 'Efficacite : '.$efficacite.'% (influence la production de la planete)';
  
 echo '</br><h2>Population et bâtiments :</h2>'; 
 echo $repcompterpop['population']. '/'.$repplanete['popmax'].' unités de population au total, composée de '.$repcompterpop['citoyens'].' citoyen(s) ; '.$repcompterpop['ouvriers'].'/'.$repplanete['ouvriermax'].' ouvrier(s) ; '.$repcompterpop['scientifiques'].'/'.$repplanete['scientmax'].' scientifique(s).</br>' ; 

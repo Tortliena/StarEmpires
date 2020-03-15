@@ -24,20 +24,30 @@ $repinfoutilisateur = $reqinfoutilisateur->fetch();
 $recuperereventencours = $bdg->prepare('SELECT * FROM choixevents WHERE idjoueurevent= ?'); 
 $recuperereventencours->execute(array($_SESSION['id'])); 
 $eventencours = $recuperereventencours->fetch(); 
- 
+
+    
+    $reqorganisationactuelle = $bdg->prepare('SELECT  FROM planete WHERE idjoueurplanete = ? ');
+
 if ($replvl['lvl'] > 3) 
-  { 
-  echo '<h3>Stats d\'empire :</h3>'; 
-  $reqcompterpop = $bdg->prepare('SELECT  COUNT(*) AS nbpop, 
-                                          COUNT(DISTINCT pl.idplanete) AS nbpla 
-                                          FROM population po 
-                                          INNER JOIN planete pl ON pl.idplanete = po.idplanetepop 
-                                          WHERE pl.idjoueurplanete = ?'); 
-  $reqcompterpop->execute(array($_SESSION['id']));                                    
-  $repcompterpop = $reqcompterpop->fetch(); 
- 
-  echo 'Votre empire compte '.$repcompterpop['nbpop'].' de population réparti sur '.$repcompterpop['nbpla'].' planètes.</br>';  
-  } 
+    { 
+    echo '<h3>Stats d\'empire :</h3>'; 
+    $reqcompterpop = $bdg->prepare('SELECT  COUNT(*) AS nbpop, 
+                                            COUNT(DISTINCT pl.idplanete) AS nbpla 
+                                            FROM population po 
+                                            INNER JOIN planete pl ON pl.idplanete = po.idplanetepop 
+                                            WHERE pl.idjoueurplanete = ?');
+    $reqcompterpop->execute(array($_SESSION['id']));                                    
+    $repcompterpop = $reqcompterpop->fetch();
+    
+    $reqorganisationactuelle = $bdg->prepare('SELECT SUM(organisation) AS orga FROM planete WHERE idjoueurplanete = ? ');
+    $reqorganisationactuelle->execute(array($_SESSION['id']));                                    
+    $reporganisationactuelle = $reqorganisationactuelle->fetch();
+    
+    echo 'Votre empire compte '.$repcompterpop['nbpop'].' de population réparti sur '.$repcompterpop['nbpla'].' planètes.</br>';
+    
+    $organisationmoyenne = FLOOR($reporganisationactuelle['orga']/$repcompterpop['nbpop']/10);
+    echo 'Organisation moyenne de votre empire : '.$organisationmoyenne.'%.<br>';
+    } 
  
 if (isset($eventencours['texteevent'])) 
   { 

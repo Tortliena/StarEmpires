@@ -50,7 +50,6 @@ $reqdeplacementbloque->execute(array($dernierID, -1, -1, -1, $_SESSION['id'], 9,
 
 include("../function/caracteristiquesvaisseau.php");
 caracteristiquesvaisesau ($dernierID, $_SESSION['id']);
->>>>>>> master
 
 header('Location: ../conception.php?message=55');
 ?>

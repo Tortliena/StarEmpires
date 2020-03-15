@@ -8,6 +8,7 @@ $creationvariationdutour = $bdg->prepare('INSERT INTO variationstour (idplanetev
 
 // Gerer les planetes une par une.
 $reqcompterpop = $bdg->query('SELECT  	po.idplanetepop,
+                                        pl.efficacite,
                                         COUNT(*) AS population,
                                         sum(case when po.typepop = 1 then 1 else 0 end) AS citoyens,
                                         sum(case when po.typepop = 2 then 1 else 0 end) AS ouvriers,
@@ -18,17 +19,19 @@ $reqcompterpop = $bdg->query('SELECT  	po.idplanetepop,
 
 while ($repcompterpop = $reqcompterpop->fetch())
 	{
+    $efficite = MIN(100, $repcompterpop['efficacite']);
+    
 	// Production des citoyens :
-	$prodbiens = $repcompterpop['citoyens'] * 5;
+	$prodbiens = floor($repcompterpop['citoyens'] * 5 * $efficite /100) ;
 
 	// Production des ouvriers :
-	$prodchantier = $repcompterpop['ouvriers'] * 20;
+	$prodchantier = floor($repcompterpop['ouvriers'] * 20 * $efficite /100) ;
 
 	// Production de recherche :
-    $prodrecherche = $repcompterpop['scientifiques'] * 1;
+    $prodrecherche = floor($repcompterpop['scientifiques'] * 1 * $efficite /100) ;
    
 	// consommation de la population :
-	$consommation = $repcompterpop['population'] * 1  ;
+	$consommation = $repcompterpop['population'] * 1 ;
 
 	$creationvariationdutour->execute(array($repcompterpop['idplanetepop'], $prodbiens, $prodchantier, $prodrecherche, $consommation));
 	}
