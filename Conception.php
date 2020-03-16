@@ -38,12 +38,19 @@ if(!isset($_GET['id']))
 	echo '&emsp;&emsp;&emsp;&emsp;&emsp;<input type="submit" value="Commencer" /></p></form>' ; 
 	} 
 else 
-	{ 
+	{ // Section gérant les modifications de plan.
 	$reqvaiss = $bdg->prepare('SELECT * FROM vaisseau WHERE idjoueurvaisseau = ? AND idvaisseau = ?'); 
 	$reqvaiss->execute(array(-$_SESSION['id'], $_GET['id'])); 
 	$repvaiss = $reqvaiss->fetch(); 
  
-	echo '<h3>' . $repvaiss['nomvaisseau'] . ' : </h3>'; 
+	echo '<form method="post" action="script/renommer.php"><h3>' . $repvaiss['nomvaisseau'] . ' : ';
+	echo '<input type="text" name="nouveaunom" id="nouveaunom" placeholder="nouveau nom" size="25" maxlength="80"/> ';
+	echo '<input name="id" type="hidden" value="'.$_GET['id'].'"> ';
+	echo '<input name="type" type="hidden" value="vaisseau"> ';
+	echo '<input type="submit" value="Renommer"/></h3></form> ';
+
+
+
 	 
 	list($structure, $structuremax) = structurevaisseau ($repvaiss['idvaisseau']); 
 	echo $structure.'/'.$structuremax.' de structure. </br>'; 

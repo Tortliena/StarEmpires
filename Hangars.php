@@ -17,19 +17,9 @@ $repvaisseau = $reqvaisseau->fetch();
 if ($repvaisseau['idjoueurvaisseau'] != $_SESSION['id']) 
   { header('Location: Accueil.php'); exit(); } 
  
-if ($repvaisseau['univers'] == 0) 
-  { 
-  $reqplanete = $bdg->prepare('SELECT idplanete, idjoueurplanete FROM planete WHERE idplanete = ? LIMIT 1'); 
-  $reqplanete->execute(array($repvaisseau['x'])); 
-  $repplanete = $reqplanete->fetch(); 
-  } 
-else  
-  { 
-  $reqplanete = $bdg->prepare('SELECT idplanete, idjoueurplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? LIMIT 1'); 
-  $reqplanete->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers'])); 
-  $repplanete = $reqplanete->fetch(); 
-  } 
- 
+$reqplanete = $bdg->prepare('SELECT idplanete, idjoueurplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? LIMIT 1'); 
+$reqplanete->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers'])); 
+$repplanete = $reqplanete->fetch(); 
 ?> 
  
 <div class="corps"> 
@@ -201,22 +191,22 @@ if ($repvaisseau['y'] == 0 AND $repvaisseau['univers'] == 0)
     // Afficher ce qui est actuellement sur votre vaisseau.  
     echo '<h2>Composants dans votre vaisseau :</h2>'; 
      
-    composanthangars('moteur', $_SESSION['id'], $_GET['id'], $repplanete['idplanete']); 
+    composanthangars('moteur', $_SESSION['id'], $_GET['id']); 
  
-    composanthangars('soute', $_SESSION['id'], $_GET['id'], $repplanete['idplanete']); 
+    composanthangars('soute', $_SESSION['id'], $_GET['id']); 
  
-    composanthangars('arme', $_SESSION['id'], $_GET['id'], $repplanete['idplanete']); 
+    composanthangars('arme', $_SESSION['id'], $_GET['id']); 
  
     if ($replvl['lvl']>=8) 
       { 
       // Donner accès à cette partie plus tard dans les niveaux. 
-      composanthangars('coque', $_SESSION['id'], $_GET['id'], $repplanete['idplanete']); 
+      composanthangars('coque', $_SESSION['id'], $_GET['id']); 
       } 
  
     if ($replvl['lvl']>=10) 
       { 
       // Donner accès à cette partie plus tard dans les niveaux. 
-      composanthangars('noyau', $_SESSION['id'], $_GET['id'], $repplanete['idplanete']); 
+      composanthangars('noyau', $_SESSION['id'], $_GET['id']); 
       } 
  
     echo '<h2>Composants dans les stocks :</h2>'; 
@@ -225,18 +215,144 @@ if ($repvaisseau['y'] == 0 AND $repvaisseau['univers'] == 0)
                     FROM gamer.silo s 
                     INNER JOIN items i 
                     ON i.iditem = s.iditems 
-                    WHERE s.idplanetesilo = ? 
+                    WHERE s.idjoueursilo = ? 
                     AND i.typeitem = 'composant'"); 
-    $reqsiloitems->execute(array($repplanete['idplanete'])); 
+    $reqsiloitems->execute(array($_SESSION['id'])); 
  
     $b = 0; // Permet de gérer le cas avec 0 composant en stock 
     while($repsiloitems = $reqsiloitems->fetch()) 
-      { 
- 
-      if ($repsiloitems['quantite']>0) 
-        { 
-        $b++; 
-        echo $repsiloitems['quantite'] . ' ' . $repsiloitems['nombatiment'] . '</br>'; 
+      {  
+      formulaireordredeplacement(10, $_GET['id'], 'Saut dimensionnel : ', 0, 0, 0);  
+      }  
+  
+  echo '<h3></br>Votre vaisseau est au hangars.</h3>' ;  
+  if (isset($reponseordredeplacementactuel['typeordre']))  
+    {  
+    annulerordrededeplacement($reponseordredeplacementactuel['typeordre'], $_GET['id'], $reponseordredeplacementactuel['xdestination'], $reponseordredeplacementactuel['ydestination'], $reponseordredeplacementactuel['bloque']);  
+    }  
+  
+  $reqinfoplanete = $bdg->prepare('SELECT nomplanete, xplanete, yplanete, universplanete FROM planete WHERE idplanete = ?');  
+  $reqinfoplanete->execute(array($repvaisseau['x']));  
+  $repinfoplanete = $reqinfoplanete->fetch();  
+  // Ordre de sortir du hangars.  
+  formulaireordredeplacement(4, $_GET['id'], 0, 0, 0, $repinfoplanete['nomplanete']);  
+  
+  // Permet d'afficher cette partie avec le niveau suffisant.  
+  if ($replvl['lvl']>=6)  
+    {  
+    // Afficher ce qui est actuellement sur votre vaisseau.   
+    echo '<h2>Composants dans votre vaisseau :</h2>';  
+      
+    composanthangars('moteur', $_SESSION['id'], $_GET['id'], $repplanete['idplanete']);  
+  
+    composanthangars('soute', $_SESSION['id'], $_GET['id'], $repplanete['idplanete']);  
+  
+    composanthangars('arme', $_SESSION['id'], $_GET['id'], $repplanete['idplanete']);  
+  
+    if ($replvl['lvl']>=8)  
+      {  
+      // Donner accès à cette partie plus tard dans les niveaux.  
+      composanthangars('coque', $_SESSION['id'], $_GET['id'], $repplanete['idplanete']);  
+      }  
+  
+    if ($replvl['lvl']>=10)  
+      {  
+      // Donner accès à cette partie plus tard dans les niveaux.  
+      composanthangars('noyau', $_SESSION['id'], $_GET['id'], $repplanete['idplanete']);  
+      }  
+  
+    echo '<h2>Composants dans les stocks :</h2>';  
+    $reqsiloitems = $bdd->prepare("  
+                    SELECT s.quantite, i.description, i.nombatiment  
+                    FROM gamer.silo s  
+                    INNER JOIN items i  
+                    ON i.iditem = s.iditems  
+                    WHERE s.idplanetesilo = ?  
+                    AND i.typeitem = 'composant'");  
+    $reqsiloitems->execute(array($repplanete['idplanete']));  
+  
+    $b = 0; // Permet de gérer le cas avec 0 composant en stock  
+    while($repsiloitems = $reqsiloitems->fetch())  
+      {  
+  
+      if ($repsiloitems['quantite']>0)  
+        {  
+        $b++;  
+        echo $repsiloitems['quantite'] . ' ' . $repsiloitems['nombatiment'] . '</br>';  
+        }   
+      }  
+    if ($b == 0)  
+      {  
+      echo 'Rien en stock' ;   
+      }  
+    } // Fin de la partie sur les modules.   
+  } // Fin de la partie dans le hangars.  
+  
+elseif ($repvaisseau['univers'] == 0)  
+  {// Si le vaisseau est dans l'hyperespace :  
+  $jourrestant = $reponseordredeplacementactuel['xdestination']+1;  
+  echo '<p>Votre vaisseau est en cours de voyage. Reste '.$jourrestant.' jours.</p>';  
+  }  
+  
+// Si le vaisseau est de sortie sur la carte :  
+else  
+  {  
+  $reqcomposantsurlevaisseau->execute(array($_GET['id'], 'noyau'));  
+  $repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch();  
+  if (isset($repcomposantsurlevaisseau['nombatiment']))  
+      {  
+      formulaireordredeplacement(10, $_GET['id'], 'Saut dimensionnel : ', 0, 0, 0);  
+      }  
+    
+  if ($repvaisseau['univers'] > 0)  
+    {  
+    $xymax = 5 ; // valeurs maximales de la carte.  
+    }  
+  else  
+    {  
+    $xymax = 20 ; // valeurs maximales de la carte.  
+    }  
+  
+  // Si le vaisseau se trouve proche de l'une de nos planètes.  
+  if ($repplanete['idjoueurplanete'] == $_SESSION['id'])  
+    {  
+    // Formulaire pour rentrer en orbite : ordre de type 3.  
+    formulaireordredeplacement(3, $_GET['id'], 0, 0, 0, 0);  
+    }  
+  
+    // Si il y a un ordre de déplacement en cours :   
+    if (isset($reponseordredeplacementactuel['typeordre']))  
+      {  
+      annulerordrededeplacement($reponseordredeplacementactuel['typeordre'], $_GET['id'], $reponseordredeplacementactuel['xdestination'], $reponseordredeplacementactuel['ydestination'], $reponseordredeplacementactuel['bloque']);  
+      }  
+  
+    echo '<p>Votre vaisseau est en balade en ' . $repvaisseau['univers'] . ' , ' . $repvaisseau['x'] . ' , ' . $repvaisseau['y'] . '</p>';  
+  
+    // Formulaire pour donner un ordre de déplacement.  
+    if (isset($_GET['x']))  
+      {  
+      formulaireordredeplacement(0, $_GET['id'], 0, $_GET['x'], $_GET['y'], $xymax);  
+      }  
+    else  
+      {  
+      formulaireordredeplacement(0, $_GET['id'], 0, $repvaisseau['x'], $repvaisseau['y'], $xymax);  
+      }  
+  
+    // Formulaire pour coloniser  
+    if (isset($repplanete['idjoueurplanete']) AND $repplanete['idjoueurplanete'] != $_SESSION['id'])  
+      {  
+      formulaireordredeplacement(11, $_GET['id'], 0, $repplanete['idplanete'], 0, 0);  
+      }  
+  
+  
+    // Carte spatiale :  
+    for ($y = 0 ; $y <= $xymax ; $y++)  
+      {  
+    for ($x = 0 ; $x <= $xymax ; $x++)  
+      {  
+      if ($x == 0 AND $y == 0)  
+        { // Début du tableau + tout en haut à gauche.  
+        echo '<table class = "carte"><caption>Univers ' . $repvaisseau['univers'] . '!</caption><tr><td class = "xycarte">x/y</td>' ;  
         }  
       } 
     if ($b == 0) 
@@ -245,127 +361,7 @@ if ($repvaisseau['y'] == 0 AND $repvaisseau['univers'] == 0)
       } 
     } // Fin de la partie sur les modules.  
   } // Fin de la partie dans le hangars. 
- 
-elseif ($repvaisseau['univers'] == 0) 
-  {// Si le vaisseau est dans l'hyperespace : 
-  $jourrestant = $reponseordredeplacementactuel['xdestination']+1; 
-  echo '<p>Votre vaisseau est en cours de voyage. Reste '.$jourrestant.' jours.</p>'; 
-  } 
- 
-// Si le vaisseau est de sortie sur la carte : 
-else 
-  { 
-  $reqcomposantsurlevaisseau->execute(array($_GET['id'], 'noyau')); 
-  $repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch(); 
-  if (isset($repcomposantsurlevaisseau['nombatiment'])) 
-      { 
-      formulaireordredeplacement(10, $_GET['id'], 'Saut dimensionnel : ', 0, 0, 0); 
-      } 
-   
-  if ($repvaisseau['univers'] > 0) 
-    { 
-    $xymax = 5 ; // valeurs maximales de la carte. 
-    } 
-  else 
-    { 
-    $xymax = 20 ; // valeurs maximales de la carte. 
-    } 
- 
-  // Si le vaisseau se trouve proche de l'une de nos planètes. 
-  if ($repplanete['idjoueurplanete'] == $_SESSION['id']) 
-    { 
-    // Formulaire pour rentrer en orbite : ordre de type 3. 
-    formulaireordredeplacement(3, $_GET['id'], 0, 0, 0, 0); 
-    } 
- 
-    // Si il y a un ordre de déplacement en cours :  
-    if (isset($reponseordredeplacementactuel['typeordre'])) 
-      { 
-      annulerordrededeplacement($reponseordredeplacementactuel['typeordre'], $_GET['id'], $reponseordredeplacementactuel['xdestination'], $reponseordredeplacementactuel['ydestination'], $reponseordredeplacementactuel['bloque']); 
-      } 
- 
-    echo '<p>Votre vaisseau est en balade en ' . $repvaisseau['univers'] . ' , ' . $repvaisseau['x'] . ' , ' . $repvaisseau['y'] . '</p>'; 
- 
-    // Formulaire pour donner un ordre de déplacement. 
-    if (isset($_GET['x'])) 
-      { 
-      formulaireordredeplacement(0, $_GET['id'], 0, $_GET['x'], $_GET['y'], $xymax); 
-      } 
-    else 
-      { 
-      formulaireordredeplacement(0, $_GET['id'], 0, $repvaisseau['x'], $repvaisseau['y'], $xymax); 
-      } 
- 
-    // Formulaire pour coloniser 
-    if (isset($repplanete['idjoueurplanete']) AND $repplanete['idjoueurplanete'] != $_SESSION['id']) 
-      { 
-      formulaireordredeplacement(11, $_GET['id'], 0, $repplanete['idplanete'], 0, 0); 
-      } 
- 
- 
-    // Carte spatiale : 
-    for ($y = 0 ; $y <= $xymax ; $y++) 
-      { 
-    for ($x = 0 ; $x <= $xymax ; $x++) 
-      { 
-      if ($x == 0 AND $y == 0) 
-        { // Début du tableau + tout en haut à gauche. 
-        echo '<table class = "carte"><caption>Univers ' . $repvaisseau['univers'] . '!</caption><tr><td class = "xycarte">x/y</td>' ; 
-        } 
-      elseif ($x > 0 AND $x <= $xymax AND $y > 0 AND $y <= $xymax) 
-        { // interieur du tableau 
-        $reqvaisseaucarte->execute(array($x , $y, $repvaisseau['univers'], $_SESSION['id'])); 
-        $repvaisseaucarte = $reqvaisseaucarte->fetch(); 
-        $reqplanete->execute(array($x , $y, $repvaisseau['univers'])); 
-        $repplanete = $reqplanete->fetch(); 
-        $reqasteroide->execute(array($x , $y, $repvaisseau['univers'])); 
-        $repasteroide = $reqasteroide->fetch(); 
-        $reqdect->execute(array($x , $y, $repvaisseau['univers'], $_SESSION['id'])); 
-        $repdect = $reqdect->fetch(); 
-          if ($repvaisseau['x'] == $x AND $repvaisseau['y'] == $y) // Si je suis sur mon vaisseau, afficher mon vaisseau. 
-            { 
-            echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/monvaisseau.png" alt="monvaisseau" /></a></td>'; 
-            } 
-          elseif (isset($repvaisseaucarte['idvaisseau'])) 
-            {// Sinon, si la case est occupée par un vaisseau n'appartement pas au joueur, l'afficher. 
-            echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/vaisseaumechant.png" alt="vaisseaumechant" /></a></td>' ; 
-            } 
-          elseif (isset($repplanete['idplanete'])) 
-            { // Sinon, si la case est occupée par une planète, l'afficher. 
-            echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/planete.png" alt="planete" /></a></td>' ; 
-            } 
-          elseif (isset($repasteroide['idasteroide'])) 
-            { // Sinon, si la case est occupée par un champs d'astéroides, l'afficher. 
-            echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/asteroide.png" alt="asteroide" /></a></td>' ; 
-            } 
-           elseif (isset($repdect['idexplore'])) 
-            { 
-            echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/explore.png" alt="explore" /></a></td>' ; 
-          } 
-           else 
-            { 
-            echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/inconnu.png" alt="inconnu" /></a></td>' ; 
-          }    
-      } 
-      elseif ($x == 0 AND $y > 0 AND $y <= $xymax) 
-        { // Première colonne du tableau (hors haut à gauche) 
-          echo '<tr><td class = "xycarte">' . $y . '</td>' ; 
-        }  
-      elseif ($x > 0 AND $x <= $xymax AND $y == 0)   
-        { // Première ligne du tableau (hors haut à gauche) 
-          echo '<td class = "xycarte">' . $x . '</td>' ; 
-        }  
-      if ($x == $xymax) 
-        { // Arrivée à la droite du tableau 
-        echo '</tr>' ; 
-        } 
-      if ($x == $xymax AND $y == $xymax) 
-        { // fin du tableau 
-        echo '</table>' ; 
-        } 
-      }} // Acolades pour fermer les for de la carte. 
-  } // acolade pour fermer la partie sur la carte. 
-?> 
-  </div> 
-  </body> 
+?>  
+  </div>  
+  </body>  
 </html>
