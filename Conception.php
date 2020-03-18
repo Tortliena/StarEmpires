@@ -17,9 +17,10 @@ include("include/message.php");
 include("function/fonctionconception.php"); 
 include("function/structurevaisseau.php"); 
  
-$reqcomposantsurlevaisseau = $bdd->prepare("	SELECT i.nombatiment FROM gamer.composantvaisseau c 
+$reqcomposantsurlevaisseau = $bdd->prepare("	SELECT COUNT(idtable) AS nb, i.nombatiment FROM gamer.composantvaisseau c 
       											INNER JOIN items i ON i.iditem = c.iditemcomposant 
-      											WHERE c.idvaisseaucompo = ? AND c.typecomposant = ?"); 
+      											WHERE c.idvaisseaucompo = ? AND c.typecomposant = ?
+                                                GROUP BY iditemcomposant"); 
  
 if(!isset($_GET['id'])) 
 	{ // Pour créer un vaisseau 
@@ -66,20 +67,63 @@ else
 		echo 'Moteur I'; 
 		} 
 	echo '&emsp;&emsp;Vitesse : '.$repvaiss['vitesse'] . ' parsec/cycle. </br></br>'; 
- 
-    echo $repvaiss['capacitedesoute'] . ' places dans les soutes. </br>'; 
-	 
-	echo $repvaiss['capaciteminage'] . ' capacité de minage. </br>'; 
-	echo 'Armement : '; 
-	if (isset($repcomposantsurlevaisseau['nombatiment'])) 
-		{ 
-		echo ucfirst($repcomposantsurlevaisseau['nombatiment']); 
-		} 
-	else 
+    
+    $a = 0; // Voir plus tard pour refaire cette partie.
+    $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "soute")); 
+ 	WHILE($repsoutesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
+        {
+        echo $repsoutesurlevaisseau['nb'].' '.$repsoutesurlevaisseau['nombatiment'].'<br>' ; 
+        if ($a == 0)
+            {
+               
+            }
+        else
+            {
+            }
+        $a++;
+        }
+    echo $repvaiss['capacitedesoute'] . ' places dans les soutes. </br></br>'; 
+
+    echo 'Armement : <br>'; 
+    $a = 0; // Voir plus tard pour refaire cette partie.
+    $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "arme")); 
+ 	WHILE($reparmesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
+        {
+        echo $reparmesurlevaisseau['nb'].' '.$reparmesurlevaisseau['nombatiment'].'<br>' ; 
+        if ($a == 0)
+            {
+               
+            }
+        else
+            {
+            }
+        $a++;
+        }
+    if ($a == 0) 
 		{ 
 		echo 'Vaisseau non armé.'; 
 		} 
-	echo '</br>'.$repvaiss['HPmaxvaisseau'] . ' PV. </br>'; 
+	echo $repvaiss['capaciteminage'] . ' capacité de minage. <br></br>'; 
+	
+    $a = 0; // Voir plus tard pour refaire cette partie.
+    $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "coque")); 
+ 	WHILE($repcoquesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
+        {
+        echo $repcoquesurlevaisseau['nb'].' '.$repcoquessurlevaisseau['nombatiment'].'<br>' ; 
+        if ($a == 0)
+            {
+               
+            }
+        else
+            {
+            }
+        $a++;
+        }
+    if ($a == 0) 
+		{ 
+		echo 'Coque civile.'; 
+		} 
+	echo '</br>'.$repvaiss['HPmaxvaisseau'] . ' PV. <br></br>'; 
 	echo 'Prix : ';   
 	echo $repvaiss['biensvaisseau'] . ' biens'; 
 	if ($repvaiss['titanevaisseau'] > 0) 
@@ -89,7 +133,8 @@ else
 	echo '. </br></br>'; 
  
 	$structure = structurevaisseau ($_GET['id']); 
- 
+    
+    echo '<h3>Ajouter composant :</h3>';
 	echo 'Armement : '; 
 	composantdesign($_SESSION['id'], 'arme', 'Sans armement'); 
  

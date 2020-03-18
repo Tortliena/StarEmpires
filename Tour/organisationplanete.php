@@ -27,6 +27,7 @@ while ($repjoueur= $reqjoueur->fetch())
     $orgagenere = 1000 - ROUND(1000*(1-EXP((-$reporganisationactuelle['orga']/20000))));
     
     $gain = array();
+    $augmentation = array();
     $gain[-1] = 0;
     $gain[0] = $orgagenere;
     for ($i = 1; $i < $repplanetebesoinorga['besoinorga']; $i++)
@@ -34,18 +35,27 @@ while ($repjoueur= $reqjoueur->fetch())
         $gain[$i] = rand(0, $orgagenere);
         }
 
-    sort($gain);
+    sort($gain); // On a gain0 = 0, des valeurs intermediaires et gainX = au total de lorganisation a gagner par le joueur.
     
-    for ($i = 1; $i <= $repplanetebesoinorga['besoinorga']; $i++)
-        { // fonction permettant de distribuer les gains entre les planetes.
-        $ligne = $i-1;
-        $reqidplanetebesoinorga = $bdg->query('SELECT idplanete, organisation FROM planete WHERE idjoueurplanete ='.$repjoueur['id'].' AND efficacite < 110 LIMIT '.$ligne.', 1');
+    for ($i = 0; $i < $repplanetebesoinorga['besoinorga']; $i++)
+        {
+        $reqidplanetebesoinorga = $bdg->query('SELECT idplanete FROM planete WHERE idjoueurplanete ='.$repjoueur['id'].' AND efficacite < 110 ORDER BY organisation ASC LIMIT '.$i.', 1'); // Je ne peux pas faire de preparation car j'ai une limite avec une variable ?!
         $repidplanetebesoinorga = $reqidplanetebesoinorga->fetch();
-        $augmentation = $gain[$i] - $gain[$i-1];
-        $organisation = $repidplanetebesoinorga['organisation'] + $augmentation;
         
-        $reqaugmentationorganisation->execute(array($augmentation, $repidplanetebesoinorga['idplanete']));
-        // echo $augmentation.' gain sur la planete '.$repidplanetebesoinorga['idplanete'].' ; vakeur de i : '.$i.'<br>';
+        $idplanete[$i] = $repidplanetebesoinorga['idplanete'];
+        $augmentation[$i] = $gain[$i+1] - $gain[$i];
+        }
+
+    Sort($augmentation); // Permet de faire gagner plus d'organisation sur les planetes biens organisees.
+    
+    for ($i = 0; $i < $repplanetebesoinorga['besoinorga']; $i++)
+        { // fonction permettant de distribuer les gains entre les planetes.
+        $reqorganisationplanete = $bdg->query('SELECT organisation FROM planete WHERE idplanete ='.$idplanete[$i].'');
+        $reporganisationplanete  = $reqorganisationplanete ->fetch();
+        
+        $organisation = $reporganisationplanete['organisation'] + $augmentation[$i];
+        $reqaugmentationorganisation->execute(array($augmentation[$i], $idplanete[$i]));
+        // echo 'De '.$reporganisationplanete['organisation'].' a '.$organisation.' avec un gain de '.$augmentation[$i].' sur la planete '.$idplanete[$i].' ; vakeur de i : '.$i.'<br>';
         }
     
     // echo 'joueur '.$repjoueur['id'].' possede une orga de '.$reporganisationactuelle['orga'].' et son gain dorga est de '.$orgagenere.' et il y a '.$repplanetebesoinorga['besoinorga'].' planete ayant besoin dorga.<br>';
