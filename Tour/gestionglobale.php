@@ -63,6 +63,9 @@ include("gestionvaisseau.php");
 // Mise à jour des niveaux des joueurs.
 include("niveaux.php");
 
+// Creation de planetes dans lunivers
+include("univers.php");
+
 // Permet de créer un résumé du tour pour vérifier les bugs.
 include("resumetour.php");
 
