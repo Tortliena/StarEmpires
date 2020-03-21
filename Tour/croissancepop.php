@@ -32,22 +32,22 @@ while ($repgestionplanete = $reqgestionplanete->fetch())
         
         $probapop = ROUND($probagraceauxplaceslibres - $probdiminueeacausedepopactuelle + $probalieealorganisation) ;
         
-        echo 'La planete '.$repgestionplanete['idplanetepop'].' a une probabilite de croissance de '.$probapop.' et le tirage a donne '.$popenplus.'.<br>';
+        // echo 'La planete '.$repgestionplanete['idplanetepop'].' a une probabilite de croissance de '.$probapop.' et le tirage a donne '.$popenplus.'.<br>';
         if ($popenplus < $probapop) // change d'avoir une pop de plus : 10% de chance d'avoir une pop de plus !
             {
             $creationpop ->execute(array($repgestionplanete['idplanetepop']));
             $message ->execute(array($repgestionplanete['idjoueurplanete'], 'Une nouvelle population vient d\'apparaitre sur votre planète.', 'planete', $repgestionplanete['idplanetepop']));
-            echo 'La planete '.$repgestionplanete['idplanetepop'].' a donc gagne une pop.<br>';
+            // echo 'La planete '.$repgestionplanete['idplanetepop'].' a donc gagne une pop.<br>';
             }
         elseif ($probapop < 0 )
             {
             $message ->execute(array($repgestionplanete['idjoueurplanete'], 'Cette planete n\'a pas la structure pour gagner plus de population. Laissez l\'organisation de ce monde monter ou construisez plus d\'habitations.', 'planete', $repgestionplanete['idplanetepop']));
-            echo 'La planete '.$repgestionplanete['idplanetepop'].' ne peut pas gagner de pop.<br>';
+            // echo 'La planete '.$repgestionplanete['idplanetepop'].' ne peut pas gagner de pop.<br>';
             }
         else
             {
             $message ->execute(array($repgestionplanete['idjoueurplanete'], 'Vous disposez de la place nécessaire pour accueillir une nouvelle population qui devrait arriver prochainement. (proba : '.$probapop.'%)', 'planete', $repgestionplanete['idplanetepop']));
-            echo 'La planete '.$repgestionplanete['idplanetepop'].' na donc pas gagne de pop.<br>';
+            // echo 'La planete '.$repgestionplanete['idplanetepop'].' na donc pas gagne de pop.<br>';
             }
         }
     else

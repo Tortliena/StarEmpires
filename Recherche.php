@@ -1,29 +1,24 @@
 <?php
 session_start();
-If (!$_SESSION['pseudo'])
-{
+if (!$_SESSION['pseudo'])
+	{
     header('Location: Accueil.php');
-    exit(); 
-}
+    exit();
+	}
 include("include/BDDconnection.php");
 ?>
 
 <!DOCTYPE html>
-<html>
-  <head>
-          <meta charset="utf-8" />
-          <link rel="stylesheet" href="style.css" />          
-          <title>Mon super site</title>
-  </head>
-  <body>
-    <?php include("include/menu.php"); ?>
+<html><head><meta charset="utf-8" /><link rel="stylesheet" href="style.css" /><title>Mon super site</title></head><body>
 
-  <div class="corps">
-    <h1>RECHERCHE</h1>
-    <?php
-    include("include/message.php") ; 
-    $typemessage = 'recherche' ;
-    include("include/resume.php");
+<?php include("include/menu.php"); ?>
+
+<div class="corps">
+<h1>RECHERCHE</h1>
+<?php
+include("include/message.php") ; 
+$typemessage = 'recherche' ;
+include("include/resume.php");
 
 // Afficher la recherche en cours !
 $reqrecherencours = $bdd->prepare("
@@ -38,14 +33,14 @@ $reqrecherencours = $bdd->prepare("
 $reqrecherencours->execute(array($_SESSION['id']));
 $reprecherencours = $reqrecherencours->fetch() ; 
     
-    if (!isset($reprecherencours['nomrecherche']))
-      {
-      echo '<p>Aucune recherche en cours.</p>'; 
-      }
-    else
-      {
-      echo '<p> La recherche en cours est ' . $reprecherencours['nomrecherche'] . '</p>'  ;
-      }
+if (!isset($reprecherencours['nomrecherche']))
+	{
+	echo '<p>Aucune recherche en cours.</p>'; 
+	}
+else
+	{
+	echo '<p> La recherche en cours est ' . $reprecherencours['nomrecherche'] . '</p>'  ;
+	}
 
 echo '<h2>Recherches possibles :</h2>';
 
@@ -56,58 +51,61 @@ $recherche = $afficherrecherche->fetch();
 
 $reqrechercheencours = $bdd->prepare("SELECT * FROM recherche INNER JOIN gamer.rech_joueur ON recherche.idrecherche = rech_joueur.idrech WHERE rech_joueur.idjoueurrecherche = ? AND rech_joueur.rechposs = 0 ORDER BY rech_joueur.ordrerecherche ASC");
 $reqrechercheencours->execute(array($_SESSION['id']));
-     while ($reprechercheencours = $reqrechercheencours->fetch())
-      {
-      ?>
-      <form method="post" action="script/enregistrementrecherche.php">
-      <?php  echo $reprechercheencours['nomrecherche'] . ' : ' . $reprechercheencours['descriptionrecherche'] ; ?>
-      <input type="hidden" value="<?php echo $reprechercheencours['idrecherche'] ; ?>" name="idrecherche" />
-          <?php  // Partie affichant la difficulté des recherches.
-          if (isset($reprechercheencours['avrech'])) // Si la recherche existe, alors afficher cette partie.
-            {?> </br>Difficultée : <?php
-            if ($recherche[0] == 0)
-              {echo '<span class="impossible">Pas de recherche au dernier tour</span>';}
-            elseif ($recherche[0] * 20 < $reprechercheencours['rechnesc'])
-              {echo '<span class="impossible">Quasi-impossible</span>';}
-            elseif ($recherche[0] * 10 < $reprechercheencours['rechnesc'])
-              {echo '<span class="difficile">Dur</span>';}
-            elseif ($recherche[0] * 5 < $reprechercheencours['rechnesc'])
-              {echo '<span class="normal">Normal</span>';}
-            else {echo '<span class="tresfacile">facile    </span>' ;}?>
-          &nbsp; ; &nbsp; <?php } ?>
+while ($reprechercheencours = $reqrechercheencours->fetch())
+	{
+	?>
+	<form method="post" action="script/enregistrementrecherche.php">
+	<?php  echo $reprechercheencours['nomrecherche'] . ' : ' . $reprechercheencours['descriptionrecherche'] ; ?>
+	<input type="hidden" value="<?php echo $reprechercheencours['idrecherche'] ; ?>" name="idrecherche" />
+  	<?php  // Partie affichant la difficulté des recherches.
+	if (isset($reprechercheencours['avrech'])) // Si la recherche existe, alors afficher cette partie.
+		{?> </br>Difficultée : <?php
+		if ($recherche[0] == 0)
+			{echo '<span class="impossible">Pas de recherche au dernier tour</span>';}
+		elseif ($recherche[0] * 20 < $reprechercheencours['rechnesc'])
+			{echo '<span class="impossible">Quasi-impossible</span>';}
+		elseif ($recherche[0] * 10 < $reprechercheencours['rechnesc'])
+			{echo '<span class="difficile">Dur</span>';}
+		elseif ($recherche[0] * 5 < $reprechercheencours['rechnesc'])
+			{echo '<span class="normal">Normal</span>';}
+		else
+			{echo '<span class="tresfacile">facile</span>' ;}
+		echo '&nbsp; ; &nbsp;';
+		}
 
 
-          Avancement actuel :
-          <?php // Affichage de l'avancement actuel
-          if ($reprechercheencours['avrech'] == 0) {echo '<span class="aucun">aucun</span>';}
-          elseif ($reprechercheencours['avrech'] / $reprechercheencours['rechnesc'] < 0.25)
-            {echo '<span class="faible">prémisses</span>';}
-          elseif ($reprechercheencours['avrech'] / $reprechercheencours['rechnesc'] < 0.60)
-            {echo '<span class="moyen">avancé</span>';}
-          elseif ($reprechercheencours['avrech'] / $reprechercheencours['rechnesc'] < 1)
-            {echo '<span class="fort">presque fini</span>' ;}?>
+	echo 'Avancement actuel : ';
+	// Affichage de l'avancement actuel
+	if ($reprechercheencours['avrech'] == 0)
+		{echo '<span class="aucun">aucun</span>';}
+	elseif ($reprechercheencours['avrech'] / $reprechercheencours['rechnesc'] < 0.25)
+		{echo '<span class="faible">prémisses</span>';}
+	elseif ($reprechercheencours['avrech'] / $reprechercheencours['rechnesc'] < 0.60)
+		{echo '<span class="moyen">avancé</span>';}
+	elseif ($reprechercheencours['avrech'] / $reprechercheencours['rechnesc'] < 1)
+		{echo '<span class="fort">presque fini</span>' ;}
+	elseif ($reprechercheencours['avrech'] / $reprechercheencours['rechnesc'] >= 1)
+		{echo '<span class="fort">Devrait être fini</span>' ;}?>
 
+	<input type="submit" value="Rechercher" />
+	</form> </p>  <?php
+	}
 
-          <input type="submit" value="Rechercher" />
-          </form> </p>  <?php
+$reqrechercheencours->closeCursor();
+echo '<h2>Recherches finies :</h2>';
 
-      }
-  $reqrechercheencours->closeCursor(); ?>
-
-<h2>Recherches finies :</h2>
-  <?php
-$reqrecherchefinie = $bdd->prepare("  SELECT recherche.nomrecherche , recherche.descriptionrecherche
-                                      FROM recherche
-                                      INNER JOIN gamer.rech_joueur
-                                      ON recherche.idrecherche = rech_joueur.idrech
-                                      WHERE rech_joueur.idjoueurrecherche = ?
-                                        AND rech_joueur.rechposs = 1");
+$reqrecherchefinie = $bdd->prepare("  SELECT r.nomrecherche , r.descriptionrecherche
+                                      FROM recherche AS r
+                                      INNER JOIN gamer.rech_joueur AS rj
+                                      ON r.idrecherche = rj.idrech
+                                      WHERE rj.idjoueurrecherche = ?
+                                      AND rj.rechposs = 1");
 
 $reqrecherchefinie->execute(array($_SESSION['id']));
-     while ($reprecherchefinie = $reqrecherchefinie->fetch())
-      {
-      echo '<p>' . $reprecherchefinie['nomrecherche'] . ' : ' . $reprecherchefinie['descriptionrecherche'] . '</p>' ;
-      }
+while ($reprecherchefinie = $reqrecherchefinie->fetch())
+	{
+	echo '<p>' . $reprecherchefinie['nomrecherche'] . ' : ' . $reprecherchefinie['descriptionrecherche'] . '</p>' ;
+	}
 $reqrecherchefinie->closeCursor();
 ?>
   </div>

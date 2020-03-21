@@ -45,7 +45,7 @@ function caracteristiquesvaisesau ($idvaisseau, $idjoueur)
     }
 
   $capacitedesoute = MAX($capacitedesoute, 1);
-  echo $totalprixbien .'prix bien, ' .$vitesse.' Vitesse. '.$HPvaisseau. ' HP vaisseau' ;
+  // echo 'Id du vaisseau : '.$idvaisseau.'. Caracteristiques : '.$totalprixbien .' prix bien, ' .$vitesse.' Vitesse. '.$HPvaisseau. ' HP vaisseau <br>' ;
   $requpdatedesignvaisseau = $bdg->prepare('UPDATE vaisseau SET biensvaisseau = ?, titanevaisseau = ?, vitesse = ?, capacitedesoute = ?, capaciteminage = ?, HPmaxvaisseau = ?, structure = ? WHERE idvaisseau = ?'); 
   // Updater le design du vaisseau avec les prix et l'ID du joueur.
   $requpdatedesignvaisseau->execute(array($totalprixbien, $totalprixtitane, $vitesse, $capacitedesoute, $capaciteminage, $HPvaisseau, $structure, $idvaisseau));

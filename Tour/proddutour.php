@@ -28,7 +28,7 @@ while ($repcompterpop = $reqcompterpop->fetch())
 	$prodchantier = floor($repcompterpop['ouvriers'] * 20 * $efficite /100) ;
 
 	// Production de recherche :
-    $prodrecherche = floor($repcompterpop['scientifiques'] * 1 * $efficite /100) ;
+    $prodrecherche = floor($repcompterpop['scientifiques'] * 100 * $efficite /100) ;
    
 	// consommation de la population :
 	$consommation = $repcompterpop['population'] * 1 ;

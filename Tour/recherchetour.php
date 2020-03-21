@@ -26,11 +26,11 @@ $reqrecherchejoueur = $bdg->query('SELECT u.id, u.recherche, rj.avrech, rj.rechn
                   FROM (SELECT min(ordrerecherche) AS min, avrech, rechnesc, idrech FROM rech_joueur WHERE rechposs = 0 GROUP BY idjoueurrecherche) AS x
                   INNER JOIN rech_joueur as rj ON rj.idjoueurrecherche = idjoueurrecherche AND rj.ordrerecherche = x.min
                   INNER JOIN utilisateurs u ON u.id = rj.idjoueurrecherche
-                  INNER JOIN datawebsite.recherche r ON rj.idrech = r.idrecherche               
+                  INNER JOIN datawebsite.recherche r ON rj.idrech = r.idrecherche
                   ');  // O putain c'est quoi cette requete de dingue !?
 while ($reprecherchejoueur = $reqrecherchejoueur->fetch())
     {
-    echo 'a';
+    // echo '<br>Id du joueur : '.$reprecherchejoueur['id'].'. Id de la recherche : '.$reprecherchejoueur['idrech'];
     if ($reprecherchejoueur['recherche'] + $reprecherchejoueur['avrech'] < $reprecherchejoueur['rechnesc'])
         {
         $avancement->execute(array($reprecherchejoueur['recherche'], 0, $reprecherchejoueur['idrechprinc']));

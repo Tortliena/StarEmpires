@@ -52,7 +52,7 @@ include("deplacementvaisseau.php");
 include("exploration.php");
 
 // Applique la production du tour de recherche sur les recherches en cours.
-// include("recherchetour.php");
+include("recherchetour.php");
 
 // Mise à jour des limites des joueurs (pop, bat).
 include("limiteplanete.php");
