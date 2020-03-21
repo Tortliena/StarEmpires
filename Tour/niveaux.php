@@ -81,7 +81,15 @@ while($replvl = $reqlvl->fetch())
             { 
             $reqlvlup->execute(array($replvl['id'])); 
  
-            $reqmessageinterne->execute(array('Conseil civil', $replvl['id'], 0, 'Développement', 'Nous entrons dans une nouvelle ère. Nous pourrions avoir besoin de massivement investir dans notre puissance industrielle et scienfique. Nous avons besoin de développer des labos de recherche de taille mondiale et des chantiers de construction capable de réaliser d\'énormes projets.')); 
+            $reqmessageinterne->execute(array('Conseil civil', $replvl['id'], 0, 'Développement', 'Nous entrons dans une nouvelle ère. Nous pourrions avoir besoin de massivement investir dans notre puissance industrielle et scienfique. Nous avons besoin de développer des labos de recherche de taille mondiale et des chantiers de construction capable de réaliser d\'énormes projets.'));
+
+            // Permet de creer un design pour le joueur. 
+            $reqcreerdesign = $bdg->prepare('INSERT INTO vaisseau (idjoueurvaisseau, nomvaisseau, univers, x, y) VALUES (?, ?, ?, ?, ?)'); 
+            $reqcreerdesign->execute(array(-$replvl['id'], 'Vaisseau d\'exploration', 0, 0, 0));
+            $dernierIDvaisseau = $bdg->lastInsertId();
+            $reqdeplacementbloque = $bdg->prepare('INSERT INTO ordredeplacement (idvaisseaudeplacement, xdestination, ydestination, universdestination, idjoueurduvaisseau, typeordre, bloque) VALUES(?, ?, ?, ?, ?, ?, ?)');
+            // 9 = ordre spécial pour les design. bloque = 2 = impossible de supprimer/modifier.
+            $reqdeplacementbloque->execute(array($dernierIDvaisseau, -1, -1, -1, $dernierIDjoueur, 9, 2));
             } 
       break; 
  

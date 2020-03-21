@@ -92,7 +92,8 @@ while ($repexplorationexistante = $reqexploration->fetch())
             break; 
             } 
         } 
-    else 
+   /* // Supprimer cette partie ?
+   else 
         { // Exploration hors univers initial. 
         $ValeurPoid = array(1=>80, 2=>10, 3=>10, 4=>5); 
         $tructrouve = nombrealeatoireavecpoid($ValeurPoid); 
@@ -115,5 +116,5 @@ while ($repexplorationexistante = $reqexploration->fetch())
                 $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 8, 10)); 
             break; 
             } 
-        } 
+        } */
     }
