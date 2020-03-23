@@ -12,41 +12,52 @@ echo $_POST['iditem'].' id du composant à ajouter  </br>' ;
 */ 
  
 if (isset($_POST['idvaisseau'])) 
-    { 
-    $message = 65; // Composant ajouté. 
+    {
     $idvaisseau = $_POST['idvaisseau']; 
- 
+
     $reqvaisseau = $bdg->prepare('SELECT structure from vaisseau WHERE idvaisseau = ? AND idjoueurvaisseau = ?'); 
     $reqvaisseau->execute(array($_POST['idvaisseau'], -$_SESSION['id'])); 
     $repvaisseau = $reqvaisseau->fetch(); 
- 
+
     if (!isset($repvaisseau['structure'])) 
         { // Vérification du joueur/vaisseau. 
         header('Location: ../conception.php?message=31'); 
         exit(); 
-        } 
- 
-    // récupérer la structure prise par les composants 
-    $reqcomposant = $bdd ->prepare('SELECT i.souscategorie, i.typeitem, c.structure  
-                                    FROM datawebsite.composant c 
-                                    INNER JOIN datawebsite.items i ON c.idcomposant = i.iditem 
-                                    WHERE c.idcomposant = ?'); 
-    $reqcomposant->execute(array($_POST['iditem'])); 
-    $repcomposant = $reqcomposant->fetch(); 
- 
-    if ($repvaisseau['structure'] + $repcomposant['structure']*$_POST['nombre'] > 0) 
-        { // Si la nouvelle structure est négative/neutre, alors insérer sinon virer. 
-        header("Location: ../conception.php?message=64&id=" . urlencode($idvaisseau)); 
-        exit(); 
-        } 
- 
- 
-    $reqcreercomposantdesign = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)'); 
- 
-    for ($i = 1; $i <= $_POST['nombre']; $i++) 
-        { 
-        $reqcreercomposantdesign->execute(array($_POST['idvaisseau'], $_POST['iditem'], $repcomposant['souscategorie']));  
-        } 
+        }
+    
+    if ($_POST['iditem'] > 0)
+        {// Cas des ajouts de composants.
+        $message = 65; // Composant ajouté.
+
+        // récupérer la structure prise par les composants 
+        $reqcomposant = $bdd ->prepare('SELECT i.souscategorie, i.typeitem, c.structure  
+                                        FROM datawebsite.composant c 
+                                        INNER JOIN datawebsite.items i ON c.idcomposant = i.iditem 
+                                        WHERE c.idcomposant = ?'); 
+        $reqcomposant->execute(array($_POST['iditem'])); 
+        $repcomposant = $reqcomposant->fetch(); 
+
+        if ($repvaisseau['structure'] + $repcomposant['structure']*$_POST['nombre'] > 0) 
+            { // Si la nouvelle structure est négative/neutre, alors insérer sinon virer. 
+            header("Location: ../conception.php?message=64&id=" . urlencode($idvaisseau)); 
+            exit(); 
+            } 
+
+        $reqcreercomposantdesign = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)'); 
+
+        for ($i = 1; $i <= $_POST['nombre']; $i++) 
+            { 
+            $reqcreercomposantdesign->execute(array($_POST['idvaisseau'], $_POST['iditem'], $repcomposant['souscategorie']));  
+            }
+        }
+    
+    elseif ($_POST['iditem'] < 0)
+        {
+        $message = 65; // A CORRIGER ! ! 
+        $reqsupprimercomposantdesign = $bdg->prepare('DELETE FROM composantvaisseau WHERE idvaisseaucompo = ? AND iditemcomposant = ?');
+        
+        $reqsupprimercomposantdesign->execute(array($_POST['idvaisseau'], -$_POST['iditem']));  
+        }
     } 
  
 else 

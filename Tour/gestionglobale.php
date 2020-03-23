@@ -69,5 +69,5 @@ include("univers.php");
 // Permet de créer un résumé du tour pour vérifier les bugs.
 include("resumetour.php");
 
-// header('Location: ../administration.php?voir=');
+header('Location: ../administration.php?voir=');
 ?>

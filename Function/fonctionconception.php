@@ -65,5 +65,15 @@ function composantdesign($idjoueur, $typecomposant, $textepourrien)
     { // Cas des moteurs et des noyaux. 
     echo '</select></br>';  
     } 
-  } 
+  }
+
+function Supprimercomposant($typecomposant, $texte) 
+    { 
+    include("include/BDDconnection.php");
+    echo '<form method="post" action="script/creerdesign.php"><p>';
+    echo '<input type="hidden" name="idvaisseau" value="'.$_GET['id'].'"> '; 
+    echo '<input type="hidden" name="iditem" value="'.-$typecomposant.'"> '; 
+    echo '<label for="formulaire">'.$texte.'</label>';
+    echo '<input type="submit" id="formulaire" value="Supprimer" /></p></form>' ; 
+    } 
   ?>

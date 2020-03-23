@@ -13,9 +13,9 @@ $reqexploration = $bdg->prepare('SELECT idexplore , x , y, univers, idexplorateu
 $reqcompterexplo = $bdg->prepare('SELECT COUNT(*) AS nbcaseexplo  FROM explore WHERE idexplorateur = ? AND idexplore <= ? AND univers > 0') ; 
  
 $reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)'); 
-$reqcreerasteroides = $bda->prepare('INSERT INTO champsasteroides (xaste , yaste , uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)'); 
-$reqcreerplanete = $bdg->prepare('INSERT INTO planete(xplanete, yplanete, universplanete, taille, lune, biens) VALUES(?, ?, ?, ?, ?)'); 
- 
+$reqcreerasteroides = $bda->prepare('INSERT INTO champsasteroides (xaste , yaste , uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)');
+$reqcreerplanete = $bdg->prepare('INSERT INTO planete(xplanete, yplanete, universplanete, taille, lune, biens) VALUES(?, ?, ?, ?, ?, ?)'); 
+
 // Créer vaisseau 
 $reqcreervaiseau = $bdg->prepare('INSERT INTO vaisseau(idjoueurvaisseau, x, y, univers, nomvaisseau, HPmaxvaisseau, HPvaisseau) VALUES(?, ?, ?, ?, ?, ?, ?)'); 
 $reqinfovaisseau = $bdg->prepare('SELECT idvaisseau FROM vaisseau ORDER BY idvaisseau DESC LIMIT 1'); 
@@ -51,7 +51,7 @@ while ($repexplorationexistante = $reqexploration->fetch())
                 $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 6, 2)); 
             break; 
  
-            case 7: 
+            case 7:
               $reqcreerplanete->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 4, 1, 10)); 
                 $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Planète habitable', 'Nous venons de trouver une nouvelle planète. Nous allons pouvoir la coloniser. Elle dispose aussi d\'une lune sur laquelle nous allons pouvoir installer une base en déployant d\'énormes ressources. Nous devrions commencer les recherches pour développer l\'équipement nécessaire.'));    
             break; 
@@ -65,8 +65,8 @@ while ($repexplorationexistante = $reqexploration->fetch())
                 $reqsupprimerordreprecedent->execute(array($repinfovaisseauexplorateur['idvaisseau'])); 
                 $reqcreerordredeplacement->execute(array($repinfovaisseauexplorateur['idvaisseau'], $repexplorationexistante['x'], $repexplorationexistante['y'], 0, $repexplorationexistante['idexplorateur'], 8 ,2)); 
  
-                // Type vaisseau 2 = vaisseau spécifique qui lache un noyau transdimentionnel. 
-                $reqcreervaiseau->execute(array(0, 2, $repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 'Épave spatiale', 20, 20)); 
+                // Type vaisseau 2 = vaisseau spécifique qui lache un noyau transdimentionnel.                
+                $reqcreervaiseau->execute(array(0, $repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 'Épave spatiale', 20, 20)); 
                 $reqinfovaisseau->execute(array()); 
                 $repinfovaisseau = $reqinfovaisseau->fetch(); 
  

@@ -17,7 +17,8 @@ include("include/message.php");
 include("function/fonctionconception.php"); 
 include("function/structurevaisseau.php"); 
  
-$reqcomposantsurlevaisseau = $bdd->prepare("	SELECT COUNT(idtable) AS nb, i.nombatiment FROM gamer.composantvaisseau c 
+$reqcomposantsurlevaisseau = $bdd->prepare("	SELECT COUNT(idtable) AS nb, i.nombatiment, c.iditemcomposant
+                                                FROM gamer.composantvaisseau c 
       											INNER JOIN items i ON i.iditem = c.iditemcomposant 
       											WHERE c.idvaisseaucompo = ? AND c.typecomposant = ?
                                                 GROUP BY iditemcomposant"); 
@@ -50,37 +51,27 @@ else
 	echo '<input name="type" type="hidden" value="vaisseau"> ';
 	echo '<input type="submit" value="Renommer"/></h3></form> ';
 
-
-
-	 
 	list($structure, $structuremax) = structurevaisseau ($repvaiss['idvaisseau']); 
 	echo $structure.'/'.$structuremax.' de structure. </br>'; 
  
  	$reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "moteur")); 
  	$repmoteursurlevaisseau = $reqcomposantsurlevaisseau->fetch(); 
 	if (isset($repmoteursurlevaisseau['nombatiment'])) 
-		{ 
-		echo $repmoteursurlevaisseau['nombatiment']; 
+		{
+        $texte = $repmoteursurlevaisseau['nombatiment'].'&emsp;&emsp;Vitesse : '.$repvaiss['vitesse'] . ' parsec/cycle. '; 
+        Supprimercomposant($repmoteursurlevaisseau['iditemcomposant'], $texte); 
 		} 
 	else 
 		{ 
-		echo 'Moteur I'; 
+		echo 'Moteur I';
+    	echo '&emsp;&emsp;Vitesse : '.$repvaiss['vitesse'] . ' parsec/cycle. </br></br>'; 
 		} 
-	echo '&emsp;&emsp;Vitesse : '.$repvaiss['vitesse'] . ' parsec/cycle. </br></br>'; 
     
-    $a = 0; // Voir plus tard pour refaire cette partie.
     $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "soute")); 
  	WHILE($repsoutesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
         {
-        echo $repsoutesurlevaisseau['nb'].' '.$repsoutesurlevaisseau['nombatiment'].'<br>' ; 
-        if ($a == 0)
-            {
-               
-            }
-        else
-            {
-            }
-        $a++;
+        $texte = $repsoutesurlevaisseau['nb'].' '.$repsoutesurlevaisseau['nombatiment'] ; 
+        Supprimercomposant($repsoutesurlevaisseau['iditemcomposant'], $texte);
         }
     echo $repvaiss['capacitedesoute'] . ' places dans les soutes. </br></br>'; 
 
@@ -89,19 +80,13 @@ else
     $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "arme")); 
  	WHILE($reparmesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
         {
-        echo $reparmesurlevaisseau['nb'].' '.$reparmesurlevaisseau['nombatiment'].'<br>' ; 
-        if ($a == 0)
-            {
-               
-            }
-        else
-            {
-            }
+        $texte = $reparmesurlevaisseau['nb'].' '.$reparmesurlevaisseau['nombatiment'] ; 
+        Supprimercomposant($reparmesurlevaisseau['iditemcomposant'], $texte);
         $a++;
         }
     if ($a == 0) 
 		{ 
-		echo 'Vaisseau non armé.'; 
+		echo 'Vaisseau non armé.<br>'; 
 		} 
 	echo $repvaiss['capaciteminage'] . ' capacité de minage. <br></br>'; 
 	
@@ -109,20 +94,14 @@ else
     $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "coque")); 
  	WHILE($repcoquesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
         {
-        echo $repcoquesurlevaisseau['nb'].' '.$repcoquessurlevaisseau['nombatiment'].'<br>' ; 
-        if ($a == 0)
-            {
-               
-            }
-        else
-            {
-            }
+        $texte = $repcoquesurlevaisseau['nb'].' '.$repcoquessurlevaisseau['nombatiment'] ; 
+        Supprimercomposant($reparmesurlevaisseau['iditemcomposant'], $texte);
         $a++;
         }
     if ($a == 0) 
 		{ 
 		echo 'Coque civile.'; 
-		} 
+		}
 	echo '</br>'.$repvaiss['HPmaxvaisseau'] . ' PV. <br></br>'; 
 	echo 'Prix : ';   
 	echo $repvaiss['biensvaisseau'] . ' biens'; 
