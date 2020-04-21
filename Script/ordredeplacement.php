@@ -167,7 +167,7 @@ else
     { 
     $req = $bdg->prepare('INSERT INTO ordredeplacement(idvaisseaudeplacement , xdestination , ydestination , universdestination, idjoueurduvaisseau, typeordre) VALUES(?, ?, ?, ?, ?, ?)'); 
     $req->execute(array($_POST['idvaisseau'], $_POST['xobjectif'], $_POST['yobjectif'], $repvaisseau['univers'], $_SESSION['id'], $_POST['typeordre'])); 
-    } 
+    }
 
 /*
 if ($_POST['typeordre'] == 7 OR $_POST['typeordre'] == 6) 

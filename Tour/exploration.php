@@ -67,10 +67,9 @@ while ($repexplorationexistante = $reqexploration->fetch())
  
                 // Type vaisseau 2 = vaisseau spécifique qui lache un noyau transdimentionnel.                
                 $reqcreervaiseau->execute(array(0, $repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 'Épave spatiale', 20, 20)); 
-                $reqinfovaisseau->execute(array()); 
-                $repinfovaisseau = $reqinfovaisseau->fetch(); 
+				$dernierIDvaisseau = $bdg->lastInsertId();
  
-                $reqcreercomposant->execute(array($repinfovaisseau['idvaisseau'], 13, 'arme')); 
+                $reqcreercomposant->execute(array($dernierIDvaisseau, 13, 'arme')); 
             break; 
  
             case 11: 

@@ -89,7 +89,7 @@ while($replvl = $reqlvl->fetch())
             $dernierIDvaisseau = $bdg->lastInsertId();
             $reqdeplacementbloque = $bdg->prepare('INSERT INTO ordredeplacement (idvaisseaudeplacement, xdestination, ydestination, universdestination, idjoueurduvaisseau, typeordre, bloque) VALUES(?, ?, ?, ?, ?, ?, ?)');
             // 9 = ordre spécial pour les design. bloque = 2 = impossible de supprimer/modifier.
-            $reqdeplacementbloque->execute(array($dernierIDvaisseau, -1, -1, -1, $dernierIDjoueur, 9, 2));
+            $reqdeplacementbloque->execute(array($dernierIDvaisseau, -1, -1, -1, $replvl['id'], 9, 2));
             } 
       break; 
  
