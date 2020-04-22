@@ -52,24 +52,27 @@ while ($repexplorationexistante = $reqexploration->fetch())
             break; 
  
             case 7:
-              $reqcreerplanete->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 4, 1, 10)); 
+                $reqcreerplanete->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 4, 1, 10)); 
                 $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Planète habitable', 'Nous venons de trouver une nouvelle planète. Nous allons pouvoir la coloniser. Elle dispose aussi d\'une lune sur laquelle nous allons pouvoir installer une base en déployant d\'énormes ressources. Nous devrions commencer les recherches pour développer l\'équipement nécessaire.'));    
             break; 
  
             case 10: 
                 $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Vaisseau inconnu détecté', 'Nous venons de trouver un vaisseau inconnu. Nous avons tenté de communiquer avec lui, mais aucune réaction de sa part. Il est en très mauvais état et semble abandonné depuis des siècles. Nous allons tenter de l\'aborder.')); 
-                 
+                
+                // Permet de recupere l'ID du vaisseau.
                 $reqinfovaisseauexplorateur->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'])); 
                 $repinfovaisseauexplorateur = $reqinfovaisseauexplorateur->fetch(); 
- 
+                
+                // On supprime ses ordres a la place on met un ordre bloque.
                 $reqsupprimerordreprecedent->execute(array($repinfovaisseauexplorateur['idvaisseau'])); 
                 $reqcreerordredeplacement->execute(array($repinfovaisseauexplorateur['idvaisseau'], $repexplorationexistante['x'], $repexplorationexistante['y'], 0, $repexplorationexistante['idexplorateur'], 8 ,2)); 
- 
+                
+                // On cree un vaisseau alien.
                 // Type vaisseau 2 = vaisseau spécifique qui lache un noyau transdimentionnel.                
                 $reqcreervaiseau->execute(array(0, $repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 'Épave spatiale', 20, 20)); 
-				$dernierIDvaisseau = $bdg->lastInsertId();
- 
-                $reqcreercomposant->execute(array($dernierIDvaisseau, 13, 'arme')); 
+                $IDduvaisseaualien = $bdg->lastInsertId();
+                
+                $reqcreercomposant->execute(array($IDduvaisseaualien, 13, 'arme')); 
             break; 
  
             case 11: 
