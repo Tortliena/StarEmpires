@@ -50,10 +50,10 @@ echo '</br><h2>Population et bâtiments :</h2>';
 echo $repcompterpop['population']. '/'.$repplanete['popmax'].' unités de population au total, composée de '.$repcompterpop['citoyens'].' citoyen(s) ; '.$repcompterpop['ouvriers'].'/'.$repplanete['ouvriermax'].' ouvrier(s) ; '.$repcompterpop['scientifiques'].'/'.$repplanete['scientmax'].' scientifique(s).</br>' ; 
  
 // Affichage de la prod des biens. 
-$reqprod = $bdg->prepare('SELECT prodbiens, consobiens FROM variationstour WHERE idplanetevariation = ?'); 
+$reqprod = $bdg->prepare('SELECT prodbiens, consobiens, coutstockage FROM variationstour WHERE idplanetevariation = ?'); 
 $reqprod->execute(array($_GET['id'])); 
 $prodbiens = $reqprod->fetch(); 
-echo 'Au dernier tour, tu en as produit '.$prodbiens['prodbiens'].' et consommé '.$prodbiens['consobiens'].' biens divers.</br>'; 
+echo 'Au dernier tour, tu en as produit '.$prodbiens['prodbiens'].', consommé '.$prodbiens['consobiens'].' et le coût de stockage a été de '.$prodbiens['coutstockage'].' en biens divers.</br>'; 
  
 // Formulaire de conversion des pops 
 echo '<form method="post" action="script/conversionpop.php"><p>'; 
@@ -93,7 +93,9 @@ while ($reppoptransf = $reqpoptransf->fetch())
 $reqcompterbatiment = $bdg->prepare('SELECT sum(case when typebat = 1 then 1 else 0 end) AS centrederecherche, 
                                             sum(case when typebat = 2 then 1 else 0 end) AS chantier, 
                                             sum(case when typebat = 3 then 1 else 0 end) AS megalopole, 
-                                            sum(case when typebat = 4 then 1 else 0 end) AS baselunaire 
+                                            sum(case when typebat = 4 then 1 else 0 end) AS baselunaire,
+                                            sum(case when typebat = 21 then 1 else 0 end) AS traitement1, 
+                                            sum(case when typebat = 22 then 1 else 0 end) AS traitement2
                                             FROM batiment WHERE idplanetebat = ?'); 
 $reqcompterbatiment->execute(array($_GET['id'])); 
 $repcompterbatiment = $reqcompterbatiment->fetch(); 
@@ -101,7 +103,10 @@ $repcompterbatiment = $reqcompterbatiment->fetch();
 if(!isset($repcompterbatiment['centrederecherche'])){$repcompterbatiment['centrederecherche']=0;} 
 if(!isset($repcompterbatiment['chantier'])){$repcompterbatiment['chantier']=0;} 
 if(!isset($repcompterbatiment['megalopole'])){$repcompterbatiment['megalopole']=0;} 
-if(!isset($repcompterbatiment['baselunaire'])){$repcompterbatiment['baselunaire']=0;} 
+if(!isset($repcompterbatiment['baselunaire'])){$repcompterbatiment['baselunaire']=0;}
+if(!isset($repcompterbatiment['traitement1'])){$repcompterbatiment['traitement1']=0;} 
+if(!isset($repcompterbatiment['traitement2'])){$repcompterbatiment['traitement2']=0;} 
+
 echo 'Chantier : '.$repcompterbatiment['chantier'].'/'.$repplanete['maxchantier'].' (permet d\'avoir 5 ouvriers).</br>'; 
 echo 'Centre de recherche : '.$repcompterbatiment['centrederecherche'].'/'.$repplanete['maxcentrederecherche'].' (permet d\'avoir 5 scientifiques).</br>'; 
 echo 'Mégalopoles : '.$repcompterbatiment['megalopole'].'/'.$repplanete['maxmegalopole'].' (augmente la pop max et une constructible par tranche de 4 pop).</br>'; 
@@ -109,7 +114,10 @@ if ($repplanete['lune'] > 0)
   { 
   echo 'Base lunaire : '.$repcompterbatiment['baselunaire'].'/'.$repplanete['maxbaselunaire'].' (augmente la pop max et une constructible par lune).</br>'; 
   } 
- 
+echo 'Usine de traitement : '.$repcompterbatiment['traitement1'].'/1 (+30% en biens et +20% en titane lors des traitements).</br>';
+echo 'Usine de traitement avancée : '.$repcompterbatiment['traitement2'].'/1 (+25% en biens et +60% en titane lors des traitements).</br>';
+
+
 if ($repcompterpop['ouvriers']>0) 
 { 
 echo '</br><h2>Chantier de construction :</h2>'; 

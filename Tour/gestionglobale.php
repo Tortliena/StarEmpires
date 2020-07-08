@@ -8,6 +8,7 @@ $Commentairestour = 'Le tour commence.' ;
 include("fonctionsdutour.php");
 include("../function/caracteristiquesvaisseau.php");
 include("../function/consommercreeritemsplanetemultiple.php");
+include("../function/variable.php");
 
 // Changer le numéro du tour.
 include("incrementerletour.php");

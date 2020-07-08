@@ -87,22 +87,22 @@ while ($repplanete = $reqplanete->fetch())
         a: // Revenir ici si prod se finie et qu'il y a un round 2.
 
         if (isset($repcategorie['nomlimite'])) // S'il y a un maximum sur l'un de ces batiments.
-          {
-          // On récupère la limite.
-          $reqlimite = $bdg->prepare('SELECT '.$repcategorie['nomlimite'].' FROM limiteplanete WHERE idlimiteplanete = ?');
-          $reqlimite->execute(array($repplanete['idplanetevariation']));
-          $replimite = $reqlimite->fetch(); // $replimite['0']
-
-          // On récupère le nombre de batiments actuels.
-          $reqcomptebat->execute(array($repconstruction['trucaconstruire'], $repplanete['idplanetevariation']));
-          $repcomptebat = $reqcomptebat->fetch();  // $repcomptechantier['nb']
-               
-          if ($replimite['0']<=$repcomptebat['nb'])
             {
-            $reqsupprimercontruction->execute(array($repconstruction['idconst']));
-            break;
+            // On récupère la limite.
+            $reqlimite = $bdg->prepare('SELECT '.$repcategorie['nomlimite'].' FROM limiteplanete WHERE idlimiteplanete = ?');
+            $reqlimite->execute(array($repplanete['idplanetevariation']));
+            $replimite = $reqlimite->fetch(); // $replimite['0']
+
+            // On récupère le nombre de batiments actuels.
+            $reqcomptebat->execute(array($repconstruction['trucaconstruire'], $repplanete['idplanetevariation']));
+            $repcomptebat = $reqcomptebat->fetch();  // $repcomptechantier['nb']
+
+            if ($replimite['0']<=$repcomptebat['nb'])
+                {
+                $reqsupprimercontruction->execute(array($repconstruction['idconst']));
+                break;
+                }
             }
-          }
 
         if ($avancementbiens > 1) // S'il reste des biens à investir, faire cette partie.
             {
@@ -180,33 +180,60 @@ while ($repplanete = $reqplanete->fetch())
                 $repinfovaisseau = $reqinfovaisseau->fetch();
 
                 if ($repinfovaisseau['idjoueurvaisseau'] < 0)
-                	{ // Si propriétaire est négatif, alors c'est un plan, donc c'est un nouveau vaisseau.
-					$construirevaisseau->execute(array($repplanete['idjoueurplanete'], 0, $repplanete['idplanetevariation'], 0));
-                	$IDdunouveauvaisseau = $bdg->lastInsertId();
-	                $reqcomposant->execute(array(-$repconstruction['trucaconstruire']));
-	                while ($repcomposant= $reqcomposant->fetch())
-	                    {// Insérer les composants dans le nouveau vaisseau
-	                    $reqinsertcomposant->execute(array($IDdunouveauvaisseau, $repcomposant['iditemcomposant'], $repcomposant['typecomposant']));
-	                    }
-					}
-				else
-					{ // Cas des rénovation des vaisseaux :
-					$reqsupprimerdeplacement->execute(array(-$repconstruction['trucaconstruire']));
-					$requpdatevaisseau->execute(array($repplanete['idjoueurplanete'], -$repconstruction['trucaconstruire']));
-					}
+                    { // Si propriétaire est négatif, alors c'est un plan, donc c'est un nouveau vaisseau.
+                    $construirevaisseau->execute(array($repplanete['idjoueurplanete'], 0, $repplanete['idplanetevariation'], 0));
+                    $IDdunouveauvaisseau = $bdg->lastInsertId();
+                    $reqcomposant->execute(array(-$repconstruction['trucaconstruire']));
+                    while ($repcomposant= $reqcomposant->fetch())
+                        {// Insérer les composants dans le nouveau vaisseau
+                        $reqinsertcomposant->execute(array($IDdunouveauvaisseau, $repcomposant['iditemcomposant'], $repcomposant['typecomposant']));
+                        }
+                    }
+                else
+                    { // Cas des rénovation des vaisseaux :
+                    $reqsupprimerdeplacement->execute(array(-$repconstruction['trucaconstruire']));
+                    $requpdatevaisseau->execute(array($repplanete['idjoueurplanete'], -$repconstruction['trucaconstruire']));
+                    }
                  }
 
             elseif ($repconstruction['trucaconstruire'] == 7)
                 { // 7 = recycler des débris de biens
-                $recdebris = rand(75 , 150);
+
+                // calcul du nombre de recycleur de niveau 1 : $repnbrecycleur['nb'];
+                $reqcomptebat->execute(array(21, $repplanete['idplanetevariation']));
+                $repnbrecycleur = $reqcomptebat->fetch();
+
+                // calcul du nombre de recycleur de niveau 2 : $repnbrecycleur2['nb'];
+                $reqcomptebat->execute(array(22, $repplanete['idplanetevariation']));
+                $repnbrecycleur2 = $reqcomptebat->fetch();
+                
+                // Calculer valeur recyclage :  
+                $valeurminimalederecyclage = 50 + 15*$repnbrecycleur['nb'] + 10*$repnbrecycleur2 ['nb'] ;
+                $valeurmaximalederecyclage = 100 + 30*$repnbrecycleur['nb'] + 20*$repnbrecycleur2 ['nb'] ;
+                $recdebris = rand($valeurminimalederecyclage , $valeurmaximalederecyclage);
+
                 $biens = $biens + $recdebris;
+                
                 $mess = 'Le recyclage des débris vous a rapporté ' . $recdebris . ' biens divers.' ;
-                $message ->execute(array($repplanete['idplanetevariation'] , $mess , 'Construction', $repplanete['idplanetevariation']));
+                $message ->execute(array($repplanete['idjoueurplanete'], $mess , 'planete', $repplanete['idplanetevariation']));
                 }
 
             elseif ($repconstruction['trucaconstruire'] == 9)
                 { // 9 = recycler des débris de métaux rares
-                $recdebrisrare = rand(15 , 30);
+
+                // calcul du nombre de recycleur de niveau 1 : $repnbrecycleur['nb'];
+                $reqcomptebat->execute(array(21, $repplanete['idplanetevariation']));
+                $repnbrecycleur = $reqcomptebat->fetch();
+
+                // calcul du nombre de recycleur de niveau 2 : $repnbrecycleur2['nb'];
+                $reqcomptebat->execute(array(22, $repplanete['idplanetevariation']));
+                $repnbrecycleur2 = $reqcomptebat->fetch();
+                
+                // Calculer valeur recyclage :  
+                $valeurminimalederecyclage = 8 + 2*$repnbrecycleur['nb'] + 5*$repnbrecycleur2 ['nb'] ;
+                $valeurmaximalederecyclage = 16 + 4*$repnbrecycleur['nb'] + 10*$repnbrecycleur2 ['nb'] ;
+                $recdebrisrare = rand($valeurminimalederecyclage , $valeurmaximalederecyclage);
+
                 $titane = $titane + $recdebrisrare;
                 $mess = 'Le recyclage des débris vous a rapporté ' . $recdebrisrare . ' unités de titane.' ;
                 $message ->execute(array($repplanete['idjoueurplanete'] , $mess , 'planete', $repplanete['idplanetevariation']));

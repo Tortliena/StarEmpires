@@ -22,7 +22,9 @@ $requpdatepop = $bdg->prepare(" UPDATE population SET typepoparrivee = 1
                                 WHERE idplanetepop = ?
                                 AND ((typepop <> 1 AND typepoparrivee <> 1)
                                     OR typepoparrivee > 1)
-                                ORDER BY RAND() LIMIT 1"); 
+                                ORDER BY RAND() LIMIT 1");
+
+$variationdutour = $bdg->prepare('UPDATE variationstour SET coutstockage = ? where idplanetevariation = ?');
 
 // Ajout au stock actuel.
 $reqinfoplanete = $bdg->query('SELECT v.idplanetevariation, v.prodbiens, v.consobiens, p.biens, p.idjoueurplanete FROM planete p INNER JOIN variationstour v ON v.idplanetevariation = p.idplanete ORDER BY p.idplanete');
@@ -54,6 +56,18 @@ while ($repinfoplanete = $reqinfoplanete->fetch())
         $mess = 'Crise éconimique ! Une partie de votre population redevient citoyenne et vous gagnez ' . $gain . ' de biens en compensation.' ; 
         $message ->execute(array($repinfoplanete['idjoueurplanete'], $mess, 'planete', $repinfoplanete['idplanetevariation'])); 
         }
+    else
+    	{ // On a assez de bien, donc on applique le cout de stockage. 
+        $pourcentstockage = variable(1); // Permet de récupérer les couts de stockages en %.
+        
+        $coutstockage = ($repinfoplanete['biens'] - $variation) * $pourcentstockage[0] / 100 ;
+        $coutstockage2 = floor($coutstockage);
+
+		$variationdutour->execute(array($coutstockage, $repinfoplanete['idplanetevariation']));
+
+        $variation = $variation + $coutstockage ;
+        }
+
     $applicationvariationdutour->execute(array($variation, $variation, $repinfoplanete['idplanetevariation']));
     }
 ?>
