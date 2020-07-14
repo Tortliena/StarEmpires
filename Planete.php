@@ -50,10 +50,10 @@ echo '</br><h2>Population et bâtiments :</h2>';
 echo $repcompterpop['population']. '/'.$repplanete['popmax'].' unités de population au total, composée de '.$repcompterpop['citoyens'].' citoyen(s) ; '.$repcompterpop['ouvriers'].'/'.$repplanete['ouvriermax'].' ouvrier(s) ; '.$repcompterpop['scientifiques'].'/'.$repplanete['scientmax'].' scientifique(s).</br>' ; 
  
 // Affichage de la prod des biens. 
-$reqprod = $bdg->prepare('SELECT prodbiens, consobiens, coutstockage FROM variationstour WHERE idplanetevariation = ?'); 
+$reqprod = $bdg->prepare('SELECT prodbiens, consobiens, coutstockage, entretien FROM variationstour WHERE idplanetevariation = ?'); 
 $reqprod->execute(array($_GET['id'])); 
 $prodbiens = $reqprod->fetch(); 
-echo 'Au dernier tour, tu en as produit '.$prodbiens['prodbiens'].', consommé '.$prodbiens['consobiens'].' et le coût de stockage a été de '.$prodbiens['coutstockage'].' en biens divers.</br>'; 
+echo 'Au dernier tour, tu en as produit '.$prodbiens['prodbiens'].', consommé '.$prodbiens['consobiens'].' et le coût de stockage a été de '.$prodbiens['coutstockage'].' et les frais d\'entretien des bâtiments a été de '.$prodbiens['entretien'].' en biens divers.</br>'; 
  
 // Formulaire de conversion des pops 
 echo '<form method="post" action="script/conversionpop.php"><p>'; 
@@ -128,7 +128,7 @@ echo '<form method="post" action="script/ordreconstruction.php"><p><label for="c
 echo '<input type="number" name="combien" value="1" min="1">'; 
 echo '<select name="trucaconstruire" id="trucaconstruire">'; 
  
- 
+
 // Requête pour la liste de construction et basé sur la présence d'un item. 
 $reqmenuderoulantitems = $bdg->prepare(' 
         SELECT  items.iditem, items.nombatiment 
@@ -143,7 +143,7 @@ while ($repmenuderoulantitems = $reqmenuderoulantitems ->fetch())
     $a++; 
     echo '<option value="'.$repmenuderoulantitems['iditem'].'">'.$repmenuderoulantitems['nombatiment'].'</option>'; 
     } 
- 
+
 $reqcountbatatiment = $bdg->prepare('SELECT COUNT(*) AS nb FROM batiment WHERE idplanetebat = ? AND typebat = ?'); 
 // Requete pour la liste de construction et basé sur une limite : 
 $reqmenuderoulantconstruction = $bdd->prepare(' 
@@ -167,16 +167,18 @@ while ($repmenuderoulantconstruction = $reqmenuderoulantconstruction->fetch())
         echo '<option value="'.$repmenuderoulantconstruction['iditem'].'">'.$repmenuderoulantconstruction['nombatiment'].'</option>'; 
         } 
     } 
- 
+
+
+
 // Permet de construire des vaisseaux. 
-$reqmenuderoulantvaisseau = $bdg->prepare('SELECT idvaisseau, nomvaisseau FROM vaisseau WHERE idjoueurvaisseau = ?'); 
+$reqmenuderoulantvaisseau = $bdg->prepare('SELECT idvaisseau, nomvaisseau FROM vaisseau WHERE idflottevaisseau = ?'); 
 $reqmenuderoulantvaisseau->execute(array(-$_SESSION['id'])); 
 while ($repmenuderoulantvaisseau = $reqmenuderoulantvaisseau ->fetch()) 
     { // Gestion des trucs ayant besoin d'un machin dans les stocks. 
     $a++; 
     echo '<option value="'.-$repmenuderoulantvaisseau['idvaisseau'].'">'.$repmenuderoulantvaisseau['nomvaisseau'].'</option>'; 
     } 
- 
+
 if ($a == 0) 
     { 
     echo '<option disabled selected>Pas de construction possible</option></select>'; 
@@ -187,7 +189,7 @@ else
     } 
 echo '<input type="hidden" name="id" value="'.$_GET['id'].'">'; 
 echo '</p></form>'; // Fin formulaire pour les constructions. 
- 
+
 // Requete pour gérer les constructions : 
 $reqnomitemencoursdeconstruction = $bdd->prepare('SELECT nombatiment FROM items WHERE iditem = ?'); 
 $reqnomvaisseau = $bdg->prepare("SELECT nomvaisseau FROM vaisseau WHERE idvaisseau = ?"); 
@@ -241,7 +243,47 @@ while ($repconstencours = $reqconstencours->fetch())
     {echo '</br>' ; } 
   } // Fin de la partie sur les constructions en cours. 
 } // Fin de la partie si la planète possède au moins 1 ouvrier. 
- 
+
+$a = 0;
+$reqflotteenorbite = $bdg->prepare("SELECT idflotte, nomflotte FROM flotte WHERE idplaneteflotte = ? AND universflotte = ? AND xflotte = ? AND yflotte = ?") ;   
+$reqvaisseauenorbite = $bdg->prepare("SELECT v.idvaisseau, v.nomvaisseau, v.HPmaxvaisseau, v.HPvaisseau   
+                FROM vaisseau v
+                INNER JOIN flotte f
+                ON f.idflotte = v.idflottevaisseau
+                WHERE idplaneteflotte = ?") ;   
+$reqvaisseauenorbite ->execute(array(-$_GET['id']));   
+while ($repvaisseauenorbite = $reqvaisseauenorbite ->fetch())   
+	{
+	if ($a == 0)
+		{
+		echo '<h2>Vaisseaux en orbite :</h2>';
+		}
+	$a++;
+
+	$PourcentHP = $repvaisseauenorbite['HPvaisseau'] / $repvaisseauenorbite['HPmaxvaisseau'] * 100 ;   
+
+	echo '<a href="vaisseau.php?id=' . $repvaisseauenorbite['idvaisseau'] . '">' . $repvaisseauenorbite['nomvaisseau'] . '</a> (' . number_format($PourcentHP, 0) . '%) ';
+	
+	echo '<form method="post" action="script/envoyerenorbite.php">'; 
+	echo '<input name="idplanete" type="hidden" value="'.$_GET['id'].'">';
+	echo '<input name="idvaisseau" type="hidden" value="'.$repvaisseauenorbite['idvaisseau'].'">';
+  echo '<input name="idflotte" type="hidden" value="0">';
+  echo '<input name="mouvement" type="hidden" value="2">';
+  echo '<input type="submit" value="Créer flotte"/></form>';
+
+  $reqflotteenorbite ->execute(array($_GET['id'], $repplanete['universplanete'], $repplanete['xplanete'], $repplanete['yplanete']));  
+  while ($repflotteenorbite = $reqflotteenorbite ->fetch())   
+    {
+    //requete pour trouver toutes les flottes en orbite du joueur et y envoyer le vaisseau.
+    echo '&nbsp<form method="post" action="script/envoyerenorbite.php">'; 
+    echo '<input name="idplanete" type="hidden" value="'.$_GET['id'].'">';
+    echo '<input name="idvaisseau" type="hidden" value="'.$repvaisseauenorbite['idvaisseau'].'">';
+    echo '<input name="idflotte" type="hidden" value="'.$repflotteenorbite['idflotte'].'">';
+    echo '<input name="mouvement" type="hidden" value="1">';
+    echo '<input type="submit" value="'.$repflotteenorbite['nomflotte'].'"/></form></br>'; 
+    }
+	} 
+
 echo '<table class="silo"><caption><h3>Entrepôts</h3></caption><tr><td class="silo1ereligne">Objet</td><td class="silo1ereligne">Quantité</td><td class="silo1ereligne">Utilité</td></tr>'; 
 if ($repplanete['biens']>0) 
   { 
@@ -272,8 +314,9 @@ while($repSiloItems = $reqSiloItems->fetch())
         echo '</td><td class="silodescription">'.$repSiloItems['description']; 
         echo '</td></tr>'; 
         } 
-    } ?>  
+    }
+
+    ?>  
 </table> 
- 
   </div> 
   </body> 

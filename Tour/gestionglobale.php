@@ -9,6 +9,7 @@ include("fonctionsdutour.php");
 include("../function/caracteristiquesvaisseau.php");
 include("../function/consommercreeritemsplanetemultiple.php");
 include("../function/variable.php");
+include("../function/flotte.php");
 
 // Changer le numéro du tour.
 include("incrementerletour.php");

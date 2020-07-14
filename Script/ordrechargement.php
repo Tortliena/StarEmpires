@@ -170,6 +170,41 @@ else
     $reqmettreajourordre->execute(array($repflotte['universflotte'], $_POST['xobjectif'], $_POST['yobjectif'], $_POST['typeordre'], 0, $_POST['idflotte']));
     }
 
+
+
+/*
+
+
+$reqflotte->execute(array(2)); // ordre de déchargement (= typeordre 2) 
+while ($repflotte = $reqflotte->fetch()) 
+    { 
+    // Trouver si une planète du joueur est à proximité : 
+    $reqplanete->execute(array($repflotte['xflotte'], $repflotte['yflotte'], $repflotte['universflotte'], $repflotte['idflotte'])); 
+    $repplanete = $reqplanete->fetch(); 
+ 
+    if (isset($repplanete['idplanete'])) 
+        { 
+        // récupérer les infos du cargo 
+        $reqverifcargo->execute(array($repflotte['idflotte'], '%')); 
+        while ($repverifcargo = $reqverifcargo->fetch()) 
+            { 
+            consommercreeritemsplanetemultiple(0, $repverifcargo['typeitems'], $repplanete['idplanete'], $repverifcargo['quantiteitems']); 
+ 
+            $mess = 'Un vaisseau vient de livrer ' . $repverifcargo['quantiteitems'] . ' ' . $repverifcargo['nombatiment']; 
+            $message->execute(array($repvaisseau['idjoueurplanete'], $mess, 'planete', $repplanete['idplanete'])); 
+            
+            $mess2 = 'Ce vaisseau vient de livre ' . $repverifcargo['quantiteitems'] . ' ' . $repverifcargo['nombatiment'] ; 
+            $message->execute(array($repvaisseau['idjoueurplanete'], $mess2, 'flotte', $repflotte['idflotte'])); 
+            } 
+        // Supprimer toute la cargaison 
+        $reqsupcargaisonflotte->execute(array($repflotte['idflotte'])); 
+        } 
+    $reqsupprimerordreprecedent->execute(array($repflotte['idflotte'])); 
+    } 
+*/
+
+
+
 /*
 if ($_POST['typeordre'] == 7 OR $_POST['typeordre'] == 6) 
     { // 7 = réparer ; // 6 = changer composant. 

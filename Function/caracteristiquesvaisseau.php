@@ -1,5 +1,5 @@
 <?php
-function caracteristiquesvaisesau ($idvaisseau, $idjoueur)
+function caracteristiquesvaisseau ($idvaisseau)
     {
     include("../include/BDDconnection.php");
     $totalprixbien = 40;

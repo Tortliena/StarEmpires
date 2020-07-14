@@ -38,18 +38,18 @@ include("include/message.php");
 
 if (isset($_GET["voir"]) and $_GET["voir"] == 0 )
   {
-$reqtourinfo = $bda->query('SELECT * FROM tour ORDER BY id DESC LIMIT 1') or die(print_r($bdd->errorInfo()));
-$reptourinfo = $reqtourinfo->fetch(); 
-echo 'le dernier tour est le tour ' . $reptourinfo['id'] . ' et s\'est passé le ' . $reptourinfo['datetour']  ;
-echo ' <br />  ' . $reptourinfo['resume'] ; 
+  $reqtourinfo = $bda->query('SELECT * FROM tour ORDER BY id DESC LIMIT 1') or die(print_r($bdd->errorInfo()));
+  $reptourinfo = $reqtourinfo->fetch(); 
+  echo 'le dernier tour est le tour ' . $reptourinfo['id'] . ' et s\'est passé le ' . $reptourinfo['datetour']  ;
+  echo ' <br />  ' . $reptourinfo['resume'] ; 
   }
 elseif (isset($_GET["voir"]))
   {
   $reqtourinfo = $bda->prepare('SELECT * FROM tour WHERE id = ?');
   $reqtourinfo->execute(array($_GET["voir"]));
   $reptourinfo = $reqtourinfo->fetch(); 
-    echo 'le tour ' . $reptourinfo['id'] . ' s\'est passé le ' . $reptourinfo['datetour']  ;
-    echo ' <br />  ' . $reptourinfo['resume'] ;  
+  echo 'le tour ' . $reptourinfo['id'] . ' s\'est passé le ' . $reptourinfo['datetour']  ;
+  echo ' <br />  ' . $reptourinfo['resume'] ;  
   }
 ?>
 
@@ -75,6 +75,4 @@ elseif (isset($_GET["voir"]))
 <!-- importer la base de donnees ! -->
 <a class ="lienmenu" href="script/importerbdd.php?table=autre">Importer la table</a></br>
 
-</div>
-  </body>
-</html>
+</div></body></html>

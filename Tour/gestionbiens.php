@@ -27,14 +27,14 @@ $requpdatepop = $bdg->prepare(" UPDATE population SET typepoparrivee = 1
 $variationdutour = $bdg->prepare('UPDATE variationstour SET coutstockage = ? where idplanetevariation = ?');
 
 // Ajout au stock actuel.
-$reqinfoplanete = $bdg->query('SELECT v.idplanetevariation, v.prodbiens, v.consobiens, p.biens, p.idjoueurplanete FROM planete p INNER JOIN variationstour v ON v.idplanetevariation = p.idplanete ORDER BY p.idplanete');
+$reqinfoplanete = $bdg->query('SELECT v.idplanetevariation, v.prodbiens, v.consobiens, v.entretien, p.biens, p.idjoueurplanete FROM planete p INNER JOIN variationstour v ON v.idplanetevariation = p.idplanete ORDER BY p.idplanete');
 while ($repinfoplanete = $reqinfoplanete->fetch())
     {      
     $gain = 0;
     $nombredepopaconvertir = 0;
     $nombredepopconverti = 0;
 
-    $variation = $repinfoplanete['consobiens'] - $repinfoplanete['prodbiens'] ; 
+    $variation = $repinfoplanete['consobiens'] + $repinfoplanete['entretien'] - $repinfoplanete['prodbiens'] ; 
      
     if ($repinfoplanete['biens'] - $variation <= 0) 
         { //  Cas d'une crise economique :

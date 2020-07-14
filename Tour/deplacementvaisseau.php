@@ -1,351 +1,296 @@
 <?php 
-/* 
-session_start(); 
-include("../include/BDDconnection.php"); 
-include("../function/consommercreeritemsplanetemultiple.php"); 
-*/ 
- 
+/*
+session_start();
+require __DIR__ . '/../include/BDDconnection.php'; 
+require __DIR__ . '/../function/consommercreeritemsplanetemultiple.php';
+require __DIR__ . '/../function/flotte.php';
+*/
+
 // récupérer le num du tour ($touractuel['id']) 
 $reqtouractuel = $bda->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1'); 
 $touractuel = $reqtouractuel->fetch(); 
  
 // Gestion vaisseau 
-$applicationdeplacement = $bdg->prepare("UPDATE vaisseau SET x = ? , y = ?, univers = ? where idvaisseau = ? "); 
-$reqmettrepva1 = $bdg->prepare("UPDATE vaisseau SET x = ? , y = ?, HPvaisseau = ? where idvaisseau = ? "); 
- 
+$applicationdeplacement = $bdg->prepare("UPDATE flotte SET xflotte = ? , yflotte = ?, universflotte = ? WHERE idflotte = ? "); 
+$reqmettrepva1 = $bdg->prepare("UPDATE vaisseau SET x = ? , y = ?, HPvaisseau = ? WHERE idflotte = ? "); 
+
+
 // Divers 
-$message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess , numspemessage) VALUES (?, ?, ?, ?)") ; 
-$reqsupprimerordreprecedent = $bdg->prepare('DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?'); 
-$requpdateordre = $bdg->prepare('UPDATE ordredeplacement SET xdestination = ?, ydestination = ?, universdestination = ?, bloque = ? WHERE idvaisseaudeplacement = ?'); 
+$message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess , numspemessage) VALUES (?, ?, ?, ?)"); 
+$reqsupprimerordreprecedent = $bdg->prepare('UPDATE flotte SET universdestination = 0, xdestination = 0, ydestination = 0, typeordre = 0, bloque = 0 WHERE idflotte = ?');
+$requpdateordre = $bdg->prepare('UPDATE flotte SET universdestination = ?, xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ?');
 $reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)'); 
  
 //planete 
 $reqplanete = $bdg->prepare('SELECT idplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? AND idjoueurplanete = ?'); 
-$reqplanete2 = $bdg->prepare('SELECT xplanete, yplanete, universplanete FROM planete WHERE idplanete = ?'); 
-$reqchangementproprioplanete = $bdg->prepare('UPDATE planete SET idjoueurplanete = ? WHERE idplanete = ?'); 
+$reqplanete2 = $bdg->prepare('SELECT xplanete, yplanete, universplanete, idjoueurplanete FROM planete WHERE idplanete = ?'); 
+$reqchangementproprioplanete = $bdg->prepare('UPDATE planete SET idjoueurplanete = ?, biens = biens + ?, organisation = 100 WHERE idplanete = ?'); 
 $reqpop = $bdg->prepare('INSERT INTO population(idplanetepop, typepop) VALUES(?, ?)'); 
  
 // Gestion exploration 
 $reqexplorationexistante = $bdg->prepare("SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? "); 
-$exploration = $bdg->prepare("INSERT INTO explore (x , y, univers , idexplorateur, tourexploration) VALUES (?, ?, ?, ?, ?)") ; 
- 
+$exploration = $bdg->prepare("INSERT INTO explore (x , y, univers , idexplorateur, tourexploration) VALUES (?, ?, ?, ?, ?)"); 
+
 // Gestion cargo 
-$reqcreercargo = $bdg->prepare("INSERT INTO cargovaisseau (idvaisseaucargo, typeitems, quantiteitems) VALUES (?, ?, ?)") ; 
-$reqverifcargo = $bdd->prepare("SELECT cargovaisseau.typeitems, cargovaisseau.quantiteitems, items.nombatiment FROM gamer.cargovaisseau INNER JOIN items ON items.iditem = cargovaisseau.typeitems WHERE cargovaisseau.idvaisseaucargo = ? AND cargovaisseau.typeitems like ?") ; 
-$reqaugmentercargo = $bdg->prepare("UPDATE cargovaisseau SET quantiteitems = ? WHERE idvaisseaucargo = ? AND typeitems = ?") ; 
+$reqverifcargo = $bdd->prepare("    SELECT  v.idvaisseau, v.capacitedesoute
+                                    FROM gamer.vaisseau v
+                                    LEFT JOIN gamer.cargovaisseau c ON c.idvaisseaucargo  = v.idvaisseau
+                                    WHERE v.idflottevaisseau = ?");
+$reqverifcargo2 = $bdg->prepare("SELECT SUM(quantiteitems) AS quantitetransportee, quantiteitems FROM cargovaisseau WHERE idvaisseaucargo = ? AND typeitems like ?");
+$reqcreercargo = $bdg->prepare("INSERT INTO cargovaisseau (idvaisseaucargo, typeitems, quantiteitems) VALUES (?, ?, ?)"); 
+$reqaugmentercargo = $bdg->prepare("UPDATE cargovaisseau SET quantiteitems = ? WHERE idvaisseaucargo = ? AND typeitems = ?"); 
 $reqsupcargaisonvaisseau = $bdg->prepare('DELETE FROM cargovaisseau WHERE idvaisseaucargo = ?'); 
  
 // Gestion Silo 
-$reqverifsilo = $bdg->prepare("SELECT quantite FROM silo WHERE idjoueursilo = ? AND iditems = ?") ; 
-$reqcreersilo = $bdg->prepare("INSERT INTO silo (idjoueursilo, iditems, quantite) VALUES (?, ?, ?)") ; 
-$reqaugmentersilo = $bdg->prepare("UPDATE silo SET quantite = ? WHERE idjoueursilo = ? AND iditems = ?") ; 
- 
-// Gestion astéroides. 
-$reqmajaste = $bda->prepare('UPDATE champsasteroides SET quantite = ? where idasteroide = ?'); 
-$reqsupaste = $bda->prepare('DELETE FROM  champsasteroides WHERE idasteroide = ?'); 
-$reqasteroide = $bda->prepare('SELECT idasteroide, quantite, typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? ORDER BY RAND () LIMIT 1'); 
- 
-// récupération des ordres de déplacement. 
-$reqvaisseau = $bdg->prepare('SELECT * FROM ordredeplacement o INNER JOIN vaisseau v ON v.idvaisseau = o.idvaisseaudeplacement WHERE o.typeordre = ?'); 
-$reqvaisseau->execute(array(0)); // 0 = ordre de déplacement normaux. 
-while ($repvaisseau = $reqvaisseau->fetch()) 
-    { 
+$reqverifsilo = $bdg->prepare("SELECT quantite FROM silo WHERE idjoueursilo = ? AND iditems = ?"); 
+$reqcreersilo = $bdg->prepare("INSERT INTO silo (idjoueursilo, iditems, quantite) VALUES (?, ?, ?)"); 
+$reqaugmentersilo = $bdg->prepare("UPDATE silo SET quantite = ? WHERE idjoueursilo = ? AND iditems = ?"); 
+
+// Gestion astéroides.
+$reqmajaste = $bda->prepare('UPDATE champsasteroides SET quantite = ? where idasteroide = ?');
+$reqsupaste = $bda->prepare('DELETE FROM  champsasteroides WHERE idasteroide = ?');
+$reqasteroide = $bda->prepare('SELECT idasteroide, quantite, typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? ORDER BY RAND () LIMIT 1');
+
+// récupération des ordres de déplacement.
+$reqflotte = $bdg->prepare('    SELECT * FROM flotte f
+                                INNER JOIN planete p ON p.idplanete = f.idplaneteflotte
+                                WHERE typeordre = ?');
+
+$reqflotte->execute(array(1)); // ordre de récolte des astéroides (= typeordre 1) 
+while ($repflotte = $reqflotte->fetch()) 
+    {
+    $minageflotte = minageflotte($repflotte['idflotte']) ; 
+
+    //requete vaisseau par vaisseau de sa cargaison.  
+    $reqverifcargo->execute(array($repflotte['idflotte']));
+    while ($repverifcargo = $reqverifcargo->fetch())
+        {
+        if ($minageflotte < 1)
+            {break ; }
+      
+        $reqverifcargo2->execute(array($repverifcargo['idvaisseau'], '%')); 
+        $repquantitetransportee = $reqverifcargo2->fetch();
+        $quantiterestantedesoute = $repverifcargo['capacitedesoute'] - $repquantitetransportee['quantitetransportee'];
+        for ( ; $quantiterestantedesoute>0 , $minageflotte>0 ; $minageflotte-- , $quantiterestantedesoute--) 
+            {
+            if ($quantiterestantedesoute<1)
+                {break 1 ; }
+            // Vérifier si un astéroide existe.
+            $reqasteroide->execute(array($repflotte['xflotte'] , $repflotte['yflotte'], $repflotte['universflotte'])); 
+            $repasteroide = $reqasteroide->fetch();
+            if (isset($repasteroide['idasteroide']))
+                {
+                $reqverifcargo2->execute(array($repverifcargo['idvaisseau'], $repasteroide['typeitemsaste'])); 
+                $repverifcargo2 = $reqverifcargo2->fetch();
+                if (isset($repverifcargo2['quantiteitems'])) // Si le cargo transporte déjà des débris alors augmenter.  
+                    {
+                    $reqaugmentercargo->execute(array($repverifcargo2['quantiteitems'] + 1 , $repverifcargo['idvaisseau'], $repasteroide['typeitemsaste']));
+                    } 
+                else 
+                    { // Sinon créer un stock.
+                    $reqcreercargo->execute(array($repverifcargo['idvaisseau'], $repasteroide['typeitemsaste'] , 1)); 
+                    } 
+                // Si les biens de l'asteroide tombent à 0, alors on delete.  
+                if ($repasteroide['quantite'] < 2) 
+                    { 
+                    $reqsupaste->execute(array($repasteroide['idasteroide'])); 
+                    } 
+                else // Sinon on réduit de 1 sa valeur. 
+                    { 
+                    $reqmajaste->execute(array($repasteroide['quantite'] - 1 , $repasteroide['idasteroide'])); 
+                    } 
+                }
+            else
+                { // Si aucun astéroide présent, supprimer 
+                $reqsupprimerordreprecedent->execute(array($repflotte['idflotte'])); 
+                }
+            } // Fin de la boucle gérant les astéroides multiples.
+        } // Fin boucle gérant les vaisseaux multiples dans une flotte.
+    } // Fin des ordres de minage. 
+$reqflotte->execute(array(1)); // ordre de récolte des astéroides (= typeordre 1) et vérification s'il y a besoin de supprimer l'ordre ou non. 
+while ($repflotte = $reqflotte->fetch()) 
+    {
+    $souteflotte = souteflotte($repflotte['idflotte']) ;
+    $quantitetransportee = cargaisonflotte($repflotte['idflotte']) ;
+    if ($souteflotte <= $quantitetransportee)
+    	{
+    	$reqsupprimerordreprecedent->execute(array($repflotte['idflotte']));
+    	} 
+    }
+
+// $reqvaisseau->execute(array(5)); = attaquer (page bataille) 
+
+$reqflotte->execute(array(6)); // 6 = ordre de déplacement normaux. 
+while ($repflotte = $reqflotte->fetch()) 
+    {
+    $vitesse = vitesseflotte($repflotte['idflotte']);
     $arriveadestination = true ; // par défaut, considérer l'ordre comme exécutable en entier; 
  
     // Puis-je arriver à destination selon x ? 
-    if ($repvaisseau['x']+$repvaisseau['vitesse'] >= $repvaisseau['xdestination'] AND $repvaisseau['x']-$repvaisseau['vitesse'] <= $repvaisseau['xdestination']) 
+    if ($repflotte['xflotte']+$vitesse >= $repflotte['xdestination'] AND $repflotte['xflotte']-$vitesse <= $repflotte['xdestination']) 
         { 
-        $xeffectif = $repvaisseau['xdestination']; 
+        $xeffectif = $repflotte['xdestination']; 
         } // Si oui, alors ordre = destination 
     else 
         { 
         $arriveadestination = false ; 
-        if ($repvaisseau['x']>$repvaisseau['xdestination']) 
-            {$xeffectif = $repvaisseau['x'] - $repvaisseau['vitesse'];} 
+        if ($repflotte['xflotte']>$repflotte['xdestination']) 
+            {$xeffectif = $repflotte['xflotte'] - $vitesse;} 
         else 
-            {$xeffectif = $repvaisseau['x'] + $repvaisseau['vitesse'];}  
+            {$xeffectif = $repflotte['xflotte'] + $vitesse;}  
         } // Sinon, ordre = place initiale + vitesse vers la destination. 
  
     // Même chose ici mais avec les y.  
-    if ($repvaisseau['y']+$repvaisseau['vitesse'] >= $repvaisseau['ydestination'] AND $repvaisseau['y']-$repvaisseau['vitesse'] <= $repvaisseau['ydestination']) 
+    if ($repflotte['yflotte']+$vitesse >= $repflotte['ydestination'] AND $repflotte['yflotte']-$vitesse <= $repflotte['ydestination']) 
         { 
-        $yeffectif = $repvaisseau['ydestination']; 
+        $yeffectif = $repflotte['ydestination']; 
         } 
     else 
         { 
         $arriveadestination = false ; 
-        if ($repvaisseau['y']>$repvaisseau['ydestination']) 
+        if ($repflotte['yflotte']>$repflotte['ydestination']) 
             { 
-            $yeffectif = $repvaisseau['y'] - $repvaisseau['vitesse']; 
+            $yeffectif = $repflotte['yflotte'] - $vitesse; 
             } 
         else 
             { 
-            $yeffectif = $repvaisseau['y'] + $repvaisseau['vitesse']; 
+            $yeffectif = $repflotte['yflotte'] + $vitesse; 
             } 
         } 
- 
+
     //Créer message pour le joueur. 
-    $mess = 'Ce vaisseau vient de se déplacer. Il était avant en ' . $repvaisseau['x'] . '-' . $repvaisseau['y'] ;  
-    $message ->execute(array($repvaisseau['idjoueurduvaisseau'] , $mess , 'Vaisseau' , $repvaisseau['idvaisseaudeplacement'])) ; 
+    $mess = 'Cette flotte vient de se déplacer. Elle était avant en ' . $repflotte['xflotte'] . '-' . $repflotte['yflotte'] ;  
+    $message ->execute(array($repflotte['idjoueurplanete'] , $mess , 'flotte' , $repflotte['idflotte'])) ; 
      
     // Applique le déplacement : 
-    $applicationdeplacement->execute(array($xeffectif , $yeffectif , $repvaisseau['universdestination'], $repvaisseau['idvaisseaudeplacement'])); 
+    $applicationdeplacement->execute(array($xeffectif , $yeffectif , $repflotte['universdestination'], $repflotte['idflotte'])); 
  
     // Exploration si case inconnue : 
-    $reqexplorationexistante->execute(array($xeffectif , $yeffectif , $repvaisseau['universdestination'] , $repvaisseau['idjoueurduvaisseau'])); 
+    $reqexplorationexistante->execute(array($xeffectif , $yeffectif , $repflotte['universdestination'] , $repflotte['idjoueurplanete'])); 
     $repexplorationexistante = $reqexplorationexistante->fetch();  
     if (empty($repexplorationexistante['idexplore'])) 
         { 
-        $exploration ->execute(array($xeffectif , $yeffectif , $repvaisseau['universdestination'], $repvaisseau['idjoueurduvaisseau'], $touractuel['id'])) ; 
+        $exploration ->execute(array($xeffectif , $yeffectif , $repflotte['universdestination'], $repflotte['idjoueurplanete'], $touractuel['id'])) ; 
  
         //Créer message pour le joueur. 
-        $messexplo = 'Ce vaisseau vient d\'explorer le parsec (' . $xeffectif  . ' - ' . $yeffectif .').'  ;  
-        $message ->execute(array($repvaisseau['idjoueurduvaisseau'] , $messexplo , 'Vaisseau' , $repvaisseau['idvaisseaudeplacement'])) ; 
+        $messexplo = 'Cette flotte vient d\'explorer le parsec (' . $xeffectif  . ' - ' . $yeffectif .').'  ;  
+        $message ->execute(array($repflotte['idjoueurplanete'] , $messexplo , 'flotte' , $repflotte['idflotte'])) ; 
         } 
      
     if ($arriveadestination == true) 
         {  
         // Supprimer l'ordre de déplacement si la destination est atteinte 
-        $reqsupprimerordreprecedent->execute(array($repvaisseau['idvaisseaudeplacement'])); 
+        $reqsupprimerordreprecedent->execute(array($repflotte['idflotte'])); 
         } 
     else 
         { 
-        $messagepasassezrapide = 'Ce vaisseau n\'est pas arrivé à destination faute d\'avoir la vitesse suffisante.'  ;  
-        $message ->execute(array($repvaisseau['idjoueurduvaisseau'] , $messagepasassezrapide , 'Vaisseau' , $repvaisseau['idvaisseaudeplacement'])) ; 
+        $messagepasassezrapide = 'Cette flotte n\'est pas arrivée à destination faute d\'avoir la vitesse suffisante.'  ;  
+        $message ->execute(array($repflotte['idjoueurplanete'] , $messagepasassezrapide , 'flotte' , $repflotte['idflotte'])) ; 
         } 
     } 
- 
-$reqvaisseau->execute(array(1)); // ordre de récolte des astéroides (= typeordre 1) 
-while ($repvaisseau = $reqvaisseau->fetch()) 
-    { 
-    $quantitetransportee = 0; // Permet de définir combien on transporte actuellement. 
-    $reqverifcargo->execute(array($repvaisseau['idvaisseaudeplacement'], '%')); 
-    while ($repverifcargo = $reqverifcargo->fetch()) 
-        { 
-        $quantitetransportee = $quantitetransportee + $repverifcargo['quantiteitems']; 
-        } 
-     
-    $quantiterestantedesoute = $repvaisseau['capacitedesoute'] - $quantitetransportee; 
-    $capaciteminage = $repvaisseau['capaciteminage']; 
-     
-    for ( ; $quantiterestantedesoute>0 , $capaciteminage>0 ; $capaciteminage-- , $quantiterestantedesoute--) 
-        { 
-        if ($quantiterestantedesoute <= 0) 
-            { // si on n'a plus de soute, alors on supprime l'ordre et on passe au vaisseau suivant. 
-            $reqsupprimerordreprecedent->execute(array($repvaisseau['idvaisseaudeplacement'])); 
-            break ; 
-            } 
-             
-        $reqasteroide->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers'])); 
-        $repasteroide = $reqasteroide->fetch(); 
-        // Vérifier si un astéroide existe. 
-        if (isset($repasteroide['idasteroide'])) 
-            { 
-            $reqverifcargo->execute(array($repvaisseau['idvaisseaudeplacement'], $repasteroide['typeitemsaste'])); 
-            $repverifcargo = $reqverifcargo->fetch(); 
-            if (isset($repverifcargo['quantiteitems'])) // Si le cargo transporte déjà des débris alors augmenter.  
-                { 
-                $reqaugmentercargo->execute(array($repverifcargo['quantiteitems'] + 1 , $repvaisseau['idvaisseaudeplacement'], $repasteroide['typeitemsaste'])); 
-                } 
-            else 
-                { // Sinon créer un stock.  
-                $reqcreercargo->execute(array($repvaisseau['idvaisseaudeplacement'], $repasteroide['typeitemsaste'] , 1)); 
-                } 
-             
-            // Si les biens de l'asteroide tombent à 0, alors on delete.  
-            if ($repasteroide['quantite'] < 2) 
-                { 
-                $reqsupaste->execute(array($repasteroide['idasteroide'])); 
-                $reqsupprimerordreprecedent->execute(array($repvaisseau['idvaisseaudeplacement'])); 
-                } 
-            else // Sinon on réduit de 1 sa valeur. 
-                { 
-                $reqmajaste->execute(array($repasteroide['quantite'] - 1 , $repasteroide['idasteroide'])); 
-                } 
-            if ($quantiterestantedesoute <= 1) 
-                { // Permet de supprimer l'ordre si la soute tombe à 0.  
-                $reqsupprimerordreprecedent->execute(array($repvaisseau['idvaisseaudeplacement'])); 
-                } 
-            } 
-        else 
-            { // si l'astéroide n'existe pas ou plus, alors on supprime l'ordre. 
-            $reqsupprimerordreprecedent->execute(array($repvaisseau['idvaisseaudeplacement'])); 
-            } 
-        } // Fin boucle while pour le cas avec de multiples minages. 
-    } // Fin des ordres de minage. 
- 
-$reqvaisseau->execute(array(2)); // ordre de déchargement (= typeordre 2) 
-while ($repvaisseau = $reqvaisseau->fetch()) 
-    { 
-    // Trouver si une planète du joueur est à proximité : 
-    $reqplanete->execute(array($repvaisseau['x'], $repvaisseau['y'], $repvaisseau['univers'], $repvaisseau['idjoueurvaisseau'])); 
-    $repplanete = $reqplanete->fetch(); 
- 
-    if (isset($repplanete['idplanete'])) 
-        { 
-        // récupérer les infos du cargo 
-        $reqverifcargo->execute(array($repvaisseau['idvaisseaudeplacement'], '%')); 
-        while ($repverifcargo = $reqverifcargo->fetch()) 
-            { 
-            consommercreeritemsplanetemultiple(0, $repverifcargo['typeitems'], $repplanete['idplanete'], $repverifcargo['quantiteitems']); 
- 
-            $mess = 'Un vaisseau vient de livrer ' . $repverifcargo['quantiteitems'] . ' ' . $repverifcargo['nombatiment']; 
-            $message->execute(array($repvaisseau['idjoueurvaisseau'], $mess, 'planete', $repplanete['idplanete'])); 
-            
-            $mess2 = 'Ce vaisseau vient de livre ' . $repverifcargo['quantiteitems'] . ' ' . $repverifcargo['nombatiment'] ; 
-            $message->execute(array($repvaisseau['idjoueurvaisseau'], $mess2, 'vaisseau', $repvaisseau['idvaisseau'])); 
-            } 
-        // Supprimer toute la cargaison 
-        $reqsupcargaisonvaisseau->execute(array($repvaisseau['idvaisseaudeplacement'])); 
-        } 
-    $reqsupprimerordreprecedent->execute(array($repvaisseau['idvaisseaudeplacement'])); 
-    } 
- 
-$reqvaisseau->execute(array(3)); // ordre de rentrée vers la planète (= typeordre 3)  
-while ($repvaisseau = $reqvaisseau->fetch()) 
-    { 
-    // Trouver si une planète du joueur est à proximité : 
-    $reqplanete->execute(array($repvaisseau['x'], $repvaisseau['y'], $repvaisseau['univers'], $repvaisseau['idjoueurvaisseau'])); 
-    $repplanete = $reqplanete->fetch(); 
- 
-    if (isset($repplanete['idplanete'])) 
-        { // Vérifier les coordonnées et appliquer l'ordre. 
-        $applicationdeplacement->execute(array($repplanete['idplanete'], 0 , 0, $repvaisseau['idvaisseaudeplacement'])); 
-        }  
-    $reqsupprimerordreprecedent->execute(array($repvaisseau['idvaisseaudeplacement']));  
-    } 
- 
-$reqvaisseau->execute(array(4)); // ordre de sortie vers la carte (= typeordre 4) 
-while ($repvaisseau = $reqvaisseau->fetch()) 
-    { 
-    // x du vaisseau = id planete. Je vais sortir le vaisseau aux coordonnées de la planète après. 
-    $reqplanete2->execute(array($repvaisseau['x'])); 
-    $repplanete = $reqplanete2->fetch(); 
- 
-    if (isset($repplanete['xplanete'])) 
-        { 
-        //Créer message pour le joueur. 
-        $mess = 'Ce vient de sortir du hangars et se trouve maintenant en orbite de notre monde.';  
-        $message ->execute(array($repvaisseau['idjoueurduvaisseau'] , $mess , 'Vaisseau' , $repvaisseau['idvaisseaudeplacement'])); 
-        // Et appliquer l'ordre. 
-        $applicationdeplacement->execute(array($repplanete['xplanete'] , $repplanete['yplanete'], $repplanete['universplanete'], $repvaisseau['idvaisseaudeplacement'])); 
- 
-        // Exploration si case inconnue : 
-        $reqexplorationexistante->execute(array($repplanete['xplanete'] , $repplanete['yplanete'], $repplanete['universplanete'], $repvaisseau['idjoueurduvaisseau'])); 
-        $repexplorationexistante = $reqexplorationexistante->fetch();  
-        if (empty($repexplorationexistante['idexplore'])) 
-            { 
-            $exploration ->execute(array($repplanete['xplanete'] , $repplanete['yplanete'], $repplanete['universplanete'], $repvaisseau['idjoueurduvaisseau'], $touractuel['id'])) ; 
- 
-            //Créer message pour le joueur. 
-            $messexplo = 'Première sortie du système. Notre vaisseau explore les environs immédiats.'  ;  
-            $message ->execute(array($repvaisseau['idjoueurduvaisseau'] , $messexplo , 'Vaisseau' , $repvaisseau['idvaisseaudeplacement'])) ; 
-            } 
-        } 
-    $reqsupprimerordreprecedent->execute(array($repvaisseau['idvaisseaudeplacement']));  
-    } 
- 
-// $reqvaisseau->execute(array(5)); = attaquer (page bataille) 
-// $reqvaisseau->execute(array(6)); = conception de vaisseau (page construction) 
+
 // $reqvaisseau->execute(array(7)); = Réparation de vaisseau (page construction) 
  
-$reqvaisseau->execute(array(8)); //  = Ordre spécial premier vaisseau trouvé. 
-while ($repvaisseau = $reqvaisseau->fetch()) 
-    { 
-    if ($repvaisseau['xdestination'] == 5) 
+$reqflotte->execute(array(8)); //  = Ordre spécial premier vaisseau trouvé. 
+while ($repflotte = $reqflotte->fetch()) 
+    {  // Permet au vaisseau de fuir à +1 / -1, cas prévu lorsqu'on est au bord de la map.
+    if ($repflotte['xdestination'] == 5) 
         {$xdestination = 4;} 
-    else {$xdestination = $repvaisseau['xdestination']+1;} 
+    else {$xdestination = $repflotte['xdestination']+1;} 
  
-    if ($repvaisseau['ydestination'] == 1) 
+    if ($repflotte['ydestination'] == 1) 
         {$ydestination = 2;} 
-    else {$ydestination = $repvaisseau['ydestination']-1;} 
+    else {$ydestination = $repflotte['ydestination']-1;} 
  
-    $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repvaisseau['idjoueurduvaisseau'], 0, 'Échec de la mission', 'Nous avons tenté d\'aborder l\'épave, mais ce qui semble être un système de défense automatique nous a tiré dessus. Notre vaisseau est lourdement endommagé et nous devrions rentrer et le réparer.')); 
+    $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repflotte['idjoueurplanete'], 0, 'Échec de la mission', 'Nous avons tenté d\'aborder l\'épave, mais ce qui semble être un système de défense automatique nous a tiré dessus. Notre vaisseau est lourdement endommagé et nous devrions rentrer et le réparer.')); 
  
     $reqmettrepva1->execute(array($xdestination, $ydestination, 1, $repvaisseau['idvaisseaudeplacement'])); 
  
-    $reqsupprimerordreprecedent->execute(array($repvaisseau['idvaisseaudeplacement']));  
+    $reqsupprimerordreprecedent->execute(array($repflotte['idflotte']));  
     } 
  
 // $reqvaisseau->execute(array(9)); = design avec un ordre totalement bloqué. 
  
-$reqvaisseau->execute(array(10)); // = Saut dimentionnel 
-while ($repvaisseau = $reqvaisseau->fetch()) 
+$reqflotte->execute(array(10)); // = Saut dimentionnel 
+while ($repflotte = $reqflotte->fetch()) 
     { 
-    if ($repvaisseau['bloque'] == 0) 
+    if ($repflotte['bloque'] == 0) 
         { // Cas d'un ordre qui vient d'être donné. Le gérer pour en faire un 'vrai' ordre et le bloquer. 
-        if ($repvaisseau['universdestination']>0) 
-            { // Dans ce cas, le vaisseau va vers l'univers d'origine du joueur. 
-            $universdestination = $repvaisseau['idjoueurduvaisseau']; 
+        if ($repflotte['universdestination']>0) 
+            { // Dans ce cas, la flotte va vers l'univers d'origine du joueur. 
+            $universdestination = $repflotte['idjoueurduvaisseau']; 
             } 
         else 
-          { // Dans ce cas, le vaisseau va vers un autre univers : 
-            $universdestination = $repvaisseau['universdestination']; 
+          { // Dans ce cas, la flotte va vers un autre univers : 
+            $universdestination = $repflotte['universdestination']; 
             } 
         $temps = 2; 
-        $requpdateordre->execute(array($temps, 0, $universdestination, 2, $repvaisseau['idvaisseaudeplacement'])); 
-        $applicationdeplacement->execute(array(0, 0, 0, $repvaisseau['idvaisseaudeplacement'])); 
+        $requpdateordre->execute(array($temps, 0, $universdestination, 2, $repflotte['idflotte'])); 
+        $applicationdeplacement->execute(array(0, 0, 0, $repflotte['idflotte'])); 
         } 
     else 
-        { // Dans ce cas, l'ordre est bloqué, donc le vaisseau est en voyage. 
-        if ($repvaisseau['xdestination'] > 0) 
-            { // Dans ce cas, le vaisseau est en train de voyager. 
-            $universdestination = $repvaisseau['universdestination']; 
-            $temps = $repvaisseau['xdestination']-1; 
-            $requpdateordre->execute(array($temps, 0, $universdestination, 2, $repvaisseau['idvaisseaudeplacement'])); 
+        { // Dans ce cas, l'ordre est bloqué, donc la flotte est en voyage. 
+        if ($repflotte['xdestination'] > 0) 
+            { // Dans ce cas, la flotte est en train de voyager. 
+            $universdestination = $repflotte['universdestination']; 
+            $temps = $repflotte['xdestination']-1; 
+            $requpdateordre->execute(array($temps, 0, $universdestination, 2, $repflotte['idflotte'])); 
             } 
-        elseif ($repvaisseau['xdestination'] == 0) 
-            { // Dans ce cas, le vaisseau est arrivé 
-            if ($repvaisseau['universdestination'] > 0) 
-              { // Dans ce cas, le vaisseau va vers l'univers d'origine du joueur. 
+        elseif ($repflotte['xdestination'] == 0) 
+            { // Dans ce cas, la flotte est arrivée 
+            if ($repflotte['universdestination'] > 0) 
+              { // Dans ce cas, la flotte va vers l'univers d'origine du joueur. 
               $xeffectif = rand(1,5); 
               $yeffectif = rand(1,5); 
               } 
             else 
-              { // Dans ce cas, le vaisseau va vers un autre univers : 
+              { // Dans ce cas, la flotte va vers un autre univers : 
               $xeffectif = rand(1,20); 
               $yeffectif = rand(1,20); 
               } 
-            $universdestination = $repvaisseau['universdestination']; 
+            $universdestination = $repflotte['universdestination']; 
                          
             //Créer message pour le joueur. 
-            $mess = 'Ce vaisseau vient de se univorter.' ;  
-            $message ->execute(array($repvaisseau['idjoueurduvaisseau'] , $mess , 'Vaisseau' , $repvaisseau['idvaisseaudeplacement'])) ; 
+            $mess = 'Cette flotte vient de s\'univorter.' ;  
+            $message ->execute(array($repflotte['idjoueurplanete'] , $mess , 'flotte' , $repflotte['idflotte'])) ; 
                      
             // Applique le déplacement : 
-            $applicationdeplacement->execute(array($xeffectif , $yeffectif , $universdestination, $repvaisseau['idvaisseaudeplacement'])); 
-            $reqsupprimerordreprecedent->execute(array($repvaisseau['idvaisseaudeplacement'])); 
+            $applicationdeplacement->execute(array($xeffectif , $yeffectif , $universdestination, $repflotte['idflotte'])); 
+            $reqsupprimerordreprecedent->execute(array($repflotte['idflotte'])); 
             // Exploration si case inconnue : 
-            $reqexplorationexistante->execute(array($xeffectif , $yeffectif , $universdestination, $repvaisseau['idjoueurduvaisseau'])); 
+            $reqexplorationexistante->execute(array($xeffectif , $yeffectif , $universdestination, $repflotte['idjoueurplanete'])); 
             $repexplorationexistante = $reqexplorationexistante->fetch();  
             if (empty($repexplorationexistante['idexplore'])) 
                 { 
-                $exploration ->execute(array($xeffectif , $yeffectif , $universdestination, $repvaisseau['idjoueurduvaisseau'], $touractuel['id'])) ; 
+                $exploration ->execute(array($xeffectif , $yeffectif , $universdestination, $repflotte['idjoueurplanete'], $touractuel['id'])) ; 
                 //Créer message pour le joueur. 
-                $messexplo = 'Ce vaisseau vient d\'explorer le parsec (' . $xeffectif  . ' - ' . $yeffectif .').'  ;  
-                $message ->execute(array($repvaisseau['idjoueurduvaisseau'] , $messexplo , 'Vaisseau' , $repvaisseau['idvaisseaudeplacement'])) ; 
+                $messexplo = 'Cette flotte vient d\'explorer le parsec (' . $xeffectif  . ' - ' . $yeffectif .').'  ;  
+                $message ->execute(array($repflotte['idjoueurplanete'] , $messexplo , 'flotte' , $repflotte['idflotte'])) ; 
                 } 
             } 
         } 
     } 
  
-$reqvaisseau->execute(array(11)); // = colonisation 
-while ($repvaisseau = $reqvaisseau->fetch()) 
-    { //$repvaisseau['xdestination'] = id de la planete 
-    $reqplanete2->execute(array($repvaisseau['xdestination'])); 
+$reqflotte->execute(array(11)); // = colonisation 
+while ($repflotte = $reqflotte->fetch()) 
+    { //$repflotte['xdestination'] = id de la planete
+    $reqplanete2->execute(array($repflotte['xdestination'])); 
     $repplanete = $reqplanete2->fetch(); 
- 
-    if ($repvaisseau['univers'] == $repplanete['universplanete'] AND $repvaisseau['x'] == $repplanete['xplanete'] AND $repvaisseau['y'] == $repplanete['yplanete'] AND $repplanete['idjoueurplanete'] == 0) 
+    $peutcoloniser = colonisateur($repflotte['idflotte']) ;
+
+    if ($repflotte['universflotte'] == $repplanete['universplanete'] AND $repflotte['xflotte'] == $repplanete['xplanete'] AND $repflotte['yflotte'] == $repplanete['yplanete'] AND $repplanete['idjoueurplanete'] == 0 AND $peutcoloniser == true) 
         { 
-        $reqchangementproprioplanete->execute(array($repvaisseau['idjoueurvaisseau'], $repvaisseau['xdestination'])); 
-        $reqpop->execute(array($repvaisseau['xdestination'], 1)); 
+        $bonusbiens = variable(2);
+        $reqchangementproprioplanete->execute(array($repflotte['idjoueurplanete'], $bonusbiens[0], $repflotte['xdestination'])); 
+        $reqpop->execute(array($repflotte['xdestination'], 1)); 
          
-        $messcolonisation = 'Ce vaisseau vient de coloniser une planete.'  ;  
-        $message ->execute(array($repvaisseau['idjoueurduvaisseau'] , $messcolonisation, 'Vaisseau' , $repvaisseau['idvaisseaudeplacement'])) ; 
+        $messcolonisation = 'Cette flotte vient de coloniser une planete.'  ;  
+        $message ->execute(array($repflotte['idjoueurplanete'] , $messcolonisation, 'flotte' , $repflotte['idflotte'])) ; 
          
-        $reqmessageinterne->execute(array('Conseil civil', $repvaisseau['idjoueurvaisseau'], 0, 'planete colonisee', 'Nous venons de coloniser une nouvelle planete.')); 
-         
+        $reqmessageinterne->execute(array('Conseil civil', $repflotte['idjoueurplanete'], 0, 'planète colonisée', 'Nous venons de coloniser une nouvelle planète. Le vaisseau colonisateur a été perdu dans le processus'));
+
+        disparitionvaisseau($peutcoloniser[1]); 
         } 
-    $reqsupprimerordreprecedent->execute(array($repvaisseau['idvaisseaudeplacement'])); 
+    $reqsupprimerordreprecedent->execute(array($repflotte['idflotte'])); 
     } 
 ?>

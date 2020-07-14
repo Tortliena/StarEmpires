@@ -41,6 +41,8 @@ if(!isset($_GET['id']))
 	} 
 else 
 	{ // Section gérant les modifications de plan.
+	echo '<form method="post" action="conception.php"><input type="submit" value="Fin d\'édition du plan"/></form>';
+
 	$reqvaiss = $bdg->prepare('SELECT * FROM vaisseau WHERE idjoueurvaisseau = ? AND idvaisseau = ?'); 
 	$reqvaiss->execute(array(-$_SESSION['id'], $_GET['id'])); 
 	$repvaiss = $reqvaiss->fetch(); 
@@ -64,11 +66,11 @@ else
 	else 
 		{ 
 		echo 'Moteur I';
-    	echo '&emsp;&emsp;Vitesse : '.$repvaiss['vitesse'] . ' parsec/cycle. </br></br>'; 
+    	echo '&emsp;&emsp;Vitesse : '.$repvaiss['vitesse'] . ' parsec/cycle. </br></br>';
 		} 
     
     $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "soute")); 
- 	WHILE($repsoutesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
+ 	while($repsoutesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
         {
         $texte = $repsoutesurlevaisseau['nb'].' '.$repsoutesurlevaisseau['nombatiment'] ; 
         Supprimercomposant($repsoutesurlevaisseau['iditemcomposant'], $texte);
@@ -78,7 +80,7 @@ else
     echo 'Armement : <br>'; 
     $a = 0; // Voir plus tard pour refaire cette partie.
     $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "arme")); 
- 	WHILE($reparmesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
+ 	while($reparmesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
         {
         $texte = $reparmesurlevaisseau['nb'].' '.$reparmesurlevaisseau['nombatiment'] ; 
         Supprimercomposant($reparmesurlevaisseau['iditemcomposant'], $texte);
@@ -92,7 +94,7 @@ else
 	
     $a = 0; // Voir plus tard pour refaire cette partie.
     $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "coque")); 
- 	WHILE($repcoquesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
+ 	while($repcoquesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
         {
         $texte = $repcoquesurlevaisseau['nb'].' '.$repcoquessurlevaisseau['nombatiment'] ; 
         Supprimercomposant($reparmesurlevaisseau['iditemcomposant'], $texte);
@@ -138,8 +140,9 @@ while ($repvaiss = $reqvaiss->fetch())
  
  
     echo '<h3>' . $repvaiss['nomvaisseau'] . ' : '; 
-    echo '<a class ="lienmenu" href="Conception.php?id='.$repvaiss['idvaisseau'].'">modifier</a></h3>'; 
-	 
+    echo '<a class ="lienmenu" href="Conception.php?id='.$repvaiss['idvaisseau'].'">Modifier</a> '; 
+    echo '<a class ="lienmenu" href="script/supprimerconception.php?id='.$repvaiss['idvaisseau'].'">Supprimer</a></h3>';
+
 	list($structure, $structuremax) = structurevaisseau ($repvaiss['idvaisseau']); 
 	echo $structure.'/'.$structuremax.' de structure. </br>'; 
  

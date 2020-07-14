@@ -90,10 +90,10 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
         $reqtransformernom ->execute(array($_POST['trucaconstruire'])); 
         $reptransformernom  = $reqtransformernom ->fetch(); 
         } 
- 
+
     elseif ($_POST['trucaconstruire'] < 0) 
         { // Cas d'un vaisseau spatial 
-        $reqinfovaisseau = $bdg->prepare('SELECT nomvaisseau, idvaisseau FROM vaisseau WHERE idvaisseau = ? AND idjoueurvaisseau = ?'); 
+        $reqinfovaisseau = $bdg->prepare('SELECT nomvaisseau, idvaisseau FROM vaisseau WHERE idvaisseau = ? AND idflottevaisseau = ?'); 
         $reqinfovaisseau->execute(array(-$_POST['trucaconstruire'], -$_SESSION['id'])); 
         $repinfovaisseau = $reqinfovaisseau->fetch();   
  

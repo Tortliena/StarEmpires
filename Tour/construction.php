@@ -14,14 +14,18 @@ $reqconstruction = $bdg->prepare("SELECT * FROM construction WHERE idplanetecons
 $avancement = $bdg->prepare("UPDATE construction SET avancementbiens = ?, avancementtitane = ? WHERE idconst = ?");
 $construirebatiment = $bdg->prepare('INSERT INTO batiment (typebat, idplanetebat) VALUES (?, ?)');
 $reqlocalisationplanete = $bdg->prepare('SELECT xplanete, yplanete, universplanete FROM planete WHERE idplanete = ?');
-$construirevaisseau = $bdg->prepare('INSERT INTO vaisseau (idjoueurvaisseau, univers, x, y) VALUES (?, ?, ?, ?)');
+$construirevaisseau = $bdg->prepare('INSERT INTO vaisseau (idflottevaisseau, nomvaisseau) VALUES (?, ?)');
 
 // Cas des conceptions :
 $reqinsertcomposant = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)');
 $reqcomposant = $bdg->prepare('SELECT iditemcomposant, typecomposant FROM composantvaisseau WHERE idvaisseaucompo = ?');
-$reqinfovaisseau = $bdg->prepare('SELECT idjoueurvaisseau FROM vaisseau WHERE idvaisseau = ?');
+$reqinfovaisseau = $bdg->prepare('SELECT idflottevaisseau, nomvaisseau FROM vaisseau WHERE idvaisseau = ?');
 $reqsupprimerdeplacement = $bdg->prepare('DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
 $requpdatevaisseau = $bdg->prepare('UPDATE vaisseau SET HPmaxvaisseau = 1 WHERE idvaisseau = ?');
+
+// Gestion flotte : 
+$reqtrouverflotte = $bdg->prepare('SELECT idflotte FROM flotte WHERE idplaneteflotte = ?');
+$reqcreerflotte = $bdg->prepare('INSERT INTO flotte (idplaneteflotte) VALUES (?)');
 
 /*
 $reqsupprimercomposant = $bdg->prepare('DELETE FROM composantvaisseau WHERE idvaisseaucompo = ? AND typecomposant = ?');
@@ -179,9 +183,21 @@ while ($repplanete = $reqplanete->fetch())
                 $reqinfovaisseau->execute(array(-$repconstruction['trucaconstruire']));
                 $repinfovaisseau = $reqinfovaisseau->fetch();
 
-                if ($repinfovaisseau['idjoueurvaisseau'] < 0)
-                    { // Si propriétaire est négatif, alors c'est un plan, donc c'est un nouveau vaisseau.
-                    $construirevaisseau->execute(array($repplanete['idjoueurplanete'], 0, $repplanete['idplanetevariation'], 0));
+                if ($repinfovaisseau['idflottevaisseau'] < 0)
+                    { // Si id de la flotte est négatif, alors c'est un plan, donc c'est un nouveau vaisseau.
+                    $reqtrouverflotte->execute(array(-$repplanete['idplanetevariation']));
+                    $reptrouverflotte = $reqtrouverflotte->fetch();
+                    if (isset($reptrouverflotte['idflotte']))
+                        {// la flotte de défense de la planète existe et on va envoyer le vaisseau dedans. Valeur négative = flotte défensive.
+                        $idflotte = $reptrouverflotte['idflotte'] ;
+                        }
+                    else
+                        {// la flotte de défense n'existe pas, donc on la créé et on va envoyer le vaisseau dedans.
+                        $reqcreerflotte->execute(array(-$repplanete['idplanetevariation']));
+                        $idflotte = $bdg->lastInsertId();
+                        }
+
+                    $construirevaisseau->execute(array($idflotte, $repinfovaisseau['nomvaisseau']));
                     $IDdunouveauvaisseau = $bdg->lastInsertId();
                     $reqcomposant->execute(array(-$repconstruction['trucaconstruire']));
                     while ($repcomposant= $reqcomposant->fetch())

@@ -292,6 +292,26 @@ switch ($_GET["message"])
     case 65: 
         echo "Composant ajouté !"; 
     break; 
+
+    case 66: 
+        echo "Erreur dans le vaisseau sélectionné."; 
+    break; 
+
+    case 67: 
+        echo "Plan de vaisseau supprimé"; 
+    break;
+    
+    case 68: 
+        echo "Flotte créée. Vous voici sur la page associée à elle !"; 
+    break;
+    
+    case 69: 
+        echo "Votre vaisseau vient de rejoindre cette flotte."; 
+    break;
+    
+    case 70: 
+        echo "Vous venez d'envoyer votre vaisseau rejoindre la planète."; 
+    break; 
  
     } 
  

@@ -1,60 +1,75 @@
-<?php   
-session_start();   
-if (!$_SESSION['pseudo'])   
-  {   
-  header('Location: Accueil.php');   
-  exit();   
-  }   
-include("include/BDDconnection.php");   
-?>   
-<!DOCTYPE html><html><head><meta charset="utf-8" /><link rel="stylesheet" href="style.css" /><title>Mon super site</title></head>   
+<?php
+session_start();
+if (!$_SESSION['pseudo'])
+  {
+  header('Location: Accueil.php');
+  exit();
+  }
+include("include/BDDconnection.php");
+?>
+<!DOCTYPE html><html><head><meta charset="utf-8" /><link rel="stylesheet" href="style.css" /><title>Mon super site</title></head>
    
-<body><?php include("include/menu.php");    
+<body><?php include("include/menu.php");
    
-$reqvaisseau = $bdg->prepare('SELECT * FROM vaisseau WHERE idvaisseau = ?');   
-$reqvaisseau->execute(array($_GET['id']));   
-$repvaisseau = $reqvaisseau->fetch();   
-if ($repvaisseau['idjoueurvaisseau'] != $_SESSION['id'])   
-	{ header('Location: Accueil.php'); exit(); }   
-   
-if ($repvaisseau['univers'] == 0)   
-	{   
-	$reqplanete = $bdg->prepare('SELECT idplanete, idjoueurplanete FROM planete WHERE idplanete = ? LIMIT 1');   
-	$reqplanete->execute(array($repvaisseau['x']));   
-	$repplanete = $reqplanete->fetch();   
-	}   
+$reqflotte = $bdg->prepare('SELECT * FROM flotte WHERE idflotte = ?');
+$reqflotte->execute(array($_GET['id']));
+$repflotte = $reqflotte->fetch();
+
+if (!isset($repflotte['idplaneteflotte']))   // pas de flotte avec cet id.
+	{ header('Location: Accueil.php'); exit(); }
+
+$reqplanete2 = $bdg->prepare('SELECT idplanete, idjoueurplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? LIMIT 1');
+$reqplanete2->execute(array($repflotte['xflotte'], $repflotte['yflotte'], $repflotte['universflotte']));
+$repplanete2 = $reqplanete2->fetch();
+
+$reqplanete = $bdg->prepare('SELECT idplanete, idjoueurplanete FROM planete WHERE idplanete = ?');
+$reqplanete->execute(array($repflotte['idplaneteflotte']));
+$repplanete = $reqplanete->fetch();
+
+if ($repplanete['idjoueurplanete'] != $_SESSION['id'])   // La planète dont est originaire la flotte n'est pas celle de du joueur.
+	{ header('Location: Accueil.php'); exit(); }
+
+/*
 else    
-	{   
-	$reqplanete = $bdg->prepare('SELECT idplanete, idjoueurplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? LIMIT 1');   
-	$reqplanete->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers']));   
-	$repplanete = $reqplanete->fetch();   
-	}   
-   
+	{ // code permettant de récupérer les info sur une planète ou la flotte orbite.   
+	$reqplanete2->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers']));
+	$repplanete = $reqplanete2->fetch();
+	}
+*/
+ 
 ?>   
 <div class="corps">   
-<form method="post" action="script/renommer.php"><h1>Vaisseau : <?php echo $repvaisseau['nomvaisseau'] ;?>    
+<form method="post" action="script/renommer.php"><h1>Flotte : <?php echo $repflotte['nomflotte'] ;?>    
 <input type="text" name="nouveaunom" id="nouveaunom" placeholder="nouveau nom" size="25" maxlength="80" />   
 <input name="id" type="hidden" value="<?php echo $_GET['id'] ;?>">   
-<input name="type" type="hidden" value="vaisseau">   
+<input name="type" type="hidden" value="flotte">   
 <input type="submit" value="Renommer"/></h1></form>   
    
 <?php   
 include("include/message.php");   
-$typemessage = 'vaisseau' ;   
+$typemessage = 'flotte' ;   
 include("include/resume.php");   
-   
-include("function/fonctionhangars.php");   
-   
+include("function/fonctionhangars.php");
+include("function/flotte.php");
+
+$minageflotte = minageflotte($_GET['id']) ; 
+$souteflotte = souteflotte($_GET['id']) ;
+$quantitetransportee = cargaisonflotte($_GET['id']) ;
+$peutcoloniser = colonisateur($_GET['id']) ;
+
 $reqcomposantsurlevaisseau = $bdd->prepare("SELECT i.nombatiment FROM gamer.composantvaisseau c   
           INNER JOIN items i ON i.iditem = c.iditemcomposant   
           WHERE c.idvaisseaucompo = ? AND c.typecomposant = ?");   
-         
+      
 if ($replvl['lvl']>=3)   
-    {   
-    echo '<p>Vitesse du vaisseau : ' . $repvaisseau['vitesse'] . ' parsec/cycle</p>';    
-    }   
-   
+    {
+    $vitesse = vitesseflotte($_GET['id']) ;
+    echo '<p>Vitesse de la flotte : ' . $vitesse . ' parsec/cycle</p>';    
+    }
+
+/*
 $a = 0; // Variable permettant de gérer le cas avec un ou plusieurs composants en stock + gére le cas du remplissage des soutes.   
+
 $reqverifcargo = $bdg->prepare("SELECT c.quantiteitems , i.nombatiment   
                 FROM cargovaisseau c   
                 INNER JOIN datawebsite.items i   
@@ -89,12 +104,13 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
 	    	}   
 	    echo '</p>';    
 	    }   
-   
+*/
+	
 	if ($replvl['lvl']>=3)   
-	    {   
-	    echo '<p>Capacité des soutes : ' . $a . '/' . $repvaisseau['capacitedesoute'] . '. Capacité de minage : ' . $repvaisseau['capaciteminage'] . '</p>';   
+	    { 
+	    echo '<p>Capacité des soutes : ' . $quantitetransportee . '/' . $souteflotte . '. Capacité de minage : ' . $minageflotte . '</p>';   
 	    }   
-   
+/*  
 	if ($replvl['lvl']>=5)   
 	    {   
 	    $PourcentHP = $repvaisseau['HPvaisseau'] / $repvaisseau['HPmaxvaisseau'] * 100 ;   
@@ -120,23 +136,20 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
 			}   
 	    echo '</p>';   
 	    }   
-   
+*/
+
 // requetes pour la carte et/ou les ordres.   
 $reqdect = $bdg->prepare('SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? LIMIT 1');   
-$reqasteroide = $bda->prepare('SELECT idasteroide , quantite , typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');   
-$reqvaisseaucarte = $bdg->prepare('SELECT idvaisseau FROM vaisseau WHERE x = ? AND y = ? AND univers = ? AND idjoueurvaisseau <> ? LIMIT 1');   
-   
-// Permet de récupérer les ordres de déplacement en cours.
-$ordredeplacementactuel = $bdg->prepare('SELECT * FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
-$ordredeplacementactuel->execute(array($_GET['id']));
-$reponseordredeplacementactuel = $ordredeplacementactuel->fetch();
-   
+$reqasteroide = $bda->prepare('SELECT idasteroide , quantite, typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');   
+// Revoir cette requete pour trouver que les flottes 'ennemies'. 
+$reqflottecarte = $bdg->prepare('SELECT idflotte FROM flotte WHERE xflotte = ? AND yflotte = ? AND universflotte = ? AND idplaneteflotte <> ? LIMIT 1');   
+
 // Si on a un champs d'astéroide, formulaire pour embarquer les trucs.
-$reqasteroide->execute(array($repvaisseau['x'] , $repvaisseau['y'], $repvaisseau['univers']));
+$reqasteroide->execute(array($repflotte['xflotte'] , $repflotte['yflotte'], $repflotte['universflotte']));
 $repasteroide = $reqasteroide->fetch();
 if (isset($repasteroide['idasteroide']))   
 	{
-	if ($a < $repvaisseau['capacitedesoute'])   
+	if ($quantitetransportee < $souteflotte)   
 		{
 		formulaireordredeplacement(1, $_GET['id'], 0, 0, 0, 0);   
 		}
@@ -145,33 +158,43 @@ if (isset($repasteroide['idasteroide']))
 		echo '<p>Vous êtes à proximité d\'un champs de débris, mais vous ne pouvez pas miner faute de place dans les soutes</p>';    
 		}   
 	}   
-   
+
+/*  
 $reqarmesurvaisseau = $bdg->prepare("SELECT COUNT(*) AS nb FROM composantvaisseau WHERE tirrestant > 0 AND idvaisseaucompo = ?");   
 $reqarmesurvaisseau->execute(array($_GET['id']));   
 $reparmesurvaisseau = $reqarmesurvaisseau->fetch();   
-   
-// Détection    
-$reqdetectionvaisseauennemi = $bdg->prepare("SELECT idvaisseau, nomvaisseau FROM vaisseau WHERE idjoueurvaisseau <> ? AND univers = ? AND x = ? AND y = ? AND x <> 0");   
-$reqdetectionvaisseauennemi->execute(array($_SESSION['id'], $repvaisseau['univers'], $repvaisseau['x'], $repvaisseau['y']));   
-while($repdetectionvaisseauennemi = $reqdetectionvaisseauennemi->fetch())   
+*/
+
+/*
+// Détection flottes ennemies  
+$reqdetectionflotteennemi = $bdg->prepare("SELECT idflotte, nomflotte FROM flotte WHERE idflotte <> ? AND universflotte = ? AND xflotte = ? AND yflotte = ? AND xflotte <> 0");
+$reqdetectionflotteennemi->execute(array($_GET['id'], $repflotte['universflotte'], $repflotte['xflotte'], $repflotte['yflotte']));   
+while($repdetectionflotteennemi = $reqdetectionflotteennemi->fetch())   
 	{   
-	if ($reparmesurvaisseau['nb'] > 0)   
+	if (1 > 0)   // avant : $reparmesurvaisseau['nb'] > 0 dans le cas ou il y a des armes. 
 		{   
-		formulaireordredeplacement(5, $_GET['id'], 'Vaisseau inconnu détecté : ' . $repdetectionvaisseauennemi['nomvaisseau'] . ' ', $repdetectionvaisseauennemi['idvaisseau'], 0, 0);   
+		formulaireordredeplacement(5, $_GET['id'], 'flotte inconnue détectée : ' . $repdetectionvaisseauennemi['nomflotte'] . ' ', $repdetectionvaisseauennemi['idflotte'], 0, 0);   
 		}   
 	else   
 		{   
-		echo '<p>Vaisseau potentiellement hostile à proximité : ' . $repdetectionvaisseauennemi['nomvaisseau'] . '</p>';   
+		echo '<p>flotte potentiellement hostile à proximité : ' . $repdetectionflotteennemi['nomflotte'] . '</p>';   
 		}   
 	}   
-   
+*/
+	
+/*   // Refaire ici et au dessus en séparant les cas des flottes amies et ennemies.
+// Détection des flotte alliées.
 $reqdetectionvaisseau = $bdg->prepare("SELECT idvaisseau, nomvaisseau FROM vaisseau WHERE idjoueurvaisseau = ? AND univers = ? AND x = ? AND y = ? AND  idvaisseau <> ? AND x <> 0");   
 $reqdetectionvaisseau->execute(array($_SESSION['id'], $repvaisseau['univers'], $repvaisseau['x'], $repvaisseau['y'], $repvaisseau['idvaisseau']));   
 while($repdetectionvaisseau = $reqdetectionvaisseau->fetch())   
 	{   
 	echo '<p>Vaisseau ami à proximité : ' . $repdetectionvaisseau['nomvaisseau'] . '</p>';   
 	}   
-   
+*/
+
+
+
+/*
 // Si le vaisseau est au hangars :    
 if ($repvaisseau['y'] == 0 AND $repvaisseau['univers'] == 0)   
 	{   
@@ -244,24 +267,28 @@ if ($repvaisseau['y'] == 0 AND $repvaisseau['univers'] == 0)
 			}   
 		} // Fin de la partie sur les modules.    
 	} // Fin de la partie dans le hangars.   
-   
-elseif ($repvaisseau['univers'] == 0)   
+*/
+
+// Faire un elseif ici après avoir retravaillé la partie juste au dessus.
+if ($repflotte['universflotte'] == 0)   
 	{// Si le vaisseau est dans l'hyperespace :   
-	$jourrestant = $reponseordredeplacementactuel['xdestination']+1;   
+	$jourrestant = $repflotte['xdestination']+1;   
 	echo '<p>Votre vaisseau est en cours de voyage. Reste '.$jourrestant.' jours.</p>';   
 	}   
    
 // Si le vaisseau est de sortie sur la carte :   
 else   
 	{   
+	/*
 	$reqcomposantsurlevaisseau->execute(array($_GET['id'], 'noyau'));   
 	$repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch();   
 	if (isset($repcomposantsurlevaisseau['nombatiment']))   
 		{   
 		formulaireordredeplacement(10, $_GET['id'], 'Saut dimensionnel : ', 0, 0, 0);   
 		}   
-	 
-	if ($repvaisseau['univers'] > 0)   
+	*/
+
+	if ($repflotte['universflotte'] > 0)   
 		{   
 		$xymax = 5 ; // valeurs maximales de la carte.   
 		}   
@@ -270,37 +297,42 @@ else
 		$xymax = 20 ; // valeurs maximales de la carte.   
 		}   
 
-	// Si le vaisseau se trouve proche de l'une de nos planètes.   
-	if ($repplanete['idjoueurplanete'] == $_SESSION['id'])   
-		{
-		// Formulaire pour rentrer en orbite : ordre de type 3.   
-		formulaireordredeplacement(3, $_GET['id'], 0, 0, 0, 0);   
-		}
-
 	// Si il y a un ordre de déplacement en cours :    
-	if (isset($reponseordredeplacementactuel['typeordre']))   
+	if ($repflotte['typeordre']>0)   
 		{
-		annulerordrededeplacement($reponseordredeplacementactuel['typeordre'], $_GET['id'], $reponseordredeplacementactuel['xdestination'], $reponseordredeplacementactuel['ydestination'], $reponseordredeplacementactuel['bloque']);   
+		annulerordrededeplacement($repflotte['typeordre'], $_GET['id'], $repflotte['xdestination'], $repflotte['ydestination'], $repflotte['bloque']);   
 		}
 
-	echo '<p>Votre vaisseau est en balade en ' . $repvaisseau['univers'] . ' , ' . $repvaisseau['x'] . ' , ' . $repvaisseau['y'] . '</p>';   
+	echo '<p>Votre flotte est en balade en ' . $repflotte['universflotte'] . ' , ' . $repflotte['xflotte'] . ' , ' . $repflotte['yflotte'] . '</p>';   
 
 	// Formulaire pour donner un ordre de déplacement.   
 	if (isset($_GET['x']))   
 		{
-		formulaireordredeplacement(0, $_GET['id'], 0, $_GET['x'], $_GET['y'], $xymax);   
+		formulaireordredeplacement(6, $_GET['id'], 0, $_GET['x'], $_GET['y'], $xymax);   
 		}
 	else   
 		{
-		formulaireordredeplacement(0, $_GET['id'], 0, $repvaisseau['x'], $repvaisseau['y'], $xymax);   
+		// formulaireordredeplacement(0, $_GET['id'], 0, $repflotte['xflotte'], $repflotte['yflotte'], $xymax);   
 		}
 
-	// Formulaire pour coloniser   
-	if (isset($repplanete['idjoueurplanete']) AND $repplanete['idjoueurplanete'] != $_SESSION['id'])   
-		{   
-		formulaireordredeplacement(11, $_GET['id'], 0, $repplanete['idplanete'], 0, 0);   
-		}   
+	if ($peutcoloniser[0] == true)
+		{
+		// Formulaire pour coloniser
+		if (isset($repplanete2['idjoueurplanete']) AND $repplanete2['idjoueurplanete'] == 0)   
+			{
+			formulaireordredeplacement(11, $_GET['id'], 0, $repplanete2['idplanete'], 0, 0);   
+			}
+		elseif (isset($repplanete2['idjoueurplanete']) AND $repplanete2['idjoueurplanete'] != 0)
+			{
+			echo '<p>Au moins un vaisseau dans cette flotte possède un module de colonisation. Un monde se trouve à proximité mais est déjà colonisé.</p>';
+			}
+		else
+			{
+			echo '<p>Au moins un vaisseau dans cette flotte possède un module de colonisation mais aucun monde est à proximité.</p>'; 
+			}
+		}
 
+  
 
 	// Carte spatiale :   
 	for ($y = 0 ; $y <= $xymax ; $y++)   
@@ -309,19 +341,19 @@ else
 	  	{   
 		if ($x == 0 AND $y == 0)   
 			{ // Début du tableau + tout en haut à gauche.   
-			echo '<table class = "carte"><caption>Univers ' . $repvaisseau['univers'] . '!</caption><tr><td class = "xycarte">x/y</td>' ;   
+			echo '<table class = "carte"><caption>Univers ' . $repflotte['universflotte'] . '!</caption><tr><td class = "xycarte">x/y</td>' ;   
 			}   
 		elseif ($x > 0 AND $x <= $xymax AND $y > 0 AND $y <= $xymax)   
 			{ // interieur du tableau   
-			$reqvaisseaucarte->execute(array($x , $y, $repvaisseau['univers'], $_SESSION['id']));   
-			$repvaisseaucarte = $reqvaisseaucarte->fetch();   
-			$reqplanete->execute(array($x , $y, $repvaisseau['univers']));   
-			$repplanete = $reqplanete->fetch();   
-			$reqasteroide->execute(array($x , $y, $repvaisseau['univers']));   
+			$reqflottecarte->execute(array($x , $y, $repflotte['universflotte'], $_SESSION['id']));   
+			$repflottecarte = $reqflottecarte->fetch();   
+			$reqplanete2->execute(array($x , $y, $repflotte['universflotte']));   
+			$repplanete = $reqplanete2->fetch();   
+			$reqasteroide->execute(array($x , $y, $repflotte['universflotte']));   
 			$repasteroide = $reqasteroide->fetch();   
-			$reqdect->execute(array($x , $y, $repvaisseau['univers'], $_SESSION['id']));   
+			$reqdect->execute(array($x , $y, $repflotte['universflotte'], $_SESSION['id']));   
 			$repdect = $reqdect->fetch();   
-			if ($repvaisseau['x'] == $x AND $repvaisseau['y'] == $y) // Si je suis sur mon vaisseau, afficher mon vaisseau.   
+			if ($repflotte['xflotte'] == $x AND $repflotte['yflotte'] == $y) // Si je suis sur mon vaisseau, afficher mon vaisseau.   
 				{   
 				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/monvaisseau.png" alt="monvaisseau" /></a></td>';   
 				}   
@@ -360,11 +392,36 @@ else
 			}   
 		if ($x == $xymax AND $y == $xymax)   
 		    { // fin du tableau   
-		    echo '</table>' ;   
+		    echo '</table></br></br>' ;   
 		    }   
 	  }} // Acolades pour fermer les for de la carte.   
 	} // acolade pour fermer la partie sur la carte.   
-?>   
-  </div>   
-  </body>   
+
+$reqvaisseaudanslaflotte = $bdg->prepare("SELECT idvaisseau, nomvaisseau, HPmaxvaisseau, HPvaisseau   
+                FROM vaisseau
+                WHERE idflottevaisseau = ?") ;
+$reqvaisseaudanslaflotte ->execute(array($_GET['id']));
+while ($repvaisseaudanslaflotte = $reqvaisseaudanslaflotte ->fetch())
+	{
+	if ($repplanete2['idplanete'] == $repflotte['idplaneteflotte'])
+		{ // formulaire pour transférer des vaisseaux vers la planète.
+		echo '<form method="post" action="script/envoyerenorbite.php">'; 
+		echo '<input name="idplanete" type="hidden" value="'.$repplanete2['idplanete'].'">';
+		echo '<input name="idvaisseau" type="hidden" value="'.$repvaisseaudanslaflotte['idvaisseau'].'">';
+		echo '<input name="idflotte" type="hidden" value="'.$_GET['id'].'">';
+		echo '<input name="mouvement" type="hidden" value="3">';
+		}
+
+	$PourcentHP = $repvaisseaudanslaflotte['HPvaisseau'] / $repvaisseaudanslaflotte['HPmaxvaisseau'] * 100 ;
+	echo '<a href="vaisseau.php?id=' . $repvaisseaudanslaflotte['idvaisseau'] . '">' . $repvaisseaudanslaflotte['nomvaisseau'] . '</a> (' . number_format($PourcentHP, 0) . '%)'; 
+	
+	if ($repplanete2['idplanete'] == $repflotte['idplaneteflotte'])
+		{
+		echo '<input type="submit" value="Rejoindre la planète"/></form>';
+		}
+	echo '</br>';
+	}
+	?>
+  </div>
+  </body>
 </html>

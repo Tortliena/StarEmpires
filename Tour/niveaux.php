@@ -18,15 +18,22 @@ $reqcountpop = $bdg->prepare('SELECT    sum(case when po.typepop = ? then 1 else
 // Pour lvl 1 à 2 
 $reqrechechemoteur = $bdg->prepare('SELECT COUNT(*) AS nb FROM rech_joueur WHERE idjoueurrecherche = ? AND rechposs = 1'); 
  
-// Pour lvl 2 à 3 
-$reqvaisseausorti = $bdg->prepare('SELECT COUNT(*) AS nb FROM vaisseau WHERE idjoueurvaisseau = ? AND univers <> 0'); 
+// Pour lvl 2 à 3
+$reqvaisseausorti = $bdg->prepare(' SELECT COUNT(*) AS nb
+                                    FROM flotte f
+                                    INNER JOIN planete p ON p.idplanete = f.idplaneteflotte
+                                    WHERE idjoueurplanete = ?'); 
  
-// Pour lvl 3 à 4 
+// Pour lvl 3 à 4
 $reqcompterplanete = $bdg->prepare('SELECT COUNT(*) AS nb FROM planete WHERE idjoueurplanete = ?') ;  
  
 // Pour lvl 4 à 5 
-$reqvaisseau = $bdg->prepare("SELECT idvaisseau FROM vaisseau WHERE HPmaxvaisseau <> HPvaisseau AND idjoueurvaisseau = ?"); 
- 
+$reqpvperdusurunvaisseau = $bdg->prepare("  SELECT idvaisseau
+                                            FROM vaisseau v
+                                            INNER JOIN flotte f ON f.idflotte = v.idflottevaisseau
+                                            INNER JOIN planete p ON p.idplanete = f.idplaneteflotte
+                                            WHERE HPmaxvaisseau <> HPvaisseau AND  idjoueurplanete = ?"); 
+
 // Pour lvl 5 à 6 
 // $reqcomptersilo = $bdg->prepare('SELECT COUNT(*) AS nb FROM silo WHERE idjoueursilo = ?'); 
  
@@ -84,12 +91,8 @@ while($replvl = $reqlvl->fetch())
             $reqmessageinterne->execute(array('Conseil civil', $replvl['id'], 0, 'Développement', 'Nous entrons dans une nouvelle ère. Nous pourrions avoir besoin de massivement investir dans notre puissance industrielle et scienfique. Nous avons besoin de développer des labos de recherche de taille mondiale et des chantiers de construction capable de réaliser d\'énormes projets.'));
 
             // Permet de creer un design pour le joueur. 
-            $reqcreerdesign = $bdg->prepare('INSERT INTO vaisseau (idjoueurvaisseau, nomvaisseau, univers, x, y) VALUES (?, ?, ?, ?, ?)'); 
-            $reqcreerdesign->execute(array(-$replvl['id'], 'Vaisseau d\'exploration', 0, 0, 0));
-            $dernierIDvaisseau = $bdg->lastInsertId();
-            $reqdeplacementbloque = $bdg->prepare('INSERT INTO ordredeplacement (idvaisseaudeplacement, xdestination, ydestination, universdestination, idjoueurduvaisseau, typeordre, bloque) VALUES(?, ?, ?, ?, ?, ?, ?)');
-            // 9 = ordre spécial pour les design. bloque = 2 = impossible de supprimer/modifier.
-            $reqdeplacementbloque->execute(array($dernierIDvaisseau, -1, -1, -1, $replvl['id'], 9, 2));
+            $reqcreerdesign = $bdg->prepare('INSERT INTO vaisseau (idflottevaisseau, nomvaisseau) VALUES (?, ?)'); 
+            $reqcreerdesign->execute(array(-$replvl['id'], 'Vaisseau d\'exploration'));
             } 
       break; 
  
@@ -100,7 +103,7 @@ while($replvl = $reqlvl->fetch())
           if ($repvaisseausorti['nb']>0) 
             { 
             $reqlvlup->execute(array($replvl['id'])); 
-            }   
+            }
       break; 
  
       case 3: 
@@ -112,15 +115,15 @@ while($replvl = $reqlvl->fetch())
               $reqlvlup->execute(array($replvl['id'])); 
  
               // Donner accès à la recherche sur les bases lunaires. 
-              creerrecherche(2, $replvl['id']); 
+              creerrecherche(2, $replvl['id']);
               } 
       break; 
  
       case 4: 
           // Pour monter de niveau, il faut avoir perdu des points de vie d'un vaisseau. 
-          $reqvaisseau->execute(array($replvl['id'])); 
-          $repvaisseau = $reqvaisseau->fetch(); 
-          if (isset($repvaisseau['idvaisseau'])) 
+          $reqpvperdusurunvaisseau->execute(array($replvl['id'])); 
+          $reppvperdusurunvaisseau = $reqpvperdusurunvaisseau->fetch(); 
+          if (isset($reppvperdusurunvaisseau['idvaisseau'])) 
             { 
             $reqlvlup->execute(array($replvl['id'])); 
  
@@ -128,16 +131,17 @@ while($replvl = $reqlvl->fetch())
             creerrecherche(6, $replvl['id']); 
  
             $reqmessageinterne->execute(array('Amirauté', $replvl['id'], 0, 'Réparation et amélioration des vaisseaux', 'Notre vaisseau d\'exploration est dans un triste état. Nous devrions le faire rentrer sur notre planète et le réparer. Nous pourrions aussi en profiter pour améliorer ce vaisseau avec du meilleur équipement. Nous devrions investir dans la recherche dans ce sens. Nous allons avoir un important besoin de ressources et nous pourrions constuire aussi des vaisseaux spécialisé dans la récolte de ressources spatiales.')); 
-            } 
+            }
       break; 
  
       case 5: 
           // Pour monter de niveau, il faut ramener quelque chose dans les silos. 
- //         $reqcomptersilo->execute(array($replvl['id'])); 
-  //        $reqcomptersilo = $reqcomptersilo->fetch(); 
+          // $reqcomptersilo->execute(array($replvl['id'])); 
+          // $reqcomptersilo = $reqcomptersilo->fetch(); 
           if ($reqcomptersilo['nb']>0) 
             { 
-            $reqlvlup->execute(array($replvl['id'])); 
+            $reqlvlup->execute(array($replvl['id']));
+            creerrecherche(16, $replvl['id']); 
             } 
       break; 
  

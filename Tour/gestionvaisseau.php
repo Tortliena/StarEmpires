@@ -5,9 +5,9 @@ include("../include/BDDconnection.php");
 include("../function/caracteristiquesvaisseau.php");
 */
 
-$reqselectionvaisseau = $bdg->query('SELECT idvaisseau, idjoueurvaisseau FROM vaisseau WHERE univers <> -1 ORDER BY idvaisseau');
+$reqselectionvaisseau = $bdg->query('SELECT idvaisseau FROM vaisseau ORDER BY idvaisseau');
 while ($repselectionvaisseau = $reqselectionvaisseau->fetch())
     {
-    caracteristiquesvaisesau ($repselectionvaisseau['idvaisseau'], $repselectionvaisseau['idjoueurvaisseau']); 
+    caracteristiquesvaisseau ($repselectionvaisseau['idvaisseau']); 
     }
 ?>
