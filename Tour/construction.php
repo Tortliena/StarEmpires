@@ -21,7 +21,7 @@ $reqinsertcomposant = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseauco
 $reqcomposant = $bdg->prepare('SELECT iditemcomposant, typecomposant FROM composantvaisseau WHERE idvaisseaucompo = ?');
 $reqinfovaisseau = $bdg->prepare('SELECT idflottevaisseau, nomvaisseau FROM vaisseau WHERE idvaisseau = ?');
 $reqsupprimerdeplacement = $bdg->prepare('DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
-$requpdatevaisseau = $bdg->prepare('UPDATE vaisseau SET HPmaxvaisseau = 1 WHERE idvaisseau = ?');
+$requpdatevaisseau = $bdg->prepare('UPDATE vaisseau SET HPmaxvaisseau = 1, idflottevaisseau = ? WHERE idvaisseau = ?');
 
 // Gestion flotte : 
 $reqtrouverflotte = $bdg->prepare('SELECT idflotte FROM flotte WHERE idplaneteflotte = ?');
@@ -169,9 +169,6 @@ while ($repplanete = $reqplanete->fetch())
                 
                 // Supprimer la conception en cours.
                 $reqsupprimerconception->execute(array($repconceptioninfo['idvaisseauconception'], $repconceptioninfo['typecomposant']));
-
-                // Supprimer l'ordre de déplacement.
-                $reqsupprimerdeplacement->execute(array($repconceptioninfo['idvaisseauconception']));
                 }
 */
 
@@ -183,20 +180,20 @@ while ($repplanete = $reqplanete->fetch())
                 $reqinfovaisseau->execute(array(-$repconstruction['trucaconstruire']));
                 $repinfovaisseau = $reqinfovaisseau->fetch();
 
+                $reqtrouverflotte->execute(array(-$repplanete['idplanetevariation']));
+                $reptrouverflotte = $reqtrouverflotte->fetch();
+                if (isset($reptrouverflotte['idflotte']))
+                    {// la flotte de défense de la planète existe et on va envoyer le vaisseau dedans. Valeur négative = flotte défensive.
+                    $idflotte = $reptrouverflotte['idflotte'] ;
+                    }
+                else
+                    {// la flotte de défense n'existe pas, donc on la créé et on va envoyer le vaisseau dedans.
+                    $reqcreerflotte->execute(array(-$repplanete['idplanetevariation']));
+                    $idflotte = $bdg->lastInsertId();
+                    }
+
                 if ($repinfovaisseau['idflottevaisseau'] < 0)
                     { // Si id de la flotte est négatif, alors c'est un plan, donc c'est un nouveau vaisseau.
-                    $reqtrouverflotte->execute(array(-$repplanete['idplanetevariation']));
-                    $reptrouverflotte = $reqtrouverflotte->fetch();
-                    if (isset($reptrouverflotte['idflotte']))
-                        {// la flotte de défense de la planète existe et on va envoyer le vaisseau dedans. Valeur négative = flotte défensive.
-                        $idflotte = $reptrouverflotte['idflotte'] ;
-                        }
-                    else
-                        {// la flotte de défense n'existe pas, donc on la créé et on va envoyer le vaisseau dedans.
-                        $reqcreerflotte->execute(array(-$repplanete['idplanetevariation']));
-                        $idflotte = $bdg->lastInsertId();
-                        }
-
                     $construirevaisseau->execute(array($idflotte, $repinfovaisseau['nomvaisseau']));
                     $IDdunouveauvaisseau = $bdg->lastInsertId();
                     $reqcomposant->execute(array(-$repconstruction['trucaconstruire']));
@@ -205,10 +202,10 @@ while ($repplanete = $reqplanete->fetch())
                         $reqinsertcomposant->execute(array($IDdunouveauvaisseau, $repcomposant['iditemcomposant'], $repcomposant['typecomposant']));
                         }
                     }
-                else
-                    { // Cas des rénovation des vaisseaux :
-                    $reqsupprimerdeplacement->execute(array(-$repconstruction['trucaconstruire']));
-                    $requpdatevaisseau->execute(array($repplanete['idjoueurplanete'], -$repconstruction['trucaconstruire']));
+                elseif ($repinfovaisseau['idflottevaisseau'] == 0)
+                    { // Cas des réparations.
+                    // Le fait de mettre les PV à 1 fait que le vaisseau va être full PV lorsqu'on fait la MAJ des vaisseaux.
+                    $requpdatevaisseau->execute(array($idflotte, -$repconstruction['trucaconstruire']));
                     }
                  }
 

@@ -17,14 +17,14 @@ $reqcreerasteroides = $bda->prepare('INSERT INTO champsasteroides (xaste , yaste
 $reqcreerplanete = $bdg->prepare('INSERT INTO planete(xplanete, yplanete, universplanete, taille, lune, biens) VALUES(?, ?, ?, ?, ?, ?)'); 
 
 // Créer vaisseau 
-$reqcreervaiseau = $bdg->prepare('INSERT INTO vaisseau(idjoueurvaisseau, x, y, univers, nomvaisseau, HPmaxvaisseau, HPvaisseau) VALUES(?, ?, ?, ?, ?, ?, ?)'); 
+$reqcreervaisseau = $bdg->prepare('INSERT INTO vaisseau(idflottevaisseau, nomvaisseau, HPmaxvaisseau, HPvaisseau) VALUES(?, ?, ?, ?)');
+$reqcreerflotte = $bdg->prepare('INSERT INTO flotte (idplaneteflotte, universflotte, xflotte, yflotte, nomflotte) VALUES(?, ?, ?, ?, ?)');              
 $reqinfovaisseau = $bdg->prepare('SELECT idvaisseau FROM vaisseau ORDER BY idvaisseau DESC LIMIT 1'); 
 $reqcreercomposant = $bdg->prepare('INSERT INTO composantvaisseau(idvaisseaucompo, iditemcomposant, typecomposant) VALUES(?, ?, ?)'); 
-$reqcreerordredeplacement = $bdg->prepare('INSERT INTO ordredeplacement(idvaisseaudeplacement, xdestination, ydestination, universdestination, idjoueurduvaisseau, typeordre, bloque) VALUES(?, ?, ?, ?, ?, ?, ?)'); 
-$reqsupprimerordreprecedent = $bdg->prepare('DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?'); 
- 
-$reqinfovaisseauexplorateur = $bdg->prepare('SELECT idvaisseau FROM vaisseau WHERE x = ? AND y = ? AND univers = ?'); 
-  
+$reqcreerordredeplacement = $bdg->prepare('UPDATE flotte SET xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ? '); 
+
+$reqinfoflotteexplorateur = $bdg->prepare('SELECT idflotte FROM flotte WHERE xflotte = ? AND yflotte = ? AND universflotte = ?'); 
+
 // Permet de traiter les explorations du tour. 
 $reqexploration->execute(array($touractuel['id'])); 
 while ($repexplorationexistante = $reqexploration->fetch()) 
@@ -59,24 +59,21 @@ while ($repexplorationexistante = $reqexploration->fetch())
             case 10: 
                 $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Vaisseau inconnu détecté', 'Nous venons de trouver un vaisseau inconnu. Nous avons tenté de communiquer avec lui, mais aucune réaction de sa part. Il est en très mauvais état et semble abandonné depuis des siècles. Nous allons tenter de l\'aborder.')); 
                 
-                /*
-
-                // Permet de recupere l'ID du vaisseau.
-                $reqinfovaisseauexplorateur->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'])); 
-                $repinfovaisseauexplorateur = $reqinfovaisseauexplorateur->fetch(); 
+                // Permet de recupere l'ID de la flotte.
+                $reqinfoflotteexplorateur->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'])); 
+                $repinfoflotteexplorateur = $reqinfoflotteexplorateur->fetch(); 
                 
-                // On supprime ses ordres a la place on met un ordre bloque.
-                $reqsupprimerordreprecedent->execute(array($repinfovaisseauexplorateur['idvaisseau'])); 
-                $reqcreerordredeplacement->execute(array($repinfovaisseauexplorateur['idvaisseau'], $repexplorationexistante['x'], $repexplorationexistante['y'], 0, $repexplorationexistante['idexplorateur'], 8 ,2)); 
+				// On supprime ses ordres a la place on met un ordre bloque.
+                $reqcreerordredeplacement->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], 8 ,2, $repinfoflotteexplorateur['idflotte'])); 
                 
                 // On cree un vaisseau alien.
                 // Type vaisseau 2 = vaisseau spécifique qui lache un noyau transdimentionnel.                
-                $reqcreervaiseau->execute(array(0, $repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 'Épave spatiale', 20, 20)); 
-                $IDduvaisseaualien = $bdg->lastInsertId();
-                
+                $reqcreerflotte->execute(array(0, $repexplorationexistante['univers'], $repexplorationexistante['x'], $repexplorationexistante['y'], 'Épave spatiale')); 
+                $IDflottealien = $bdg->lastInsertId();
+                $reqcreervaisseau->execute(array($IDflottealien, 'Épave spatiale', 20, 20)); 
+                $IDduvaisseaualien = $bdg->lastInsertId();               
                 $reqcreercomposant->execute(array($IDduvaisseaualien, 13, 'arme'));
-                */
-                 
+                              
             break; 
  
             case 11: 
@@ -98,29 +95,4 @@ while ($repexplorationexistante = $reqexploration->fetch())
             break; 
             } 
         } 
-   /* // Supprimer cette partie ?
-   else 
-        { // Exploration hors univers initial. 
-        $ValeurPoid = array(1=>80, 2=>10, 3=>10, 4=>5); 
-        $tructrouve = nombrealeatoireavecpoid($ValeurPoid); 
-        switch ($tructrouve) 
-            {  
-            case 1: // Chance de trouver rien. 
-            break; 
-            
-            case 2: // Chance de trouver plein de biens. 
-                $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 6, 10)); 
-            break; 
-             
-            case 3: // Chance de trouver un peu de biens et de titane. 
-                $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 6, 2)); 
-                $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 8, 3)); 
-            break; 
- 
-            case 4: // Chance de trouver beaucoup de titane et un peu de biens. 
-                $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 6, 4)); 
-                $reqcreerasteroides->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 8, 10)); 
-            break; 
-            } 
-        } */
     }

@@ -311,7 +311,11 @@ switch ($_GET["message"])
     
     case 70: 
         echo "Vous venez d'envoyer votre vaisseau rejoindre la planète."; 
-    break; 
+    break;
+
+    case 71: 
+        echo "Vous venez de livrer des biens sur votre planète"; 
+    break;
  
     } 
  

@@ -262,26 +262,39 @@ while ($repvaisseauenorbite = $reqvaisseauenorbite ->fetch())
 
 	$PourcentHP = $repvaisseauenorbite['HPvaisseau'] / $repvaisseauenorbite['HPmaxvaisseau'] * 100 ;   
 
+
 	echo '<a href="vaisseau.php?id=' . $repvaisseauenorbite['idvaisseau'] . '">' . $repvaisseauenorbite['nomvaisseau'] . '</a> (' . number_format($PourcentHP, 0) . '%) ';
 	
-	echo '<form method="post" action="script/envoyerenorbite.php">'; 
+  if ($PourcentHP < 100)
+    {
+    //Requête pour réparer le vaisseau
+    echo '&nbsp<form method="post" action="script/ordrevaisseau.php">'; 
+    echo '<input name="idplanete" type="hidden" value="'.$_GET['id'].'">';
+    echo '<input name="idvaisseau" type="hidden" value="'.$repvaisseauenorbite['idvaisseau'].'">';
+    echo '<input name="idflotte" type="hidden" value="0">';
+    echo '<input name="mouvement" type="hidden" value="4">';
+    echo '<input type="submit" value="Réparer"/></form> '; 
+    }
+  
+  $reqflotteenorbite ->execute(array($_GET['id'], $repplanete['universplanete'], $repplanete['xplanete'], $repplanete['yplanete']));  
+  while ($repflotteenorbite = $reqflotteenorbite ->fetch())   
+    {
+    //requete pour trouver toutes les flottes en orbite du joueur et y envoyer le vaisseau.
+    echo '&nbsp<form method="post" action="script/ordrevaisseau.php">'; 
+    echo '<input name="idplanete" type="hidden" value="'.$_GET['id'].'">';
+    echo '<input name="idvaisseau" type="hidden" value="'.$repvaisseauenorbite['idvaisseau'].'">';
+    echo '<input name="idflotte" type="hidden" value="'.$repflotteenorbite['idflotte'].'">';
+    echo '<input name="mouvement" type="hidden" value="1">';
+    echo '<input type="submit" value="'.$repflotteenorbite['nomflotte'].'"/></form>'; 
+    }
+	
+  echo '&nbsp<form method="post" action="script/ordrevaisseau.php">'; 
 	echo '<input name="idplanete" type="hidden" value="'.$_GET['id'].'">';
 	echo '<input name="idvaisseau" type="hidden" value="'.$repvaisseauenorbite['idvaisseau'].'">';
   echo '<input name="idflotte" type="hidden" value="0">';
   echo '<input name="mouvement" type="hidden" value="2">';
   echo '<input type="submit" value="Créer flotte"/></form>';
-
-  $reqflotteenorbite ->execute(array($_GET['id'], $repplanete['universplanete'], $repplanete['xplanete'], $repplanete['yplanete']));  
-  while ($repflotteenorbite = $reqflotteenorbite ->fetch())   
-    {
-    //requete pour trouver toutes les flottes en orbite du joueur et y envoyer le vaisseau.
-    echo '&nbsp<form method="post" action="script/envoyerenorbite.php">'; 
-    echo '<input name="idplanete" type="hidden" value="'.$_GET['id'].'">';
-    echo '<input name="idvaisseau" type="hidden" value="'.$repvaisseauenorbite['idvaisseau'].'">';
-    echo '<input name="idflotte" type="hidden" value="'.$repflotteenorbite['idflotte'].'">';
-    echo '<input name="mouvement" type="hidden" value="1">';
-    echo '<input type="submit" value="'.$repflotteenorbite['nomflotte'].'"/></form></br>'; 
-    }
+  echo '</br>';
 	} 
 
 echo '<table class="silo"><caption><h3>Entrepôts</h3></caption><tr><td class="silo1ereligne">Objet</td><td class="silo1ereligne">Quantité</td><td class="silo1ereligne">Utilité</td></tr>'; 
@@ -315,8 +328,5 @@ while($repSiloItems = $reqSiloItems->fetch())
         echo '</td></tr>'; 
         } 
     }
-
     ?>  
-</table> 
-  </div> 
-  </body> 
+</table></div></body> 

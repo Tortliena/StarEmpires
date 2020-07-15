@@ -120,7 +120,7 @@ $reqsupprimerbataille = $bdg->prepare('DELETE FROM bataille WHERE idvaisseauoffe
 $reqsupprimerbataille->execute(array($_POST['idflotte']));
 
 if ($_POST['typeordre'] == 5)
-    { // Ordre de sortie vers la carte.
+    { // Bataille
     $reqcreerbataille = $bdg->prepare('INSERT INTO bataille (idvaisseauoffensif,   idvaisseaudefensif) VALUES(?, ?)');
     $reqcreerbataille ->execute(array($_POST['idflotte'], $_POST['xobjectif']));
     $message = 46;
@@ -144,20 +144,8 @@ if ($_POST['typeordre'] == -1)
         { // Minage.
         $message = 49 ;
         }
-    elseif ($repflotte['typeordre'] == 2)
-        { // Déchargement.
-        $message = 50 ;
-        }
-    elseif ($repflotte['typeordre'] == 3)
-        { // Rentrer en orbite.
-        $message = 51 ;
-        }
-    elseif ($repflotte['typeordre'] == 4)
-        { // Rentrer en orbite.
-        $message = 52 ;
-        }
     elseif ($repflotte['typeordre'] == 5)
-        { // Rentrer en orbite.
+        { // Bataille
         $message = 53 ;
         }
     else
@@ -169,69 +157,7 @@ else
     {
     $reqmettreajourordre->execute(array($repflotte['universflotte'], $_POST['xobjectif'], $_POST['yobjectif'], $_POST['typeordre'], 0, $_POST['idflotte']));
     }
-
-/*
-if ($_POST['typeordre'] == 7 OR $_POST['typeordre'] == 6) 
-    { // 7 = réparer ; // 6 = changer composant. 
-    // Vérifier localisation du vaisseau 
-    if  ($repvaisseau['univers'] == $_SESSION['id'] AND $repvaisseau['x'] == 0 OR $repvaisseau['y'] == 0) 
-        { 
-        if ($_POST['typeordre'] == 7) 
-            { // Cas et variables spécifiques aux réparations  
-            if($repvaisseau['HPvaisseau'] == $repvaisseau['HPmaxvaisseau']) 
-                { // Le vaisseau est full HP ! 
-                $message = 37 ; 
-                goto a; 
-                } 
-            $trucaconstruire = -2; 
-            $prixrenovation = 0; 
-            $typecomposant = 0; 
-            $idnouvcomposant = 0; 
-            $message = 44;  
  
-            } 
-        elseif ($_POST['typeordre'] == 6) 
-            { // Cas et variables spécifiques aux rénovations. 
-            $result = $_POST['composant']; 
-            $result_explode = explode('|', $result); 
-            $typecomposant = $result_explode[1]; 
-            $idnouvcomposant = $result_explode[0]; 
-            $trucaconstruire = -1; 
-            $prixrenovation = 20;  
-            $message = 32 ;  
-            } 
-
-        // Gestion des réparations et des rénovations avec les constructions : 
-        // Calculer le prix de réparation avec les dégats. 
-        $prixbienreparation = ROUND( 
-            $repvaisseau['biensvaisseau']*(1 - $repvaisseau['HPvaisseau']/$repvaisseau['HPmaxvaisseau'])/2 
-            + ($repvaisseau['HPmaxvaisseau']-$repvaisseau['HPvaisseau'])*10); 
- 
-        $prixtitanereparation = ROUND($repvaisseau['titanevaisseau']*(1 - $repvaisseau['HPvaisseau']/$repvaisseau['HPmaxvaisseau'])/2); 
- 
-        // Requete pour gérer l'ordre des constructions. 
-        $reqderniereconst = $bdg->query('SELECT ordredeconstruction FROM construction ORDER BY ordredeconstruction DESC LIMIT 1'); 
-        $repderniereconst = $reqderniereconst ->fetch(); 
- 
-        // Insérer construction/prix 
-        $reqcreerconstruction = $bdg->prepare('INSERT INTO construction 
-            (trucaconstruire, nombre, idjoueurconst, avancementbiens, avancementtitane, prixbiens, prixtitane, ordredeconstruction) 
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?)'); 
-        $reqcreerconstruction->execute(array($trucaconstruire, 1, $_SESSION['id'], $prixbienreparation+$prixrenovation, $prixtitanereparation, $prixbienreparation+$prixrenovation, $prixtitanereparation, $repderniereconst['ordredeconstruction']+1)); 
- 
-        $dernierID = $bdg->lastInsertId(); 
- 
-        $reqcreerconception = $bdg->prepare('INSERT INTO conceptionencours(idconstruction, idvaisseauconception, typecomposant, idnouvcomposant) VALUES(?, ?, ?, ?)'); 
-        $reqcreerconception->execute(array($dernierID, $_POST['idvaisseau'], $typecomposant, $idnouvcomposant));  
-        } 
-    else 
-        { // Pas au bon endroit pour réparer le vaisseau. 
-        $message = 41 ; 
-        goto a;  
-        } 
-    }
-*/
-  
 if (isset($message))
     {
     a:

@@ -50,7 +50,6 @@ include("include/message.php");
 $typemessage = 'flotte' ;   
 include("include/resume.php");   
 include("function/fonctionhangars.php");
-include("function/flotte.php");
 
 $minageflotte = minageflotte($_GET['id']) ; 
 $souteflotte = souteflotte($_GET['id']) ;
@@ -60,7 +59,7 @@ $peutcoloniser = colonisateur($_GET['id']) ;
 $reqcomposantsurlevaisseau = $bdd->prepare("SELECT i.nombatiment FROM gamer.composantvaisseau c   
           INNER JOIN items i ON i.iditem = c.iditemcomposant   
           WHERE c.idvaisseaucompo = ? AND c.typecomposant = ?");   
-      
+
 if ($replvl['lvl']>=3)   
     {
     $vitesse = vitesseflotte($_GET['id']) ;
@@ -106,23 +105,26 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
 	    }   
 */
 	
-	if ($replvl['lvl']>=3)   
-	    { 
-	    echo '<p>Capacité des soutes : ' . $quantitetransportee . '/' . $souteflotte . '. Capacité de minage : ' . $minageflotte . '</p>';   
-	    }   
-/*  
-	if ($replvl['lvl']>=5)   
-	    {   
-	    $PourcentHP = $repvaisseau['HPvaisseau'] / $repvaisseau['HPmaxvaisseau'] * 100 ;   
-	    if ($PourcentHP != 100 AND $repvaisseau['x'] == 0 AND $repvaisseau['y'] == 0 AND $repvaisseau['univers'] == $_SESSION['id'])   
-	     	{ // Permet de réparer le vaisseau.   
-	    	formulaireordredeplacement(7, $_GET['id'], 'PV : ' . number_format($PourcentHP, 0) . '% ', 0, 0, 0);   
-	     	}    
-	    else   
-	    	{   
-	    	echo '<p>PV : ' . number_format($PourcentHP, 0) . '%';    
-	      	}   
-	       
+if ($replvl['lvl']>=3)   
+    { 
+    if ($repplanete2['idjoueurplanete'] == $repplanete['idjoueurplanete'])
+		{ // formulaire pour transférer des vaisseaux vers la planète.
+		echo '<form method="post" action="script/ordrechargement.php">'; 
+		echo '<input name="idplanete" type="hidden" value="'.$repplanete2['idplanete'].'">';
+		echo '<input name="idflotte" type="hidden" value="'.$_GET['id'].'">';
+		}
+    echo '<p>Capacité des soutes : ' . $quantitetransportee . '/' . $souteflotte . '. '; 
+
+	if ($repplanete2['idjoueurplanete'] == $repplanete['idjoueurplanete'])
+		{
+		echo ' <input type="submit" value="Décharger"/></form>';
+		}
+	echo '</p><p>Capacité de minage : ' . $minageflotte . '</p>';
+    }
+
+
+
+/*    
 	    $reqcomposantsurlevaisseau->execute(array($_GET['id'], 'arme'));   
 	    $repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch();   
 	    echo '&emsp; Armement : ';   
@@ -181,7 +183,7 @@ while($repdetectionflotteennemi = $reqdetectionflotteennemi->fetch())
 		}   
 	}   
 */
-	
+
 /*   // Refaire ici et au dessus en séparant les cas des flottes amies et ennemies.
 // Détection des flotte alliées.
 $reqdetectionvaisseau = $bdg->prepare("SELECT idvaisseau, nomvaisseau FROM vaisseau WHERE idjoueurvaisseau = ? AND univers = ? AND x = ? AND y = ? AND  idvaisseau <> ? AND x <> 0");   
@@ -403,21 +405,27 @@ $reqvaisseaudanslaflotte = $bdg->prepare("SELECT idvaisseau, nomvaisseau, HPmaxv
 $reqvaisseaudanslaflotte ->execute(array($_GET['id']));
 while ($repvaisseaudanslaflotte = $reqvaisseaudanslaflotte ->fetch())
 	{
+	$PourcentHP = $repvaisseaudanslaflotte['HPvaisseau'] / $repvaisseaudanslaflotte['HPmaxvaisseau'] * 100 ;
+	echo '<a href="vaisseau.php?id=' . $repvaisseaudanslaflotte['idvaisseau'] . '">' . $repvaisseaudanslaflotte['nomvaisseau'] . '</a> (' . number_format($PourcentHP, 0) . '%)'; 
+
 	if ($repplanete2['idplanete'] == $repflotte['idplaneteflotte'])
-		{ // formulaire pour transférer des vaisseaux vers la planète.
-		echo '<form method="post" action="script/envoyerenorbite.php">'; 
+		{
+		if ($PourcentHP < 100)
+		    {
+		    //Requête pour réparer le vaisseau
+		    echo '&nbsp<form method="post" action="script/ordrevaisseau.php">'; 
+		    echo '<input name="idplanete" type="hidden" value="'.$repplanete2['idplanete'].'">';
+		    echo '<input name="idvaisseau" type="hidden" value="'.$repvaisseaudanslaflotte['idvaisseau'].'">';
+		    echo '<input name="idflotte" type="hidden" value="'.$_GET['id'].'">';
+		    echo '<input name="mouvement" type="hidden" value="5">';
+		    echo '<input type="submit" value="Réparer"/></form> '; 
+		    }
+		echo '<form method="post" action="script/ordrevaisseau.php">'; 
 		echo '<input name="idplanete" type="hidden" value="'.$repplanete2['idplanete'].'">';
 		echo '<input name="idvaisseau" type="hidden" value="'.$repvaisseaudanslaflotte['idvaisseau'].'">';
 		echo '<input name="idflotte" type="hidden" value="'.$_GET['id'].'">';
 		echo '<input name="mouvement" type="hidden" value="3">';
-		}
-
-	$PourcentHP = $repvaisseaudanslaflotte['HPvaisseau'] / $repvaisseaudanslaflotte['HPmaxvaisseau'] * 100 ;
-	echo '<a href="vaisseau.php?id=' . $repvaisseaudanslaflotte['idvaisseau'] . '">' . $repvaisseaudanslaflotte['nomvaisseau'] . '</a> (' . number_format($PourcentHP, 0) . '%)'; 
-	
-	if ($repplanete2['idplanete'] == $repflotte['idplaneteflotte'])
-		{
-		echo '<input type="submit" value="Rejoindre la planète"/></form>';
+		echo ' <input type="submit" value="Rejoindre la planète"/></form>';
 		}
 	echo '</br>';
 	}

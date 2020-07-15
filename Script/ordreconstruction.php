@@ -130,8 +130,7 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
 						header("Location: ../planete.php?message=31&id=" . urlencode($_POST['id'])); 
 				    	exit();
 				    	} 
-				    }	    
-
+				    }
 				$reqcreerconstruction->execute(array( 
 		        'trucaconstruire' => $repcomposantpresent['iditemcomposant'], 
 		        'nombre' => 1, 

@@ -1,6 +1,8 @@
 <nav class="menu"><div><h3>Menu</h3></br>
-
 <?php
+
+require __DIR__ . '/../function/flotte.php';
+
 // Affichage du tour en cours : 
 $reponse = $bda->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1');
 $touractuel = $reponse->fetch();
@@ -60,56 +62,46 @@ else
         {
         echo '<a class ="lienmenu" href="planete.php?id=' . $repplanete['idplanete'] . '">' . $repplanete['nomplanete'] . '</a></br>';
        
-
         $ecrirehangars = 1 ;
         $reqflotte->execute(array($repplanete['idplanete']));
         while ($repflotte = $reqflotte->fetch())
             {
-            if ($ecrirehangars == 1) {echo '</br><span class = "titremenu">Hangars</span></br>' ; }
-                $ecrirehangars = 2 ;
-            
-            echo '<a class ="lienmenu" href="hangars.php?id=' . $repflotte['idflotte'] . '">' . $repflotte['nomflotte'] . '</a></br>';
-
-            switch ($repflotte['typeordre'])
+            if (vitesseflotte($repflotte['idflotte']) > 0)
                 {
-                case 0:
-                echo "Aucun ordre.";
-                break;
-                           
-                case 1:
-                echo "Mine";
-                break;
+                if ($ecrirehangars == 1) {echo '</br><span class = "titremenu">Hangars</span></br>' ; }
+                    $ecrirehangars = 2 ;
                 
-                case 2:
-                echo "Decharge";
-                break;
-                
-                case 3:
-                echo "Rentre a la base";
-                break;
-                
-                case 4:
-                echo "Quitte l'orbite";
-                break;
-                
-                case 5:
-                echo "BATAILLE";
-                break;
-                
-                case 6:
-                echo "Se déplace";
-                break;
+                echo '<a class ="lienmenu" href="hangars.php?id=' . $repflotte['idflotte'] . '">' . $repflotte['nomflotte'] . '</a></br>';
 
-                case 10:
-                echo "Saut dimensionnel";
-                break;
-
-                case 11:
-                echo "Colonisation";
-                break;
+                switch ($repflotte['typeordre'])
+                    {
+                    case 0:
+                    echo "Aucun ordre.";
+                    break;
+                               
+                    case 1:
+                    echo "Mine";
+                    break;
+                                  
+                    case 5:
+                    echo "BATAILLE";
+                    break;
                     
-                default:
-                echo "ordre special !";
+                    case 6:
+                    echo "Se déplace";
+                    break;
+
+                    case 10:
+                    echo "Saut dimensionnel";
+                    break;
+
+                    case 11:
+                    echo "Colonisation";
+                    break;
+                        
+                    default:
+                    echo "ordre special !";
+                    }
                 }
             echo '</br></br>'; 
             } // Fin code pour les flottes.

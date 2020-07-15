@@ -2,7 +2,7 @@
 // Fonction permettant de créer une recherche :
 function creerrecherche($idrecherche, $idjoueur)
   {
-  include("../include/BDDconnection.php");
+  require __DIR__ . '/../include/BDDconnection.php';
   $reqrechercheexistedeja = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHERE idrech = ? AND idjoueurrecherche = ?');
   $reqrechercheexistedeja->execute(array($idrecherche, $idjoueur));
   $reprechercheexistedeja = $reqrechercheexistedeja->fetch();
@@ -45,7 +45,7 @@ function nombrealeatoireavecpoid(array $ValeurPoid)
 
 function gestiondegats($idvaisseau, $pvvaisseau, $degatdutir, $idarme, $idvaisseauoffensif)
   {
-  include("../include/BDDconnection.php");
+  require __DIR__ . '/../include/BDDconnection.php';
 
   $reqdiminuernbtir = $bdg->prepare("UPDATE composantvaisseau SET tirrestant = tirrestant-1 WHERE idtable = ?");
   $reqdiminuernbtir->execute(array($idarme));
@@ -117,7 +117,7 @@ function gestiondegats($idvaisseau, $pvvaisseau, $degatdutir, $idarme, $idvaisse
 
 function disparitionvaisseau($idvaisseau)
   {
-  include("../include/BDDconnection.php");
+  require __DIR__ . '/../include/BDDconnection.php';
     // cargovaisseau
     $reqdeletecargo = $bdg->prepare("DELETE FROM cargovaisseau WHERE idcargovaisseau = ?");
     $reqdeletecargo->execute(array($idvaisseau));
@@ -130,4 +130,41 @@ function disparitionvaisseau($idvaisseau)
     $reqdeletevaisseau = $bdg->prepare("DELETE FROM vaisseau WHERE idvaisseau = ?");
     $reqdeletevaisseau->execute(array($idvaisseau));
   }
+
+function disparitionflotte()
+  {
+  require __DIR__ . '/../include/BDDconnection.php';
+  // Trouver les flotte qui n'ont pas de vaisseau et trouver leur ID.
+  $reqrepositionnersurlaplanetemere = $bdg->prepare('UPDATE flotte SET xflotte = ?, yflotte = ?, universflotte = ? WHERE idflotte = ?');
+  $reqpositionplanetemere = $bdg->prepare('SELECT xplanete, yplanete, universplanete FROM planete WHERE idplanete = ?');
+  $reqsupprimerflotte = $bdg->prepare('DELETE FROM flotte WHERE idflotte = ?');
+
+  $reqflottesansvaisseau = $bdg->query('SELECT f.idflotte, f.idplaneteflotte FROM flotte f LEFT JOIN vaisseau v ON f.idflotte = v.idflottevaisseau WHERE v.idflottevaisseau IS NULL');
+  while ($repflottesansvaisseau = $reqflottesansvaisseau->fetch())
+      {
+      $idplanete = abs($repflottesansvaisseau['idplaneteflotte']);
+      $reqpositionplanetemere->execute(array($idplanete));
+      $reppositionplanetemere = $reqpositionplanetemere->fetch();
+      if (isset($reppositionplanetemere['xplanete']))
+        {
+        $reqrepositionnersurlaplanetemere->execute(array($reppositionplanetemere['xplanete'], $reppositionplanetemere['yplanete'], $reppositionplanetemere['universplanete'], $repflottesansvaisseau['idflotte']));
+        }
+      else
+        {
+        $reqsupprimerflotte->execute(array($repflottesansvaisseau['idflotte']));
+        }
+      }
+  }
+
+function generateurdenom($nbdecaractere)
+    {
+    $string = "";
+    $chaine = "abcdefghijklmnpqrstuvwxy";
+    srand((double)microtime()*1000000);
+    for($i=0; $i<$car; $i++)
+        {
+        $string .= $chaine[rand()%strlen($chaine)];
+        }
+    return $string;
+    }
 ?>

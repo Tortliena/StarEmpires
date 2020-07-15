@@ -4,6 +4,7 @@ session_start();
 include("../include/BDDconnection.php");
 include("fonctionsdutour.php");
 */
+
 $reqcompterplanete = $bdg->prepare('SELECT COUNT(idplanete) AS nb FROM planete WHERE universplanete = ?');
 
 $reqcreerplanete = $bdg->prepare('INSERT INTO planete (
@@ -15,16 +16,42 @@ $reqcreerasteroides = $bda->prepare('INSERT INTO champsasteroides (xaste , yaste
 
 $reqplanete = $bdg->prepare('SELECT idplanete FROM planete WHERE universplanete = ? AND xplanete = ? AND yplanete = ?');
 
-function random_1($car)
+// récupérer le num du tour ($touractuel['id']) 
+$reqtouractuel = $bda->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1'); 
+$touractuel = $reqtouractuel->fetch(); 
+if ($touractuel['id'] == 1)
     {
-    $string = "";
-    $chaine = "abcdefghijklmnpqrstuvwxy";
-    srand((double)microtime()*1000000);
-    for($i=0; $i<$car; $i++)
-        {
-        $string .= $chaine[rand()%strlen($chaine)];
+    $pseudo = 'Galdonia';
+    $pass_hache = password_hash('travian88', PASSWORD_DEFAULT);
+    $requtilisateur = $bdg->prepare('INSERT INTO utilisateurs(pseudo, motdepasse, dateinscription, niveauadmin) VALUES(:pseudo, :pass, CURDATE(), :niveauadmin)');
+    $requtilisateur->execute(array(
+        'pseudo' => $pseudo,
+        'pass' => $pass_hache,
+        'niveauadmin' => 1));
+    $dernierIDjoueur = $bdg->lastInsertId();
+
+    $reqcreerplanete->execute(array('Ydillia', 10, 10, -2, 1, 10, 0, 20, 8, 10, 0));
+    $dernierIDplanete = $bdg->lastInsertId();
+
+    // Permet de créer des citoyens de multiples fois
+    $reqpop = $bdg->prepare('INSERT INTO population(idplanetepop, typepop) VALUES(?, ?)');
+
+    $nbdepop = 6;
+    for ($i = 0; $i < $nbdepop; $i++)
+        { // Permet d'inserer 6 citoyens sur la planete cree.
+        $reqpop->execute(array($dernierIDplanete, 1));
         }
-    return $string;
+
+    $reqcreervariation = $bdg->prepare('INSERT INTO variationstour (idplanetevariation, prodbiens, consobiens) VALUES(?, ?, ?)');
+    $reqcreervariation->execute(array($dernierIDplanete, 5*$nbdepop, $nbdepop));
+    $reqcreerlimiteplanete = $bdg->prepare('INSERT INTO limiteplanete (idlimiteplanete ) VALUES(?)');
+    $reqcreerlimiteplanete->execute(array($dernierIDplanete));
+
+
+
+
+
+
     }
 
 $reqcompterplanete->execute(array(-2));
@@ -41,7 +68,7 @@ if ($repcompterplanete['nb'] < 50 OR !isset($repcompterplanete['nb']))
         {
         $taille = rand(3,6);
         $lune = rand(0,3);
-        $nom = random_1(10);
+        $nom = generateurdenom(10);
         
         $reqcreerplanete->execute(array($nom, $x, $y, -2, 0, 10, 0, $taille, $lune, 10, 0));
         }
@@ -88,4 +115,7 @@ if ($repquantiteasteroides['total'] < 200)
             }
         }
     }
+
+// Requête pour mettre les flottes vides sur les planètes mères.
+disparitionflotte()
 ?>

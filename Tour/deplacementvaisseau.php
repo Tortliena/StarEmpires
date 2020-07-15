@@ -12,8 +12,8 @@ $touractuel = $reqtouractuel->fetch();
  
 // Gestion vaisseau 
 $applicationdeplacement = $bdg->prepare("UPDATE flotte SET xflotte = ? , yflotte = ?, universflotte = ? WHERE idflotte = ? "); 
-$reqmettrepva1 = $bdg->prepare("UPDATE vaisseau SET x = ? , y = ?, HPvaisseau = ? WHERE idflotte = ? "); 
-
+$reqmettrePV1flotte = $bdg->prepare("UPDATE flotte SET xflotte = ?, yflotte = ?, typeordre = ?, bloque = ? WHERE idflotte = ? "); 
+$reqmettrePV1vaisseau = $bdg->prepare("UPDATE vaisseau SET HPvaisseau = ? WHERE idflottevaisseau = ? "); 
 
 // Divers 
 $message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess , numspemessage) VALUES (?, ?, ?, ?)"); 
@@ -39,7 +39,6 @@ $reqverifcargo = $bdd->prepare("    SELECT  v.idvaisseau, v.capacitedesoute
 $reqverifcargo2 = $bdg->prepare("SELECT SUM(quantiteitems) AS quantitetransportee, quantiteitems FROM cargovaisseau WHERE idvaisseaucargo = ? AND typeitems like ?");
 $reqcreercargo = $bdg->prepare("INSERT INTO cargovaisseau (idvaisseaucargo, typeitems, quantiteitems) VALUES (?, ?, ?)"); 
 $reqaugmentercargo = $bdg->prepare("UPDATE cargovaisseau SET quantiteitems = ? WHERE idvaisseaucargo = ? AND typeitems = ?"); 
-$reqsupcargaisonvaisseau = $bdg->prepare('DELETE FROM cargovaisseau WHERE idvaisseaucargo = ?'); 
  
 // Gestion Silo 
 $reqverifsilo = $bdg->prepare("SELECT quantite FROM silo WHERE idjoueursilo = ? AND iditems = ?"); 
@@ -194,19 +193,18 @@ while ($repflotte = $reqflotte->fetch())
 $reqflotte->execute(array(8)); //  = Ordre spécial premier vaisseau trouvé. 
 while ($repflotte = $reqflotte->fetch()) 
     {  // Permet au vaisseau de fuir à +1 / -1, cas prévu lorsqu'on est au bord de la map.
-    if ($repflotte['xdestination'] == 5) 
-        {$xdestination = 4;} 
-    else {$xdestination = $repflotte['xdestination']+1;} 
- 
-    if ($repflotte['ydestination'] == 1) 
-        {$ydestination = 2;} 
-    else {$ydestination = $repflotte['ydestination']-1;} 
- 
-    $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repflotte['idjoueurplanete'], 0, 'Échec de la mission', 'Nous avons tenté d\'aborder l\'épave, mais ce qui semble être un système de défense automatique nous a tiré dessus. Notre vaisseau est lourdement endommagé et nous devrions rentrer et le réparer.')); 
- 
-    $reqmettrepva1->execute(array($xdestination, $ydestination, 1, $repvaisseau['idvaisseaudeplacement'])); 
- 
-    $reqsupprimerordreprecedent->execute(array($repflotte['idflotte']));  
+    if ($repflotte['xdestination'] == 5)
+        {$xdestination = 4;}
+    else {$xdestination = $repflotte['xdestination']+1;}
+
+    if ($repflotte['ydestination'] == 1)
+        {$ydestination = 2;}
+    else {$ydestination = $repflotte['ydestination']-1;}
+
+    $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repflotte['idjoueurplanete'], 0, 'Échec de la mission', 'Nous avons tenté d\'aborder l\'épave, mais ce qui semble être un système de défense automatique nous a tiré dessus. Notre vaisseau est lourdement endommagé et nous devrions rentrer et le réparer.'));
+
+    $reqmettrePV1flotte->execute(array($xdestination, $ydestination, 0, 0, $repflotte['idflotte']));
+    $reqmettrePV1vaisseau->execute(array(1, $repflotte['idflotte']));
     } 
  
 // $reqvaisseau->execute(array(9)); = design avec un ordre totalement bloqué. 

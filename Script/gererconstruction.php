@@ -3,12 +3,13 @@ session_start();
 include("../include/BDDconnection.php");
 include("../function/consommercreeritemsplanetemultiple.php");
 
+/*
 echo $_SESSION['pseudo'] . '</br>' ;
 echo $_SESSION['id'] . '</br>' ;
 echo $_POST['perdreressources'] . '</br>' ;
 echo $_POST['idconstruction'] . '</br>' ;
 echo $_POST['id'] . '</br>' ;
-
+*/
 
 //Vérifier propriétaire de la construction.  
 $reqproprietaireordreconstruction = $bdg->prepare('SELECT * FROM construction WHERE idconst = ?');

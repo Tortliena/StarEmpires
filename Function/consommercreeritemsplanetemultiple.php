@@ -1,7 +1,7 @@
 <?php
 function consommercreeritemsplanetemultiple($iditemdepart, $iditemarrivee, $idplanete, $nbdefois)
   {
-  include("../include/BDDconnection.php");
+  require __DIR__ . '/../include/BDDconnection.php';
   // Gestion silo :
   $reqverifsilo = $bdg->prepare('SELECT quantite FROM silo WHERE idplanetesilo = ? AND iditems = ?');
   $reqcreersilo = $bdg->prepare('INSERT INTO silo (idplanetesilo, iditems, quantite) VALUES (?, ?, ?)');
