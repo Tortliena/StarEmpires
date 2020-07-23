@@ -205,6 +205,18 @@ while ($repflotte = $reqflotte->fetch())
 
     $reqmettrePV1flotte->execute(array($xdestination, $ydestination, 0, 0, $repflotte['idflotte']));
     $reqmettrePV1vaisseau->execute(array(1, $repflotte['idflotte']));
+
+    // Exploration si case inconnue : 
+    $reqexplorationexistante->execute(array($xdestination, $ydestination, $repflotte['universdestination'], $repflotte['idjoueurplanete'])); 
+    $repexplorationexistante = $reqexplorationexistante->fetch();  
+    if (empty($repexplorationexistante['idexplore'])) 
+        { 
+        $exploration ->execute(array($xdestination, $ydestination, $repflotte['universdestination'], $repflotte['idjoueurplanete'], $touractuel['id'])) ; 
+ 
+        //Créer message pour le joueur. 
+        $messexplo = 'Cette flotte vient d\'explorer le parsec (' . $xeffectif  . ' - ' . $yeffectif .').'  ;  
+        $message ->execute(array($repflotte['idjoueurplanete'] , $messexplo , 'flotte' , $repflotte['idflotte'])) ; 
+        }
     } 
  
 // $reqvaisseau->execute(array(9)); = design avec un ordre totalement bloqué. 

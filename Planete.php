@@ -293,8 +293,7 @@ while ($repvaisseauenorbite = $reqvaisseauenorbite ->fetch())
 	echo '<input name="idvaisseau" type="hidden" value="'.$repvaisseauenorbite['idvaisseau'].'">';
   echo '<input name="idflotte" type="hidden" value="0">';
   echo '<input name="mouvement" type="hidden" value="2">';
-  echo '<input type="submit" value="Créer flotte"/></form>';
-  echo '</br>';
+  echo '<input type="submit" value="Créer flotte"/></form></br>';
 	} 
 
 echo '<table class="silo"><caption><h3>Entrepôts</h3></caption><tr><td class="silo1ereligne">Objet</td><td class="silo1ereligne">Quantité</td><td class="silo1ereligne">Utilité</td></tr>'; 

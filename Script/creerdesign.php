@@ -1,109 +1,117 @@
 <?php 
 session_start(); 
 include("../include/BDDconnection.php"); 
- 
-/* 
+
+/*
 echo $_SESSION['id'] . ' id du joueur </br>'; 
- 
-// Cas modification de vaisseau : 
 echo $_POST['idvaisseau'].' id du vaisseau  </br>' ; 
 echo $_POST['nombre'].' nombre de composant à ajouter  </br>' ; 
 echo $_POST['iditem'].' id du composant à ajouter  </br>' ; 
-*/ 
- 
+*/
+
+
 if (isset($_POST['idvaisseau'])) 
     {
     $idvaisseau = $_POST['idvaisseau']; 
 
-    $reqvaisseau = $bdg->prepare('SELECT structure from vaisseau WHERE idvaisseau = ? AND idjoueurvaisseau = ?'); 
-    $reqvaisseau->execute(array($_POST['idvaisseau'], -$_SESSION['id'])); 
-    $repvaisseau = $reqvaisseau->fetch(); 
+    $reqvaisseau = $bdg->prepare('SELECT idflottevaisseau FROM vaisseau WHERE idvaisseau = ?'); 
+    $reqvaisseau->execute(array($_POST['idvaisseau'])); 
+    $repvaisseau = $reqvaisseau->fetch();
 
-    if (!isset($repvaisseau['structure'])) 
-        { // Vérification du joueur/vaisseau. 
-        header('Location: ../conception.php?message=31'); 
-        exit(); 
+    if ($repvaisseau['idflottevaisseau']>0) // Cas d'un vaisseau réel dans une flotte classique.
+        {
+        $reqidjoueurdelaflotte = $bdg->prepare('SELECT p.idjoueurplanete FROM flotte f INNER JOIN planete p ON p.idplanete = f.idplaneteflotte WHERE f.idflotte = ?'); 
+        $reqidjoueurdelaflotte->execute(array($repvaisseau['idflottevaisseau'])); 
+        $repidjoueurdelaflotte = $reqidjoueurdelaflotte ->fetch();
+
+        $idjoueur = $repidjoueurdelaflotte['idjoueurplanete']; 
         }
-    
-    if ($_POST['iditem'] > 0)
-        {// Cas des ajouts de composants.
-        $message = 65; // Composant ajouté.
+    elseif ($repvaisseau['idflottevaisseau']<0) // Cas d'un plan, et idflotte = id du joueur.
+        {
+        $idjoueur = -$repvaisseau['idflottevaisseau'];       
+        }
 
-        // récupérer la structure prise par les composants 
-        $reqcomposant = $bdd ->prepare('SELECT i.souscategorie, i.typeitem, c.structure  
-                                        FROM datawebsite.composant c 
-                                        INNER JOIN datawebsite.items i ON c.idcomposant = i.iditem 
-                                        WHERE c.idcomposant = ?'); 
+    if ($idjoueur != $_SESSION['id'])
+        { // vérification que le vaisseau appartient bien au joueur.
+        header('Location: ../conception.php?message=31'); 
+        exit();
+        }
+
+    if ($_POST['nombre'] > 0) // Correspond à ajouter un composant
+        {
+        $reqcomposant = $bdd ->prepare('SELECT typecomposant FROM composant WHERE idcomposant = ?');
         $reqcomposant->execute(array($_POST['iditem'])); 
         $repcomposant = $reqcomposant->fetch(); 
 
-        if ($repvaisseau['structure'] + $repcomposant['structure']*$_POST['nombre'] > 0) 
-            { // Si la nouvelle structure est négative/neutre, alors insérer sinon virer. 
-            header("Location: ../conception.php?message=64&id=" . urlencode($idvaisseau)); 
-            exit(); 
-            } 
-
+        // Dans ce cas, insérer le composant dans le vaisseau :
         $reqcreercomposantdesign = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)'); 
-
-        for ($i = 1; $i <= $_POST['nombre']; $i++) 
+        for ($i = 1; $i <= $_POST['nombre']; $i++)
             { 
-            $reqcreercomposantdesign->execute(array($_POST['idvaisseau'], $_POST['iditem'], $repcomposant['souscategorie']));  
+            $reqcreercomposantdesign->execute(array(-$_POST['idvaisseau'], $_POST['iditem'], $repcomposant['typecomposant']));
+            $message = 65; 
             }
         }
-    
-    elseif ($_POST['iditem'] < 0)
+    elseif ($_POST['nombre'] < 0) // Correspond à supprimer des composants
         {
-        $message = 65; // A CORRIGER ! ! 
-        $reqsupprimercomposantdesign = $bdg->prepare('DELETE FROM composantvaisseau WHERE idvaisseaucompo = ? AND iditemcomposant = ?');
+        // récupérer la structure prise par les composants 
+        $reqsupprimercomposant = $bdg->prepare('DELETE FROM composantvaisseau WHERE iditemcomposant = ? AND idvaisseaucompo = ? LIMIT 1');
         
-        $reqsupprimercomposantdesign->execute(array($_POST['idvaisseau'], -$_POST['iditem']));  
+        $nombredeboucle = -$_POST['nombre'];
+        for ($i = 1; $i <= $nombredeboucle; $i++) 
+            {
+            $reqsupprimercomposant->execute(array($_POST['iditem'], -$_POST['idvaisseau'])); 
+            $message = 65; 
+            }
         }
-    } 
- 
-else 
-    { // Cas de création d'un plan. 
-    if (is_numeric($_POST['nom']) OR empty($_POST['nom'])) 
-        { 
-        header('Location: ../conception.php?message=56'); 
-        exit(); 
-        } 
- 
-    // Créer design global. 
-    $reqcreerdesign = $bdg->prepare('INSERT INTO vaisseau (idjoueurvaisseau, nomvaisseau, univers, x, y) VALUES (?, ?, ?, ?, ?)');  
-    $reqcreerdesign->execute(array(-$_SESSION['id'], $_POST['nom'], 0, 0, 0)); 
-    $dernierID = $bdg->lastInsertId(); 
- 
+    }
+
+else
+    { // Cas de création d'un plan.
+    if (is_numeric($_POST['nom']) OR empty($_POST['nom']))
+        {
+        header('Location: ../conception.php?message=56');
+        exit();
+        }
+
+    // Créer design global.
+    $reqcreerdesign = $bdg->prepare('INSERT INTO vaisseau (idflottevaisseau, nomvaisseau) VALUES (?, ?)');
+    $reqcreerdesign->execute(array(-$_SESSION['id'], $_POST['nom'])); 
+    $dernierID = $bdg->lastInsertId();
+
     $reqcomposant = $bdd ->prepare('SELECT i.souscategorie, i.typeitem 
                                     FROM datawebsite.composant c 
                                     INNER JOIN datawebsite.items i ON c.idcomposant = i.iditem 
-                                    WHERE c.idcomposant = ?'); 
-    $reqcreercomposantdesign = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)'); 
+                                    WHERE c.idcomposant = ?');
+    $reqcreercomposantdesign = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)');
  
- 
-    foreach($_POST as $value) 
-        { 
-        if ($value > 0) 
-            { 
-            $reqcomposant->execute(array($value)); 
-            $repcomposant = $reqcomposant->fetch(); 
-            if ($repcomposant['typeitem'] != 'composant') 
-                { 
-                header('Location: ../accueil.php?message=31'); 
-                exit(); 
-                } 
- 
-            $reqcreercomposantdesign->execute(array($dernierID, $value, $repcomposant['souscategorie'])); 
-            } 
-        } 
- 
-    $reqdeplacementbloque = $bdg->prepare('INSERT INTO ordredeplacement (idvaisseaudeplacement, xdestination, ydestination, universdestination, idjoueurduvaisseau, typeordre, bloque) VALUES(?, ?, ?, ?, ?, ?, ?)'); 
-    // 9 = ordre spécial pour les design. bloque = 2 = impossible de supprimer/modifier. 
-    $reqdeplacementbloque->execute(array($dernierID, -1, -1, -1, $_SESSION['id'], 9, 2)); 
-    $message = 55; 
-    $idvaisseau = $dernierID; 
-    } 
-include("../function/caracteristiquesvaisseau.php"); 
-caracteristiquesvaisesau ($idvaisseau, $_SESSION['id']); 
- 
-header("Location: ../conception.php?message=".urlencode($message)."&id=" . urlencode($idvaisseau)); 
+    foreach($_POST as $value)
+        {
+        if ($value > 0)
+            {
+            $reqcomposant->execute(array($value));
+            $repcomposant = $reqcomposant->fetch();
+            if ($repcomposant['typeitem'] != 'composant')
+                {
+                header('Location: ../accueil.php?message=31');
+                exit();
+                }
+
+            $reqcreercomposantdesign->execute(array($dernierID, $value, $repcomposant['souscategorie']));
+            }
+        }
+    $message = 55;
+    $idvaisseau = $dernierID;
+    }
+include("../function/caracteristiquesvaisseau.php");
+caracteristiquesvaisseau ($idvaisseau, $_SESSION['id']);
+
+
+if ($repvaisseau['idflottevaisseau']>0) // Cas d'un vaisseau réel dans une flotte classique.
+    {
+    header("Location: ../vaisseau.php?message=".urlencode($message)."&id=" . urlencode($idvaisseau));
+    }
+else
+    {
+    header("Location: ../conception.php?message=".urlencode($message)."&id=" . urlencode($idvaisseau));
+    }
 ?>

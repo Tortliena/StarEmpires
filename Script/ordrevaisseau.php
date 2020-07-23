@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("../include/BDDconnection.php");
+require __DIR__ . '/../include/BDDconnection.php';
 
 /*
 echo $_SESSION['id'] .' id du joueur <br>' ;
@@ -116,7 +116,7 @@ elseif ($_POST['mouvement'] == 4 OR $_POST['mouvement'] == 5)
 if (isset($idmessage) AND isset($idflotte))
 	{
 	$requpdatevaisseau = $bdg->prepare('UPDATE vaisseau SET idflottevaisseau = ? WHERE idvaisseau = ?');
-	if ($idflotte > 0 OR $_POST['mouvement'] == 5)
+	if ($idflotte > 0 OR $_POST['mouvement'] == 5) // Vaisseau dans une flotte et avec ordre de réparation. Si inf à zéro, alors vaisseau sur planète.
 		{
 		$requpdatevaisseau->execute(array($idflotte, $_POST['idvaisseau']));
 		header("location: ../hangars.php?message=".urlencode($idmessage)."&id=" . urlencode($_POST['idflotte']));

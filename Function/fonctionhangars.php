@@ -113,4 +113,34 @@ function annulerordrededeplacement($typeordre, $idflotte, $xdest, $ydest, $bloqu
     echo '</p></form>';
   }
 
+function vendrestation($idflotte, $idstation, $iditem, $itemenstock, $nomitem, $prixitem)
+  {
+  echo '<form method="post" action="script/commercestation.php"><p>';
+  echo 'Vendre des '.$nomitem.' pour '.$prixitem.'$ par unité : ';
+  echo '<input name="idflotte" type="hidden" value="'.$idflotte.'">';
+  echo '<input name="idstation" type="hidden" value="'.$idstation.'">';
+  echo '<input name="iditem" type="hidden" value="'.$iditem.'">';
+  echo '<input name="typetransaction" type="hidden" value="1">';
+  echo '<input type="number" name="combien" min="1" max="'.$itemenstock.'" value="'.$itemenstock.'">';
+  echo '<input type="submit" value="Vendre"/></p></form>';
+  }
+
+function acheterstation($idflotte, $idstation, $iditem, $maxpossible, $nomitem, $prixitem)
+  {
+  echo '<form method="post" action="script/commercestation.php"><p>';
+  if ($maxpossible > 0)
+    {
+    echo 'Acheter des '.$nomitem . ' pour '.$prixitem.'$ par unité : ';
+    echo '<input name="idflotte" type="hidden" value="'.$idflotte.'">';
+    echo '<input name="iditem" type="hidden" value="'.$iditem.'">';
+    echo '<input name="idstation" type="hidden" value="'.$idstation.'">';
+    echo '<input name="typetransaction" type="hidden" value="2">';
+    echo '<input type="number" name="combien" min="1" max="'.$maxpossible.'" value="'.$maxpossible.'">';  
+    echo '<input type="submit" value="acheter"/></p></form>';
+    }
+  else
+    {
+    echo 'Pas assez d\'argent pour achetetr '.$nomitem . ' pour '.$prixitem.'$ par unité.';
+    }
+  }
   ?>

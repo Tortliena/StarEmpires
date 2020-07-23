@@ -116,12 +116,12 @@ $reqmettreajourordre = $bdg->prepare('UPDATE flotte SET universdestination = ?, 
 $reqmettreajourordre->execute(array(0, 0, 0, 0, 0, $_POST['idflotte']));
 
 // Supprimer ordre de bataille :
-$reqsupprimerbataille = $bdg->prepare('DELETE FROM bataille WHERE idvaisseauoffensif  = ?');
+$reqsupprimerbataille = $bdg->prepare('DELETE FROM bataille WHERE idflotteoffensive  = ?');
 $reqsupprimerbataille->execute(array($_POST['idflotte']));
 
 if ($_POST['typeordre'] == 5)
     { // Bataille
-    $reqcreerbataille = $bdg->prepare('INSERT INTO bataille (idvaisseauoffensif,   idvaisseaudefensif) VALUES(?, ?)');
+    $reqcreerbataille = $bdg->prepare('INSERT INTO bataille (idflotteoffensive, idflottedefensive) VALUES(?, ?)');
     $reqcreerbataille ->execute(array($_POST['idflotte'], $_POST['xobjectif']));
     $message = 46;
     }

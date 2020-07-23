@@ -316,6 +316,18 @@ switch ($_GET["message"])
     case 71: 
         echo "Vous venez de livrer des biens sur votre planète"; 
     break;
+
+    case 72: 
+        echo "Vente effectuée !"; 
+    break;
+
+    case 73: 
+        echo "Achat effectué !"; 
+    break;
+
+    case 74: 
+        echo "Composant retiré"; 
+    break;
  
     } 
  

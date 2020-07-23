@@ -58,8 +58,12 @@ for ($i = 0; $i < $nbdepop; $i++)
 
 $reqcreervariation = $bdg->prepare('INSERT INTO variationstour (idplanetevariation, prodbiens, consobiens) VALUES(?, ?, ?)');
 $reqcreervariation->execute(array($dernierIDplanete, 5*$nbdepop, $nbdepop));
-$reqcreerlimiteplanete = $bdg->prepare('INSERT INTO limiteplanete (idlimiteplanete ) VALUES(?)');
+$reqcreerlimiteplanete = $bdg->prepare('INSERT INTO limiteplanete (idlimiteplanete) VALUES(?)');
 $reqcreerlimiteplanete->execute(array($dernierIDplanete));
+$reqexplorationplanete = $bdg->prepare('INSERT INTO explore (univers, x, y, idexplorateur, tourexploration) VALUES(?, ?, ?, ?, ?)');
+$reqexplorationplanete->execute(array($dernierIDjoueur, 3, 3, $dernierIDjoueur, 1));
+
+
 
 $_SESSION['pseudo'] = $_POST["pseudo"];
 $_SESSION['id'] = $dernierIDjoueur;

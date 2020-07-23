@@ -5,14 +5,16 @@ include("../include/BDDconnection.php");
 include("fonctionsdutour.php");
 */
 
-$reqcompterplanete = $bdg->prepare('SELECT COUNT(idplanete) AS nb FROM planete WHERE universplanete = ?');
-
 $reqcreerplanete = $bdg->prepare('INSERT INTO planete (
     nomplanete, xplanete, yplanete, universplanete, idjoueurplanete,
     biens, titane, taille, lune, organisation, efficacite)
     VALUES (?,?,?,?,?,?,?,?,?,?,?);');
 
-$reqcreerasteroides = $bda->prepare('INSERT INTO champsasteroides (xaste , yaste , uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)'); 
+$reqcompterplanete = $bdg->prepare('SELECT COUNT(idplanete) AS nb FROM planete WHERE universplanete = ?');
+
+$reqcreerstation = $bdg->prepare('INSERT INTO station (nomstation, xstation, ystation, universstation, idjoueurstation) VALUES (?,?,?,?,?);');
+
+$reqcreerasteroides = $bda->prepare('INSERT INTO champsasteroides (xaste, yaste, uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)'); 
 
 $reqplanete = $bdg->prepare('SELECT idplanete FROM planete WHERE universplanete = ? AND xplanete = ? AND yplanete = ?');
 
@@ -30,28 +32,7 @@ if ($touractuel['id'] == 1)
         'niveauadmin' => 1));
     $dernierIDjoueur = $bdg->lastInsertId();
 
-    $reqcreerplanete->execute(array('Ydillia', 10, 10, -2, 1, 10, 0, 20, 8, 10, 0));
-    $dernierIDplanete = $bdg->lastInsertId();
-
-    // Permet de créer des citoyens de multiples fois
-    $reqpop = $bdg->prepare('INSERT INTO population(idplanetepop, typepop) VALUES(?, ?)');
-
-    $nbdepop = 6;
-    for ($i = 0; $i < $nbdepop; $i++)
-        { // Permet d'inserer 6 citoyens sur la planete cree.
-        $reqpop->execute(array($dernierIDplanete, 1));
-        }
-
-    $reqcreervariation = $bdg->prepare('INSERT INTO variationstour (idplanetevariation, prodbiens, consobiens) VALUES(?, ?, ?)');
-    $reqcreervariation->execute(array($dernierIDplanete, 5*$nbdepop, $nbdepop));
-    $reqcreerlimiteplanete = $bdg->prepare('INSERT INTO limiteplanete (idlimiteplanete ) VALUES(?)');
-    $reqcreerlimiteplanete->execute(array($dernierIDplanete));
-
-
-
-
-
-
+    $reqcreerstation->execute(array('Ydillia', 10, 10, -2, $dernierIDjoueur));
     }
 
 $reqcompterplanete->execute(array(-2));

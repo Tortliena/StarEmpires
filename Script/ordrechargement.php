@@ -29,6 +29,11 @@ if ($repflotte['idjoueurplanete'] != $_SESSION['id'])
 $reqplanete = $bdg->prepare('SELECT idplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? AND idjoueurplanete = ?'); 
 $reqplanete->execute(array($repflotte['xflotte'], $repflotte['yflotte'], $repflotte['universflotte'], $repflotte['idjoueurplanete'])); 
 $repplanete = $reqplanete->fetch(); 
+if (!isset($repplanete['idplanete']))
+    {
+    header('Location: ../accueil.php?message=31');
+    exit();
+    }
 
 $reqverifcargo = $bdd->prepare("    SELECT  v.idvaisseau, c.typeitems, c.quantiteitems, i.nombatiment
                                     FROM gamer.vaisseau v
@@ -38,7 +43,7 @@ $reqverifcargo = $bdd->prepare("    SELECT  v.idvaisseau, c.typeitems, c.quantit
 
 $reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)'); 
 
-$reqsupcargaisonvaisseau = $bdg->prepare('DELETE c FROM cargovaisseau c INNER JOIN vaisseau v ON c.idvaisseaucargo  = v.idvaisseau WHERE v.idflottevaisseau = ?'); 
+$reqsupcargaisonvaisseau = $bdg->prepare('DELETE c FROM cargovaisseau c INNER JOIN vaisseau v ON c.idvaisseaucargo  = v.idvaisseau WHERE v.idflottevaisseau = ?');
 
 if (isset($repplanete['idplanete'])) 
     {
@@ -55,11 +60,12 @@ if (isset($repplanete['idplanete']))
 
 if (isset($message))
     {
-    $reqsupcargaisonvaisseau->execute(array($repflotte['idflotte'])); 
+    $reqsupcargaisonvaisseau->execute(array($repflotte['idflotte']));
+
     $reqmessageinterne->execute(array('Ministère de l\'économie', $repflotte['idjoueurplanete'], 0, 'Livraison de marchandise', $message)); 
     header("location: ../hangars.php?message=71&id=" . urlencode($_POST['idflotte']));
     exit();
     }
 
-header("Location: ../hangars.php?id=" . urlencode($_POST['idflotte']));
+header('Location: ../accueil.php?message=31');
 ?>

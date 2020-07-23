@@ -51,22 +51,24 @@ function gestiondegats($idvaisseau, $pvvaisseau, $degatdutir, $idarme, $idvaisse
   $reqdiminuernbtir->execute(array($idarme));
 
   $nvpv = $pvvaisseau - $degatdutir;
-
+  echo $nvpv .' nouveaux pv du vaisseau <br>'; 
   if ($nvpv < 0)
     {
-    $reqinfopvvaisseau = $bdg->prepare('
-      SELECT *
-      FROM vaisseau WHERE idvaisseau = ?');
+    $reqinfopvvaisseau = $bdg->prepare('  SELECT p.idjoueurplanete, v.nomvaisseau, f.xflotte, f.yflotte, f.universflotte, v.biensvaisseau, v.titanevaisseau
+                                          FROM vaisseau v
+                                          INNER JOIN flotte f ON f.idflotte = v.idflottevaisseau
+                                          INNER JOIN planete p ON p.idplanete = f.idplaneteflotte
+                                          WHERE v.idvaisseau = ?');
     $reqinfopvvaisseau->execute(array($idvaisseau));
     $repinfopvvaisseau = $reqinfopvvaisseau->fetch();
 
     $reqcreerasteroides = $bda->prepare('INSERT INTO champsasteroides (xaste , yaste , uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)');
 
-    if ($repinfopvvaisseau['idjoueurbat'] != 0)
+    if ($repinfopvvaisseau['idjoueurplanete'] != 0)
       { // On envoit ce message uniquement aux joueurs.
-      $textemessage = 'Nous avons perdu le vaisseau ' . $repinfopvvaisseau['nomvaisseau'] . ' en ' . $repinfopvvaisseau['x'] . '-' . $repinfopvvaisseau['y'] . ' lors d\'une bataille spatiale.' ; 
+      $textemessage = 'Nous avons perdu le vaisseau ' . $repinfopvvaisseau['nomvaisseau'] . ' en ' . $repinfopvvaisseau['xflotte'] . '-' . $repinfopvvaisseau['yflotte'] . ' lors d\'une bataille spatiale.' ; 
       $reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)');
-      $reqmessageinterne->execute(array('Amirauté', $repinfopvvaisseau['idjoueurbat'], 0, 'Perte d\'un vaisseau', $textemessage));
+      $reqmessageinterne->execute(array('Amirauté', $repinfopvvaisseau['idjoueurplanete'], 0, 'Perte d\'un vaisseau', $textemessage));
       }
   
     // Créer champs d'astéroides : Reprendre le prix du vaisseau
@@ -75,20 +77,23 @@ function gestiondegats($idvaisseau, $pvvaisseau, $degatdutir, $idarme, $idvaisse
 
     if ($nbchampsastebien > 0)
       {
-      $reqcreerasteroides->execute(array($repinfopvvaisseau['x'], $repinfopvvaisseau['y'], $repinfopvvaisseau['univers'], 6, $nbchampsastebien));
+      $reqcreerasteroides->execute(array($repinfopvvaisseau['xflotte'], $repinfopvvaisseau['yflotte'], $repinfopvvaisseau['universflotte'], 6, $nbchampsastebien));
       }
     if ($nbchampsastetitane > 0)
       {
-      $reqcreerasteroides->execute(array($repinfopvvaisseau['x'], $repinfopvvaisseau['y'], $repinfopvvaisseau['univers'], 8, $nbchampsastetitane));
+      $reqcreerasteroides->execute(array($repinfopvvaisseau['xflotte'], $repinfopvvaisseau['yflotte'], $repinfopvvaisseau['universflotte'], 8, $nbchampsastetitane));
       }
+    /*
+    // Permet de créer des débris pour le 1er vaisseau alien avec le noyau alien. 
     if ($repinfopvvaisseau['typevaisseau'] == 2)
       { // Cas d'un vaisseau trouvé dans le 1er univers
-      $reqcreerasteroides->execute(array($repinfopvvaisseau['x'], $repinfopvvaisseau['y'], $repinfopvvaisseau['univers'], 16, 1));
-      $reqcreerasteroides->execute(array($repinfopvvaisseau['x'], $repinfopvvaisseau['y'], $repinfopvvaisseau['univers'], 18, 1));
+      $reqcreerasteroides->execute(array($repinfopvvaisseau['xflotte'], $repinfopvvaisseau['yflotte'], $repinfopvvaisseau['universflotte'], 16, 1));
+      $reqcreerasteroides->execute(array($repinfopvvaisseau['xflotte'], $repinfopvvaisseau['yflotte'], $repinfopvvaisseau['universflotte'], 18, 1));
       }
+    */
 
     // Bataille défenseur ou attaquant
-    $reqdeletebataille = $bdg->prepare("DELETE FROM bataille WHERE idvaisseauoffensif = ? OR idvaisseaudefensif = ?");
+    $reqdeletebataille = $bdg->prepare("DELETE FROM bataille WHERE idflotteoffensive = ? OR idflottedefensive = ?");
     $reqdeletebataille->execute(array($idvaisseau, $idvaisseau));
 
     // cargovaisseau
@@ -102,11 +107,6 @@ function gestiondegats($idvaisseau, $pvvaisseau, $degatdutir, $idarme, $idvaisse
     // vaisseau
     $reqdeletevaisseau = $bdg->prepare("DELETE FROM vaisseau WHERE idvaisseau = ?");
     $reqdeletevaisseau->execute(array($idvaisseau));
-
-    // ordredeplacement
-    $reqsupprimerordreprecedent = $bdg->prepare("DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?");
-    $reqsupprimerordreprecedent->execute(array($idvaisseau));
-    $reqsupprimerordreprecedent->execute(array($idvaisseauoffensif));
     }
   else
     {
@@ -158,13 +158,13 @@ function disparitionflotte()
 
 function generateurdenom($nbdecaractere)
     {
-    $string = "";
+    $nom = "";
     $chaine = "abcdefghijklmnpqrstuvwxy";
     srand((double)microtime()*1000000);
-    for($i=0; $i<$car; $i++)
+    for($i=0; $i<$nbdecaractere; $i++)
         {
-        $string .= $chaine[rand()%strlen($chaine)];
+        $nom .= $chaine[rand()%strlen($chaine)];
         }
-    return $string;
+    return $nom;
     }
 ?>

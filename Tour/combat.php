@@ -1,6 +1,12 @@
 <?php
+/*
+session_start();
+require __DIR__ . '/../include/BDDconnection.php';
+require __DIR__ . '/../tour/fonctionsdutour.php';
+*/
+
 // Toutes les batailles sont actives :
-$reqbatailleactive = $bdg->query('UPDATE bataille SET active = 1');
+$reqactivertouteslesbatailles = $bdg->query('UPDATE bataille SET active = 1');
 
 // Recharge des armes :
 $reqrechargearmes = $bdg->prepare('UPDATE composantvaisseau SET tirrestant = ? WHERE iditemcomposant = ?');
@@ -12,68 +18,63 @@ while ($repcomposantinfo = $reqcomposantinfo->fetch())
   }
 
 // récupération des batailles en cours :
-$reqbatailleencours = $bdg->prepare('SELECT idbataille, idvaisseauoffensif, idvaisseaudefensif FROM bataille WHERE active = 1 ORDER BY RAND()');
+$reqbatailleencours = $bdg->prepare('SELECT idbataille, idflotteoffensive, idflottedefensive FROM bataille WHERE active = 1 ORDER BY RAND()');
+
 // Sélectionner une arme avec un tir.
-$reqselectionnerarme = $bdd->prepare("SELECT cv.idtable, c.degatpartir, cv.tirrestant
-  FROM gamer.composantvaisseau cv INNER JOIN composant c
-  ON cv.iditemcomposant = c.idcomposant WHERE cv.tirrestant > 0 AND cv.idvaisseaucompo = ? ORDER BY c.degatpartir DESC LIMIT 1");
+$reqinfopvvaisseau = $bdd->prepare("    SELECT cv.idtable, c.degatpartir, cv.tirrestant, v.idvaisseau, v.HPvaisseau
+                                        FROM gamer.vaisseau v
+                                        LEFT JOIN  gamer.composantvaisseau cv ON v.idvaisseau = cv.idvaisseaucompo
+                                        INNER JOIN composant c ON cv.iditemcomposant = c.idcomposant
+                                        WHERE v.idflottevaisseau = ? ORDER BY cv.tirrestant DESC, c.degatpartir DESC LIMIT 1");
 
-$reqinfopvvaisseau = $bdg->prepare('SELECT HPvaisseau FROM vaisseau WHERE idvaisseau = ?');
 
-// Désactiver bataille en cours :
-$reqbatailleactive = $bdg->prepare('UPDATE bataille SET active = 0 WHERE idbataille = ?');
+$reqdesactiverbataille = $bdg->prepare('UPDATE bataille SET active = 0 WHERE idbataille = ?');
 
 $reqdiminuernbtir = $bdg->prepare("UPDATE composantvaisseau SET tirrestant = tirrestant-1 WHERE idtable = ?");
 
 for($a = 1 ; $a != 0 ; )
-	{
-	$a = 0; // Si on arrive pas à trouver une bataille, alors on arrête.
-	$reqbatailleencours->execute(); // Sélectionne une bataille au hasard.
-	$repbatailleencours = $reqbatailleencours->fetch();
-	// echo $repbatailleencours['idbataille'] . 'id de la bataille</br>';
-	if (isset($repbatailleencours[0]))
-		{
-		$a++;
-		$reparmeoffensive['degatpartir'] = 0 ;
-		$reparmedefensive['degatpartir'] = 0 ;
+    {
+    $a = 0; // Si on arrive pas à trouver une bataille, alors on arrête.
+    $reqbatailleencours->execute(); // Sélectionne une bataille au hasard.
+    $repbatailleencours = $reqbatailleencours->fetch();
+    // echo $repbatailleencours['idbataille'] . 'id de la bataille</br>';
+    if (isset($repbatailleencours[0]))
+        {
+        $a++;
+        $reparmeoffensive['degatpartir'] = 0 ;
+        $reparmedefensive['degatpartir'] = 0 ;
 
-		// On récupère les infos sur le défenseur (dont ses PV)
-		$reqinfopvvaisseau->execute(array($repbatailleencours['idvaisseaudefensif']));
-		$repinfopvvaisseaudefensif = $reqinfopvvaisseau->fetch();
-		// echo $repinfopvvaisseaudefensif['HPvaisseau'] . 'PV du vaisseau defenseur avant tir</br>';
+        // On récupère les infos sur le défenseur (dont ses PV et en priorité le vaisseau avec des armes chargées puis l'arme la plus puissante)
+        $reqinfopvvaisseau->execute(array($repbatailleencours['idflottedefensive']));
+        $repinfopvvaisseaudefensif = $reqinfopvvaisseau->fetch();
 
-		// Gestion arme attaque. On prend l'arme la plus puissante avec encore un tir.
-		$reqselectionnerarme->execute(array($repbatailleencours['idvaisseauoffensif']));
-		$reparmeoffensive = $reqselectionnerarme->fetch();
-		// echo 'Larme du attaquant ' . $reparmeoffensive['idtable'] . ' fait ' . $reparmeoffensive['degatpartir'] . ' dégats</br>' ;
+        // On récupère les infos sur l'attaquant (dont ses PV et en priorité le vaisseau avec des armes chargées puis l'arme la plus puissante)
+        $reqinfopvvaisseau->execute(array($repbatailleencours['idflotteoffensive']));
+        $repinfopvvaisseauattaquant = $reqinfopvvaisseau->fetch();
+        
+        echo $repinfopvvaisseaudefensif['idvaisseau'] .' id du vaisseau défenseur<br>';
+        echo $repinfopvvaisseauattaquant['idvaisseau'] .' id du vaisseau offensif<br>';
+        echo $repinfopvvaisseaudefensif['tirrestant'] .' nombre de tir restant du défenseur<br>';
+        echo $repinfopvvaisseauattaquant['tirrestant'] .' nombre de tir restant de l\'attaquant<br>';
 
-		// On récupère les infos sur l'attaquant (dont ses PV)
-		$reqinfopvvaisseau->execute(array($repbatailleencours['idvaisseauoffensif']));
-		$repinfopvvaisseauattaquant = $reqinfopvvaisseau->fetch();
-		// echo $repinfopvvaisseauattaquant['HPvaisseau'] . 'PV du vaisseau attaquant avant tir</br>';
+        // Si les deux dernières requetes ne donnent aucune réponse : 
+        if ($repinfopvvaisseaudefensif['tirrestant'] < 1 AND $repinfopvvaisseauattaquant['tirrestant'] < 1)
+            { // On désactive la bataille.
+            echo 'désactivation de la bataille' ; 
+            $reqdesactiverbataille->execute(array($repbatailleencours['idbataille']));
+            goto a;
+            }
 
-		// Gestion arme defenseur. On prend l'arme la plus puissante avec encore un tir.
-		$reqselectionnerarme->execute(array($repbatailleencours['idvaisseaudefensif']));
-		$reparmedefensive = $reqselectionnerarme->fetch();
-		// echo 'Larme du défenseur ' . $reparmedefensive['idtable'] . ' fait ' . $reparmedefensive['degatpartir'] . ' dégats</br>' ; 
-		
-		// Si les deux dernières requetes ne donnent aucune réponse : 
-		if (!isset($reparmeoffensive['tirrestant']) AND !isset($reparmedefensive['tirrestant']))
-			{ // On désactive la bataille.
-			$reqbatailleactive->execute(array($repbatailleencours['idbataille']));
-			goto a;
-			}
+        if ($repinfopvvaisseauattaquant['tirrestant'] > 0)
+            { // Si on a une arme de l'attaquant, on gère le tir sur le défenseur.
+            gestiondegats($repinfopvvaisseaudefensif['idvaisseau'], $repinfopvvaisseaudefensif['HPvaisseau'], $repinfopvvaisseauattaquant['degatpartir'], $repinfopvvaisseauattaquant['idtable'], $repinfopvvaisseauattaquant['idvaisseau']);
+            }
 
-		if (isset($reparmeoffensive[0]))
-			{ // Si on a une arme de l'attaquant, on gère le tir sur le défenseur.
-			gestiondegats($repbatailleencours['idvaisseaudefensif'], $repinfopvvaisseaudefensif['HPvaisseau'], $reparmeoffensive['degatpartir'], $reparmeoffensive['idtable'], $repbatailleencours['idvaisseauoffensif']);
-			}
-
-		if (isset($reparmedefensive[0]))
-			{ // Si on a une arme du défenseur, on gère le tir sur l'attaquant.
-			gestiondegats($repbatailleencours['idvaisseauoffensif'], $repinfopvvaisseauattaquant['HPvaisseau'], $reparmedefensive['degatpartir'], $reparmedefensive['idtable'], $repbatailleencours['idvaisseauoffensif']);
-			}
-		a:
-		}
-	}
+        if ($repinfopvvaisseaudefensif['tirrestant'] > 0)
+            { // Si on a une arme du défenseur, on gère le tir sur l'attaquant.
+            gestiondegats($repinfopvvaisseauattaquant['idvaisseau'], $repinfopvvaisseauattaquant['HPvaisseau'], $repinfopvvaisseaudefensif['degatpartir'], $repinfopvvaisseaudefensif['idtable'], $repinfopvvaisseaudefensif['idvaisseau']);
+            }
+        a:
+        }
+    }
 ?>

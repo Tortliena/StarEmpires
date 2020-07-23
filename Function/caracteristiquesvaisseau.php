@@ -1,7 +1,7 @@
 <?php
 function caracteristiquesvaisseau ($idvaisseau)
     {
-    include("../include/BDDconnection.php");
+    require __DIR__ . '/../include/BDDconnection.php';
     $totalprixbien = 40;
     $totalprixtitane = 0;
     $capacitedesoute = 0;
@@ -41,22 +41,52 @@ function caracteristiquesvaisseau ($idvaisseau)
         $totalprixtitane = $totalprixtitane + $repinformationcomposant['couttitane'];
         $structure = $repinformationcomposant['structure'] + $structure;
         }
-    
-    $reqPVvaisseau = $bdg ->prepare('SELECT HPmaxvaisseau FROM vaisseau WHERE idvaisseau = ?');
-    $reqPVvaisseau->execute(array($idvaisseau));
-    $repPVvaisseau = $reqPVvaisseau->fetch();
-    
-    $capacitedesoute = MAX($capacitedesoute, 1);
-    // echo 'Id du vaisseau : '.$idvaisseau.'. Caracteristiques : '.$totalprixbien .' prix bien, ' .$vitesse.' Vitesse. '.$HPvaisseau. ' HP vaisseau. '.$repPVvaisseau['HPmaxvaisseau'].' = Ancien HP du vaisseau.<br>' ;
-    $requpdatedesignvaisseau = $bdg->prepare('UPDATE vaisseau SET biensvaisseau = ?, titanevaisseau = ?, vitesse = ?, capacitedesoute = ?, capaciteminage = ?, HPmaxvaisseau = ?, structure = ? WHERE idvaisseau = ?'); 
-    // Updater le design du vaisseau avec les prix et l'ID du joueur.
-    $requpdatedesignvaisseau->execute(array($totalprixbien, $totalprixtitane, $vitesse, $capacitedesoute, $capaciteminage, $HPvaisseau, $structure, $idvaisseau));
 
-    if ($repPVvaisseau['HPmaxvaisseau'] != $HPvaisseau)
+    $capacitedesoute = MAX($capacitedesoute, 1);
+
+    if ($idvaisseau > 0) // On passe par cette partie seulement durant le tour normalement.
         {
-        // echo 'On passe par la boucle permettant de changer les PV. PV max avant : '.$repPVvaisseau['HPmaxvaisseau'].'. PV max apres et appliques : '.$HPvaisseau.'.<br>';
-        $requpdatePVvaisseau = $bdg ->prepare('UPDATE vaisseau SET HPvaisseau = ? WHERE idvaisseau = ?');
-        $requpdatePVvaisseau->execute(array($HPvaisseau, $idvaisseau));
+        $reqPVvaisseau = $bdg ->prepare('SELECT HPmaxvaisseau FROM vaisseau WHERE idvaisseau = ?');
+        $reqPVvaisseau->execute(array($idvaisseau));
+        $repPVvaisseau = $reqPVvaisseau->fetch();
+
+        $requpdatedesignvaisseau = $bdg->prepare('UPDATE vaisseau SET biensvaisseau = ?, titanevaisseau = ?, vitesse = ?, capacitedesoute = ?, capaciteminage = ?, HPmaxvaisseau = ?, structure = ? WHERE idvaisseau = ?'); 
+        $requpdatedesignvaisseau->execute(array($totalprixbien, $totalprixtitane, $vitesse, $capacitedesoute, $capaciteminage, $HPvaisseau, $structure, $idvaisseau));
+        
+        if ($repPVvaisseau['HPmaxvaisseau'] != $HPvaisseau)
+            {
+            // echo 'On passe par la boucle permettant de changer les PV. PV max avant : '.$repPVvaisseau['HPmaxvaisseau'].'. PV max apres et appliques : '.$HPvaisseau.'.<br>';
+            $requpdatePVvaisseau = $bdg ->prepare('UPDATE vaisseau SET HPvaisseau = ? WHERE idvaisseau = ?');
+            $requpdatePVvaisseau->execute(array($HPvaisseau, $idvaisseau));
+            }
+        }
+    else
+        {
+        return array ($totalprixbien, $totalprixtitane, $capacitedesoute, $capaciteminage, $vitesse, $structure, $HPvaisseau);
+        // list ($totalprixbien, $totalprixtitane, $capacitedesoute, $capaciteminage, $vitesse, $structure, $HPvaisseau) = caracteristiquesvaisseau ($idvaisseau);
         }
     }
+
+function structurevaisseau($idvaisseau) 
+  { // Utiliser pour afficher au joueur la structure
+  require __DIR__ . '/../include/BDDconnection.php';
+  $structure = 1; 
+  $reqcomposantsurlevaisseau = $bdd->prepare("  SELECT structure FROM gamer.composantvaisseau cv 
+                                                INNER JOIN composant c ON c.idcomposant = cv.iditemcomposant 
+                                                WHERE cv.idvaisseaucompo = ? AND c.typecomposant <> 'moteur'"); 
+  $reqcomposantsurlevaisseau->execute(array($idvaisseau)); 
+  while ($repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch()) 
+    { 
+    $structure = $structure + $repcomposantsurlevaisseau['structure']; 
+    } 
+ 
+  $reqmoteursurlevaisseau = $bdd->prepare(" SELECT structure FROM gamer.composantvaisseau cv 
+                                            INNER JOIN composant c ON c.idcomposant = cv.iditemcomposant 
+                                            WHERE cv.idvaisseaucompo = ? AND c.typecomposant = 'moteur' "); 
+  $reqmoteursurlevaisseau->execute(array($idvaisseau)); 
+  $repmoteursurlevaisseau = $reqmoteursurlevaisseau->fetch(); 
+  $structuremax = 12 - $repmoteursurlevaisseau['structure']; 
+ 
+  return array($structure, $structuremax); 
+  } 
 ?>

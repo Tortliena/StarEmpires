@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("../include/BDDconnection.php");
+require __DIR__ . '/../include/BDDconnection.php';
 
 /*
 echo $_SESSION['id'] .' id du joueur <br>' ;
@@ -58,22 +58,30 @@ elseif ($_POST['type'] == 'vaisseau')
 									INNER JOIN flotte f ON v.idflottevaisseau = f.idflotte
 									INNER JOIN planete p ON f.idplaneteflotte = p.idplanete 
 									WHERE v.idvaisseau = ?');
-
 	$reqvaisseau->execute(array($_POST['id']));   
-	$repvaisseau = $reqvaisseau->fetch();   
-	if ($repvaisseau['idjoueurplanete'] != $_SESSION['id'])   // Vérification du possesseur du vaisseau. Si pas bon = dégage vers l'acceuil.
-		{ header("location: ../accueil.php?message=31"); exit(); }   
+	$repvaisseau = $reqvaisseau->fetch();
 
-	/*
-	$trouvervaisseau->execute(array($_POST['id'], -$_SESSION['id']));
-	$vaisseauconception = $trouvervaisseau->fetch();
-	*/
+	// Cas d'un plan : 
+	$reqvaisseauplan = $bdg->prepare('SELECT idflottevaisseau FROM vaisseau v WHERE idvaisseau = ?');
+	$reqvaisseauplan->execute(array($_POST['id']));   
+	$repvaisseauplan = $reqvaisseauplan->fetch();
+
+	if ($repvaisseau['idjoueurplanete'] != $_SESSION['id'] AND -$repvaisseauplan['idflottevaisseau'] != $_SESSION['id'])   // Vérification du possesseur du vaisseau. Si pas bon = dégage vers l'acceuil.
+		{ header("location: ../accueil.php?message=31"); exit(); }   
 
 	$renommervaisseau = $bdg->prepare('UPDATE vaisseau SET nomvaisseau = ? WHERE idvaisseau = ?' );
 	$renommervaisseau->execute(array($_POST['nouveaunom'], $_POST['id']));
 
-	header("location: ../vaisseau.php?message=26&id=" . urlencode($_POST['id']));
-	exit();
+	if ($repvaisseau['idjoueurplanete'] == $_SESSION['id'])
+		{
+		header("location: ../vaisseau.php?message=26&id=" . urlencode($_POST['id']));
+		exit();
+		}
+	else
+		{
+		header("location: ../conception.php?message=26&id=" . urlencode($_POST['id']));
+		exit();
+		}
 	}
 
 

@@ -3,11 +3,11 @@ function consommercreeritemsplanetemultiple($iditemdepart, $iditemarrivee, $idpl
   {
   require __DIR__ . '/../include/BDDconnection.php';
   // Gestion silo :
-  $reqverifsilo = $bdg->prepare('SELECT quantite FROM silo WHERE idplanetesilo = ? AND iditems = ?');
+  $reqverifsilo = $bdg->prepare('SELECT quantite, idsilo FROM silo WHERE idplanetesilo = ? AND iditems = ?');
   $reqcreersilo = $bdg->prepare('INSERT INTO silo (idplanetesilo, iditems, quantite) VALUES (?, ?, ?)');
-  $diminutionsilo = $bdg->prepare('UPDATE silo SET quantite = quantite - 1 WHERE idplanetesilo = ? AND iditems = ?' );
-  $augmentersilo = $bdg->prepare('UPDATE silo SET quantite = quantite + 1 WHERE idplanetesilo = ? AND iditems = ?' );
-  $reqsupprimersilo = $bdg->prepare('DELETE FROM silo WHERE idplanetesilo = ? AND iditems = ?');
+  $diminutionsilo = $bdg->prepare('UPDATE silo SET quantite = quantite - 1 WHERE idsilo = ?' );
+  $augmentersilo = $bdg->prepare('UPDATE silo SET quantite = quantite + 1 WHERE idsilo = ?' );
+  $reqsupprimersilo = $bdg->prepare('DELETE FROM silo WHERE idsilo = ?');
 
   for ($i = 1; $i <= $nbdefois; $i++)
     {
@@ -17,15 +17,15 @@ function consommercreeritemsplanetemultiple($iditemdepart, $iditemarrivee, $idpl
       $reqverifsilo->execute(array($idplanete, $iditemdepart));
       $repverifsilodepart = $reqverifsilo->fetch();
 
-      // Si oui, alors augmenter le stock
+      // Si oui, alors fait diminuer le stock
       if ($repverifsilodepart['quantite'] > 1)
           {
-          $diminutionsilo->execute(array($idplanete, $iditemdepart));
+          $diminutionsilo->execute(array($repverifsilodepart['idsilo']));
           }
       // Sinon, on supprime le stock 
       elseif ($repverifsilodepart['quantite'] == 1)
           {
-          $reqsupprimersilo->execute(array($idplanete, $iditemdepart));
+          $reqsupprimersilo->execute(array($repverifsilodepart['idsilo']));
           }
       // Si on a pas de stock, on ne va pas créer le nouvel équipement après.
       else
@@ -43,9 +43,8 @@ function consommercreeritemsplanetemultiple($iditemdepart, $iditemarrivee, $idpl
       // Si oui, alors augmenter le stock
       if (isset($repverifsiloarrivee['quantite']))
           {
-          $augmentersilo->execute(array($idplanete, $iditemarrivee));
+          $augmentersilo->execute(array($repverifsiloarrivee['idsilo']));
           }
-
       // Sinon, créer le stock stock  
       else
           {
@@ -53,6 +52,5 @@ function consommercreeritemsplanetemultiple($iditemdepart, $iditemarrivee, $idpl
           }
       }
     }
-    a:
   }
 ?>

@@ -78,4 +78,67 @@ function colonisateur($idflotte)
     } 
   return array ($colonisateur, $repmodulecolonisateur['idvaisseaucompo']);
   }
+
+// Présence de noyaux sur toute la flotte
+function touslesvaisseauxontunnoyau($idflotte) 
+  { 
+  require __DIR__ . '/../include/BDDconnection.php'; // $touslesvaisseauxontunnoyau = touslesvaisseauxontunnoyau($idflotte) ;
+  $nombredevaisseau = 0;
+  $nombredenoyau = 0 ;
+  // requete pour passer les vaisseaux par un.
+
+  $reqnoyausurlevaisseau = $bdg->prepare("    SELECT idtable
+                                              FROM composantvaisseau
+                                              WHERE idvaisseaucompo = ? AND typecomposant = ?");
+
+  $reqvaisseaudanslaflotte = $bdg->prepare("  SELECT idvaisseau
+                                              FROM vaisseau
+                                              WHERE idflottevaisseau = ?");
+  $reqvaisseaudanslaflotte->execute(array($idflotte));
+  while($repvaisseaudanslaflotte = $reqvaisseaudanslaflotte->fetch())   
+    {
+    $nombredevaisseau++;
+    $reqnoyausurlevaisseau->execute(array($repvaisseaudanslaflotte['idvaisseau'], 'noyau'));
+    $repnoyausurlevaisseau = $reqnoyausurlevaisseau->fetch();
+    if(isset($repnoyausurlevaisseau['idtable']))
+      {
+      $nombredenoyau++;
+      }
+    } 
+ 
+  if($nombredenoyau == 0)
+    {
+    $touslesvaisseauxontunnoyau = 0;
+    }
+  elseif ($nombredenoyau == $nombredevaisseau)
+    {
+    $touslesvaisseauxontunnoyau = 2;
+    }
+  else
+    {
+    $touslesvaisseauxontunnoyau = 1;
+    }
+  return $touslesvaisseauxontunnoyau;
+  }
+
+// Présence d'une arme
+function armement($idflotte) 
+  {
+  require __DIR__ . '/../include/BDDconnection.php'; // $estarme = armement($idflotte) ;
+  // Présence d'un vaisseau armé dans la flotte. 
+  $arme = false ; 
+  $reqarmedansflotte = $bdg->prepare("  SELECT c.idvaisseaucompo
+                                        FROM composantvaisseau c
+                                        INNER JOIN vaisseau v ON v.idvaisseau = c.idvaisseaucompo
+                                        WHERE v.idflottevaisseau = ? AND c.typecomposant = 'arme'");
+  // 23 = ID du composant de colonisation.
+  $reqarmedansflotte->execute(array($idflotte));
+  $reparmedansflotte = $reqarmedansflotte->fetch();
+  if ($reparmedansflotte['idvaisseaucompo'] > 0)
+    { 
+    $arme = true ; 
+    } 
+  return $arme;
+  }
+
 ?>

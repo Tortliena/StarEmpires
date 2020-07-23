@@ -19,7 +19,7 @@ if (!isset($_SESSION['pseudo']))
 else
 	{
 	// récupérer le niveau du joueur.
-   	$reqlvl = $bdg->prepare('SELECT lvl from utilisateurs WHERE id= ?');
+   	$reqlvl = $bdg->prepare('SELECT lvl, creditgalactique from utilisateurs WHERE id= ?');
     $reqlvl->execute(array($_SESSION['id']));
     $replvl = $reqlvl->fetch();
     echo 'Logging : ' . $_SESSION['pseudo'] . ' </br> ';
