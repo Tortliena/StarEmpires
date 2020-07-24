@@ -104,61 +104,64 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
             } 
     	 
 		$a = 0; 
-		$reqcomposantpresent = $bdg->prepare('SELECT c.iditemcomposant, s.quantite FROM composantvaisseau c LEFT JOIN silo s ON s.iditems = c.iditemcomposant AND s.idplanetesilo = ? WHERE c.idvaisseaucompo = ?'); 
+		$reqcomposantpresent = $bdg->prepare('SELECT COUNT(c.iditemcomposant) AS nb, c.iditemcomposant, s.quantite FROM composantvaisseau c LEFT JOIN silo s ON s.iditems = c.iditemcomposant AND s.idplanetesilo = ? WHERE c.idvaisseaucompo = ? GROUP BY c.iditemcomposant'); 
  
 		$reqcomposantpresent->execute(array($_POST['id'], -$_POST['trucaconstruire'])); 
 		while($repcomposantpresent = $reqcomposantpresent->fetch()) 
-			{ 
-			if (!isset($repcomposantpresent['quantite'])) 
-				{ // Partie avec les trucs non présent dans le silo 
-				$a++; 
-				$reqinfoitem->execute(array($repcomposantpresent['iditemcomposant']));  
-		        $repinfoitem = $reqinfoitem->fetch();  
- 
-		        if ($repinfoitem['itemnecessaire']!=0) 
-	        		{ // Item 'constructible' par recherche. 
-					header("Location: ../planete.php?message=31&id=" . urlencode($_POST['id'])); 
-				    exit(); 
+			{
+			$nombreditemmanquant = $repcomposantpresent['nb'] - $repcomposantpresent['quantite'];
+			if ($nombreditemmanquant > 0) 
+				{ // Trop de composants dans le vaisseau par rapport aux stocks.
+				$a++;
+
+				$reqinfoitem->execute(array($repcomposantpresent['iditemcomposant']));
+		        $repinfoitem = $reqinfoitem->fetch();
+
+		        if ($repinfoitem['itemnecessaire']!=0)
+	        		{ // Item 'constructible' par recherche.
+					header("Location: ../planete.php?message=31&id=" . urlencode($_POST['id']));
+				    exit();
 				    }
 
 				if ($repinfoitem['technescessaire']!=0)
-					{ // Si item a besoin d'une tech, il faut que le joueur la possède. 
+					{ // Si item a besoin d'une tech, il faut que le joueur la possède.
 					$reqverifiertechnologie->execute(array($_SESSION['id'], $repinfoitem['technescessaire']));
 					$repverifiertechnologie = $reqverifiertechnologie->fetch();
 					if (!isset($repverifiertechnologie['idrechprinc']))
 						{
-						header("Location: ../planete.php?message=31&id=" . urlencode($_POST['id'])); 
+						header("Location: ../planete.php?message=31&id=" . urlencode($_POST['id']));
 				    	exit();
-				    	} 
+				    	}
 				    }
-				$reqcreerconstruction->execute(array( 
-		        'trucaconstruire' => $repcomposantpresent['iditemcomposant'], 
-		        'nombre' => 1, 
-		        'idplaneteconst' => $_POST['id'], 
-		        'avancementbiens' => $repinfoitem['coutbien'], 
-		        'avancementtitane' => $repinfoitem['couttitane'],  
-		        'prixbiens' => $repinfoitem['coutbien'], 
-		        'prixtitane' => $repinfoitem['couttitane'])); 
-				} 
-			else 
-				{ // Partie présent dans le silo. 
+				for ($i = 1; $i <= $nombreditemmanquant; $i++)
+					{
+					// echo $i . 'valeur de i<br>';
+					$reqcreerconstruction->execute(array(
+			        'trucaconstruire' => $repcomposantpresent['iditemcomposant'],
+			        'nombre' => 1,
+			        'idplaneteconst' => $_POST['id'],
+			        'avancementbiens' => $repinfoitem['coutbien'],
+			        'avancementtitane' => $repinfoitem['couttitane'],
+			        'prixbiens' => $repinfoitem['coutbien'],
+			        'prixtitane' => $repinfoitem['couttitane']));
+			    	}
 				} 
 			} 
- 
 		if ($a != 0) 
 			{ 
 			header("Location: ../planete.php?message=61&id=" . urlencode($_POST['id'])); 
 		    exit(); 
-		    } 
-		 
-		$reqcomposantpresent->execute(array($_POST['id'], -$_POST['trucaconstruire'])); 
+		    }
+
+		$reqcomposantpresent->execute(array($_POST['id'], -$_POST['trucaconstruire']));
 		while($repcomposantpresent = $reqcomposantpresent->fetch()) 
-			{ // On refait le tour, mais cette fois, on sait que tout est dans les stocks. 
-			consommercreeritemsplanetemultiple($repcomposantpresent['iditemcomposant'], 0, $_POST['id'], 1); 
+			{
+			// On refait le tour, mais cette fois, on sait que tout est dans les stocks.
+			consommercreeritemsplanetemultiple($repcomposantpresent['iditemcomposant'], 0, $_POST['id'], $repcomposantpresent['nb']);
 			}
-      	// Si on a tout les équipements en stock :     
+      	// Si on a tout les équipements en stock :
 	    $repinfoitem['coutbien'] = 50; 
-	    $repinfoitem['couttitane'] = 0; 
+	    $repinfoitem['couttitane'] = 0;
 	    $reptransformernom['nombatiment'] = $repinfovaisseau['nomvaisseau'];
 
 	    if ($_POST['combien'] > 1)
@@ -167,7 +170,7 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
 	    	$nummessage = 63;
 			}
     	} 
- 
+
 $reqcreerconstruction->execute(array( 
     'trucaconstruire' => $_POST['trucaconstruire'], 
     'nombre' => $_POST['combien'], 
@@ -187,6 +190,6 @@ $reqordredeconstruction->execute(array($repderniereconst['ordredeconstruction']+
 $_SESSION['message1'] = $_POST['combien']; 
 $_SESSION['message2'] = $reptransformernom['nombatiment']; 
 
-header("Location: ../planete.php?message=" . urlencode($nummessage) . "&id=" . urlencode($_POST['id']));  
+header("Location: ../planete.php?message=" . urlencode($nummessage) . "&id=" . urlencode($_POST['id']));
 exit();
 ?>

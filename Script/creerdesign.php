@@ -9,7 +9,6 @@ echo $_POST['nombre'].' nombre de composant à ajouter  </br>' ;
 echo $_POST['iditem'].' id du composant à ajouter  </br>' ; 
 */
 
-
 if (isset($_POST['idvaisseau'])) 
     {
     $idvaisseau = $_POST['idvaisseau']; 

@@ -25,12 +25,9 @@ $reqinfopvvaisseau = $bdd->prepare("    SELECT cv.idtable, c.degatpartir, cv.tir
                                         FROM gamer.vaisseau v
                                         LEFT JOIN  gamer.composantvaisseau cv ON v.idvaisseau = cv.idvaisseaucompo
                                         INNER JOIN composant c ON cv.iditemcomposant = c.idcomposant
-                                        WHERE v.idflottevaisseau = ? ORDER BY cv.tirrestant DESC, c.degatpartir DESC LIMIT 1");
-
+                                        WHERE v.idflottevaisseau = ? ORDER BY cv.tirrestant DESC, c.degatpartir, RAND() DESC LIMIT 1");
 
 $reqdesactiverbataille = $bdg->prepare('UPDATE bataille SET active = 0 WHERE idbataille = ?');
-
-$reqdiminuernbtir = $bdg->prepare("UPDATE composantvaisseau SET tirrestant = tirrestant-1 WHERE idtable = ?");
 
 for($a = 1 ; $a != 0 ; )
     {
@@ -51,14 +48,9 @@ for($a = 1 ; $a != 0 ; )
         // On récupère les infos sur l'attaquant (dont ses PV et en priorité le vaisseau avec des armes chargées puis l'arme la plus puissante)
         $reqinfopvvaisseau->execute(array($repbatailleencours['idflotteoffensive']));
         $repinfopvvaisseauattaquant = $reqinfopvvaisseau->fetch();
-        
-        echo $repinfopvvaisseaudefensif['idvaisseau'] .' id du vaisseau défenseur<br>';
-        echo $repinfopvvaisseauattaquant['idvaisseau'] .' id du vaisseau offensif<br>';
-        echo $repinfopvvaisseaudefensif['tirrestant'] .' nombre de tir restant du défenseur<br>';
-        echo $repinfopvvaisseauattaquant['tirrestant'] .' nombre de tir restant de l\'attaquant<br>';
 
         // Si les deux dernières requetes ne donnent aucune réponse : 
-        if ($repinfopvvaisseaudefensif['tirrestant'] < 1 AND $repinfopvvaisseauattaquant['tirrestant'] < 1)
+        if (($repinfopvvaisseaudefensif['tirrestant'] < 1 AND $repinfopvvaisseauattaquant['tirrestant'] < 1) OR !isset($repinfopvvaisseauattaquant['tirrestant']) OR !isset($repinfopvvaisseaudefensif['tirrestant']))
             { // On désactive la bataille.
             echo 'désactivation de la bataille' ; 
             $reqdesactiverbataille->execute(array($repbatailleencours['idbataille']));

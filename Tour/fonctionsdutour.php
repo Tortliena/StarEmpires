@@ -43,23 +43,28 @@ function nombrealeatoireavecpoid(array $ValeurPoid)
     }
   }
 
-function gestiondegats($idvaisseau, $pvvaisseau, $degatdutir, $idarme, $idvaisseauoffensif)
+function gestiondegats($idvaisseauquisefaittirerdessus, $pvvaisseau, $degatdutir, $idarme, $idvaisseauquitire)
   {
   require __DIR__ . '/../include/BDDconnection.php';
+
+  echo '<br>'. $idvaisseauquisefaittirerdessus . ' id du vaisseau qui se fait tirer dessus.<br>';
+  echo $pvvaisseau . ' valeur de ses PV.<br>';
 
   $reqdiminuernbtir = $bdg->prepare("UPDATE composantvaisseau SET tirrestant = tirrestant-1 WHERE idtable = ?");
   $reqdiminuernbtir->execute(array($idarme));
 
   $nvpv = $pvvaisseau - $degatdutir;
-  echo $nvpv .' nouveaux pv du vaisseau <br>'; 
+
+  echo $nvpv .' nouveaux pv du vaisseau <br>';
+  
   if ($nvpv < 0)
     {
-    $reqinfopvvaisseau = $bdg->prepare('  SELECT p.idjoueurplanete, v.nomvaisseau, f.xflotte, f.yflotte, f.universflotte, v.biensvaisseau, v.titanevaisseau
+    $reqinfopvvaisseau = $bdg->prepare('  SELECT p.idjoueurplanete, v.nomvaisseau, f.xflotte, f.yflotte, f.universflotte, v.biensvaisseau, v.titanevaisseau, f.idplaneteflotte
                                           FROM vaisseau v
                                           INNER JOIN flotte f ON f.idflotte = v.idflottevaisseau
-                                          INNER JOIN planete p ON p.idplanete = f.idplaneteflotte
+                                          LEFT JOIN planete p ON p.idplanete = f.idplaneteflotte
                                           WHERE v.idvaisseau = ?');
-    $reqinfopvvaisseau->execute(array($idvaisseau));
+    $reqinfopvvaisseau->execute(array($idvaisseauquisefaittirerdessus));
     $repinfopvvaisseau = $reqinfopvvaisseau->fetch();
 
     $reqcreerasteroides = $bda->prepare('INSERT INTO champsasteroides (xaste , yaste , uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)');
@@ -77,41 +82,38 @@ function gestiondegats($idvaisseau, $pvvaisseau, $degatdutir, $idarme, $idvaisse
 
     if ($nbchampsastebien > 0)
       {
+      echo 'vaisseau détruit, donc on fait des astéroides normaux. <br>';
       $reqcreerasteroides->execute(array($repinfopvvaisseau['xflotte'], $repinfopvvaisseau['yflotte'], $repinfopvvaisseau['universflotte'], 6, $nbchampsastebien));
       }
     if ($nbchampsastetitane > 0)
       {
       $reqcreerasteroides->execute(array($repinfopvvaisseau['xflotte'], $repinfopvvaisseau['yflotte'], $repinfopvvaisseau['universflotte'], 8, $nbchampsastetitane));
       }
-    /*
+
     // Permet de créer des débris pour le 1er vaisseau alien avec le noyau alien. 
-    if ($repinfopvvaisseau['typevaisseau'] == 2)
+    if ($repinfopvvaisseau['nomvaisseau'] == 'Épave spatiale' AND $repinfopvvaisseau['idplaneteflotte'] == 0)
       { // Cas d'un vaisseau trouvé dans le 1er univers
+      echo 'vaisseau spécial détruit, donc on fait des astéroides spéciaux. <br>';
       $reqcreerasteroides->execute(array($repinfopvvaisseau['xflotte'], $repinfopvvaisseau['yflotte'], $repinfopvvaisseau['universflotte'], 16, 1));
       $reqcreerasteroides->execute(array($repinfopvvaisseau['xflotte'], $repinfopvvaisseau['yflotte'], $repinfopvvaisseau['universflotte'], 18, 1));
       }
-    */
-
-    // Bataille défenseur ou attaquant
-    $reqdeletebataille = $bdg->prepare("DELETE FROM bataille WHERE idflotteoffensive = ? OR idflottedefensive = ?");
-    $reqdeletebataille->execute(array($idvaisseau, $idvaisseau));
 
     // cargovaisseau
     $reqdeletecargo = $bdg->prepare("DELETE FROM cargovaisseau WHERE idcargovaisseau = ?");
-    $reqdeletecargo->execute(array($idvaisseau));
+    $reqdeletecargo->execute(array($idvaisseauquisefaittirerdessus));
 
     // composantvaisseau
     $reqdeletecomposant = $bdg->prepare("DELETE FROM composantvaisseau WHERE idvaisseaucompo = ?");
-    $reqdeletecomposant->execute(array($idvaisseau));
+    $reqdeletecomposant->execute(array($idvaisseauquisefaittirerdessus));
 
     // vaisseau
     $reqdeletevaisseau = $bdg->prepare("DELETE FROM vaisseau WHERE idvaisseau = ?");
-    $reqdeletevaisseau->execute(array($idvaisseau));
+    $reqdeletevaisseau->execute(array($idvaisseauquisefaittirerdessus));
     }
   else
     {
     $reqdiminuerpvvaisseau = $bdg->prepare('UPDATE vaisseau SET HPvaisseau = ? WHERE idvaisseau = ?');
-    $reqdiminuerpvvaisseau->execute(array($nvpv, $idvaisseau));
+    $reqdiminuerpvvaisseau->execute(array($nvpv, $idvaisseauquisefaittirerdessus));
     }
   }
 
@@ -135,9 +137,10 @@ function disparitionflotte()
   {
   require __DIR__ . '/../include/BDDconnection.php';
   // Trouver les flotte qui n'ont pas de vaisseau et trouver leur ID.
-  $reqrepositionnersurlaplanetemere = $bdg->prepare('UPDATE flotte SET xflotte = ?, yflotte = ?, universflotte = ? WHERE idflotte = ?');
+  $reqrepositionnersurlaplanetemere = $bdg->prepare('UPDATE flotte SET xflotte = ?, yflotte = ?, universflotte = ?, universdestination = 0, xdestination = 0,   ydestination = 0, typeordre = 0, bloque = 0 WHERE idflotte = ?');
   $reqpositionplanetemere = $bdg->prepare('SELECT xplanete, yplanete, universplanete FROM planete WHERE idplanete = ?');
   $reqsupprimerflotte = $bdg->prepare('DELETE FROM flotte WHERE idflotte = ?');
+  $reqsupprimerbataille = $bdg->prepare('DELETE FROM bataille WHERE idflottedefensive = ? OR idflotteoffensive = ?');
 
   $reqflottesansvaisseau = $bdg->query('SELECT f.idflotte, f.idplaneteflotte FROM flotte f LEFT JOIN vaisseau v ON f.idflotte = v.idflottevaisseau WHERE v.idflottevaisseau IS NULL');
   while ($repflottesansvaisseau = $reqflottesansvaisseau->fetch())
@@ -153,6 +156,15 @@ function disparitionflotte()
         {
         $reqsupprimerflotte->execute(array($repflottesansvaisseau['idflotte']));
         }
+      $reqsupprimerbataille->execute(array($repflottesansvaisseau['idflotte'], $repflottesansvaisseau['idflotte']));
+      }
+
+  $requpdateordre = $bdg->prepare('UPDATE flotte SET universdestination = 0, xdestination = 0, ydestination = 0, typeordre = 0, bloque = 0 WHERE idflotte = ?');
+
+  $reqflotteattaquesanscible = $bdg->query('SELECT f.idflotte FROM flotte f LEFT JOIN bataille b ON b.idflotteoffensive = f.idflotte WHERE b.idbataille IS NULL AND typeordre = 5'); // type ordre 5 = bataille
+  while ($repflotteattaquesanscible = $reqflotteattaquesanscible->fetch())
+      {
+      $requpdateordre->execute(array($repflotteattaquesanscible['idflotte']));
       }
   }
 

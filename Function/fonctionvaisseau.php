@@ -46,13 +46,24 @@ function descriptioncompletevaisseau($idvaisseau, $idjoueur, $lvljoueur)
     $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "arme")); 
   while($reparmesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
         {
-        $texte = $reparmesurlevaisseau['nb'].' '.$reparmesurlevaisseau['nombatiment'] ; 
+        if ($a==0)
+          {
+          $texte = $reparmesurlevaisseau['nb'].' '.$reparmesurlevaisseau['nombatiment'] ; 
+          }
+        else
+          {
+          $texte .= ', '.$reparmesurlevaisseau['nb'].' '.$reparmesurlevaisseau['nombatiment'] ; 
+          }
         $a++;
         }
-    if ($a == 0) 
+  if ($a == 0)
     { 
     echo 'Vaisseau non armé.<br>'; 
-    } 
+    }
+  else
+    { 
+    echo $texte.'<br>'; 
+    }
   echo $repvaiss['capaciteminage'] . ' capacité de minage. <br>'; 
   
     $a = 0; // Voir plus tard pour refaire cette partie.

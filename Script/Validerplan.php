@@ -18,7 +18,7 @@ $reqvaisseau->execute(array($_POST['idvaisseau']));
 $repvaisseau = $reqvaisseau->fetch();
 
 // Cas d'un plan : 
-$reqvaisseauplan = $bdg->prepare('SELECT idflottevaisseau FROM vaisseau v WHERE idvaisseau = ?');
+$reqvaisseauplan = $bdg->prepare('SELECT idflottevaisseau FROM vaisseau WHERE idvaisseau = ?');
 $reqvaisseauplan->execute(array($_POST['idvaisseau']));   
 $repvaisseauplan = $reqvaisseauplan->fetch();
 
@@ -29,13 +29,30 @@ list($structure, $structuremax) = structurevaisseau ($_POST['idvaisseau']);
 if ($structure > $structuremax)
 	{ header("location: ../accueil.php?message=31"); exit(); }
 
-// permet de supprimer le plan actuel :
-$reqsupprimerplanprecedent = $bdg->prepare('DELETE FROM composantvaisseau WHERE idvaisseaucompo = ?');
-$reqsupprimerplanprecedent->execute(array($_POST['idvaisseau']));   
+$reqconstructionencours = $bdg->prepare('SELECT idconst FROM construction WHERE trucaconstruire = ?');
+$reqconstructionencours->execute(array(-$_POST['idvaisseau']));   
+$repconstructionencours = $reqconstructionencours->fetch();
 
-// Permet d'appliquer le plan préparé :
-$reqappliquerplan = $bdg->prepare('UPDATE composantvaisseau SET idvaisseaucompo = ? WHERE idvaisseaucompo = ?');
-$reqappliquerplan->execute(array($_POST['idvaisseau'], -$_POST['idvaisseau']));   
+if (!isset($repconstructionencours['idconst']))
+	{ // Si aucune construction lié à ce plan existe, alors on peut le mettre à jour.
+	// permet de supprimer le plan actuel :
+	$reqsupprimerplanprecedent = $bdg->prepare('DELETE FROM composantvaisseau WHERE idvaisseaucompo = ?');
+	$reqsupprimerplanprecedent->execute(array($_POST['idvaisseau']));   
+
+	// Permet d'appliquer le plan préparé :
+	$reqappliquerplan = $bdg->prepare('UPDATE composantvaisseau SET idvaisseaucompo = ? WHERE idvaisseaucompo = ?');
+	$reqappliquerplan->execute(array($_POST['idvaisseau'], -$_POST['idvaisseau']));
+
+	caracteristiquesvaisseau ($_POST['idvaisseau']);
+
+ 	header("location: ../conception.php?message=75&id=" . urlencode($_POST['idvaisseau']));
+	exit;
+	}
+else
+	{
+ 	header("location: ../conception.php?message=76&id=" . urlencode($_POST['idvaisseau']));
+	exit;
+	}
 
 header("location: ../accueil.php?message=31");
 ?>

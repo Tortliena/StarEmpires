@@ -1,8 +1,8 @@
 <?php
 /*
 session_start();
-include("../include/BDDconnection.php");
-include("fonctionsdutour.php");
+require __DIR__ . '/../include/BDDconnection.php';
+require __DIR__ . '/../tour/fonctionsdutour.php';
 */
 
 $reqcreerplanete = $bdg->prepare('INSERT INTO planete (

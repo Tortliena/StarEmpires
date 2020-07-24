@@ -328,7 +328,14 @@ switch ($_GET["message"])
     case 74: 
         echo "Composant retiré"; 
     break;
- 
+    
+    case 75: 
+        echo "Plan de vaisseau modifié"; 
+    break;
+
+    case 76: 
+        echo "Impossible de modifier ce plan, il est actuellement utilisé dans nos usines."; 
+    break;
     } 
  
 unset($_SESSION['message1']); 

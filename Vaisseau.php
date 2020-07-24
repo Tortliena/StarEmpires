@@ -73,12 +73,12 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
   } 
 if ($a != 0)   
     {   
-    echo $texteexplication ;   
-   
+    echo $texteexplication.'. ' ;   
     }
+
 if ($replvl['lvl']>=3)   
     {   
-    echo '. Total soute : ' . $a . '/' . $repvaisseau['capacitedesoute'];   
+    echo ' Total soute : ' . $a . '/' . $repvaisseau['capacitedesoute'];   
     }
 echo '.</p>'; 
 

@@ -146,7 +146,7 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
 $reqdect = $bdg->prepare('SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? LIMIT 1');   
 $reqasteroide = $bda->prepare('SELECT idasteroide , quantite, typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');   
 // Revoir cette requete pour trouver que les flottes 'ennemies'. 
-$reqflottecarte = $bdg->prepare('SELECT idflotte FROM flotte WHERE xflotte = ? AND yflotte = ? AND universflotte = ? AND idplaneteflotte <> ? LIMIT 1');
+$reqflottecarte = $bdg->prepare('SELECT idflotte FROM flotte WHERE xflotte = ? AND yflotte = ? AND universflotte = ? AND idplaneteflotte = 0 LIMIT 1');
 $reqstationcarte = $bdg->prepare('SELECT idstation  FROM station WHERE xstation = ? AND ystation = ? AND universstation = ? LIMIT 1');
 
 // Si on a un champs d'astéroide, formulaire pour embarquer les trucs.
@@ -166,9 +166,9 @@ if (isset($repasteroide['idasteroide']))
 
 // Détection flottes ennemies  
 $reqdetectionflotteennemi = $bdg->prepare("SELECT f.idflotte, f.nomflotte FROM flotte f
-		INNER JOIN planete p on p.idplanete = f.idplaneteflotte
+		LEFT JOIN planete p on p.idplanete = f.idplaneteflotte
 		INNER JOIN vaisseau v on v.idflottevaisseau = f.idflotte
-		WHERE f.idflotte <> ? AND f.universflotte = ? AND f.xflotte = ? AND f.yflotte = ? AND p.idjoueurplanete <> ?
+		WHERE f.idflotte <> ? AND f.universflotte = ? AND f.xflotte = ? AND f.yflotte = ? AND (p.idjoueurplanete <> ? OR p.idjoueurplanete IS NULL)
 		GROUP BY f.idflotte"); // INNER sur vaisseau = pour éliminer les flottes sans vaisseau.
 $reqdetectionflotteennemi->execute(array($_GET['id'], $repflotte['universflotte'], $repflotte['xflotte'], $repflotte['yflotte'], $_SESSION['id']));   
 while($repdetectionflotteennemi = $reqdetectionflotteennemi->fetch())   
@@ -270,7 +270,7 @@ else
 			}   
 		elseif ($x > 0 AND $x <= $xymax AND $y > 0 AND $y <= $xymax)   
 			{ // interieur du tableau   
-			$reqflottecarte->execute(array($x , $y, $repflotte['universflotte'], $_SESSION['id']));   
+			$reqflottecarte->execute(array($x , $y, $repflotte['universflotte']));   
 			$repflottecarte = $reqflottecarte->fetch();   
 			$reqplanete2->execute(array($x , $y, $repflotte['universflotte']));   
 			$repplanete = $reqplanete2->fetch();   
@@ -285,7 +285,7 @@ else
 				{   
 				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/monvaisseau.png" alt="monvaisseau" /></a></td>';   
 				}   
-			elseif (isset($repvaisseaucarte['idvaisseau']))   
+			elseif (isset($repflottecarte['idflotte']))   
 				{// Sinon, si la case est occupée par un vaisseau n'appartement pas au joueur, l'afficher.   
 				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/vaisseaumechant.png" alt="vaisseaumechant" /></a></td>' ;   
 				}   
