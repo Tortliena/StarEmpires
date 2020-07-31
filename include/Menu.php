@@ -47,7 +47,7 @@ else
         echo '<a class ="lienmenu" href="Recherche.php">Recherche</a></br>';
 	    }
 
-	if ($replvl['lvl'] > 7) 
+	if ($replvl['lvl'] > 6) 
         {
         echo '<a class ="lienmenu" href="Conception.php">Conception</a></br>';
         }
@@ -81,6 +81,10 @@ else
                                
                     case 1:
                     echo "Mine";
+                    break;
+
+                    case 2:
+                    echo "Saut dimensionnel";
                     break;
                                   
                     case 5:

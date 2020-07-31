@@ -47,7 +47,7 @@ function minageflotte($idflotte)
   { 
   require __DIR__ . '/../include/BDDconnection.php'; // $minageflotte = minageflotte($idflotte) ;
   // Capacité de minage : Prendre la plus grande valeur. 
-  $minage = 1 ; 
+  $minage = 0; 
   $reqminage = $bdg->prepare("SELECT capaciteminage FROM vaisseau WHERE idflottevaisseau = ?");
   $reqminage->execute(array($idflotte)); 
   while ($repminage = $reqminage->fetch()) 
@@ -56,8 +56,6 @@ function minageflotte($idflotte)
     } 
   return $minage; 
   }
-
-// présence d'arme
 
 // Présence d'un module de colonisation.
 function colonisateur($idflotte) 
@@ -84,12 +82,14 @@ function touslesvaisseauxontunnoyau($idflotte)
   { 
   require __DIR__ . '/../include/BDDconnection.php'; // $touslesvaisseauxontunnoyau = touslesvaisseauxontunnoyau($idflotte) ;
   $nombredevaisseau = 0;
-  $nombredenoyau = 0 ;
+  $nombredenoyaux = 0;
+  $niveaudesnoyaux = 0 ;
   // requete pour passer les vaisseaux par un.
 
-  $reqnoyausurlevaisseau = $bdg->prepare("    SELECT idtable
-                                              FROM composantvaisseau
-                                              WHERE idvaisseaucompo = ? AND typecomposant = ?");
+  $reqnoyausurlevaisseau = $bdg->prepare("    SELECT c.totalbonus
+                                              FROM composantvaisseau cv
+                                              INNER JOIN datawebsite.composant c ON c.idcomposant = cv.iditemcomposant
+                                              WHERE cv.idvaisseaucompo = ? AND c.typebonus = ?");
 
   $reqvaisseaudanslaflotte = $bdg->prepare("  SELECT idvaisseau
                                               FROM vaisseau
@@ -97,28 +97,54 @@ function touslesvaisseauxontunnoyau($idflotte)
   $reqvaisseaudanslaflotte->execute(array($idflotte));
   while($repvaisseaudanslaflotte = $reqvaisseaudanslaflotte->fetch())   
     {
-    $nombredevaisseau++;
-    $reqnoyausurlevaisseau->execute(array($repvaisseaudanslaflotte['idvaisseau'], 'noyau'));
+    $reqnoyausurlevaisseau->execute(array($repvaisseaudanslaflotte['idvaisseau'], 5)); // type bonus = 5 = capacité à voyager entre les dimensions.
     $repnoyausurlevaisseau = $reqnoyausurlevaisseau->fetch();
-    if(isset($repnoyausurlevaisseau['idtable']))
+    if(isset($repnoyausurlevaisseau['totalbonus']))
       {
-      $nombredenoyau++;
+      if ($nombredevaisseau == 0)
+        { // Permet d'armorcer : Au premier tour, on est au niveau du noyau du 1er vaisseau.
+        $niveaudesnoyaux = 2*$repnoyausurlevaisseau['totalbonus'];
+        }
+      elseif ($nombredevaisseau != $nombredenoyaux)
+        { // Si on a un nombre de vaisseaux différents de celui des noyaux, alors on a une flotte incapable de voyager.
+        $niveaudesnoyaux = 1 ;
+        }
+      else
+        {
+        if ($niveaudesnoyaux != 2*$repnoyausurlevaisseau['totalbonus'])
+          { // Si la flotte possède un vaisseau avec un noyau différent de celui actuellement calculé
+          $niveaudesnoyaux = min($niveaudesnoyaux, 2*$repnoyausurlevaisseau['totalbonus']) + 1;
+          }
+        }
+      $nombredenoyaux++;
       }
+    $nombredevaisseau++;
     } 
- 
-  if($nombredenoyau == 0)
-    {
+
+/* 
+  if($niveaudesnoyaux == 0)
+    { // Aucun vaisseau n'a de noyau
     $touslesvaisseauxontunnoyau = 0;
     }
-  elseif ($nombredenoyau == $nombredevaisseau)
-    {
+  elseif ($niveaudesnoyaux == 1)
+    { // Certains vaisseaux ont des noyaux, mais pas tous.
     $touslesvaisseauxontunnoyau = 2;
     }
-  else
-    {
+  elseif ($niveaudesnoyaux == 2)
+    { // Tous les vaisseaux ont un noyau de niveau 1
     $touslesvaisseauxontunnoyau = 1;
     }
-  return $touslesvaisseauxontunnoyau;
+  elseif ($niveaudesnoyaux == 3)
+    { // Tous les vaisseaux ont un noyau de niveau 1 et certains ont un niveau supérieur
+    $touslesvaisseauxontunnoyau = 1;
+    }
+  elseif ($niveaudesnoyaux == 4)
+    { // Tous les vaisseaux ont un noyau de niveau 2
+    $touslesvaisseauxontunnoyau = 1;
+    }
+*/
+return $niveaudesnoyaux;
+
   }
 
 // Présence d'une arme

@@ -12,7 +12,7 @@ CREATE TABLE `bataille` (
   `idflottedefensive` int(11) NOT NULL,
   `active` int(11) NOT NULL DEFAULT '1',
   PRIMARY KEY (`idbataille`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
 
 
@@ -23,8 +23,13 @@ CREATE TABLE `batiment` (
   `typebat` int(11) NOT NULL,
   `idplanetebat` int(11) NOT NULL,
   PRIMARY KEY (`idbat`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 
+INSERT INTO `batiment` VALUES (1,3,2),
+(2,1,2),
+(3,3,2),
+(4,2,2),
+(5,4,19);
 
 
 DROP TABLE IF EXISTS `cargovaisseau`;
@@ -35,8 +40,10 @@ CREATE TABLE `cargovaisseau` (
   `typeitems` int(11) NOT NULL,
   `quantiteitems` int(11) NOT NULL,
   PRIMARY KEY (`idcargovaisseau`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;
 
+INSERT INTO `cargovaisseau` VALUES (18,2,26,3),
+(16,2,6,3);
 
 
 DROP TABLE IF EXISTS `choixevents`;
@@ -65,8 +72,84 @@ CREATE TABLE `composantvaisseau` (
   `tirrestant` int(11) NOT NULL DEFAULT '0',
   `typecomposant` varchar(32) NOT NULL,
   PRIMARY KEY (`idtable`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=146 DEFAULT CHARSET=latin1;
 
+INSERT INTO `composantvaisseau` VALUES (62,-11,14,2,"arme"),
+(114,2,12,0,"soute"),
+(113,2,11,2,"arme"),
+(112,2,11,2,"arme"),
+(137,-2,25,0,"noyau"),
+(136,-2,12,0,"soute"),
+(135,-2,11,2,"arme"),
+(18,5,23,0,"autre"),
+(17,-4,23,0,"autre"),
+(103,-5,11,2,"arme"),
+(109,-5,24,0,"noyau"),
+(21,-6,10,0,"moteur"),
+(24,8,10,0,"moteur"),
+(25,8,14,2,"arme"),
+(26,8,14,2,"arme"),
+(27,8,14,2,"arme"),
+(28,8,15,0,"coque"),
+(29,8,15,0,"coque"),
+(30,8,15,0,"coque"),
+(32,-8,14,2,"arme"),
+(33,-8,14,2,"arme"),
+(34,-8,14,2,"arme"),
+(35,-8,15,0,"coque"),
+(36,-8,15,0,"coque"),
+(37,-8,15,0,"coque"),
+(138,9,25,0,"noyau"),
+(123,9,15,0,"coque"),
+(120,9,14,2,"arme"),
+(119,9,14,2,"arme"),
+(118,9,10,0,"moteur"),
+(122,9,15,0,"coque"),
+(121,9,14,2,"arme"),
+(132,-10,24,0,"noyau"),
+(131,-10,15,0,"coque"),
+(128,-10,14,2,"arme"),
+(127,-10,14,2,"arme"),
+(126,-10,10,0,"moteur"),
+(130,-10,15,0,"coque"),
+(129,-10,14,2,"arme"),
+(61,-11,10,0,"moteur"),
+(54,11,10,0,"moteur"),
+(55,11,17,0,"noyau"),
+(56,11,14,2,"arme"),
+(57,11,14,2,"arme"),
+(58,11,14,2,"arme"),
+(59,11,15,0,"coque"),
+(60,11,15,0,"coque"),
+(63,-11,14,2,"arme"),
+(64,-11,14,2,"arme"),
+(65,-11,15,0,"coque"),
+(66,-11,15,0,"coque"),
+(67,-11,17,0,"noyau"),
+(68,12,10,0,"moteur"),
+(69,12,17,0,"noyau"),
+(70,12,14,2,"arme"),
+(71,12,14,2,"arme"),
+(72,12,14,2,"arme"),
+(73,12,15,0,"coque"),
+(74,12,15,0,"coque"),
+(75,10,10,0,"moteur"),
+(76,10,14,2,"arme"),
+(77,10,14,2,"arme"),
+(78,10,14,2,"arme"),
+(80,10,15,0,"coque"),
+(81,10,15,0,"coque"),
+(145,-9,25,0,"noyau"),
+(140,-9,14,2,"arme"),
+(125,10,24,0,"noyau"),
+(143,-9,15,0,"coque"),
+(142,-9,14,2,"arme"),
+(110,-5,10,0,"moteur"),
+(141,-9,14,2,"arme"),
+(144,-9,15,0,"coque"),
+(134,-2,11,2,"arme"),
+(133,2,25,0,"noyau"),
+(139,-9,10,0,"moteur");
 
 
 DROP TABLE IF EXISTS `construction`;
@@ -82,7 +165,7 @@ CREATE TABLE `construction` (
   `idplaneteconst` int(11) NOT NULL,
   `ordredeconstruction` int(11) DEFAULT '1',
   PRIMARY KEY (`idconst`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=47 DEFAULT CHARSET=latin1;
 
 
 
@@ -96,9 +179,48 @@ CREATE TABLE `explore` (
   `idexplorateur` int(11) NOT NULL,
   `tourexploration` int(11) NOT NULL,
   PRIMARY KEY (`idexplore`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=41 DEFAULT CHARSET=latin1;
 
-INSERT INTO `explore` VALUES (1,2,3,3,2,1);
+INSERT INTO `explore` VALUES (1,2,3,3,2,1),
+(2,2,2,2,2,10),
+(3,2,1,1,2,11),
+(4,2,2,1,2,12),
+(5,2,3,1,2,13),
+(6,2,1,2,2,17),
+(7,2,1,3,2,18),
+(8,2,1,4,2,19),
+(9,2,1,5,2,20),
+(10,2,2,5,2,21),
+(11,2,3,4,2,22),
+(12,2,4,2,2,26),
+(13,2,5,1,2,27),
+(14,2,4,1,2,28),
+(15,2,3,2,2,29),
+(16,2,2,3,2,30),
+(17,2,2,4,2,31),
+(18,2,3,5,2,32),
+(19,2,4,5,2,33),
+(20,2,5,5,2,34),
+(21,2,5,4,2,35),
+(22,2,5,3,2,36),
+(23,2,5,2,2,37),
+(24,2,4,3,2,38),
+(25,2,4,4,2,39),
+(26,-2,10,9,2,262),
+(27,-2,2,5,2,272),
+(28,-2,4,7,2,273),
+(29,-2,6,9,2,274),
+(30,-2,8,10,2,275),
+(31,-2,10,10,2,276),
+(32,-2,10,11,2,278),
+(33,-2,1,3,2,301),
+(34,-2,5,16,2,380),
+(35,-2,6,15,2,382),
+(36,-2,7,14,2,383),
+(37,-2,8,13,2,384),
+(38,-2,9,12,2,385),
+(39,-2,9,17,2,402),
+(40,-3,4,4,2,406);
 
 
 DROP TABLE IF EXISTS `flotte`;
@@ -116,8 +238,12 @@ CREATE TABLE `flotte` (
   `typeordre` int(11) NOT NULL DEFAULT '0',
   `bloque` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idflotte`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 
+INSERT INTO `flotte` VALUES (1,-2,2,3,3,"Flotte de défense",0,0,0,0,0),
+(2,2,-3,4,4,"Grosse flotte",0,0,0,0,0),
+(5,2,2,3,3,"Flotte subspatiale",0,0,0,0,0),
+(4,2,2,3,3,"dwq",0,0,0,0,0);
 
 
 DROP TABLE IF EXISTS `limiteplanete`;
@@ -134,7 +260,58 @@ CREATE TABLE `limiteplanete` (
   PRIMARY KEY (`idlimiteplanete`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-INSERT INTO `limiteplanete` VALUES (2,1,1,8,1,1,0,1);
+INSERT INTO `limiteplanete` VALUES (2,1,1,10,5,5,0,2),
+(1,1,1,8,1,1,0,1),
+(3,1,1,8,1,1,0,1),
+(4,1,1,8,1,1,0,1),
+(5,1,1,8,1,1,0,1),
+(6,1,1,8,1,1,0,1),
+(7,1,1,8,1,1,0,1),
+(8,1,1,8,1,1,0,1),
+(9,1,1,8,1,1,0,1),
+(10,1,1,8,1,1,0,1),
+(11,1,1,8,1,1,0,1),
+(12,1,1,8,1,1,0,1),
+(13,1,1,8,1,1,0,1),
+(14,1,1,8,1,1,0,1),
+(15,1,1,8,1,1,0,1),
+(16,1,1,8,1,1,0,1),
+(17,1,1,8,1,1,0,1),
+(18,1,1,8,1,1,0,1),
+(19,1,1,5,1,1,1,1),
+(20,1,1,8,1,1,0,1),
+(21,1,1,8,1,1,0,1),
+(22,1,1,8,1,1,0,1),
+(23,1,1,8,1,1,0,1),
+(24,1,1,8,1,1,0,1),
+(25,1,1,8,1,1,0,1),
+(26,1,1,8,1,1,0,1),
+(27,1,1,8,1,1,0,1),
+(28,1,1,8,1,1,0,1),
+(29,1,1,8,1,1,0,1),
+(30,1,1,8,1,1,0,1),
+(31,1,1,8,1,1,0,1),
+(32,1,1,8,1,1,0,1),
+(33,1,1,8,1,1,0,1),
+(34,1,1,8,1,1,0,1),
+(35,1,1,8,1,1,0,1),
+(36,1,1,8,1,1,0,1),
+(37,1,1,8,1,1,0,1),
+(38,1,1,8,1,1,0,1),
+(39,1,1,8,1,1,0,1),
+(40,1,1,8,1,1,0,1),
+(41,1,1,8,1,1,0,1),
+(42,1,1,8,1,1,0,1),
+(43,1,1,8,1,1,0,1),
+(44,1,1,8,1,1,0,1),
+(45,1,1,8,1,1,0,1),
+(46,1,1,8,1,1,0,1),
+(47,1,1,8,1,1,0,1),
+(48,1,1,8,1,1,0,1),
+(49,1,1,8,1,1,0,1),
+(50,1,1,8,1,1,0,1),
+(51,1,1,8,1,1,0,1),
+(52,1,1,8,1,1,0,1);
 
 
 DROP TABLE IF EXISTS `limitesjoueurs`;
@@ -181,8 +358,14 @@ CREATE TABLE `messagerieinterne` (
   `titre` varchar(64) NOT NULL,
   `texte` text NOT NULL,
   PRIMARY KEY (`idmessagerieinterne`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=58 DEFAULT CHARSET=latin1;
 
+INSERT INTO `messagerieinterne` VALUES ("Ministère de l\'économie",57,2,0,"Marchandises en transit","Un vaisseau vient de livrer  Noyau à  Hypso-tachyons."),
+("Ministère de l\'économie",56,2,0,"Achat galactique","Un vaisseau vient d\'acheter 1 Noyaux à sub-tachyons pour -100$."),
+("Ministère de l\'économie",55,2,0,"Vente galactique","Un vaisseau vient de vendre 1 titane en barres pour 500$."),
+("Ministère de l\'économie",54,2,0,"Vente galactique","Un vaisseau vient de vendre 1 titane en barres pour 500$."),
+("Ministère de l\'économie",53,2,0,"Vente galactique","Un vaisseau vient de vendre 1 débris de métaux rares pour 10$."),
+("Ministère de l\'économie",52,2,0,"Marchandises en transit","Un vaisseau vient de prendre   .");
 
 
 DROP TABLE IF EXISTS `messagetour`;
@@ -194,8 +377,12 @@ CREATE TABLE `messagetour` (
   `domainemess` varchar(32) NOT NULL,
   `numspemessage` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idmessage`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=1325 DEFAULT CHARSET=latin1;
 
+INSERT INTO `messagetour` VALUES (1321,2,"Vous disposez de la place nécessaire pour accueillir une nouvelle population qui devrait arriver prochainement. (proba : 1%)","planete",2),
+(1322,2,"Vous disposez de la place nécessaire pour accueillir une nouvelle population qui devrait arriver prochainement. (proba : 2%)","planete",19),
+(1323,2,"Cette flotte vient de s\'univorter.","flotte",2),
+(1324,2,"Cette flotte vient d\'explorer le parsec (4 - 4).","flotte",2);
 
 
 DROP TABLE IF EXISTS `planete`;
@@ -214,10 +401,60 @@ CREATE TABLE `planete` (
   `organisation` int(11) NOT NULL DEFAULT '10',
   `efficacite` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idplanete`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=53 DEFAULT CHARSET=latin1;
 
-INSERT INTO `planete` VALUES (1,"xbrcudkrkb",8,7,-2,0,10,0,3,0,10,0),
-(2,"Planète sans nom",3,3,2,2,300,0,8,0,9000,100);
+INSERT INTO `planete` VALUES (1,"bif",8,7,-2,0,10,0,3,0,10,0),
+(2,"Nom de planete suspect !",3,3,2,2,276,9715,8,0,10216,114),
+(3,"bif",6,9,-2,0,10,0,4,0,10,0),
+(4,"bif",13,10,-2,0,10,0,3,3,10,0),
+(5,"bif",18,4,-2,0,10,0,3,0,10,0),
+(6,"bif",17,16,-2,0,10,0,3,1,10,0),
+(7,"bif",15,14,-2,0,10,0,4,2,10,0),
+(8,"bif",2,14,-2,0,10,0,6,2,10,0),
+(9,"bif",20,4,-2,0,10,0,6,3,10,0),
+(10,"bif",15,10,-2,0,10,0,4,3,10,0),
+(11,"bif",1,6,-2,0,10,0,4,2,10,0),
+(12,"bif",20,15,-2,0,10,0,4,1,10,0),
+(13,"bif",5,15,-2,0,10,0,6,2,10,0),
+(14,"bif",17,9,-2,0,10,0,6,0,10,0),
+(15,"bif",20,8,-2,0,10,0,4,0,10,0),
+(16,"bif",14,5,-2,0,10,0,6,2,10,0),
+(17,"bif",2,3,-2,0,10,0,3,1,10,0),
+(18,"bif",15,13,-2,0,10,0,4,2,10,0),
+(19,"bif",1,3,2,2,172,1,4,1,4465,112),
+(20,"bif",9,19,-2,0,10,0,3,3,10,0),
+(21,"bif",2,8,-2,0,10,0,4,2,10,0),
+(22,"bif",7,11,-2,0,10,0,5,3,10,0),
+(23,"bif",1,17,-2,0,10,0,3,3,10,0),
+(24,"bif",3,1,-2,0,10,0,4,3,10,0),
+(25,"bif",16,13,-2,0,10,0,5,3,10,0),
+(26,"bif",2,13,-2,0,10,0,3,1,10,0),
+(27,"bif",19,17,-2,0,10,0,5,0,10,0),
+(28,"bif",18,7,-2,0,10,0,4,1,10,0),
+(29,"bif",12,16,-2,0,10,0,4,0,10,0),
+(30,"bif",6,13,-2,0,10,0,3,3,10,0),
+(31,"bif",8,16,-2,0,10,0,6,0,10,0),
+(32,"bif",18,5,-2,0,10,0,3,3,10,0),
+(33,"bif",9,11,-2,0,10,0,5,0,10,0),
+(34,"bif",4,12,-2,0,10,0,3,2,10,0),
+(35,"bif",6,16,-2,0,10,0,4,3,10,0),
+(36,"bif",20,14,-2,0,10,0,3,1,10,0),
+(37,"bif",16,11,-2,0,10,0,4,3,10,0),
+(38,"bif",16,14,-2,0,10,0,5,0,10,0),
+(39,"bif",20,19,-2,0,10,0,5,0,10,0),
+(40,"bif",19,3,-2,0,10,0,4,3,10,0),
+(41,"bif",8,2,-2,0,10,0,4,1,10,0),
+(42,"bif",14,2,-2,0,10,0,6,0,10,0),
+(43,"bif",12,5,-2,0,10,0,3,3,10,0),
+(44,"bif",14,7,-2,0,10,0,5,0,10,0),
+(45,"bif",12,19,-2,0,10,0,3,3,10,0),
+(46,"bif",6,14,-2,0,10,0,3,1,10,0),
+(47,"bif",4,11,-2,0,10,0,5,1,10,0),
+(48,"bif",11,14,-2,0,10,0,4,0,10,0),
+(49,"bif",19,20,-2,0,10,0,4,1,10,0),
+(50,"bif",4,4,-2,0,10,0,4,1,10,0),
+(51,"bif",17,12,-2,0,10,0,3,1,10,0),
+(52,"bif",7,19,-2,0,10,0,4,0,10,0);
 
 
 DROP TABLE IF EXISTS `population`;
@@ -228,14 +465,21 @@ CREATE TABLE `population` (
   `typepop` int(11) NOT NULL DEFAULT '1',
   `typepoparrivee` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idpop`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
 
-INSERT INTO `population` VALUES (1,2,1,0),
-(2,2,1,0),
-(3,2,1,0),
-(4,2,1,0),
+INSERT INTO `population` VALUES (1,2,3,0),
+(2,2,2,0),
+(3,2,3,0),
+(4,2,3,0),
 (5,2,1,0),
-(6,2,1,0);
+(6,2,2,0),
+(7,2,1,0),
+(8,2,1,0),
+(9,19,3,0),
+(10,2,1,0),
+(11,19,2,0),
+(12,19,1,0),
+(13,19,1,0);
 
 
 DROP TABLE IF EXISTS `rech_joueur`;
@@ -249,8 +493,24 @@ CREATE TABLE `rech_joueur` (
   `rechnesc` int(11) NOT NULL DEFAULT '1000',
   `rechposs` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idrechprinc`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=23 DEFAULT CHARSET=latin1;
 
+INSERT INTO `rech_joueur` VALUES (1,1,2,4,400,382,1),
+(2,2,2,1,500,402,1),
+(3,3,2,3,400,396,1),
+(4,6,2,5,2700,2640,1),
+(5,7,2,7,3000,2730,1),
+(6,5,2,2,1400,1390,1),
+(7,4,2,6,2400,2370,1),
+(8,8,2,16,300,174,1),
+(9,9,2,19,300,195,1),
+(10,10,2,17,300,182,1),
+(11,11,2,18,300,138,1),
+(12,12,2,10,3000,2880,1),
+(13,13,2,11,3800,3680,1),
+(21,21,2,14,6000,6000,1),
+(20,20,2,15,13200,13100,1),
+(22,22,2,20,400,107,1);
 
 
 DROP TABLE IF EXISTS `silo`;
@@ -261,8 +521,15 @@ CREATE TABLE `silo` (
   `iditems` int(11) NOT NULL,
   `quantite` int(11) NOT NULL,
   UNIQUE KEY `idsilo` (`idsilo`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;
 
+INSERT INTO `silo` VALUES (1,2,11,1),
+(22,2,24,3),
+(17,2,19,1),
+(24,2,6,6),
+(26,2,25,1),
+(25,2,26,1),
+(21,19,6,10);
 
 
 DROP TABLE IF EXISTS `station`;
@@ -297,7 +564,7 @@ CREATE TABLE `utilisateurs` (
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 INSERT INTO `utilisateurs` VALUES (1,"Galdonia","$2y$10$erzEjnmsDeGM8ZRcR9CRX.BsucHpYoKBve.HAxcv0atRfIpfNql42","2020-07-24",0,0,0,100,1,0),
-(2,"qwe","$2y$10$AAUw38lMmQ5TNZKORxYAXeJO5Kqv4Kc9FoXB/.bqnuwwBId0fDBTu","2020-07-24",0,0,0,100,0,0);
+(2,"qwe","$2y$10$AAUw38lMmQ5TNZKORxYAXeJO5Kqv4Kc9FoXB/.bqnuwwBId0fDBTu","2020-07-24",0,0,12,400,0,911);
 
 
 DROP TABLE IF EXISTS `vaisseau`;
@@ -315,8 +582,15 @@ CREATE TABLE `vaisseau` (
   `titanevaisseau` int(11) NOT NULL DEFAULT '-1',
   `structure` int(11) NOT NULL DEFAULT '-1',
   PRIMARY KEY (`idvaisseau`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
 
+INSERT INTO `vaisseau` VALUES (5,-2,"arfw",1,1,0,8,8,140,0,-5),
+(2,2,"qew",1,10,3,14,14,280,0,-6),
+(11,-2,"Vaisseau sub-spatial",2,1,0,36,36,580,100,0),
+(8,-2,"Croisseur de combat",2,1,0,44,44,530,0,0),
+(9,2,"efrewr",2,1,0,37,37,580,0,0),
+(10,1,"Croisseur de combat",2,1,0,37,37,580,100,0),
+(12,1,"Vaisseau sub-spatial",2,1,0,36,36,580,100,0);
 
 
 DROP TABLE IF EXISTS `variationstour`;
@@ -331,9 +605,10 @@ CREATE TABLE `variationstour` (
   `coutstockage` int(11) NOT NULL DEFAULT '0',
   `entretien` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`idtable`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=730 DEFAULT CHARSET=latin1;
 
-INSERT INTO `variationstour` VALUES (1,2,30,0,0,6,0,0);
+INSERT INTO `variationstour` VALUES (728,2,20,40,300,9,6,6),
+(729,19,10,20,100,4,4,2);
 
 
 SET foreign_key_checks = 1;

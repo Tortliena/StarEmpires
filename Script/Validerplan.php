@@ -12,7 +12,7 @@ echo $_POST['idvaisseau'] .' = id vaisseau <br>';
 $reqvaisseau = $bdg->prepare('	SELECT p.idjoueurplanete
 								FROM vaisseau v
 								INNER JOIN flotte f ON v.idflottevaisseau = f.idflotte
-								INNER JOIN planete p ON f.idplaneteflotte = p.idplanete 
+								INNER JOIN planete p ON -f.idplaneteflotte = p.idplanete 
 								WHERE v.idvaisseau = ?');
 $reqvaisseau->execute(array($_POST['idvaisseau']));   
 $repvaisseau = $reqvaisseau->fetch();
@@ -45,8 +45,16 @@ if (!isset($repconstructionencours['idconst']))
 
 	caracteristiquesvaisseau ($_POST['idvaisseau']);
 
- 	header("location: ../conception.php?message=75&id=" . urlencode($_POST['idvaisseau']));
-	exit;
+	if (-$repvaisseauplan['idflottevaisseau'] == $_SESSION['id'])
+		{ // 75
+		header("location: ../conception.php?message=75&id=" . urlencode($_POST['idvaisseau']));
+		exit;
+		}
+	if ($repvaisseau['idjoueurplanete'] == $_SESSION['id'])
+		{
+		header("location: ../vaisseau.php?message=75&id=" . urlencode($_POST['idvaisseau']));
+		exit;
+		}
 	}
 else
 	{

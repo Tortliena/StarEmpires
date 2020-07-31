@@ -90,12 +90,11 @@ function gestiondegats($idvaisseauquisefaittirerdessus, $pvvaisseau, $degatdutir
       $reqcreerasteroides->execute(array($repinfopvvaisseau['xflotte'], $repinfopvvaisseau['yflotte'], $repinfopvvaisseau['universflotte'], 8, $nbchampsastetitane));
       }
 
-    // Permet de créer des débris pour le 1er vaisseau alien avec le noyau alien. 
-    if ($repinfopvvaisseau['nomvaisseau'] == 'Épave spatiale' AND $repinfopvvaisseau['idplaneteflotte'] == 0)
+    $reqinfocargo = $bdg->prepare("SELECT typeitems, quantiteitems FROM cargovaisseau WHERE idcargovaisseau = ?");
+    $reqinfocargo->execute(array($idvaisseauquisefaittirerdessus));
+    while ($repinfocargo = $reqinfocargo->fetch())
       { // Cas d'un vaisseau trouvé dans le 1er univers
-      echo 'vaisseau spécial détruit, donc on fait des astéroides spéciaux. <br>';
-      $reqcreerasteroides->execute(array($repinfopvvaisseau['xflotte'], $repinfopvvaisseau['yflotte'], $repinfopvvaisseau['universflotte'], 16, 1));
-      $reqcreerasteroides->execute(array($repinfopvvaisseau['xflotte'], $repinfopvvaisseau['yflotte'], $repinfopvvaisseau['universflotte'], 18, 1));
+      $reqcreerasteroides->execute(array($repinfopvvaisseau['xflotte'], $repinfopvvaisseau['yflotte'], $repinfopvvaisseau['universflotte'], $repinfocargo['typeitems'], $repinfocargo['quantiteitems']));
       }
 
     // cargovaisseau

@@ -17,7 +17,7 @@ $message = $bdg->prepare("  INSERT INTO messagetour (idjoumess , message , domai
 
 $reqtrouverplaneteavecitem = $bdg->prepare("  SELECT s.idplanetesilo, i.itemnecessaire FROM silo s
                         INNER JOIN planete p ON p.idplanete = s.idplanetesilo
-                        INNER JOIN items i ON s.iditems = i.iditem
+                        INNER JOIN datawebsite.items i ON s.iditems = i.iditem
                         WHERE s.iditems = ? AND p.idjoueurplanete = ? LIMIT 1");
 
 $reqarbretechno = $bdd->prepare('SELECT idrecherche FROM recherche WHERE recherchenecessaire = ?'); 
@@ -47,12 +47,10 @@ while ($reprecherchejoueur = $reqrecherchejoueur->fetch())
         else
           { // Cas d'une recherche consommant un débris alien et donnant un composant.
           $reqdeleterecherche->execute(array($reprecherchejoueur['idrechprinc']));
-
-            $reqtrouverplaneteavecitem->execute(array($reprecherchejoueur['itemnecessaire'], $reqrecherchejoueur['id']));
-            $reptrouverplaneteavecitem = $reqtrouverplaneteavecitem->fetch();
-
-      consommercreeritemsplanetemultiple($reprecherchejoueur['itemnecessaire'], $reptrouverplaneteavecitem['itemnecessaire'], $reptrouverplaneteavecitem['idplanetesilo'], 1);
-      }
+          $reqtrouverplaneteavecitem->execute(array($reprecherchejoueur['itemnecessaire'], $reprecherchejoueur['id']));
+          $reptrouverplaneteavecitem = $reqtrouverplaneteavecitem->fetch();
+          consommercreeritemsplanetemultiple($reprecherchejoueur['itemnecessaire'], $reptrouverplaneteavecitem['itemnecessaire'], $reptrouverplaneteavecitem['idplanetesilo'], 1);
+          }
 
         // Si la recherche donne accès à une autre recherche, alors on va créer une nouvelle recherche.
         $reqarbretechno->execute(array($reprecherchejoueur['idrech']));

@@ -99,12 +99,12 @@ while ($repplanete = $reqplanete->fetch())
 
             // On récupère le nombre de batiments actuels.
             $reqcomptebat->execute(array($repconstruction['trucaconstruire'], $repplanete['idplanetevariation']));
-            $repcomptebat = $reqcomptebat->fetch();  // $repcomptechantier['nb']
+            $repcomptebat = $reqcomptebat->fetch();  
 
             if ($replimite['0']<=$repcomptebat['nb'])
                 {
                 $reqsupprimercontruction->execute(array($repconstruction['idconst']));
-                break;
+                break; // Permet de gérer le cas des construction au delà de la limite.
                 }
             }
 
@@ -148,7 +148,7 @@ while ($repplanete = $reqplanete->fetch())
                 $construirebatiment->execute(array($repconstruction['trucaconstruire'], $repplanete['idplanetevariation'] ));
                 }
 
-            elseif ($repcategorie['typeitem'] == 'composant')
+            elseif ($repcategorie['typeitem'] == 'composant' OR $repcategorie['typeitem'] == 'produit')
                 { // Ajoute le composant dans le silo.
                 $itemaajouteraustock = $repconstruction['trucaconstruire'];
                 }
@@ -221,8 +221,8 @@ while ($repplanete = $reqplanete->fetch())
                 $repnbrecycleur2 = $reqcomptebat->fetch();
                 
                 // Calculer valeur recyclage :  
-                $valeurminimalederecyclage = 50 + 15*$repnbrecycleur['nb'] + 10*$repnbrecycleur2 ['nb'] ;
-                $valeurmaximalederecyclage = 100 + 30*$repnbrecycleur['nb'] + 20*$repnbrecycleur2 ['nb'] ;
+                $valeurminimalederecyclage = 50 + 15*min($repnbrecycleur['nb'], 1)+ 10*min($repnbrecycleur2 ['nb'], 1) ;
+                $valeurmaximalederecyclage = 100 + 30*min($repnbrecycleur['nb'], 1) + 20*min($repnbrecycleur2 ['nb'], 1) ;
                 $recdebris = rand($valeurminimalederecyclage , $valeurmaximalederecyclage);
 
                 $biens = $biens + $recdebris;
@@ -243,8 +243,8 @@ while ($repplanete = $reqplanete->fetch())
                 $repnbrecycleur2 = $reqcomptebat->fetch();
                 
                 // Calculer valeur recyclage :  
-                $valeurminimalederecyclage = 8 + 2*$repnbrecycleur['nb'] + 5*$repnbrecycleur2 ['nb'] ;
-                $valeurmaximalederecyclage = 16 + 4*$repnbrecycleur['nb'] + 10*$repnbrecycleur2 ['nb'] ;
+                $valeurminimalederecyclage = 8 + 2*min($repnbrecycleur['nb'], 1) + 5*min($repnbrecycleur2 ['nb'], 1) ;
+                $valeurmaximalederecyclage = 16 + 4*min($repnbrecycleur['nb'], 1) + 10*min($repnbrecycleur2 ['nb'], 1) ;
                 $recdebrisrare = rand($valeurminimalederecyclage , $valeurmaximalederecyclage);
 
                 $titane = $titane + $recdebrisrare;

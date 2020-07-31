@@ -127,7 +127,6 @@ $a = 0; //Variable permettant de gérer le cas avec 0 construction possible.
 echo '<form method="post" action="script/ordreconstruction.php"><p><label for="combien">Construire </label>'; 
 echo '<input type="number" name="combien" value="1" min="1">'; 
 echo '<select name="trucaconstruire" id="trucaconstruire">'; 
- 
 
 // Requête pour la liste de construction et basé sur la présence d'un item. 
 $reqmenuderoulantitems = $bdg->prepare(' 
@@ -135,7 +134,7 @@ $reqmenuderoulantitems = $bdg->prepare('
         FROM silo 
         RIGHT JOIN datawebsite.items 
         ON items.itemnecessaire = silo.iditems 
-        WHERE silo.idplanetesilo = ? AND silo.quantite > 0 AND items.typeitem <> "artefact" 
+        WHERE silo.idplanetesilo = ? AND silo.quantite > 0 AND items.typeitem = "autre" 
         '); 
 $reqmenuderoulantitems->execute(array($_GET['id'])); 
 while ($repmenuderoulantitems = $reqmenuderoulantitems ->fetch()) 
@@ -167,8 +166,6 @@ while ($repmenuderoulantconstruction = $reqmenuderoulantconstruction->fetch())
         echo '<option value="'.$repmenuderoulantconstruction['iditem'].'">'.$repmenuderoulantconstruction['nombatiment'].'</option>'; 
         } 
     } 
-
-
 
 // Permet de construire des vaisseaux. 
 $reqmenuderoulantvaisseau = $bdg->prepare('SELECT idvaisseau, nomvaisseau FROM vaisseau WHERE idflottevaisseau = ?'); 

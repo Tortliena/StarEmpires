@@ -20,8 +20,10 @@ $reqcreerplanete = $bdg->prepare('INSERT INTO planete(xplanete, yplanete, univer
 $reqcreervaisseau = $bdg->prepare('INSERT INTO vaisseau(idflottevaisseau, nomvaisseau, HPmaxvaisseau, HPvaisseau) VALUES(?, ?, ?, ?)');
 $reqcreerflotte = $bdg->prepare('INSERT INTO flotte (idplaneteflotte, universflotte, xflotte, yflotte, nomflotte) VALUES(?, ?, ?, ?, ?)');              
 $reqinfovaisseau = $bdg->prepare('SELECT idvaisseau FROM vaisseau ORDER BY idvaisseau DESC LIMIT 1'); 
-$reqcreercomposant = $bdg->prepare('INSERT INTO composantvaisseau(idvaisseaucompo, iditemcomposant, typecomposant) VALUES(?, ?, ?)'); 
+$reqcreercomposant = $bdg->prepare('INSERT INTO cargovaisseau(idvaisseaucargo, typeitems, quantiteitems) VALUES(?, ?, ?)');
+
 $reqcreerordredeplacement = $bdg->prepare('UPDATE flotte SET xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ? '); 
+$reqcreercargo = $bdg->prepare('INSERT INTO composantvaisseau(idvaisseaucompo, iditemcomposant, typecomposant) VALUES(?, ?, ?)');
 
 $reqinfoflotteexplorateur = $bdg->prepare('SELECT idflotte FROM flotte WHERE xflotte = ? AND yflotte = ? AND universflotte = ?'); 
 
@@ -54,25 +56,27 @@ while ($repexplorationexistante = $reqexploration->fetch())
             case 7:
                 $reqcreerplanete->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 4, 1, 10)); 
                 $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Planète habitable', 'Nous venons de trouver une nouvelle planète. Nous allons pouvoir la coloniser. Elle dispose aussi d\'une lune sur laquelle nous allons pouvoir installer une base en déployant d\'énormes ressources. Nous devrions commencer les recherches pour développer l\'équipement nécessaire.'));    
-            break; 
+            break;
  
-            case 10: 
-                $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Vaisseau inconnu détecté', 'Nous venons de trouver un vaisseau inconnu. Nous avons tenté de communiquer avec lui, mais aucune réaction de sa part. Il est en très mauvais état et semble abandonné depuis des siècles. Nous allons tenter de l\'aborder.')); 
+            case 10:
+                $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Vaisseau inconnu détecté', 'Nous venons de trouver un vaisseau inconnu. Nous avons tenté de communiquer avec lui, mais aucune réaction de sa part. Il est en très mauvais état et semble abandonné depuis des siècles. Nous allons tenter de l\'aborder.'));
                 
                 // Permet de recupere l'ID de la flotte.
                 $reqinfoflotteexplorateur->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'])); 
-                $repinfoflotteexplorateur = $reqinfoflotteexplorateur->fetch(); 
-                
+                $repinfoflotteexplorateur = $reqinfoflotteexplorateur->fetch();
+
 				// On supprime ses ordres a la place on met un ordre bloque.
-                $reqcreerordredeplacement->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], 8 ,2, $repinfoflotteexplorateur['idflotte'])); 
-                
+                $reqcreerordredeplacement->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], 8 ,2, $repinfoflotteexplorateur['idflotte']));
+
                 // On cree un vaisseau alien.
-                // Type vaisseau 2 = vaisseau spécifique qui lache un noyau transdimentionnel.                
-                $reqcreerflotte->execute(array(0, $repexplorationexistante['univers'], $repexplorationexistante['x'], $repexplorationexistante['y'], 'Épave spatiale')); 
+                // Type vaisseau 2 = vaisseau spécifique qui lache un noyau transdimentionnel.
+                $reqcreerflotte->execute(array(0, $repexplorationexistante['univers'], $repexplorationexistante['x'], $repexplorationexistante['y'], 'Épave spatiale'));
                 $IDflottealien = $bdg->lastInsertId();
-                $reqcreervaisseau->execute(array($IDflottealien, 'Épave spatiale', 20, 20)); 
-                $IDduvaisseaualien = $bdg->lastInsertId();               
+                $reqcreervaisseau->execute(array($IDflottealien, 'Épave spatiale', 20, 20));
+                $IDduvaisseaualien = $bdg->lastInsertId();
                 $reqcreercomposant->execute(array($IDduvaisseaualien, 13, 'arme'));
+                $reqcreercargo->execute(array($IDduvaisseaualien, 18, 1));
+                $reqcreercargo->execute(array($IDduvaisseaualien, 16, 1));
                               
             break; 
  

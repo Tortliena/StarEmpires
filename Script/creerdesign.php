@@ -2,12 +2,16 @@
 session_start(); 
 include("../include/BDDconnection.php"); 
 
-/*
+if (isset($_POST['remplacementcomposant']))
+	{
+	$toto = explode("_", $_POST['remplacementcomposant']);
+	$_POST['iditem'] = $toto[0];
+	$_POST['nombre'] = $toto[1];
+	}
 echo $_SESSION['id'] . ' id du joueur </br>'; 
 echo $_POST['idvaisseau'].' id du vaisseau  </br>' ; 
 echo $_POST['nombre'].' nombre de composant à ajouter  </br>' ; 
 echo $_POST['iditem'].' id du composant à ajouter  </br>' ; 
-*/
 
 if (isset($_POST['idvaisseau'])) 
     {
@@ -19,7 +23,7 @@ if (isset($_POST['idvaisseau']))
 
     if ($repvaisseau['idflottevaisseau']>0) // Cas d'un vaisseau réel dans une flotte classique.
         {
-        $reqidjoueurdelaflotte = $bdg->prepare('SELECT p.idjoueurplanete FROM flotte f INNER JOIN planete p ON p.idplanete = f.idplaneteflotte WHERE f.idflotte = ?'); 
+        $reqidjoueurdelaflotte = $bdg->prepare('SELECT p.idjoueurplanete FROM flotte f INNER JOIN planete p ON p.idplanete = -f.idplaneteflotte WHERE f.idflotte = ?'); 
         $reqidjoueurdelaflotte->execute(array($repvaisseau['idflottevaisseau'])); 
         $repidjoueurdelaflotte = $reqidjoueurdelaflotte ->fetch();
 
@@ -32,11 +36,30 @@ if (isset($_POST['idvaisseau']))
 
     if ($idjoueur != $_SESSION['id'])
         { // vérification que le vaisseau appartient bien au joueur.
-        header('Location: ../conception.php?message=31'); 
+        header('Location: ../accueil.php?message=31');
         exit();
         }
 
-    if ($_POST['nombre'] > 0) // Correspond à ajouter un composant
+   	$reqcomposant = $bdd ->prepare('SELECT typecomposant FROM composant WHERE idcomposant = ?');
+    $reqcomposant->execute(array($_POST['iditem'])); 
+    $repcomposant = $reqcomposant->fetch(); 
+
+    if ($_POST['nombre'] == 0) // Correspond à remplacer un composant dans le cas des moteurs/noyaux
+    	{
+    	if ($repcomposant['typecomposant'] == 'moteur' OR $repcomposant['typecomposant'] == 'noyau')
+    		{
+	        $reqsupprimermoteurounoyau = $bdg->prepare('DELETE FROM composantvaisseau WHERE idvaisseaucompo = ? AND typecomposant = ?');
+	        $reqsupprimermoteurounoyau->execute(array(-$_POST['idvaisseau'], $repcomposant['typecomposant']));
+    		}
+    	else
+    		{
+    		header('Location: ../accueil.php?message=31');
+    		}
+
+    	$_POST['nombre']++; // Permet de passer par la case d'ajoute de composant peu après.
+    	}
+
+    if ($_POST['nombre'] >= 0) // Correspond à ajouter un composant
         {
         $reqcomposant = $bdd ->prepare('SELECT typecomposant FROM composant WHERE idcomposant = ?');
         $reqcomposant->execute(array($_POST['iditem'])); 
@@ -63,7 +86,6 @@ if (isset($_POST['idvaisseau']))
             }
         }
     }
-
 else
     { // Cas de création d'un plan.
     if (is_numeric($_POST['nom']) OR empty($_POST['nom']))
@@ -94,23 +116,27 @@ else
                 header('Location: ../accueil.php?message=31');
                 exit();
                 }
-
             $reqcreercomposantdesign->execute(array($dernierID, $value, $repcomposant['souscategorie']));
             }
         }
     $message = 55;
     $idvaisseau = $dernierID;
     }
-include("../function/caracteristiquesvaisseau.php");
-caracteristiquesvaisseau ($idvaisseau, $_SESSION['id']);
 
+if (isset($message))
+	{
+	include("../function/caracteristiquesvaisseau.php");
+	caracteristiquesvaisseau ($idvaisseau, $_SESSION['id']);
 
-if ($repvaisseau['idflottevaisseau']>0) // Cas d'un vaisseau réel dans une flotte classique.
-    {
-    header("Location: ../vaisseau.php?message=".urlencode($message)."&id=" . urlencode($idvaisseau));
+	if ($repvaisseau['idflottevaisseau']>0) // Cas d'un vaisseau réel dans une flotte classique.
+	    {
+	    header("Location: ../vaisseau.php?message=".urlencode($message)."&id=" . urlencode($idvaisseau));
+	    }
+	else
+	    {
+	    header("Location: ../conception.php?message=".urlencode($message)."&id=" . urlencode($idvaisseau));
+	    }
+	exit(); 
     }
-else
-    {
-    header("Location: ../conception.php?message=".urlencode($message)."&id=" . urlencode($idvaisseau));
-    }
+header('Location: ../accueil.php?message=431');
 ?>

@@ -226,25 +226,18 @@ while ($repflotte = $reqflotte->fetch())
     { 
     if ($repflotte['bloque'] == 0) 
         { // Cas d'un ordre qui vient d'être donné. Le gérer pour en faire un 'vrai' ordre et le bloquer. 
-        if ($repflotte['universdestination']>0) 
-            { // Dans ce cas, la flotte va vers l'univers d'origine du joueur. 
-            $universdestination = $repflotte['idjoueurduvaisseau']; 
-            } 
-        else 
-          { // Dans ce cas, la flotte va vers un autre univers : 
-            $universdestination = $repflotte['universdestination']; 
-            } 
-        $temps = 2; 
-        $requpdateordre->execute(array($temps, 0, $universdestination, 2, $repflotte['idflotte'])); 
-        $applicationdeplacement->execute(array(0, 0, 0, $repflotte['idflotte'])); 
-        } 
+        $universdestination = $repflotte['universdestination']; 
+        $temps = variable(6); // Temps de voyage entre les univers
+        $requpdateordre->execute(array($universdestination, $temps[0], 0, 10, 2, $repflotte['idflotte']));
+        $applicationdeplacement->execute(array(0, 0, 0, $repflotte['idflotte']));
+        }
     else 
         { // Dans ce cas, l'ordre est bloqué, donc la flotte est en voyage. 
         if ($repflotte['xdestination'] > 0) 
             { // Dans ce cas, la flotte est en train de voyager. 
             $universdestination = $repflotte['universdestination']; 
-            $temps = $repflotte['xdestination']-1; 
-            $requpdateordre->execute(array($temps, 0, $universdestination, 2, $repflotte['idflotte'])); 
+            $temps = $repflotte['xdestination']-1;
+            $requpdateordre->execute(array($universdestination, $temps, 0, 10, 2, $repflotte['idflotte'])); 
             } 
         elseif ($repflotte['xdestination'] == 0) 
             { // Dans ce cas, la flotte est arrivée 

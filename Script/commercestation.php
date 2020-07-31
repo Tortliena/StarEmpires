@@ -5,6 +5,7 @@ require __DIR__ . '/../function/variable.php';
 require __DIR__ . '/../function/retirerajouteritemsflottemultiple.php';
 require __DIR__ . '/../function/flotte.php';
 
+/*
 echo $_SESSION['pseudo'] . ' Pseudo du joueur </br>' ; 
 echo $_SESSION['id'] . ' id du joueur </br>' ; 
 echo $_POST['idflotte'] . ' id de la flotte </br>'; 
@@ -12,6 +13,7 @@ echo $_POST['idstation'] . ' id de la station</br>';
 echo $_POST['iditem'] . ' id des items à vendre</br>'; 
 echo $_POST['combien'] . ' nombre des items à vendre</br>';
 echo $_POST['typetransaction'] . ' 1 = vendre, 2 = acheter';
+*/
 
 $reqcrediterjoueur = $bdg->prepare('UPDATE utilisateurs SET creditgalactique = creditgalactique + ? WHERE id = ?');
 $reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)'); 
@@ -59,6 +61,13 @@ if ($_POST['typetransaction'] == 1)
         $nom = 'débris de métaux rares';
         $prixparunite = variable(3);     
         }
+
+    if ($_POST['iditem'] == 26)
+        {
+        $nom = 'titane en barres';
+        $prixparunite = variable(7);     
+        }
+
 
     $prix = $_POST['combien'] * $prixparunite[0]; 
     $message = 'Un vaisseau vient de vendre ' . $_POST['combien'] . ' ' . $nom . ' pour '.$prix.'$.';   

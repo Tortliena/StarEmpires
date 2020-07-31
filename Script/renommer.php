@@ -32,7 +32,7 @@ if (empty($_POST['nouveaunom']))
 
 if ($_POST['type'] == 'flotte')
 	{
-	$trouverflotte = $bdg->prepare('SELECT f.idflotte FROM flotte f INNER JOIN planete p ON p.idplanete = f.idplaneteflotte 	
+	$trouverflotte = $bdg->prepare('SELECT f.idflotte FROM flotte f INNER JOIN planete p ON p.idplanete = f.idplaneteflotte OR p.idplanete = -f.idplaneteflotte 
 		WHERE f.idflotte = ? AND p.idjoueurplanete = ?');
 	$trouverflotte->execute(array($_POST['id'], $_SESSION['id']));
 	$flotte = $trouverflotte->fetch();
@@ -56,7 +56,7 @@ elseif ($_POST['type'] == 'vaisseau')
 	$reqvaisseau = $bdg->prepare('	SELECT p.idjoueurplanete
 									FROM vaisseau v
 									INNER JOIN flotte f ON v.idflottevaisseau = f.idflotte
-									INNER JOIN planete p ON f.idplaneteflotte = p.idplanete 
+									INNER JOIN planete p ON f.idplaneteflotte = p.idplanete OR -f.idplaneteflotte = p.idplanete
 									WHERE v.idvaisseau = ?');
 	$reqvaisseau->execute(array($_POST['id']));   
 	$repvaisseau = $reqvaisseau->fetch();

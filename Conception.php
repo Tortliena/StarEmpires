@@ -16,6 +16,7 @@ require __DIR__ . '/include/BDDconnection.php';
 include("include/message.php");
 include("function/fonctionconception.php");
 include("function/fonctionvaisseau.php");
+include("function/caracteristiquesvaisseau.php");
 
 $reqcomposantsurlevaisseau = $bdd->prepare("	SELECT COUNT(idtable) AS nb, i.nombatiment, c.iditemcomposant, c.typecomposant
                                                 FROM gamer.composantvaisseau c 
@@ -25,7 +26,6 @@ $reqcomposantsurlevaisseau = $bdd->prepare("	SELECT COUNT(idtable) AS nb, i.nomb
  
 if(!isset($_GET['id']))
 	{ // Pour créer un vaisseau
-	include("function/caracteristiquesvaisseau.php"); // function présente dans ''descriptioncompletevaisseau'' qui n'est présent que lorsqu'il y a un Get_Id.
 	echo '<h2>Création d\'un nouveau design :</h2>';
 	// Formulaire pour créer un design.
 	echo '<form method="post" action="script/creerdesign.php"><p>' ;
@@ -61,120 +61,8 @@ else
 	
 	descriptioncompletevaisseau($_GET['id'], $_SESSION['id'], $replvl['lvl']);
 
-	// Début du plan modifié :
-	echo '<h3>Modifications en cours :</h3>'; 
-
-	list($structure, $structuremax) = structurevaisseau (-$repvaiss['idvaisseau']);
-	echo $structure.'/'.$structuremax.' de structure. </br>';
-
-	list ($totalprixbien, $totalprixtitane, $capacitedesoute, $capaciteminage, $vitesse, $structure2, $HPvaisseau) = caracteristiquesvaisseau (-$repvaiss['idvaisseau']);
- 
-	$reqcomposantsurlevaisseau->execute(array(-$repvaiss['idvaisseau'], '%'));
-	$repmodifplanexiste = $reqcomposantsurlevaisseau->fetch();
-	$reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], '%'));
-	$repplanorigineaquelquechose = $reqcomposantsurlevaisseau->fetch(); 
-	if (!isset($repmodifplanexiste['nombatiment']) AND isset($repplanorigineaquelquechose['nombatiment']))
-		{
-		$reqrecreerplanoriginal = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)'); 
-
-        $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], '%'));
-        while($repcomposantvaisseauoriginal = $reqcomposantsurlevaisseau->fetch())
-        	{
-        	for ($i = 1; $i <= $repcomposantvaisseauoriginal['nb']; $i++)
-        		{
-        		$reqrecreerplanoriginal->execute(array(-$repvaiss['idvaisseau'], $repcomposantvaisseauoriginal['iditemcomposant'], $repcomposantvaisseauoriginal['typecomposant']));
-        		}
-        	}
-        header("Location: conception.php?message=".urlencode($_GET['message'])."&id=" . urlencode($_GET['id']));
-        exit; 
-		} 
-
- 	$reqcomposantsurlevaisseau->execute(array(-$repvaiss['idvaisseau'], "moteur")); 
- 	$repmoteursurlevaisseau = $reqcomposantsurlevaisseau->fetch();
-	if (isset($repmoteursurlevaisseau['nombatiment']))
-		{
-        echo $repmoteursurlevaisseau['nombatiment'].'&emsp;&emsp;Vitesse : '.$vitesse. ' parsec/cycle. </br>'; 
-		} 
-	else 
-		{ 
-		echo 'Moteur I';
-    	echo '&emsp;&emsp;Vitesse : '.$vitesse. ' parsec/cycle. </br>';
-		} 
-    
-    $a = 0;
-    $reqcomposantsurlevaisseau->execute(array(-$repvaiss['idvaisseau'], "soute"));
- 	while($repsoutesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
-        {
-        $a++;
-        $texte = $repsoutesurlevaisseau['nb'].' '.$repsoutesurlevaisseau['nombatiment'].'&emsp;';
-        Supprimercomposant($repsoutesurlevaisseau['iditemcomposant'], $texte);
-        }
-    if ($a == 0)
-    	{
-        echo 'Soute à échantillons : &emsp;' ;
-        }
-    echo $capacitedesoute . ' places dans les soutes. </br>';
-
-    echo 'Armement : ';
-    $a = 0;
-    $reqcomposantsurlevaisseau->execute(array(-$repvaiss['idvaisseau'], "arme"));
- 	while($reparmesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
-        {
-        $texte = $reparmesurlevaisseau['nb'].' '.$reparmesurlevaisseau['nombatiment'] ;
-        Supprimercomposant($reparmesurlevaisseau['iditemcomposant'], $texte);
-        $a++;
-        }
-    if ($a == 0)
-		{ 
-		echo 'Vaisseau non armé.<br>';
-		} 
-	echo $capaciteminage . ' capacité de minage. <br>';
-
-    $a = 0; // Voir plus tard pour refaire cette partie.
-    $reqcomposantsurlevaisseau->execute(array(-$repvaiss['idvaisseau'], "coque"));
- 	while($repcoquesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
-        {
-        $texte = $repcoquesurlevaisseau['nb'].' '.$repcoquessurlevaisseau['nombatiment'];
-        Supprimercomposant($repcoquesurlevaisseau['iditemcomposant'], $texte);
-        $a++;
-        }
-    if ($a == 0)
-		{
-		echo 'Coque civile. ';
-		}
-
-	$reqcomposantsurlevaisseau->execute(array(-$repvaiss['idvaisseau'], "autre")); 
- 	while($repautresurlevaisseau = $reqcomposantsurlevaisseau->fetch())
-        {
-        $texte = $repautresurlevaisseau['nb'].' '.$repautresurlevaisseau['nombatiment'] ;
-        Supprimercomposant($repautresurlevaisseau['iditemcomposant'], $texte);
-        }
-
-	echo 'Total : '.$HPvaisseau . ' PV.</br>';
-	echo 'Prix : '.$totalprixbien.' biens';
-	if ($totalprixtitane > 0)
-		{
-		echo ' et ' . $totalprixtitane . ' de titane';
-		}
-	echo '. </br></br>';
-	// Fin du plan modifié :
-
-	// Début modification :
-	composantdesign($_SESSION['id'], 'arme', 'Pas d\'arme disponible');
-	composantdesign($_SESSION['id'], 'coque', 'Pas de coque disponible');
-	composantdesign($_SESSION['id'], 'soute', 'Pas de soute disponible');
-	composantdesign($_SESSION['id'], 'autre', 'Pas de module complémentaire disponible');
-	
-	if ($structure <= $structuremax)
-		{
-		echo '<form method="post" action="script/validerplan.php"><p>';
-		echo '<input type="hidden" name="idvaisseau" value="'.$_GET['id'].'"> ';
-		echo '<input type="submit" id="formulaire" value="Valider les modifications" /></p></form>' ;
-		}
-	else
-		{
-		echo 'Impossible de valider (structure incorrecte)';
-		}
+	// Fonction et valeur en retour lié au plan modifié.
+	list ($structure, $structuremax) = modificationvaisseau($_GET['id'], $_SESSION['id'], $replvl['lvl'], 2);
 	}
 
 $ecrirehangars = 1;

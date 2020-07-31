@@ -1,7 +1,6 @@
 <?php
 function descriptioncompletevaisseau($idvaisseau, $idjoueur, $lvljoueur)
   {
-  include("function/caracteristiquesvaisseau.php"); 
   require __DIR__ . '/../include/BDDconnection.php';
   list($structure, $structuremax) = structurevaisseau ($idvaisseau); 
   
@@ -21,15 +20,26 @@ function descriptioncompletevaisseau($idvaisseau, $idjoueur, $lvljoueur)
   if (isset($repmoteursurlevaisseau['nombatiment'])) 
     {
     echo $repmoteursurlevaisseau['nombatiment'].'&emsp;&emsp;Vitesse : '.$repvaiss['vitesse'] . ' parsec/cycle. </br>'; 
-    } 
-  else 
-    { 
+    }
+  else
+    {
     echo 'Moteur I';
     echo '&emsp;&emsp;Vitesse : '.$repvaiss['vitesse'] . ' parsec/cycle. </br>';
-    } 
-    
-    $a = 0;
-    $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "soute")); 
+    }
+  
+  $reqcomposantsurlevaisseau->execute(array($idvaisseau, "noyau")); 
+  $repnoyausurlevaisseau = $reqcomposantsurlevaisseau->fetch(); 
+  if (isset($repnoyausurlevaisseau['nombatiment'])) 
+    {
+    echo $repnoyausurlevaisseau['nombatiment'].'<br>'; 
+    }
+  else
+    {
+    echo 'Pas de noyau<br>';
+    }
+
+  $a = 0;
+  $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "soute")); 
   while($repsoutesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
         {
         $a++;
@@ -70,7 +80,7 @@ function descriptioncompletevaisseau($idvaisseau, $idjoueur, $lvljoueur)
     $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "coque")); 
   while($repcoquesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
         {
-        $texte = $repcoquesurlevaisseau['nb'].' '.$repcoquessurlevaisseau['nombatiment'] ; 
+        $texte = $repcoquesurlevaisseau['nb'].' '.$repcoquesurlevaisseau['nombatiment'] ; 
         $a++;
         }
     if ($a == 0)
@@ -88,70 +98,153 @@ function descriptioncompletevaisseau($idvaisseau, $idjoueur, $lvljoueur)
   // Fin du plan actuel :
   }
 
+function modificationvaisseau($idvaisseau, $idjoueur, $lvljoueur, $typedepage)
+  { //$typedepage : Si 1, alors page vaisseau, si 2, alors page conception.
+  require __DIR__ . '/../include/BDDconnection.php';
+  // Début du plan modifié :
+  echo '<h3>Modifications en cours :</h3>'; 
 
-// Utiliser avec composanthangars(NOMTYPECOMPOSANT, $_SESSION['id'], $_GET['id'])
-// Permet de proposer d'ajouter un composant.
-function composantvaisseau($typecomposant, $idjoueur, $idvaisseau)
-  {
-  include("include/BDDconnection.php");
-  $reqcomposantsurlevaisseau = $bdd->prepare("
-    SELECT i.nombatiment FROM gamer.composantvaisseau c
-    INNER JOIN items i ON i.iditem = c.iditemcomposant
-    WHERE c.idvaisseaucompo = ? AND c.typecomposant = ?");
+  list($structure, $structuremax) = structurevaisseau (-$idvaisseau);
+  echo $structure.'/'.$structuremax.' de structure. </br>';
 
-  echo '<h3>' . ucfirst($typecomposant) . ' :</h3>';
+  list ($totalprixbien, $totalprixtitane, $capacitedesoute, $capaciteminage, $vitesse, $structure2, $HPvaisseau) = caracteristiquesvaisseau (-$idvaisseau);
 
-  $a = 0; // Variable permettant de gérer le cas avec 0 choix -->
-  $composantexiste = false;
-  $reqcomposantsurlevaisseau->execute(array($idvaisseau, $typecomposant));
-  while($repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch())
+
+  $reqcomposantsurlevaisseau = $bdd->prepare("  SELECT COUNT(idtable) AS nb, i.nombatiment, c.iditemcomposant, c.typecomposant
+                                                FROM gamer.composantvaisseau c 
+                                                INNER JOIN items i ON i.iditem = c.iditemcomposant 
+                                                WHERE c.idvaisseaucompo = ? AND c.typecomposant like ?
+                                                GROUP BY iditemcomposant");
+  
+  // Partie qui gère le cas ou il n'y a acutellement pas de plan en cours de modification : Permet de créer un plan identique à celui actuel.
+  $reqcomposantsurlevaisseau->execute(array(-$idvaisseau, '%'));
+  $repmodifplanexiste = $reqcomposantsurlevaisseau->fetch();
+  $reqcomposantsurlevaisseau->execute(array($idvaisseau, '%'));
+  $repplanorigineaquelquechose = $reqcomposantsurlevaisseau->fetch(); 
+  if (!isset($repmodifplanexiste['nombatiment']) AND isset($repplanorigineaquelquechose['nombatiment']))
     {
-    echo ucfirst($repcomposantsurlevaisseau['nombatiment']);
-    $composantexiste = true;
-    }
-  if ($composantexiste == false)
-    {
-    echo 'Pas d\'équipement particulier installé';
-    }
-    ?>
-  </label>
-  <select name="composant" id="idcomposant">
-
-  <?php
-  $reqsilo = $bdd->prepare("
-                SELECT s.quantite, i.nombatiment, i.iditem, i.souscategorie
-                FROM gamer.silo s
-                INNER JOIN items i
-                ON i.iditem = s.iditems
-                WHERE s.idjoueursilo = ?
-                AND i.souscategorie = ?");
-  $reqsilo ->execute(array($idjoueur, $typecomposant));
-
-  while($repsilo = $reqsilo->fetch())
-    { 
-    if ($repsilo['quantite']>0)
+    $reqrecreerplanoriginal = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)'); 
+    $reqcomposantsurlevaisseau->execute(array($idvaisseau, '%'));
+    while($repcomposantvaisseauoriginal = $reqcomposantsurlevaisseau->fetch())
       {
-      ?>
-      <option value="<?php echo $repsilo['iditem']; ?>|<?php echo $repsilo['souscategorie']; ?>"><?php echo $repsilo['nombatiment']; ?></option>
-      <?php
-      $a++;
-      } 
+      for ($i = 1; $i <= $repcomposantvaisseauoriginal['nb']; $i++)
+        {
+        $reqrecreerplanoriginal->execute(array(-$idvaisseau, $repcomposantvaisseauoriginal['iditemcomposant'], $repcomposantvaisseauoriginal['typecomposant']));
+        }
+      }
+    if($typedepage == 1)
+      {
+      header("Location: vaisseau.php?message=".urlencode($_GET['message'])."&id=" . urlencode($_GET['id']));
+      }
+    elseif($typedepage == 2)
+      {
+      header("Location: conception.php?message=".urlencode($_GET['message'])."&id=" . urlencode($_GET['id']));
+      }
+    exit; 
     }
 
-  if ($a == 0)
+  $reqcomposantsurlevaisseau->execute(array(-$idvaisseau, "moteur")); 
+  $repmoteursurlevaisseau = $reqcomposantsurlevaisseau->fetch();
+  if (isset($repmoteursurlevaisseau['nombatiment']))
     {
-    echo '<option disabled selected>Pas de composant en stock</option>';
+    echo $repmoteursurlevaisseau['nombatiment'].'&emsp;&emsp;Vitesse : '.$vitesse. ' parsec/cycle.';
+
+    echo 'ID du composant : ' . $repmoteursurlevaisseau['iditemcomposant']; 
+    } 
+  else 
+    { 
+    echo 'Moteur I';
+    echo '&emsp;&emsp;Vitesse : '.$vitesse. ' parsec/cycle.';
+    }
+  remplacercomposant($_SESSION['id'], 'moteur', 'Moteur I', $repmoteursurlevaisseau['iditemcomposant']);
+  
+  $reqcomposantsurlevaisseau->execute(array(-$idvaisseau, "noyau")); 
+  $repnoyausurlevaisseau = $reqcomposantsurlevaisseau->fetch();
+  if (isset($repnoyausurlevaisseau['nombatiment']))
+    {
+    echo $repnoyausurlevaisseau['nombatiment']; 
+    } 
+  else 
+    { 
+    echo 'Pas de noyau';
+    }
+  remplacercomposant($_SESSION['id'], 'noyau', 'Pas de noyau', $repnoyausurlevaisseau['nombatiment']);
+  
+  $a = 0;
+  $reqcomposantsurlevaisseau->execute(array(-$idvaisseau, "soute"));
+  while($repsoutesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
+        {
+        $a++;
+        $texte = $repsoutesurlevaisseau['nb'].' '.$repsoutesurlevaisseau['nombatiment'].'&emsp;';
+        Supprimercomposant($repsoutesurlevaisseau['iditemcomposant'], $texte);
+        }
+    if ($a == 0)
+      {
+        echo 'Soute à échantillons : &emsp;' ;
+        }
+  echo $capacitedesoute . ' places dans les soutes. </br>';
+
+  echo 'Armement : ';
+  $a = 0;
+  $reqcomposantsurlevaisseau->execute(array(-$idvaisseau, "arme"));
+  while($reparmesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
+        {
+        $texte = $reparmesurlevaisseau['nb'].' '.$reparmesurlevaisseau['nombatiment'].'&emsp;';
+        Supprimercomposant($reparmesurlevaisseau['iditemcomposant'], $texte);
+        $a++;
+        }
+    if ($a == 0)
+    { 
+    echo 'Vaisseau non armé.<br>';
+    } 
+  echo $capaciteminage . ' capacité de minage. <br>';
+
+  $a = 0;
+  $reqcomposantsurlevaisseau->execute(array(-$idvaisseau, "coque"));
+  while($repcoquesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
+        {
+        $texte = $repcoquesurlevaisseau['nb'].' '.$repcoquesurlevaisseau['nombatiment'].'&emsp;';
+        Supprimercomposant($repcoquesurlevaisseau['iditemcomposant'], $texte);
+        $a++;
+        }
+    if ($a == 0)
+    {
+    echo 'Coque civile. ';
+    }
+
+  $reqcomposantsurlevaisseau->execute(array(-$idvaisseau, "autre")); 
+  while($repautresurlevaisseau = $reqcomposantsurlevaisseau->fetch())
+        {
+        $texte = $repautresurlevaisseau['nb'].' '.$repautresurlevaisseau['nombatiment'].'&emsp;';
+        Supprimercomposant($repautresurlevaisseau['iditemcomposant'], $texte);
+        }
+
+  echo 'Total : '.$HPvaisseau . ' PV.</br>';
+  echo 'Prix : '.$totalprixbien.' biens';
+  if ($totalprixtitane > 0)
+    {
+    echo ' et ' . $totalprixtitane . ' de titane';
+    }
+  echo '. </br></br>';
+  // Fin du plan modifié
+  
+  // Début modification :
+  composantdesign($_SESSION['id'], 'arme', 'Pas d\'arme disponible');
+  composantdesign($_SESSION['id'], 'coque', 'Pas de coque disponible');
+  composantdesign($_SESSION['id'], 'soute', 'Pas de soute disponible');
+  composantdesign($_SESSION['id'], 'autre', 'Pas de module complémentaire disponible');
+  
+  if ($structure <= $structuremax)
+    {
+    echo '<form method="post" action="script/validerplan.php"><p>';
+    echo '<input type="hidden" name="idvaisseau" value="'.$_GET['id'].'"> ';
+    echo '<input type="submit" id="formulaire" value="Valider les modifications" /></p></form>' ;
     }
   else
     {
-    echo '<input name="idvaisseau" type="hidden" value="' . $idvaisseau . '"> ';
-    echo '<input name="xobjectif" type="hidden" value="0">';
-    echo '<input name="yobjectif" type="hidden" value="0">';
-    echo '<input name="typeordre" type="hidden" value="6">';
-    echo '<input type="submit" value="Échanger" />';
-    } ?>
-    </select>
- </p>
-</form><?php
-  } // Fin de la fonction pour afficher les items.
+    echo 'Impossible de valider (structure incorrecte)';
+    }
+  
+  return array ($structure, $structuremax);
+  }
   ?>

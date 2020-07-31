@@ -2,16 +2,12 @@
 session_start(); 
 include("../include/BDDconnection.php"); 
  
-/*
-echo $_SESSION['pseudo'] . '</br>';
-echo $_SESSION['id'] . '</br>';
-echo $_POST['idflotte'] . '</br>';
-echo $_POST['typeordre'] . '</br>';
-echo $_POST['yobjectif'] . '</br>';
-echo $_POST['confirmer'] . '</br> 'on' si case coché, 'off' si non cochée, null si pas de case. 
-*/
-
-// Si conception : $_POST['composant'] avec 2 valeurs dedans.
+echo $_SESSION['id'] . ' ID du joueur </br>';
+echo $_POST['idflotte'] . ' ID de la flotte </br>';
+echo $_POST['typeordre'] . ' Type ordre </br>';
+echo $_POST['xobjectif'] . ' x objectif </br>';
+echo $_POST['yobjectif'] . ' y objectif</br>';
+echo $_POST['confirmer'] . '</br> \'on\' si case coché, \'off\' si non cochée, null si pas de case.';
 
 // Vérifier propriétaire du vaisseau.
 $reqflotte = $bdg->prepare('    SELECT p.idjoueurplanete, f.idflotte, f.universflotte,
@@ -80,37 +76,6 @@ if ($_POST['typeordre'] == 1)
     $message = 39 ;
     }
 
-if ($_POST['typeordre'] == 2)
-    { // 2 = décharger
-    // Vérifier localisation de la flotte
-    if  ($repflotte['universflotte'] == $_SESSION['id'] AND
-        // Cas de la flotte proche de la planète : 
-        (($repflotte['xflotte'] == 3 OR $repflotte['yflotte'] == 3 )
-        OR
-        // Cas de la flotte en orbite de la planète :
-        ($repflotte['xflotte'] == 0 OR $repflotte['yflotte'] == 0)
-        ))
-        {
-        // Vérifier qu'il y a quelque chose dans le vaisseau.
-        $reqverifcargo = $bdg->prepare("SELECT quantiteitems FROM cargovaisseau WHERE idvaisseaucargo = ?") ;
-        $reqverifcargo ->execute(array($_POST['idflotte']));
-        $repverifcargo  = $reqverifcargo ->fetch();
-        if (!isset($repverifcargo['quantiteitems']))
-            {
-            $message = 36 ;
-            goto a;
-            }
-        }
-    $message = 40 ;
-    }
-
-// ordre de rentrée vers la planète (= typeordre 3). Faire ici une vérification ?
-
-if ($_POST['typeordre'] == 4)
-    { // Ordre de sortie vers la carte.
-    $message = 45;
-    }
-
 // supprimer ordre précédent.
 $reqmettreajourordre = $bdg->prepare('UPDATE flotte SET universdestination = ?, xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ?');
 $reqmettreajourordre->execute(array(0, 0, 0, 0, 0, $_POST['idflotte']));
@@ -136,7 +101,27 @@ if ($_POST['typeordre'] == 10)
         { // univers du joueur.
         $repflotte['universflotte'] = $repflotte['idjoueurplanete'];
         }
+    else
+        { // Mauvaise destination
+        header('Location: ../accueil.php?message=31');
+        exit();
+        }
     }
+
+if ($_POST['typeordre'] == 2)
+    { // Ordre de saut spécifique
+    if (in_array($_POST['xobjectif'], array(-3, -2, $_SESSION['id'])))
+        { // Univers commum
+        $repflotte['universflotte'] = $_POST['xobjectif'];
+        $_POST['typeordre'] = 10; // Permet d'être traité comme un ordre de saut dimensionnel.
+        }
+    else
+        { // Mauvaise destination
+        header('Location: ../accueil.php?message=31');
+        exit();
+        }
+    }
+
 
 if ($_POST['typeordre'] == -1)
     { // Cas de l'annulation d'un ordre.
@@ -165,5 +150,5 @@ if (isset($message))
     exit();
     }
 
-header("Location: ../hangars.php?id=" . urlencode($_POST['idflotte']));
+header("Location: ../hangars.php??message=31&id=" . urlencode($_POST['idflotte']));
 ?>

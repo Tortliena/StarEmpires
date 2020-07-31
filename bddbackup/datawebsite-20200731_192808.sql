@@ -17,7 +17,7 @@ CREATE TABLE `composant` (
   `degatpartir` int(11) NOT NULL DEFAULT '0',
   `structure` int(11) NOT NULL DEFAULT '1',
   PRIMARY KEY (`idcomposant`)
-) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=latin1;
 
 INSERT INTO `composant` VALUES (10,"Moteur II","moteur",1,2,5,0,0,2),
 (11,"Laser minier","arme",3,3,2,2,1,1),
@@ -25,12 +25,13 @@ INSERT INTO `composant` VALUES (10,"Moteur II","moteur",1,2,5,0,0,2),
 (13,"Arme alienne pour le 1er vaisseau","arme",0,0,15,4,2,1),
 (14,"Torpille supraluminique","arme",0,0,2,2,4,2),
 (15,"Coque polycarbonique","coque",0,0,10,0,0,1),
-(17,"Noyau alien adapté","noyau",0,0,2,0,0,1),
+(17,"Noyau alien adapté","noyau",5,1,2,0,0,1),
 (19,"Missile alienne adapté","arme",0,0,2,2,5,1),
 (20,"Missile enrichi","arme",0,0,2,2,5,2),
 (23,"Module de colonisation","autre",4,0,5,0,0,6),
-(24,"Noyau à  Tachyons","noyau",0,0,3,0,0,1),
-(25,"Noyau à  Hypso-tachyons","noyau",0,0,3,0,0,1);
+(24,"Noyau à  Tachyons","noyau",5,1,3,0,0,1),
+(25,"Noyau alien acheté","noyau",5,2,5,0,0,1),
+(28,"Noyau à hypso-tachyons","noyau",5,2,4,0,0,1);
 
 
 DROP TABLE IF EXISTS `items`;
@@ -48,7 +49,7 @@ CREATE TABLE `items` (
   `souscategorie` varchar(64) NOT NULL,
   `entretien` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`iditem`)
-) ENGINE=MyISAM AUTO_INCREMENT=28 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=latin1;
 
 INSERT INTO `items` VALUES (1,"Centre de recherche",60,0,"batiment",1,0,"Peut accueillir jusqu\'à 5 chercheurs.","maxcentrederecherche","",1),
 (2,"Chantier",50,0,"batiment",3,0,"Peut accueillir jusqu\'à 5 ouvriers.","maxchantier","",1),
@@ -73,9 +74,10 @@ INSERT INTO `items` VALUES (1,"Centre de recherche",60,0,"batiment",1,0,"Peut ac
 (22,"Centre de traitement des minerais rares",100,0,"batiment",18,0,"Permet de traiter automatiquement les minéraux venus de débris spatiaux. Améliore aussi les rendements de recyclage.",NULL,"",5),
 (23,"Module de colonisation",100,0,"composant",19,0,"Permet à votre flotte de coloniser un monde. Le vaisseau est consommé dans la procédure.",NULL,"autre",0),
 (24,"Noyau à  Tachyons",100,100,"composant",15,0,"Noyau fait maison, imitant celui que nous avons trouvé",NULL,"noyau",0),
-(25,"Noyau à  Hypso-tachyons",100,0,"composant",-1,-1,"Noyau acheté. Il permet d\'accéder à d\'autres univers.",NULL,"noyau",0),
-(26,"Titane en barre",40,100,"autre",20,0,"Du titane industriel de haute pureté. Parfait pour être vendu puis utilisé par une autre civilisation.",NULL,"",0),
-(27,"Utilisation du titane",100,0,"autre",0,26,"Permet d\'utiliser du titane en barre afin de l\'utiliser dans notre économie.",NULL,"",0);
+(25,"Noyau alien acheté",100,0,"composant",-1,-1,"Noyau acheté. Il permet d\'accéder à d\'autres univers.",NULL,"noyau",0),
+(26,"Titane en barre",40,100,"produit",20,0,"Du titane industriel de haute pureté. Parfait pour être vendu puis utilisé par une autre civilisation.",NULL,"",0),
+(27,"Utilisation du titane",100,0,"autre",0,26,"Permet d\'utiliser du titane en barre afin de l\'utiliser dans notre économie.",NULL,"",0),
+(28,"Noyau à hypso-tachyons",100,200,"composant",21,0,"Noyau fait maison, imitant celui que nous avons acheté.",NULL,"noyau",0);
 
 
 DROP TABLE IF EXISTS `recherche`;
@@ -87,27 +89,29 @@ CREATE TABLE `recherche` (
   `prixrecherche` int(11) NOT NULL DEFAULT '100',
   `itemnecessaire` int(11) NOT NULL DEFAULT '0',
   `recherchenecessaire` int(11) DEFAULT '0',
+  `niveauminimal` int(11) NOT NULL,
   PRIMARY KEY (`idrecherche`)
-) ENGINE=MyISAM AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=22 DEFAULT CHARSET=latin1;
 
-INSERT INTO `recherche` VALUES (1,"Centre de recherche","Vous permet de construire un centre de recherche qui va vous permettre d\'augmenter la limite maximale du nombre de chercheurs.",300,0,4),
-(2,"Base lunaire","Votre peuple s\'en va installer des bases dans la galaxie. Cependant, ces installation nécessitent d\'importantes quantités de ressources rares qu\'on trouve en faible quantité sur notre monde.",1000,0,0),
-(3,"Chantier","Permet de lancer des projets plus importants.",300,0,4),
-(4,"Moteur interstellaire","Permet développer la technologie pour voyager entre les étoiles. Vous pourrez ainsi visiter les 5 étoiles repérées dans l\'univers.",200,0,0),
-(5,"Moteurs améliorés","Ce moteur permettra aux vaisseaux d\'aller plus vite. Cette évolution est permise par les dernières ressources trouvées. ",1500,0,1),
-(6,"Lasers miniers","Développement de lasers optimisés pour découper des débris. Peut servir d\'arme.",1500,0,0),
-(7,"Architecture spatiale de stokage","Permet d\'installer des soutes sur vos vaisseaux. Ils pourront transporter plus de ressources.",1500,0,3),
-(10,"Armes supraluminique","On prend une bombe, et on installe un petit moteur supraluminique dessus. On obtient alors une torpille bien plus rapide que les lasers classiques et efficace contre les grosses cibles peu mobiles.",2000,0,0),
-(11,"Coque renforcée","Ces coques sont renforcées avec un polymère de carbone. Léger et constructibles avec les ressources de notre monde natal.",2000,0,0),
-(12,"Étude du coeur de l\'épave","Trouvé au cœur de l\'épave spatiale. Les études préliminaires semblent indiquer que ce composant émet un champs quantique à l\'aide d\'un flux de tachyons. Ce composant était particulièrement protégé des attaques externes et ne semble pas présenter de risque majeur. \r\nUne étude poussée nous permettrait de le restaurer et de comprendre pourquoi ce composant bénéficié d\'une si grande attention.",2000,16,0),
-(13,"Étude d\'arme alien","Nous avons pu récupérer des éléments de l\'armement alien. Nous pourrions l\'adapter à nos vaisseaux et éventuellement développer nos propres armes.",2000,18,0),
-(14,"Missile enrichi","Nous avons pu récupérer tout un ensemble de composants électroniques permettant de cibler des vaisseaux. Les aliens ont utilisés beaucoup de ressources rares, notamment pour cet armement.",3000,0,13),
-(15,"Noyaux à tachyons","Nous allons essayer de développer notre propre version du noyaux à tachyons pour pouvoir créer nos propres vaisseaux pouvant voyager entre les univers.",10000,0,12),
-(16,"Usine de traitement de minerais","Permet de traiter les minerais trouvés dans l\'espace de manière plus efficace.",100,0,0),
-(17,"Usine de traitement de minerais","Permet de traiter les minerais trouvés dans l\'espace de manière plus efficace.",100,0,16),
-(18,"Traitement de minerais avancé","Permet de traiter les minerais trouvés dans l\'espace de manière plus efficace. Notamment les minerais rares.",100,0,17),
-(19,"Module de colonisation","Permet de créer un vaisseau entièrement dédiée à la colonisation. Il demande d\'énormes ressources.",100,0,2),
-(20,"Purification du titane","Permet de raffiner le titane afin d\'en faire du titane de haute qualité.",100,0,0);
+INSERT INTO `recherche` VALUES (1,"Centre de recherche","Vous permet de construire un centre de recherche qui va vous permettre d\'augmenter la limite maximale du nombre de chercheurs.",300,0,4,0),
+(2,"Base lunaire","Votre peuple s\'en va installer des bases dans la galaxie. Cependant, ces installation nécessitent d\'importantes quantités de ressources rares qu\'on trouve en faible quantité sur notre monde.",1000,0,19,0),
+(3,"Chantier","Permet de lancer des projets plus importants.",300,0,4,0),
+(4,"Moteur interstellaire","Permet développer la technologie pour voyager entre les étoiles. Vous pourrez ainsi visiter les 5 étoiles repérées dans l\'univers.",200,0,0,0),
+(5,"Moteurs améliorés","Ce moteur permettra aux vaisseaux d\'aller plus vite. Cette évolution est permise par les dernières ressources trouvées. ",1500,0,1,0),
+(6,"Lasers miniers","Développement de lasers optimisés pour découper des débris. Peut servir d\'arme.",1500,0,0,4),
+(7,"Architecture spatiale de stokage","Permet d\'installer des soutes sur vos vaisseaux. Ils pourront transporter plus de ressources.",1500,0,3,0),
+(10,"Armes supraluminique","On prend une bombe, et on installe un petit moteur supraluminique dessus. On obtient alors une torpille bien plus rapide que les lasers classiques et efficace contre les grosses cibles peu mobiles.",2000,0,0,0),
+(11,"Coque renforcée","Ces coques sont renforcées avec un polymère de carbone. Léger et constructibles avec les ressources de notre monde natal.",2000,0,0,0),
+(12,"Étude du coeur de l\'épave","Trouvé au cœur de l\'épave spatiale. Les études préliminaires semblent indiquer que ce composant émet un champs quantique à l\'aide d\'un flux de tachyons. Ce composant était particulièrement protégé des attaques externes et ne semble pas présenter de risque majeur. \r\nUne étude poussée nous permettrait de le restaurer et de comprendre pourquoi ce composant bénéficié d\'une si grande attention.",2000,16,0,0),
+(13,"Étude d\'arme alien","Nous avons pu récupérer des éléments de l\'armement alien. Nous pourrions l\'adapter à nos vaisseaux et éventuellement développer nos propres armes.",2000,18,0,0),
+(14,"Missile enrichi","Nous avons pu récupérer tout un ensemble de composants électroniques permettant de cibler des vaisseaux. Les aliens ont utilisés beaucoup de ressources rares, notamment pour cet armement.",3000,0,13,0),
+(15,"Noyaux à tachyons","Nous allons essayer de développer notre propre version du noyaux à tachyons pour pouvoir créer nos propres vaisseaux pouvant voyager entre les univers.",10000,0,12,0),
+(16,"Usine de traitement de minerais","Permet de traiter les minerais trouvés dans l\'espace de manière plus efficace.",100,0,0,0),
+(17,"Usine de traitement de minerais","Permet de traiter les minerais trouvés dans l\'espace de manière plus efficace.",100,0,16,0),
+(18,"Traitement de minerais avancé","Permet de traiter les minerais trouvés dans l\'espace de manière plus efficace. Notamment les minerais rares.",100,0,17,0),
+(19,"Module de colonisation","Permet de créer un vaisseau entièrement dédiée à la colonisation. Il demande d\'énormes ressources.",100,0,0,0),
+(20,"Purification du titane","Permet de raffiner le titane afin d\'en faire du titane de haute qualité.",100,0,0,0),
+(21,"Noyaux avancés","Nous allons tenter de reproduire le noyau que nous avons trouvé. Cela va nous permettre de mieux maitriser nos sauts dimensionnels.",100,0,0,0);
 
 
 DROP TABLE IF EXISTS `typepop`;
@@ -133,13 +137,15 @@ CREATE TABLE `variable` (
   `Explications` text NOT NULL,
   `valeur` int(11) NOT NULL DEFAULT '1',
   PRIMARY KEY (`idvariable`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 
 INSERT INTO `variable` VALUES (1,"% des couts de stockages.",2),
 (2,"Bonus de bien lors d\'une colonisation",150),
 (3,"prix débris des métaux rares",10),
 (4,"prix des barres de rares",100),
-(5,"Prix des noyau de niveau 2",1000);
+(5,"Prix des noyau de niveau 2",1000),
+(6,"Temps de voyage entre les univers",2),
+(7,"Prix du titane en barre",500);
 
 
 SET foreign_key_checks = 1;

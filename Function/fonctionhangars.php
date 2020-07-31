@@ -8,25 +8,15 @@ function formulaireordredeplacement($typeordre, $idflotte, $texteexplication, $v
       $textevalidation = 'Récolter';
     break;
     case 2:
-      $textevalidation = 'Décharger';
-    break;
-    case 3:
-      $texteexplication = 'Votre flotte se trouve à proximité d\'une de vos planètes. ';
-      $textevalidation = 'Rentrer en orbite';
-    break;
-    case 4:
-      $texteexplication = 'Votre flotte se trouve au hangars de la planète '.$valeur3.'. ';
-      $textevalidation = 'Quitter l\'orbite';
+      $texteexplication = 'Saut vers un univers : <select name="xobjectif" id="universdedestination"><option value="'.$valeur1.'">Univers mère</option><option value="-2">Danzalion (1er univers) </option><option value="-3">Catreal</option></select> ';
+      $textevalidation = 'Sauter';
     break;
     case 5:
       $textevalidation = 'Attaquer';
     break;
     case 6:
       $texteexplication = '<input type="number" name="xobjectif" value="' . $valeur1 . '" min="1" max="' . $valeur3 . '"><input type="number" name="yobjectif" value="' . $valeur2 . '" min="1" max="' . $valeur3 . '">';
-      $textevalidation = 'déplacer';
-    break;
-    case 7:
-      $textevalidation = 'Réparer';
+      $textevalidation = 'Déplacer';
     break;
     case 10:
       $texteexplication = 'Saut dimensionnel : ';
@@ -60,32 +50,13 @@ function annulerordrededeplacement($typeordre, $idflotte, $xdest, $ydest, $bloqu
         $messageannulerdeplacement = 'Vous avez ordonné à votre flotte de miner le champs d\'astéroides. ';
       break;
       case 2:
-        $messageannulerdeplacement = 'Vous avez ordonné à votre flotte de décharger sa cargainson. ';
-      break;
-      case 3:
-        $messageannulerdeplacement = 'Vous avez ordonné à votre flotte de rentrer en orbite de la planète mère. ';
-      break;
-      case 4:
-        $messageannulerdeplacement = 'Vous avez ordonné à votre flotte de sortir de l\'orbite de la planète. ';
+        $messageannulerdeplacement = 'Vous avez ordonné à votre flotte de voyager vers une autre dimension. ';
       break;
       case 5:
         $messageannulerdeplacement = 'Vous allez attaquer une autre flotte. ';
       break;
       case 6:
         $messageannulerdeplacement = 'Vous avez ordonné à votre flotte de se déplacer en ' . $xdest . '-' . $ydest . ' ';
-       
-        /* ancien code 6 = changer composants.
-        include("include/BDDconnection.php");
-        $reqcomposant = $bdd->prepare(" SELECT i.nombatiment FROM gamer.conceptionencours c
-                                        INNER JOIN items i ON i.iditem = c.idnouvcomposant
-                                        WHERE c.idvaisseauconception = ?");
-        $reqcomposant ->execute(array($idflotte));
-        $repcomposant = $reqcomposant->fetch();
-        $messageannulerdeplacement = 'Vous êtes en train d\'équiper un "'.$repcomposant['nombatiment'].'". ';
-        */
-      break;
-      case 7:
-        $messageannulerdeplacement = 'Votre flotte est en réparation. ';
       break;
       case 8:
         $messageannulerdeplacement = 'Votre flotte est actuellement occupée et ne réponds pas à vos tentatives de communication. ';
@@ -127,9 +98,9 @@ function vendrestation($idflotte, $idstation, $iditem, $itemenstock, $nomitem, $
 
 function acheterstation($idflotte, $idstation, $iditem, $maxpossible, $nomitem, $prixitem)
   {
-  echo '<form method="post" action="script/commercestation.php"><p>';
   if ($maxpossible > 0)
     {
+    echo '<form method="post" action="script/commercestation.php"><p>';
     echo 'Acheter des '.$nomitem . ' pour '.$prixitem.'$ par unité : ';
     echo '<input name="idflotte" type="hidden" value="'.$idflotte.'">';
     echo '<input name="iditem" type="hidden" value="'.$iditem.'">';
@@ -140,7 +111,7 @@ function acheterstation($idflotte, $idstation, $iditem, $maxpossible, $nomitem, 
     }
   else
     {
-    echo 'Pas assez d\'argent pour achetetr '.$nomitem . ' pour '.$prixitem.'$ par unité.';
+    echo '<p>Pas assez d\'argent pour achetetr '.$nomitem . ' pour '.$prixitem.'$ par unité.</p>';
     }
   }
   ?>

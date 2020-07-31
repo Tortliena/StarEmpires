@@ -55,10 +55,9 @@ $peutcoloniser = colonisateur($_GET['id']);
 $estarme = armement($_GET['id']);
 $vitesse = vitesseflotte($_GET['id']);
 
-if ($replvl['lvl']>=3)
-    {
-    echo '<p>Vitesse de la flotte : ' . $vitesse . ' parsec/cycle</p>';
-    }
+echo '<p>Vitesse de la flotte : ' . $vitesse . ' parsec/cycle</p>';
+echo '</p><p>Capacité de minage : ' . $minageflotte . '</p>';
+
 if ($vitesse == 0)
 	{
 	header("location: planete.php?id=" . urlencode($repplanete['idplanete']));
@@ -77,21 +76,36 @@ if (isset($repstation['idstation']))
 
 	// Cas des débris de métaux rares
 	$reqcargocommerce ->execute(array($_GET['id'], 8));
-	$reqdebrisrares = $reqcargocommerce ->fetch();
+	$repdebrisrares = $reqcargocommerce ->fetch();
     // Variable avec prix des items selon la function !
 	$prixdebrisrares = variable(3);
     // function vendrestation($idflotte, $idstation, $iditem, $itemenstock, $nomitem, $prixitem)
-	if ($reqdebrisrares['nb'] > 0)
+	if ($repdebrisrares['nb'] > 0)
 		{
-		vendrestation($_GET['id'], $repstation['idstation'], 8, $reqdebrisrares['nb'], $reqdebrisrares['nombatiment'], $prixdebrisrares[0]);
+		vendrestation($_GET['id'], $repstation['idstation'], 8, $repdebrisrares['nb'], $repdebrisrares['nombatiment'], $prixdebrisrares[0]);
 		}
 	else
 		{
-		echo '<p>Cette station accepte les '.$reqdebrisrares['nombatiment'].' au prix de '.$prixdebrisrares[0].'$, mais votre flotte n\'en transporte pas.</p>';
+		echo '<p>Cette station accepte les '.$repdebrisrares['nombatiment'].' au prix de '.$prixdebrisrares[0].'$, mais votre flotte n\'en transporte pas.</p>';
+		}
+
+	// Cas du titane en barre
+	$reqcargocommerce ->execute(array($_GET['id'], 26));
+	$reptitaneenbarre = $reqcargocommerce ->fetch();
+    // Variable avec prix des items selon la function !
+	$prixtitaneenbarre = variable(7);
+    // function vendrestation($idflotte, $idstation, $iditem, $itemenstock, $nomitem, $prixitem)
+	if ($reptitaneenbarre['nb'] > 0)
+		{
+		vendrestation($_GET['id'], $repstation['idstation'], 26, $reptitaneenbarre['nb'], $reptitaneenbarre['nombatiment'], $prixtitaneenbarre[0]);
+		}
+	else
+		{
+		echo '<p>Cette station accepte les '.$reptitaneenbarre['nombatiment'].' au prix de '.$prixtitaneenbarre[0].'$, mais votre flotte n\'en transporte pas.</p>';
 		}
 
     // $replvl['creditgalactique'] vient du include menu.
-	echo 'Vous avez '.$replvl['creditgalactique'].'$.'; 
+	echo 'Vous avez '.$replvl['creditgalactique'].'$.';
 
 	// Acheter des moyaux lvl 2 :
 	$prixnoyau2 = variable(5);
@@ -99,48 +113,84 @@ if (isset($repstation['idstation']))
 	acheterstation($_GET['id'], $repstation['idstation'], 25, $maxpossible, 'Noyaux à sub-tachyons', $prixnoyau2[0]);
     }
 
-$a = 0; // Variable permettant de gérer le cas avec un ou plusieurs composants en stock + gére le cas du remplissage des soutes.   
+$a = 0; // Variable permettant de gérer le cas avec un ou plusieurs composants en stock + gére le cas du remplissage des soutes.
 // Requête pour compter le nombre d'item.
-$reqverifcargo = $bdg->prepare("	SELECT SUM(c.quantiteitems) AS nb, i.nombatiment 
+$reqverifcargo = $bdg->prepare("	SELECT SUM(c.quantiteitems) AS nb, i.nombatiment, i.iditem
 					                FROM cargovaisseau c   
 					                INNER JOIN datawebsite.items i ON i.iditem = c.typeitems
 					                INNER JOIN vaisseau v ON v.idvaisseau = c.idvaisseaucargo   
 					                WHERE v.idflottevaisseau = ?
 					                GROUP BY i.iditem");
 
-$reqverifcargo ->execute(array($_GET['id']));   
-while ($repverifcargo  = $reqverifcargo ->fetch())   
-	{   
-	if ($a == 0)   
-		{   
-		$texteexplication = '<p>Cette flotte transporte ';   
-		}   
-	else   
-		{ // Permet de gérer les cas avec de multiples items dans les soutes.   
-		$texteexplication .= ', ';   
-		}   
-	// Affiche ce qui est dans le cargo.   
-	$texteexplication .= $repverifcargo['nb'].' '.$repverifcargo['nombatiment'] ;   
+$reqverifcargo ->execute(array($_GET['id']));
+while ($repverifcargo  = $reqverifcargo ->fetch())
+	{
+	if ($a == 0 AND $repplanete2['idjoueurplanete'] != $repplanete['idjoueurplanete'])
+		{ // Premier tour au cas ou on N'est PAS sur l'un de nos planètes.
+		$texteexplication = '<p>Cette flotte transporte ';
+		} // Premier tour au cas ou on est sur l'un de nos planètes.
+	elseif ($a == 0 AND $repplanete2['idjoueurplanete'] == $repplanete['idjoueurplanete'])
+		{
+		$texteexplication = '<p><form method="post" action="script/ordrechargement.php">Cette flotte transporte&nbsp;';
+		}
+	elseif ($a != 0 AND $repplanete2['idjoueurplanete'] == $repplanete['idjoueurplanete'])
+		{
+		$texteexplication .= ',&nbsp;<form method="post" action="script/ordrechargement.php">';
+		}
+	else
+		{ // Permet de gérer les cas avec de multiples items dans les soutes.
+		$texteexplication .= ', ';
+		}
+	// Affiche ce qui est dans le cargo.
+	$texteexplication .= $repverifcargo['nb'].' '.$repverifcargo['nombatiment'];
+	if ($repplanete2['idjoueurplanete'] == $repplanete['idjoueurplanete'])
+		{ // Permet de gérer les cas avec de multiples items dans les soutes.
+		$texteexplication .= '&nbsp;<input type="number" name="nombre" min = "1" max = "'.$repverifcargo['nb'].'" value="'.$repverifcargo['nb'].'">';
+		$texteexplication .= '<input name="idflotte" type="hidden" value="'.$_GET['id'].'">';
+		$texteexplication .= '<input name="iditem" type="hidden" value="'.$repverifcargo['iditem'].'">';
+		$texteexplication .= '<input name="typeechange" type="hidden" value="2">';
+		$texteexplication .= '<input name="idplanete" type="hidden" value="'.$repplanete2['idplanete'].'">';
+		$texteexplication .= '&nbsp;<input type="submit" value="Décharger"/></form>';
+		}
+	$a = $a + $repverifcargo['nb'];
+	}
+if ($replvl['lvl']>=7)
+    {
+	echo '<p>Capacité des soutes : ' . $quantitetransportee . '/' . $souteflotte . '.<p>';
+	}
+if ($a != 0)
+    {
+    echo $texteexplication. '.</p>' ;
+    }
 
-	$a = $a + $repverifcargo['nb'];   
-	}   
-	if ($a != 0)   
-	    {   
-	    echo $texteexplication. '.</p>' ;   
-		if ($replvl['lvl']>=3)   
-		    { 
-		    echo '<p>Capacité des soutes : ' . $quantitetransportee . '/' . $souteflotte . '. '; 
 
-			if ($repplanete2['idjoueurplanete'] == $repplanete['idjoueurplanete'])
-				{  // formulaire pour transférer des vaisseaux vers la planète.
-				echo '<form method="post" action="script/ordrechargement.php">'; 
-				echo '<input name="idplanete" type="hidden" value="'.$repplanete2['idplanete'].'">';
-				echo '<input name="idflotte" type="hidden" value="'.$_GET['id'].'">';
-				echo ' <input type="submit" value="Décharger"/></form>';
-				}
-			echo '</p><p>Capacité de minage : ' . $minageflotte . '</p>';
-		    }
-	    }   
+$a = 0;
+if ($repplanete2['idjoueurplanete'] == $repplanete['idjoueurplanete']) // Planète = planète du joueur
+	{
+	$reqverifsilo = $bdg->prepare("	SELECT s.iditems, s.quantite, i.nombatiment
+					                FROM silo s
+					                INNER JOIN datawebsite.items i ON i.iditem = s.iditems  
+					                WHERE s.idplanetesilo = ? and i.typeitem = ?");
+	$reqverifsilo ->execute(array($repplanete2['idplanete'], 'produit'));
+	while ($repverifsilo  = $reqverifsilo ->fetch())
+		{
+		if ($a == 0)
+			{
+			echo 'Matériel pouvant être chargé dans la flotte : <br>';
+			}
+		$a++;
+
+		$valeurmaximaledechargement = min($repverifsilo['quantite'], $souteflotte - $quantitetransportee);
+		echo '<form method="post" action="script/ordrechargement.php">';
+		echo $repverifsilo['quantite'] . ' ' . $repverifsilo['nombatiment'] ;
+		echo '<input name="idplanete" type="hidden" value="'.$repplanete2['idplanete'].'">';
+		echo '<input name="iditem" type="hidden" value="'.$repverifsilo['iditems'].'">';
+		echo '<input name="idflotte" type="hidden" value="'.$_GET['id'].'">';
+		echo '<input name="typeechange" type="hidden" value="1">';
+		echo '&nbsp;<input type="number" name="nombre" min = "1" max = "'.$valeurmaximaledechargement.'" value="'.$valeurmaximaledechargement.'">'; 
+		echo '&nbsp;<input type="submit" value="Charger"/></form>';
+		}
+	}
 
 // requetes pour la carte et/ou les ordres.   
 $reqdect = $bdg->prepare('SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? LIMIT 1');   
@@ -154,13 +204,17 @@ $reqasteroide->execute(array($repflotte['xflotte'] , $repflotte['yflotte'], $rep
 $repasteroide = $reqasteroide->fetch();
 if (isset($repasteroide['idasteroide']))   
 	{
-	if ($quantitetransportee < $souteflotte)   
+	if ($quantitetransportee >= $souteflotte)     
+		{
+		echo '<p>Vous êtes à proximité d\'un champs de débris, mais vous ne pouvez pas miner faute de place dans les soutes</p>'; 
+		}
+	elseif ($minageflotte < 1)
+		{
+		echo '<p>Vous êtes à proximité d\'un champs de débris, mais vous ne pouvez pas miner faute d\'équipement présent dans votre flotte.</p>';      
+		}
+	else  
 		{
 		formulaireordredeplacement(1, $_GET['id'], 0, 0, 0, 0);   
-		}
-	else   
-		{
-		echo '<p>Vous êtes à proximité d\'un champs de débris, mais vous ne pouvez pas miner faute de place dans les soutes</p>';    
 		}
 	}
 
@@ -168,14 +222,14 @@ if (isset($repasteroide['idasteroide']))
 $reqdetectionflotteennemi = $bdg->prepare("SELECT f.idflotte, f.nomflotte FROM flotte f
 		LEFT JOIN planete p on p.idplanete = f.idplaneteflotte
 		INNER JOIN vaisseau v on v.idflottevaisseau = f.idflotte
-		WHERE f.idflotte <> ? AND f.universflotte = ? AND f.xflotte = ? AND f.yflotte = ? AND (p.idjoueurplanete <> ? OR p.idjoueurplanete IS NULL)
+		WHERE f.idflotte <> ? AND f.universflotte = ? AND f.xflotte = ? AND f.yflotte = ? AND (p.idjoueurplanete <> ? OR p.idjoueurplanete IS NULL) AND f.idplaneteflotte > 0
 		GROUP BY f.idflotte"); // INNER sur vaisseau = pour éliminer les flottes sans vaisseau.
 $reqdetectionflotteennemi->execute(array($_GET['id'], $repflotte['universflotte'], $repflotte['xflotte'], $repflotte['yflotte'], $_SESSION['id']));   
 while($repdetectionflotteennemi = $reqdetectionflotteennemi->fetch())   
 	{   
 	if ($estarme == true)   // Si on a des armes, on peut tirer. 
 		{   
-		formulaireordredeplacement(5, $_GET['id'], 'flotte inconnue détectée : ' . $repdetectionflotteennemi['nomflotte'] . ' ', $repdetectionflotteennemi['idflotte'], 0, 0);   
+		formulaireordredeplacement(5, $_GET['id'], 'Flotte inconnue détectée : ' . $repdetectionflotteennemi['nomflotte'] . ' ', $repdetectionflotteennemi['idflotte'], 0, 0);   
 		}   
 	else   
 		{   
@@ -187,7 +241,8 @@ while($repdetectionflotteennemi = $reqdetectionflotteennemi->fetch())
 $reqdetectionflottealliee = $bdg->prepare("SELECT f.idflotte, f.nomflotte FROM flotte f
 		INNER JOIN planete p on p.idplanete = f.idplaneteflotte
 		INNER JOIN vaisseau v on v.idflottevaisseau = f.idflotte
-		WHERE f.idflotte <> ? AND f.universflotte = ? AND f.xflotte = ? AND f.yflotte = ? AND p.idjoueurplanete = ?"); // INNER sur vaisseau = pour éliminer les flottes sans vaisseau.
+		WHERE f.idflotte <> ? AND f.universflotte = ? AND f.xflotte = ? AND f.yflotte = ? AND p.idjoueurplanete = ?
+		GROUP BY f.idflotte"); // INNER sur vaisseau = pour éliminer les flottes sans vaisseau.
 $reqdetectionflottealliee->execute(array($_GET['id'], $repflotte['universflotte'], $repflotte['xflotte'], $repflotte['yflotte'], $_SESSION['id']));   
 while($repdetectionflottealliee = $reqdetectionflottealliee->fetch())   
 	{   
@@ -204,19 +259,29 @@ if ($repflotte['universflotte'] == 0)
 // Si le vaisseau est de sortie sur la carte :
 else
 	{
-	// Si valeur de 0, alors aucun vaisseau n'a de noyau. Si valeur de 1, alors certains ont des noyaux. Si valeur de 2, alors tous ont des noyaux.
+	// Si valeur de 0, alors aucun vaisseau n'a de noyau. Si valeur de 1, alors certains ont des noyaux. Si valeur de 2, alors tous ont des noyaux. Si 3, certains ont un niveau 2, si 4, tous ont un niveau 2.
 	$touslesvaisseauxontunnoyau = touslesvaisseauxontunnoyau($_GET['id']);
-	if ($touslesvaisseauxontunnoyau[0] == 0)
+
+	if ($touslesvaisseauxontunnoyau == 0)
 		{
 		echo '<p>Cette flotte ne peut pas voyager entre les dimensions !</p>';
 		}
-	elseif ($touslesvaisseauxontunnoyau[0] == 1)
+	elseif ($touslesvaisseauxontunnoyau == 1)
 		{
 		echo '<p>Il y a dans cette flotte certains vaisseaux pouvant voyager entre les dimensions, mais pas tous.</p>';
 		}
-	elseif ($touslesvaisseauxontunnoyau[0] == 2)
+	elseif ($touslesvaisseauxontunnoyau == 2)
 		{
 		formulaireordredeplacement(10, $_GET['id'], 'Saut dimensionnel : ', 0, 0, 0);
+		}
+	elseif ($touslesvaisseauxontunnoyau == 3)
+		{
+		echo '<p>Il y a dans cette flotte certains vaisseaux avec un noyau supérieur, mais pas tous.</p>';
+		formulaireordredeplacement(10, $_GET['id'], 'Saut dimensionnel : ', 0, 0, 0);
+		}
+	elseif ($touslesvaisseauxontunnoyau == 4)
+		{
+		formulaireordredeplacement(2, $_GET['id'], 'Saut dimensionnel : ', $_SESSION['id'], 0, 0);
 		}
 
 	if ($repflotte['universflotte'] > 0)
