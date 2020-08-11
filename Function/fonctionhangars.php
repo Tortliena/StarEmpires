@@ -11,6 +11,10 @@ function formulaireordredeplacement($typeordre, $idflotte, $texteexplication, $v
       $texteexplication = 'Saut vers un univers : <select name="xobjectif" id="universdedestination"><option value="'.$valeur1.'">Univers mère</option><option value="-2">Danzalion (1er univers) </option><option value="-3">Catreal</option></select> ';
       $textevalidation = 'Sauter';
     break;
+    case 3:
+      $texteexplication = 'Un monde habité se trouve à proximité. ';
+      $textevalidation = 'Envahir';
+    break;
     case 5:
       $textevalidation = 'Attaquer';
     break;
@@ -23,7 +27,7 @@ function formulaireordredeplacement($typeordre, $idflotte, $texteexplication, $v
       $textevalidation = 'Sauter';
     break;
     case 11:
-      $texteexplication = 'Un monde se trouve à proximité : ';
+      $texteexplication = 'Un monde inhabité se trouve à proximité. ';
       $textevalidation = 'Coloniser';
     break;
     default :
@@ -51,6 +55,9 @@ function annulerordrededeplacement($typeordre, $idflotte, $xdest, $ydest, $bloqu
       break;
       case 2:
         $messageannulerdeplacement = 'Vous avez ordonné à votre flotte de voyager vers une autre dimension. ';
+      break;
+      case 3:
+        $messageannulerdeplacement = 'Vous avez ordonné à votre flotte d\'envahir une planète. ';
       break;
       case 5:
         $messageannulerdeplacement = 'Vous allez attaquer une autre flotte. ';

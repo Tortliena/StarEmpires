@@ -27,14 +27,6 @@ $requpdatevaisseau = $bdg->prepare('UPDATE vaisseau SET HPmaxvaisseau = 1, idflo
 $reqtrouverflotte = $bdg->prepare('SELECT idflotte FROM flotte WHERE idplaneteflotte = ?');
 $reqcreerflotte = $bdg->prepare('INSERT INTO flotte (idplaneteflotte) VALUES (?)');
 
-/*
-$reqsupprimercomposant = $bdg->prepare('DELETE FROM composantvaisseau WHERE idvaisseaucompo = ? AND typecomposant = ?');
-$requpdatedeplacement = $bdg->prepare('UPDATE ordredeplacement SET bloque = 1 WHERE idvaisseaudeplacement = ?');
-$reqconceptioninfo = $bdg->prepare('SELECT v.nomvaisseau, c.idvaisseauconception, c.idnouvcomposant, c.typecomposant
-    FROM vaisseau v INNER JOIN conceptionencours c
-    ON c.idvaisseauconception = v.idvaisseau
-    WHERE idconstruction = ?');
-*/
 
 // Par ailleurs :
 $miseajourdesressources = $bdg->prepare("UPDATE planete SET biens = ?, titane = ? WHERE idplanete = ?");
@@ -63,30 +55,6 @@ while ($repplanete = $reqplanete->fetch())
         $avancementtitane = $repconstruction['avancementtitane'] ;
         $nouvavtitane = $repconstruction['avancementbiens'] ;
         $itemaajouteraustock = 0;
-
-/*
-        // Si c'est une rénovation de vaisseau (-1 = changer composant, -2 = réparer) :
-        if ($repconstruction['trucaconstruire'] == -1 OR $repconstruction['trucaconstruire'] == -2)
-            {
-            $reqconceptioninfo->execute(array($repconstruction['idconst']));
-            $repconceptioninfo = $reqconceptioninfo->fetch();
-
-            // Permet de bloquer un ordre. Le vaisseau ne peut plus avoir un nouvel ordre.
-            $requpdatedeplacement->execute(array($repconceptioninfo['idvaisseauconception']));
-
-            // Cela permet d'avoir l'item nécessaire pour le consommer.
-            $repcategorie['itemnecessaire'] = $repconceptioninfo['idnouvcomposant'];
-            $repcategorie['typeitem'] = "conception" ;
-            $repcategorie['nombatiment'] = "Rénovation du " ; 
-            $repcategorie['nombatiment'] .= $repconceptioninfo['nomvaisseau'] ;
-            // 2 dernière lignes = Permet de donner un nom pour le message au joueur.  
-            }
-        else
-            { // Sinon aller récupérer les infos dans la table des items.
-            $reqcategorie ->execute(array($repconstruction['trucaconstruire']));
-            $repcategorie = $reqcategorie ->fetch();
-            }
-*/
 
         a: // Revenir ici si prod se finie et qu'il y a un round 2.
 
@@ -153,25 +121,6 @@ while ($repplanete = $reqplanete->fetch())
                 $itemaajouteraustock = $repconstruction['trucaconstruire'];
                 }
 
-/*
-            elseif ($repcategorie['typeitem'] == 'conception')
-                { // Cas d'un changement de composant dans un vaisseau
-                if ($repconstruction['trucaconstruire'] == -1)
-                    {
-                    // Supprimer précédent composant
-                    $reqsupprimercomposant->execute(array($repconceptioninfo['idvaisseauconception'], $repconceptioninfo['typecomposant']));
-
-                    // Puis insérer le nouveau
-                    $reqinsertcomposant->execute(array($repconceptioninfo['idvaisseauconception'], $repconceptioninfo['idnouvcomposant'], $repconceptioninfo['typecomposant']));
-                    }
-                // Permet de gérer le cas des réparations (les PV du vaisseau = PV max lors du recalcul des PV car PV composant =! PV max vaisseau dans update des vaisseaux.)
-                $requpdatevaisseau->execute(array($repconceptioninfo['idvaisseauconception']));
-                
-                // Supprimer la conception en cours.
-                $reqsupprimerconception->execute(array($repconceptioninfo['idvaisseauconception'], $repconceptioninfo['typecomposant']));
-                }
-*/
-
             elseif ($repconstruction['trucaconstruire'] < 0)
                 { // cas des vaisseaux
                 $reqlocalisationplanete->execute(array($repplanete['idplanetevariation']));
@@ -203,7 +152,7 @@ while ($repplanete = $reqplanete->fetch())
                         }
                     }
                 elseif ($repinfovaisseau['idflottevaisseau'] == 0)
-                    { // Cas des réparations.
+                    { // Cas des réparations ou des conceptions
                     // Le fait de mettre les PV à 1 fait que le vaisseau va être full PV lorsqu'on fait la MAJ des vaisseaux.
                     $requpdatevaisseau->execute(array($idflotte, -$repconstruction['trucaconstruire']));
                     }

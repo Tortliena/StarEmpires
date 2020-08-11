@@ -201,7 +201,7 @@ switch ($_GET["message"])
     break; 
  
     case 43: 
-        echo "La rénovation est déjà avancée. Si vous voulez complètement l'annuler, vous devez cocher la case et retenter l'annulation. Votre investissement actuel sera perdu."; 
+        echo "Cet ordre partiellement exécuté. Si vous voulez complètement l'annuler, vous devez cocher la case et retenter l'annulation. Votre avancement sera perdu."; 
     break; 
  
     case 44: 

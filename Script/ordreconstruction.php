@@ -3,13 +3,10 @@ session_start();
 include("../include/BDDconnection.php"); 
 include("../function/consommercreeritemsplanetemultiple.php"); 
  
-/* 
-echo $_SESSION['pseudo'] . '</br>' ; 
 echo $_SESSION['id'] . '</br>' ; 
 echo $_POST['combien'] . '</br>'; 
 echo $_POST['trucaconstruire'] . '</br>'; 
 echo $_POST['id'] . '</br>'; 
-*/ 
 
 $nummessage = 12; // Message par défaut en cas de construction lancée.
 
@@ -160,7 +157,7 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
 			consommercreeritemsplanetemultiple($repcomposantpresent['iditemcomposant'], 0, $_POST['id'], $repcomposantpresent['nb']);
 			}
       	// Si on a tout les équipements en stock :
-	    $repinfoitem['coutbien'] = 50; 
+	    $repinfoitem['coutbien'] = 50;
 	    $repinfoitem['couttitane'] = 0;
 	    $reptransformernom['nombatiment'] = $repinfovaisseau['nomvaisseau'];
 
@@ -169,26 +166,26 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
 	    	$_POST['combien'] = 1;
 	    	$nummessage = 63;
 			}
-    	} 
+    	}
 
-$reqcreerconstruction->execute(array( 
-    'trucaconstruire' => $_POST['trucaconstruire'], 
-    'nombre' => $_POST['combien'], 
-    'idplaneteconst' => $_POST['id'], 
-    'avancementbiens' => $repinfoitem['coutbien'], 
-    'avancementtitane' => $repinfoitem['couttitane'],  
-    'prixbiens' => $repinfoitem['coutbien'], 
-    'prixtitane' => $repinfoitem['couttitane'])); 
+$reqcreerconstruction->execute(array(
+    'trucaconstruire' => $_POST['trucaconstruire'],
+    'nombre' => $_POST['combien'],
+    'idplaneteconst' => $_POST['id'],
+    'avancementbiens' => $repinfoitem['coutbien'],
+    'avancementtitane' => $repinfoitem['couttitane'],
+    'prixbiens' => $repinfoitem['coutbien'],
+    'prixtitane' => $repinfoitem['couttitane']));
 
-// Permet de gérer l'ordre de construction. 
-$dernierID = $bdg->lastInsertId(); 
-$reqderniereconst = $bdg->query('SELECT ordredeconstruction FROM construction ORDER BY ordredeconstruction DESC LIMIT 1'); 
-$repderniereconst = $reqderniereconst ->fetch(); 
-$reqordredeconstruction = $bdg->prepare('UPDATE construction SET ordredeconstruction = ? WHERE idconst = ?'); 
-$reqordredeconstruction->execute(array($repderniereconst['ordredeconstruction']+1, $dernierID)); 
+// Permet de gérer l'ordre de construction.
+$dernierID = $bdg->lastInsertId();
+$reqderniereconst = $bdg->query('SELECT ordredeconstruction FROM construction ORDER BY ordredeconstruction DESC LIMIT 1');
+$repderniereconst = $reqderniereconst ->fetch();
+$reqordredeconstruction = $bdg->prepare('UPDATE construction SET ordredeconstruction = ? WHERE idconst = ?');
+$reqordredeconstruction->execute(array($repderniereconst['ordredeconstruction']+1, $dernierID));
 
-$_SESSION['message1'] = $_POST['combien']; 
-$_SESSION['message2'] = $reptransformernom['nombatiment']; 
+$_SESSION['message1'] = $_POST['combien'];
+$_SESSION['message2'] = $reptransformernom['nombatiment'];
 
 header("Location: ../planete.php?message=" . urlencode($nummessage) . "&id=" . urlencode($_POST['id']));
 exit();

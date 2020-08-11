@@ -86,6 +86,10 @@ else
                     case 2:
                     echo "Saut dimensionnel";
                     break;
+
+                    case 3:
+                    echo "Invasion";
+                    break;
                                   
                     case 5:
                     echo "BATAILLE";
@@ -117,7 +121,7 @@ else
 ?>
 
 <!-- Passer le tour manuellement -->
-<form action="tour/Gestionglobale.php">
+<form action="tour/00_Gestionglobale.php">
 <p>
 <input type="submit" value="Passer le tour" />
 </p>

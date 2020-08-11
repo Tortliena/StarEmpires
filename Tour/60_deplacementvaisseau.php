@@ -18,7 +18,6 @@ $reqmettrePV1vaisseau = $bdg->prepare("UPDATE vaisseau SET HPvaisseau = ? WHERE 
 // Divers 
 $message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess , numspemessage) VALUES (?, ?, ?, ?)"); 
 $reqsupprimerordreprecedent = $bdg->prepare('UPDATE flotte SET universdestination = 0, xdestination = 0, ydestination = 0, typeordre = 0, bloque = 0 WHERE idflotte = ?');
-$requpdateordre = $bdg->prepare('UPDATE flotte SET universdestination = ?, xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ?');
 $reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)'); 
  
 //planete 
@@ -47,13 +46,20 @@ $reqaugmentersilo = $bdg->prepare("UPDATE silo SET quantite = ? WHERE idjoueursi
 
 // Gestion astéroides.
 $reqmajaste = $bda->prepare('UPDATE champsasteroides SET quantite = ? where idasteroide = ?');
-$reqsupaste = $bda->prepare('DELETE FROM  champsasteroides WHERE idasteroide = ?');
+$reqsupaste = $bda->prepare('DELETE FROM champsasteroides WHERE idasteroide = ?');
 $reqasteroide = $bda->prepare('SELECT idasteroide, quantite, typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? ORDER BY RAND () LIMIT 1');
 
-// récupération des ordres de déplacement.
+// Gestion bataille
+$reqsupprimerbataille = $bdg->prepare('DELETE FROM bataille WHERE idflotteoffensive = ?');
+
+
+// Requetes dans combat, parce qu'on l'utilise là bas.
+/*
 $reqflotte = $bdg->prepare('    SELECT * FROM flotte f
                                 INNER JOIN planete p ON p.idplanete = f.idplaneteflotte
                                 WHERE typeordre = ?');
+$requpdateordre = $bdg->prepare('UPDATE flotte SET universdestination = ?, xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ?');
+*/
 
 $reqflotte->execute(array(1)); // ordre de récolte des astéroides (= typeordre 1) 
 while ($repflotte = $reqflotte->fetch()) 
@@ -105,7 +111,8 @@ while ($repflotte = $reqflotte->fetch())
                 }
             } // Fin de la boucle gérant les astéroides multiples.
         } // Fin boucle gérant les vaisseaux multiples dans une flotte.
-    } // Fin des ordres de minage. 
+    } // Fin des ordres de minage.
+
 $reqflotte->execute(array(1)); // ordre de récolte des astéroides (= typeordre 1) et vérification s'il y a besoin de supprimer l'ordre ou non. 
 while ($repflotte = $reqflotte->fetch()) 
     {
@@ -117,47 +124,70 @@ while ($repflotte = $reqflotte->fetch())
     	} 
     }
 
-// $reqvaisseau->execute(array(5)); = attaquer (page bataille) 
+// (2) = saut dimentionnel dirigié, convertit en (10).
 
-$reqflotte->execute(array(6)); // 6 = ordre de déplacement normaux. 
-while ($repflotte = $reqflotte->fetch()) 
+$reqflotte->execute(array(3)); // Invasions. Ordre partiellement géré déjà dans les combats.
+while ($repflotte = $reqflotte->fetch())
+    {
+    // Supprimer toutes les batailles en cours (elles seront recrées lors du prochain tour)
+    $reqsupprimerbataille->execute(array($repflotte['idflotte']));
+    $diminution = 1;
+
+    if ($repflotte['universdestination'] > $diminution)
+        {
+        // Diminuer le compteur de 1 ou plus.
+        $tempsrestant = $repflotte['universdestination'] - $diminution;
+        $requpdateordre->execute(array($tempsrestant, $repflotte['xdestination'], 0, 3, 1, $repflotte['idflotte']));
+        }
+    else
+        {
+        // Si compteur est à 0, alors changer possesseur de la planète.
+        $reqsupprimerordreprecedent->execute(array($repflotte['idflotte']));
+        $reqchangementproprioplanete->execute(array($repflotte['idjoueurplanete'], 0, $repflotte['xdestination']));
+
+        $reqmessageinterne->execute(array('Force d\'invasion', $repflotte['idjoueurplanete'], 0, 'Planète envahie', 'Nos forces viennent de prendre le contrôle de la planète.'));
+
+        }
+    }
+
+$reqflotte->execute(array(6)); // 6 = ordre de déplacement normaux.
+while ($repflotte = $reqflotte->fetch())
     {
     $vitesse = vitesseflotte($repflotte['idflotte']);
-    $arriveadestination = true ; // par défaut, considérer l'ordre comme exécutable en entier; 
- 
-    // Puis-je arriver à destination selon x ? 
-    if ($repflotte['xflotte']+$vitesse >= $repflotte['xdestination'] AND $repflotte['xflotte']-$vitesse <= $repflotte['xdestination']) 
-        { 
-        $xeffectif = $repflotte['xdestination']; 
-        } // Si oui, alors ordre = destination 
-    else 
-        { 
-        $arriveadestination = false ; 
-        if ($repflotte['xflotte']>$repflotte['xdestination']) 
-            {$xeffectif = $repflotte['xflotte'] - $vitesse;} 
-        else 
-            {$xeffectif = $repflotte['xflotte'] + $vitesse;}  
-        } // Sinon, ordre = place initiale + vitesse vers la destination. 
- 
-    // Même chose ici mais avec les y.  
-    if ($repflotte['yflotte']+$vitesse >= $repflotte['ydestination'] AND $repflotte['yflotte']-$vitesse <= $repflotte['ydestination']) 
-        { 
-        $yeffectif = $repflotte['ydestination']; 
-        } 
-    else 
-        { 
-        $arriveadestination = false ; 
-        if ($repflotte['yflotte']>$repflotte['ydestination']) 
-            { 
-            $yeffectif = $repflotte['yflotte'] - $vitesse; 
-            } 
-        else 
-            { 
-            $yeffectif = $repflotte['yflotte'] + $vitesse; 
-            } 
+    $arriveadestination = true ; // par défaut, considérer l'ordre comme exécutable en entier;
+
+    // Puis-je arriver à destination selon x ?
+    if ($repflotte['xflotte']+$vitesse >= $repflotte['xdestination'] AND $repflotte['xflotte']-$vitesse <= $repflotte['xdestination'])
+        {
+        $xeffectif = $repflotte['xdestination'];
+        } // Si oui, alors ordre = destination
+    else
+        {
+        $arriveadestination = false ;
+        if ($repflotte['xflotte']>$repflotte['xdestination'])
+            {$xeffectif = $repflotte['xflotte'] - $vitesse;}
+        else
+            {$xeffectif = $repflotte['xflotte'] + $vitesse;}
+        } // Sinon, ordre = place initiale + vitesse vers la destination.
+
+    // Même chose ici mais avec les y.
+    if ($repflotte['yflotte']+$vitesse >= $repflotte['ydestination'] AND $repflotte['yflotte']-$vitesse <= $repflotte['ydestination'])
+        {
+        $yeffectif = $repflotte['ydestination'];
+        }
+    else
+        {
+        $arriveadestination = false ;
+        if ($repflotte['yflotte']>$repflotte['ydestination'])
+            {
+            $yeffectif = $repflotte['yflotte'] - $vitesse;
+            }
+        else
+            {
+            $yeffectif = $repflotte['yflotte'] + $vitesse;
+            }
         } 
 
-    //Créer message pour le joueur. 
     $mess = 'Cette flotte vient de se déplacer. Elle était avant en ' . $repflotte['xflotte'] . '-' . $repflotte['yflotte'] ;  
     $message ->execute(array($repflotte['idjoueurplanete'] , $mess , 'flotte' , $repflotte['idflotte'])) ; 
      
@@ -179,7 +209,7 @@ while ($repflotte = $reqflotte->fetch())
     if ($arriveadestination == true) 
         {  
         // Supprimer l'ordre de déplacement si la destination est atteinte 
-        $reqsupprimerordreprecedent->execute(array($repflotte['idflotte'])); 
+        $reqsupprimerordreprecedent->execute(array($repflotte['idflotte']));
         } 
     else 
         { 
@@ -188,8 +218,6 @@ while ($repflotte = $reqflotte->fetch())
         } 
     } 
 
-// $reqvaisseau->execute(array(7)); = Réparation de vaisseau (page construction) 
- 
 $reqflotte->execute(array(8)); //  = Ordre spécial premier vaisseau trouvé. 
 while ($repflotte = $reqflotte->fetch()) 
     {  // Permet au vaisseau de fuir à +1 / -1, cas prévu lorsqu'on est au bord de la map.
@@ -218,9 +246,7 @@ while ($repflotte = $reqflotte->fetch())
         $message ->execute(array($repflotte['idjoueurplanete'] , $messexplo , 'flotte' , $repflotte['idflotte'])) ; 
         }
     } 
- 
-// $reqvaisseau->execute(array(9)); = design avec un ordre totalement bloqué. 
- 
+
 $reqflotte->execute(array(10)); // = Saut dimentionnel 
 while ($repflotte = $reqflotte->fetch()) 
     { 

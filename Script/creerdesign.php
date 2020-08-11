@@ -8,10 +8,13 @@ if (isset($_POST['remplacementcomposant']))
 	$_POST['iditem'] = $toto[0];
 	$_POST['nombre'] = $toto[1];
 	}
+
+/*
 echo $_SESSION['id'] . ' id du joueur </br>'; 
 echo $_POST['idvaisseau'].' id du vaisseau  </br>' ; 
 echo $_POST['nombre'].' nombre de composant à ajouter  </br>' ; 
 echo $_POST['iditem'].' id du composant à ajouter  </br>' ; 
+*/
 
 if (isset($_POST['idvaisseau'])) 
     {
@@ -75,7 +78,6 @@ if (isset($_POST['idvaisseau']))
         }
     elseif ($_POST['nombre'] < 0) // Correspond à supprimer des composants
         {
-        // récupérer la structure prise par les composants 
         $reqsupprimercomposant = $bdg->prepare('DELETE FROM composantvaisseau WHERE iditemcomposant = ? AND idvaisseaucompo = ? LIMIT 1');
         
         $nombredeboucle = -$_POST['nombre'];

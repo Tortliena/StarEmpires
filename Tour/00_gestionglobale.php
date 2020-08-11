@@ -5,71 +5,74 @@ include("../include/BDDconnection.php");
 $Commentairestour = 'Le tour commence.' ;
 
 // Rien n'est fait ici. Juste contient des fonctions.
-include("fonctionsdutour.php");
+include("01_fonctionsdutour.php");
 include("../function/caracteristiquesvaisseau.php");
 include("../function/consommercreeritemsplanetemultiple.php");
 include("../function/variable.php");
 include("../function/flotte.php");
 
 // Changer le numéro du tour.
-include("incrementerletour.php");
+include("05_incrementerletour.php");
 
 // Vider table des messages
-include("vidertable.php");
+include("10_vidertable.php");
 
 // Évènements aléatoires qui arrivent aux joueurs qui ne sont pas dans une chaine d'évènements.
-// include("eventaleatoire.php");
+// include("15_eventaleatoire.php");
 
 // Évènements aléatoires qui arrivent aux joueurs qui ne sont pas dans une chaine d'évènements.
-// include("eventsuite.php");
+// include("16_eventsuite.php");
 
 // Début de changement des pops avec retrait des ressources. 
-include("organisationplanete.php");
+include("20_organisationplanete.php");
 
 // Début de changement des pops avec retrait des ressources. 
-include("debchangpop.php");
+include("25_debchangpop.php");
 
 // Permet de remplir la table *variationstour* qui permet de gérer après les chantiers et les biens.
-include("proddutour.php");
+include("30_proddutour.php");
 
 // Applique la production du tour des biens sur les stocks et la consommation des pops. Gestion des crises economiques aussi.
-include("gestionbiens.php");
+include("35_gestionbiens.php");
 
 // Fin changement des pops + annulation des ordres.
-include("finchangpop.php");
+include("40_finchangpop.php");
 
 // Faire augmenter la pop.
-include("croissancepop.php");
+include("45_croissancepop.php");
 
 // Gestion de la page chantier et utilise 'proddutour'.
-include("construction.php");
+include("50_construction.php");
+
+// Lance des batailles avec la flotte attaquante avec toutes les flottes en défense.
+include("52_preparationinvasionplanetaire.php");
 
 // Boum ! ! 
-include("combat.php");
+include("55_combat.php");
 
 // Mouvement de la flotte + exploration
-include("deplacementvaisseau.php");
+include("60_deplacementvaisseau.php");
 
 // Évents lors de l'exploration de l'univers du joueur !
-include("exploration.php");
+include("65_exploration.php");
 
 // Applique la production du tour de recherche sur les recherches en cours.
-include("recherchetour.php");
+include("70_recherchetour.php");
 
 // Mise à jour des limites des joueurs (pop, bat).
-include("limiteplanete.php");
+include("75_limiteplanete.php");
 
 // MAJ vaisseaux
-include("gestionvaisseau.php");
+include("80_gestionvaisseau.php");
 
 // Mise à jour des niveaux des joueurs.
-include("niveaux.php");
+include("85_niveaux.php");
 
 // Creation de planetes dans lunivers
-include("univers.php");
+include("90_univers.php");
 
 // Permet de créer un résumé du tour pour vérifier les bugs.
-include("resumetour.php");
+include("95_resumetour.php");
 
 header('Location: ../administration.php?voir=');
 ?>

@@ -20,9 +20,9 @@ $reqtrouverplaneteavecitem = $bdg->prepare("  SELECT s.idplanetesilo, i.itemnece
                         INNER JOIN datawebsite.items i ON s.iditems = i.iditem
                         WHERE s.iditems = ? AND p.idjoueurplanete = ? LIMIT 1");
 
-$reqarbretechno = $bdd->prepare('SELECT idrecherche FROM recherche WHERE recherchenecessaire = ?'); 
+$reqarbretechno = $bdd->prepare('SELECT idrecherche FROM recherche WHERE recherchenecessaire = ? AND niveauminimal <= ?'); 
 
-$reqrecherchejoueur = $bdg->query('SELECT u.id, u.recherche, rj.avrech, rj.rechnesc, rj.idrech, rj.idrechprinc, r.itemnecessaire
+$reqrecherchejoueur = $bdg->query('SELECT u.id, u.recherche, u.lvl, rj.avrech, rj.rechnesc, rj.idrech, rj.idrechprinc, r.itemnecessaire
                   FROM (SELECT min(ordrerecherche) AS min, avrech, rechnesc, idrech FROM rech_joueur WHERE rechposs = 0 GROUP BY idjoueurrecherche) AS x
                   INNER JOIN rech_joueur as rj ON rj.idjoueurrecherche = idjoueurrecherche AND rj.ordrerecherche = x.min
                   INNER JOIN utilisateurs u ON u.id = rj.idjoueurrecherche
@@ -53,7 +53,7 @@ while ($reprecherchejoueur = $reqrecherchejoueur->fetch())
           }
 
         // Si la recherche donne accès à une autre recherche, alors on va créer une nouvelle recherche.
-        $reqarbretechno->execute(array($reprecherchejoueur['idrech']));
+        $reqarbretechno->execute(array($reprecherchejoueur['idrech'], $reprecherchejoueur['niveauminimal']));
         while ($reparbretechno = $reqarbretechno->fetch())
           {
           creerrecherche($reparbretechno['idrecherche'], $reprecherchejoueur['id']);

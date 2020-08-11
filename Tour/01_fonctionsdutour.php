@@ -30,6 +30,22 @@ function creerrecherche($idrecherche, $idjoueur)
   }
 // À utiliser :  creerrecherche( X (= num recherche) , $replvl['id']);
 
+function monterniveau($idjoueur, $lvl)
+  {
+  require __DIR__ . '/../include/BDDconnection.php';
+  // Monter de niveau 
+  $reqlvlup = $bdg->prepare('UPDATE utilisateurs SET lvl = lvl + 1 WHERE id = ?');
+  $reqlvlup->execute(array($idjoueur));
+
+  // Trouver recherche du niveau :
+  $reqrechercheduniveau = $bdd->prepare('SELECT r.idrecherche FROM recherche r INNER JOIN gamer.rech_joueur rj ON rj.idrech = r.recherchenecessaire WHERE r.niveauminimal = ? AND rj.rechposs = 1');
+  $reqrechercheduniveau->execute(array($lvl));
+  while ($reprechercheduniveau = $reqrechercheduniveau->fetch())
+    {
+    creerrecherche($reprechercheduniveau['idrecherche'], $idjoueur);
+    }
+  }
+
 function nombrealeatoireavecpoid(array $ValeurPoid)
   {
   $rand = RAND(1, (int) array_sum($ValeurPoid));

@@ -168,7 +168,7 @@ function modificationvaisseau($idvaisseau, $idjoueur, $lvljoueur, $typedepage)
     { 
     echo 'Pas de noyau';
     }
-  remplacercomposant($_SESSION['id'], 'noyau', 'Pas de noyau', $repnoyausurlevaisseau['nombatiment']);
+  remplacercomposant($_SESSION['id'], 'noyau', 'Pas de noyau', $repnoyausurlevaisseau['iditemcomposant']);
   
   $a = 0;
   $reqcomposantsurlevaisseau->execute(array(-$idvaisseau, "soute"));

@@ -92,11 +92,11 @@ $reqmenuderoulantdesign = $bdd->prepare('
           INNER JOIN gamer.planete p ON p.idplanete = s.idplanetesilo
           WHERE p.idjoueurplanete = ? AND i.itemnecessaire != 0 AND i.souscategorie = ?'); // i.itemnecessaire != 0 = évite les répétition avec les items dont on a la tech. Par contre, si on a l'item, et que l'item est associée à une tech, on va pas pouvoir le voir si on a pas la tech.
   $reqmenuderoulantartefact->execute(array($idjoueur, $typecomposant));
-    while ($repmenuderoulantartefact = $reqmenuderoulantartefact->fetch())
-      {
-      echo '<option value="'.$repmenuderoulantartefact['iditem'].'_0">' . $repmenuderoulantartefact['nombatiment'] . '</option>' ;
-      $a++; 
-      }
+  while ($repmenuderoulantartefact = $reqmenuderoulantartefact->fetch())
+    {
+    echo '<option value="'.$repmenuderoulantartefact['iditem'].'_0">' . $repmenuderoulantartefact['nombatiment'] . '</option>' ;
+    $a++; 
+    }
   echo '</select>&ensp;<input type="submit" value="Remplacer" /></p></form>' ;
   }
 

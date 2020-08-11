@@ -2,7 +2,7 @@
 /*
 session_start();
 require __DIR__ . '/../include/BDDconnection.php';
-require __DIR__ . '/../tour/fonctionsdutour.php';
+require __DIR__ . '/../tour/01_fonctionsdutour.php';
 */
 
 // Toutes les batailles sont actives :
@@ -13,9 +13,9 @@ $reqrechargearmes = $bdg->prepare('UPDATE composantvaisseau SET tirrestant = ? W
 $reqcomposantinfo = $bdd->prepare('SELECT nbtir, idcomposant FROM composant');
 $reqcomposantinfo->execute(); 
 while ($repcomposantinfo = $reqcomposantinfo->fetch())
-  {
-  $reqrechargearmes ->execute(array($repcomposantinfo['nbtir'], $repcomposantinfo['idcomposant'])); 
-  }
+    {
+    $reqrechargearmes ->execute(array($repcomposantinfo['nbtir'], $repcomposantinfo['idcomposant'])); 
+    }
 
 // récupération des batailles en cours :
 $reqbatailleencours = $bdg->prepare('SELECT idbataille, idflotteoffensive, idflottedefensive FROM bataille WHERE active = 1 ORDER BY RAND()');
@@ -50,7 +50,8 @@ for($a = 1 ; $a != 0 ; )
         $repinfopvvaisseauattaquant = $reqinfopvvaisseau->fetch();
 
         // Si les deux dernières requetes ne donnent aucune réponse : 
-        if (($repinfopvvaisseaudefensif['tirrestant'] < 1 AND $repinfopvvaisseauattaquant['tirrestant'] < 1) OR !isset($repinfopvvaisseauattaquant['tirrestant']) OR !isset($repinfopvvaisseaudefensif['tirrestant']))
+        if  (       ($repinfopvvaisseaudefensif['tirrestant'] < 1 OR !isset($repinfopvvaisseaudefensif['tirrestant']) )
+        AND         ($repinfopvvaisseauattaquant['tirrestant'] < 1 OR !isset($repinfopvvaisseauattaquant['tirrestant']) ) )
             { // On désactive la bataille.
             echo 'désactivation de la bataille' ; 
             $reqdesactiverbataille->execute(array($repbatailleencours['idbataille']));
@@ -59,14 +60,17 @@ for($a = 1 ; $a != 0 ; )
 
         if ($repinfopvvaisseauattaquant['tirrestant'] > 0)
             { // Si on a une arme de l'attaquant, on gère le tir sur le défenseur.
+            echo 'Tir de lattaquant <br>';
             gestiondegats($repinfopvvaisseaudefensif['idvaisseau'], $repinfopvvaisseaudefensif['HPvaisseau'], $repinfopvvaisseauattaquant['degatpartir'], $repinfopvvaisseauattaquant['idtable'], $repinfopvvaisseauattaquant['idvaisseau']);
             }
 
         if ($repinfopvvaisseaudefensif['tirrestant'] > 0)
             { // Si on a une arme du défenseur, on gère le tir sur l'attaquant.
+            echo 'Tir du défenseur<br>';
             gestiondegats($repinfopvvaisseauattaquant['idvaisseau'], $repinfopvvaisseauattaquant['HPvaisseau'], $repinfopvvaisseaudefensif['degatpartir'], $repinfopvvaisseaudefensif['idtable'], $repinfopvvaisseaudefensif['idvaisseau']);
             }
         a:
         }
     }
+
 ?>

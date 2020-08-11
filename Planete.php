@@ -1,124 +1,28 @@
 <?php 
-session_start(); 
-if (!$_SESSION['pseudo']) 
-  { 
-  header('Location: Accueil.php'); 
-  exit(); 
-  } 
-include("include/BDDconnection.php"); 
-?> 
-<!DOCTYPE html><html><head><meta charset="utf-8" /><link rel="stylesheet" href="style.css" /><title>Mon super site</title></head> 
- 
-<body><?php include("include/menu.php");?><div class="corps"><?php 
-$reqplanete = $bdg->prepare('SELECT * FROM planete p LEFT JOIN limiteplanete l ON l.idlimiteplanete = p.idplanete WHERE p.idplanete = ?'); 
-$reqplanete->execute(array($_GET['id'])); 
-$repplanete = $reqplanete->fetch(); 
-if ($repplanete['idjoueurplanete'] != $_SESSION['id']) 
-    { 
-    header('Location: Accueil.php'); exit(); 
-    } ?> 
-    
-<form method="post" action="script/renommer.php"><h1>Planete : <?php echo $repplanete['nomplanete'] ;?>  
-<input type="text" name="nouveaunom" id="nouveaunom" placeholder="nouveau nom" size="25" maxlength="80"/> 
-<input name="id" type="hidden" value="<?php echo $_GET['id'] ;?>"> 
-<input name="type" type="hidden" value="planete"> 
-<input type="submit" value="Renommer"/></h1></form> 
- 
-<?php 
-include("include/message.php") ; 
-$typemessage = 'planete' ;  
-include("include/resume.php"); 
- 
-$reqcompterpop = $bdg->prepare('SELECT  COUNT(*) AS population, 
-                                        sum(case when typepop = 1 then 1 else 0 end) AS citoyens, 
-                                        sum(case when typepop = 2 then 1 else 0 end) AS ouvriers, 
-                                        sum(case when typepop = 3 then 1 else 0 end) AS scientifiques 
-                                        FROM population 
-                                        WHERE idplanetepop = ?'); 
-$reqcompterpop->execute(array($_GET['id']));                                    
-$repcompterpop = $reqcompterpop->fetch(); 
- 
-echo 'Taille : '.$repplanete['taille'].' (population maximale de base de la planète).</br>'; 
-if ($repplanete['lune'] > 0) 
-  { 
-  echo 'Lunes : '.$repplanete['lune'].' (permet de construire des bâtiments particuliers).</br>';  
-  }
-$efficacite = MIN($repplanete['efficacite'], 100);
-echo 'Efficacite : '.$efficacite.'% (influence la production de la planete)';
- 
-echo '</br><h2>Population et bâtiments :</h2>'; 
-echo $repcompterpop['population']. '/'.$repplanete['popmax'].' unités de population au total, composée de '.$repcompterpop['citoyens'].' citoyen(s) ; '.$repcompterpop['ouvriers'].'/'.$repplanete['ouvriermax'].' ouvrier(s) ; '.$repcompterpop['scientifiques'].'/'.$repplanete['scientmax'].' scientifique(s).</br>' ; 
- 
-// Affichage de la prod des biens. 
-$reqprod = $bdg->prepare('SELECT prodbiens, consobiens, coutstockage, entretien FROM variationstour WHERE idplanetevariation = ?'); 
-$reqprod->execute(array($_GET['id'])); 
-$prodbiens = $reqprod->fetch(); 
-echo 'Au dernier tour, tu en as produit '.$prodbiens['prodbiens'].', consommé '.$prodbiens['consobiens'].' et le coût de stockage a été de '.$prodbiens['coutstockage'].' et les frais d\'entretien des bâtiments a été de '.$prodbiens['entretien'].' en biens divers.</br>'; 
- 
-// Formulaire de conversion des pops 
-echo '<form method="post" action="script/conversionpop.php"><p>'; 
-echo '<label for="combien">Convertir </label><input type="number" name="combien" min="1" value="1">'; 
-echo '<select name="popdepart" id="popdepart">'; 
-$reqtypepop = $bdd->query('SELECT idtypepop , nompop , technecessaire FROM typepop ORDER BY idtypepop ASC'); 
-while ($reptypepop = $reqtypepop->fetch()) 
-  { 
-  echo '<option value="'. $reptypepop['idtypepop'] . '">'. $reptypepop['nompop'] .'</option>';  
-  } 
-echo '</select><label for="poparrivee"> en </label><select name="poparrivee" id="poparrivee">'; 
-$reqtypepop = $bdd->query('SELECT idtypepop, nompop, technecessaire FROM typepop ORDER BY idtypepop DESC'); 
-while ($reptypepop = $reqtypepop->fetch()) 
-  { 
-  echo '<option value="'. $reptypepop['idtypepop'] . '">'. $reptypepop['nompop'] .'</option>';  
-  } 
-echo '</select><input type="hidden" name="id" value="'.$_GET['id'].'"><input type="hidden" name="supprimer" value="non"><input type="submit" value="Valider"/></p></form>'; 
- 
-// Permet de visualiser les ordres de conversion de pop en cours.  
-$reqpoptransf = $bdd->prepare('SELECT p.typepop, p.typepoparrivee, p.idpop, t.nompop AS depart, y.nompop AS arrivee 
-  FROM gamer.population p 
-  INNER JOIN typepop t ON t.idtypepop = p.typepop 
-  INNER JOIN typepop y ON y.idtypepop = p.typepoparrivee 
-  WHERE idplanetepop = ? AND typepoparrivee <> 0'); 
-// Ouha putain c'est bon de faire une triple table avec deux fois la même table ! ! ! ! :) Je sens que je m'améliore. 
-$reqpoptransf->execute(array($_GET['id'])); 
-while ($reppoptransf = $reqpoptransf->fetch()) 
-  { 
-  echo '<form method="post" action="script/conversionpop.php">'; 
-  echo '<input type="hidden" name="supprimer" value="oui">'; 
-  echo '<input type="hidden" name="id" value="'.$_GET['id'].'">'; 
-  echo '<input type="hidden" name="idpop" value="'.$reppoptransf['idpop'].'">'; 
-  echo 'Vous êtes en train de transformer un ' . $reppoptransf['depart'] . ' en ' . $reppoptransf['arrivee'] ; 
-  echo ' <input type="submit" value="Annuler"/></form></br>'; 
-  } 
- 
-$reqcompterbatiment = $bdg->prepare('SELECT sum(case when typebat = 1 then 1 else 0 end) AS centrederecherche, 
-                                            sum(case when typebat = 2 then 1 else 0 end) AS chantier, 
-                                            sum(case when typebat = 3 then 1 else 0 end) AS megalopole, 
-                                            sum(case when typebat = 4 then 1 else 0 end) AS baselunaire,
-                                            sum(case when typebat = 21 then 1 else 0 end) AS traitement1, 
-                                            sum(case when typebat = 22 then 1 else 0 end) AS traitement2
-                                            FROM batiment WHERE idplanetebat = ?'); 
-$reqcompterbatiment->execute(array($_GET['id'])); 
-$repcompterbatiment = $reqcompterbatiment->fetch(); 
- 
-if(!isset($repcompterbatiment['centrederecherche'])){$repcompterbatiment['centrederecherche']=0;} 
-if(!isset($repcompterbatiment['chantier'])){$repcompterbatiment['chantier']=0;} 
-if(!isset($repcompterbatiment['megalopole'])){$repcompterbatiment['megalopole']=0;} 
-if(!isset($repcompterbatiment['baselunaire'])){$repcompterbatiment['baselunaire']=0;}
-if(!isset($repcompterbatiment['traitement1'])){$repcompterbatiment['traitement1']=0;} 
-if(!isset($repcompterbatiment['traitement2'])){$repcompterbatiment['traitement2']=0;} 
+include("planete/01_entete.php");
 
-echo 'Chantier : '.$repcompterbatiment['chantier'].'/'.$repplanete['maxchantier'].' (permet d\'avoir 5 ouvriers).</br>'; 
-echo 'Centre de recherche : '.$repcompterbatiment['centrederecherche'].'/'.$repplanete['maxcentrederecherche'].' (permet d\'avoir 5 scientifiques).</br>'; 
-echo 'Mégalopoles : '.$repcompterbatiment['megalopole'].'/'.$repplanete['maxmegalopole'].' (augmente la pop max et une constructible par tranche de 4 pop).</br>'; 
-if ($repplanete['lune'] > 0) 
-  { 
-  echo 'Base lunaire : '.$repcompterbatiment['baselunaire'].'/'.$repplanete['maxbaselunaire'].' (augmente la pop max et une constructible par lune).</br>'; 
-  } 
-echo 'Usine de traitement : '.$repcompterbatiment['traitement1'].'/1 (+30% en biens et +20% en titane lors des traitements).</br>';
-echo 'Usine de traitement avancée : '.$repcompterbatiment['traitement2'].'/1 (+25% en biens et +60% en titane lors des traitements).</br>';
+$reqplanete = $bdg->prepare('SELECT * FROM planete p LEFT JOIN limiteplanete l ON l.idlimiteplanete = p.idplanete WHERE p.idplanete = ?');
+$reqplanete->execute(array($_GET['id']));
+$repplanete = $reqplanete->fetch();
 
+include("planete/02_debutpage.php");
 
-if ($repcompterpop['ouvriers']>0) 
+$reqcompterpop = $bdg->prepare('SELECT  COUNT(*) AS population,
+                                        sum(case when typepop = 1 then 1 else 0 end) AS citoyens,
+                                        sum(case when typepop = 2 then 1 else 0 end) AS ouvriers,
+                                        sum(case when typepop = 3 then 1 else 0 end) AS scientifiques
+                                        FROM population
+                                        WHERE idplanetepop = ?');
+$reqcompterpop->execute(array($_GET['id']));                               
+$repcompterpop = $reqcompterpop->fetch();
+
+include("planete/06_infogeneraleplanete.php");
+
+include("planete/10_gestionpop.php");
+
+include("planete/15_infobatiments.php");
+
+if ($repcompterpop['ouvriers']>0)
 { 
 echo '</br><h2>Chantier de construction :</h2>'; 
  

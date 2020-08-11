@@ -3,7 +3,6 @@ session_start();
 include("../include/BDDconnection.php"); 
  
 /*
-echo $_SESSION['pseudo'] . '</br>' ;
 echo $_SESSION['id'] . '</br>' ;
 echo $_POST['combien'] . '</br>';
 echo $_POST['popdepart'] . '</br>';
@@ -64,7 +63,37 @@ elseif ($_POST['supprimer'] == 'non')
 	    exit(); 
 	    }
 
-// METTRE ICI LE TRUC A LA FIN AVEC LES LIMITES ! ! !
+	if (in_array($_POST['poparrivee'], array(2,3))) // permet de limiter aux pop avec des limites. 
+		{ 
+		//Compter le nombre de pop de destination  
+		$reqcompterdestination = $bdg->prepare('SELECT COUNT(*) as pop FROM population WHERE idplanetepop = ? AND typepop = ?'); 
+		$reqcompterdestination ->execute(array($_POST['id'], $_POST['poparrivee']));   
+		$repcompterdestination = $reqcompterdestination->fetch(); 
+ 
+		//Compter le nombre de pop actuellement en cours de transfo vers cette destination. 
+		$reqcompterencoursdetransfo  = $bdg->prepare('SELECT COUNT(*) as pop FROM population WHERE idplanetepop = ? AND typepoparrivee = ?'); 
+		$reqcompterencoursdetransfo ->execute(array($_POST['id'], $_POST['poparrivee']));   
+		$repcompterencoursdetransfo = $reqcompterencoursdetransfo->fetch(); 
+ 
+		// Récupérer la limite associée à cette pop. 
+		if ($_POST['poparrivee'] == 2) 
+			{ 
+			$reqlimitepop = $bdg->prepare('SELECT ouvriermax FROM limiteplanete WHERE idlimiteplanete = ?'); 
+			} 
+		elseif($_POST['poparrivee'] == 3) 
+			{ 
+			$reqlimitepop = $bdg->prepare('SELECT scientmax FROM limiteplanete WHERE idlimiteplanete = ?'); 
+			} 
+		$reqlimitepop->execute(array($_SESSION['id'])); 
+		$replimitepop = $reqlimitepop->fetch(); 
+ 
+		if ($repcompterdestination['pop'] + $repcompterencoursdetransfo['pop'] + $_POST['combien'] > $replimitepop[0]) 
+			{ 
+			$_SESSION['message1'] = $replimitepop[0] ;  
+			header("Location: ../planete.php?message=30&id=" . urlencode($_POST['id'])); 
+		    exit(); 
+			}	 
+		} 
 
 	$reqnompop->execute(array($_POST['popdepart'])); 
 	$nompopdepart = $reqnompop->fetch(); 
@@ -85,43 +114,8 @@ elseif ($_POST['supprimer'] == 'non')
 	$_SESSION['message2'] = $nompopdepart['nompop']; 
 	$_SESSION['message3'] = $nompoparrivee['nompop']; 
  
-	header("location: ../planete.php?message=10&id=" . urlencode($_POST['id'])); 
+	header("location: ../planetes.php?message=10&id=" . urlencode($_POST['id'])); 
 	exit(); 
 	} 
 header("location: ../planete.php?message=31&id=" . urlencode($_POST['id'])); 
-
-
-	/* 
-	if (in_array($_POST['poparrivee'], array(2,3))) // permet de limiter aux pop avec des limites. 
-		{ 
-		//Compter le nombre de pop de destination  
-		$reqcompterdestination = $bdg->prepare('SELECT COUNT(*) as pop FROM population WHERE idplanetepop = ? AND typepop = ?'); 
-		$reqcompterdestination ->execute(array($_POST['id'], $_POST['poparrivee']));   
-		$repcompterdestination = $reqcompterdestination->fetch(); 
- 
-		//Compter le nombre de pop actuellement en cours de transfo vers cette destination. 
-		$reqcompterencoursdetransfo  = $bdg->prepare('SELECT COUNT(*) as pop FROM population WHERE idplanetepop = ? AND typepoparrivee = ?'); 
-		$reqcompterencoursdetransfo ->execute(array($_POST['id'], $_POST['poparrivee']));   
-		$repcompterencoursdetransfo = $reqcompterencoursdetransfo->fetch(); 
- 
-		// Récupérer la limite associée à cette pop. 
-		if ($_POST['poparrivee'] == 2) 
-			{ 
-			$reqlimitepop = $bdg->prepare('SELECT ouvriermax FROM limitesjoueurs WHERE id= ?'); 
-			} 
-		elseif($_POST['poparrivee'] == 3) 
-			{ 
-			$reqlimitepop = $bdg->prepare('SELECT scientmax FROM limitesjoueurs WHERE id= ?'); 
-			} 
-		$reqlimitepop->execute(array($_SESSION['id'])); 
-		$replimitepop = $reqlimitepop->fetch(); 
- 
-		if ($repcompterdestination['pop'] + $repcompterencoursdetransfo['pop'] + $_POST['combien'] > $replimitepop[0]) 
-			{ 
-			$_SESSION['message1'] = $replimitepop[0] ;  
-			header("Location: ../planete.php?message=30" . urlencode($_POST['id']); 
-		    exit(); 
-			}	 
-		} 
-	*/ 
 ?>
