@@ -22,7 +22,7 @@ $reqtrouverplaneteavecitem = $bdg->prepare("  SELECT s.idplanetesilo, i.itemnece
 
 $reqarbretechno = $bdd->prepare('SELECT idrecherche FROM recherche WHERE recherchenecessaire = ? AND niveauminimal <= ?'); 
 
-$reqrecherchejoueur = $bdg->query('SELECT u.id, u.recherche, u.lvl, rj.avrech, rj.rechnesc, rj.idrech, rj.idrechprinc, r.itemnecessaire
+$reqrecherchejoueur = $bdg->query('SELECT u.id, u.recherche, u.lvl, rj.avrech, rj.rechnesc, rj.idrech, rj.idrechprinc, r.itemnecessaire, r.niveauminimal
                   FROM (SELECT min(ordrerecherche) AS min, avrech, rechnesc, idrech FROM rech_joueur WHERE rechposs = 0 GROUP BY idjoueurrecherche) AS x
                   INNER JOIN rech_joueur as rj ON rj.idjoueurrecherche = idjoueurrecherche AND rj.ordrerecherche = x.min
                   INNER JOIN utilisateurs u ON u.id = rj.idjoueurrecherche
@@ -66,6 +66,8 @@ $reqinfoartefact = $bdg->prepare("SELECT i.technescessaire, p.idjoueurplanete FR
 $reqinfoartefact->execute(array());
 while ($repinfoartefact = $reqinfoartefact->fetch())
     {
+    echo 'technecessaire : '.$repinfoartefact['technescessaire'].'<br>';
+    echo 'id du joueur : '.$repinfoartefact['idjoueurplanete'].'<br>';
     creerrecherche($repinfoartefact['technescessaire'], $repinfoartefact['idjoueurplanete']); 
     }
 ?>

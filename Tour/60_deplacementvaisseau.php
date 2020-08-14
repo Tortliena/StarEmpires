@@ -54,12 +54,11 @@ $reqsupprimerbataille = $bdg->prepare('DELETE FROM bataille WHERE idflotteoffens
 
 
 // Requetes dans combat, parce qu'on l'utilise là bas.
-/*
 $reqflotte = $bdg->prepare('    SELECT * FROM flotte f
-                                INNER JOIN planete p ON p.idplanete = f.idplaneteflotte
+                                LEFT JOIN planete p ON p.idplanete = f.idplaneteflotte
                                 WHERE typeordre = ?');
 $requpdateordre = $bdg->prepare('UPDATE flotte SET universdestination = ?, xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ?');
-*/
+
 
 $reqflotte->execute(array(1)); // ordre de récolte des astéroides (= typeordre 1) 
 while ($repflotte = $reqflotte->fetch()) 
@@ -111,18 +110,14 @@ while ($repflotte = $reqflotte->fetch())
                 }
             } // Fin de la boucle gérant les astéroides multiples.
         } // Fin boucle gérant les vaisseaux multiples dans une flotte.
-    } // Fin des ordres de minage.
-
-$reqflotte->execute(array(1)); // ordre de récolte des astéroides (= typeordre 1) et vérification s'il y a besoin de supprimer l'ordre ou non. 
-while ($repflotte = $reqflotte->fetch()) 
-    {
+    // À la fin, on regarde la quantité transportée, et si le max est atteint, on supprime l'ordre.
     $souteflotte = souteflotte($repflotte['idflotte']) ;
     $quantitetransportee = cargaisonflotte($repflotte['idflotte']) ;
     if ($souteflotte <= $quantitetransportee)
-    	{
-    	$reqsupprimerordreprecedent->execute(array($repflotte['idflotte']));
-    	} 
-    }
+        {
+        $reqsupprimerordreprecedent->execute(array($repflotte['idflotte']));
+        } 
+    } // Fin des ordres de minage.
 
 // (2) = saut dimentionnel dirigié, convertit en (10).
 
@@ -150,9 +145,12 @@ while ($repflotte = $reqflotte->fetch())
         }
     }
 
+// (5) = Combat : Cet ordre ne fait rien ici, tout est géré avec les batailles.
+
 $reqflotte->execute(array(6)); // 6 = ordre de déplacement normaux.
 while ($repflotte = $reqflotte->fetch())
     {
+    echo 'id de la flotte qui va bouger : '.$repflotte['idflotte'].' <br>';
     $vitesse = vitesseflotte($repflotte['idflotte']);
     $arriveadestination = true ; // par défaut, considérer l'ordre comme exécutable en entier;
 
@@ -187,31 +185,34 @@ while ($repflotte = $reqflotte->fetch())
             $yeffectif = $repflotte['yflotte'] + $vitesse;
             }
         } 
-
-    $mess = 'Cette flotte vient de se déplacer. Elle était avant en ' . $repflotte['xflotte'] . '-' . $repflotte['yflotte'] ;  
-    $message ->execute(array($repflotte['idjoueurplanete'] , $mess , 'flotte' , $repflotte['idflotte'])) ; 
-     
+ 
     // Applique le déplacement : 
     $applicationdeplacement->execute(array($xeffectif , $yeffectif , $repflotte['universdestination'], $repflotte['idflotte'])); 
- 
-    // Exploration si case inconnue : 
-    $reqexplorationexistante->execute(array($xeffectif , $yeffectif , $repflotte['universdestination'] , $repflotte['idjoueurplanete'])); 
-    $repexplorationexistante = $reqexplorationexistante->fetch();  
-    if (empty($repexplorationexistante['idexplore'])) 
-        { 
-        $exploration ->execute(array($xeffectif , $yeffectif , $repflotte['universdestination'], $repflotte['idjoueurplanete'], $touractuel['id'])) ; 
- 
-        //Créer message pour le joueur. 
-        $messexplo = 'Cette flotte vient d\'explorer le parsec (' . $xeffectif  . ' - ' . $yeffectif .').'  ;  
-        $message ->execute(array($repflotte['idjoueurplanete'] , $messexplo , 'flotte' , $repflotte['idflotte'])) ; 
-        } 
-     
+
+    if (isset($repflotte['idjoueurplanete']))
+        { // Permet de gérer le cas des flottes neutres.
+        $mess = 'Cette flotte vient de se déplacer. Elle était avant en ' . $repflotte['xflotte'] . '-' . $repflotte['yflotte'] ;  
+        $message ->execute(array($repflotte['idjoueurplanete'] , $mess , 'flotte' , $repflotte['idflotte'])) ; 
+        
+        // Exploration si case inconnue : 
+        $reqexplorationexistante->execute(array($xeffectif , $yeffectif , $repflotte['universdestination'] , $repflotte['idjoueurplanete'])); 
+        $repexplorationexistante = $reqexplorationexistante->fetch();  
+        if (empty($repexplorationexistante['idexplore'])) 
+            { 
+            $exploration ->execute(array($xeffectif , $yeffectif , $repflotte['universdestination'], $repflotte['idjoueurplanete'], $touractuel['id'])) ; 
+
+            //Créer message pour le joueur. 
+            $messexplo = 'Cette flotte vient d\'explorer le parsec (' . $xeffectif  . ' - ' . $yeffectif .').'  ;  
+            $message ->execute(array($repflotte['idjoueurplanete'] , $messexplo , 'flotte' , $repflotte['idflotte'])) ; 
+            } 
+        }
+
     if ($arriveadestination == true) 
         {  
         // Supprimer l'ordre de déplacement si la destination est atteinte 
         $reqsupprimerordreprecedent->execute(array($repflotte['idflotte']));
         } 
-    else 
+    elseif (isset($repflotte['idjoueurplanete']))
         { 
         $messagepasassezrapide = 'Cette flotte n\'est pas arrivée à destination faute d\'avoir la vitesse suffisante.'  ;  
         $message ->execute(array($repflotte['idjoueurplanete'] , $messagepasassezrapide , 'flotte' , $repflotte['idflotte'])) ; 

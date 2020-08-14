@@ -37,10 +37,18 @@ function monterniveau($idjoueur, $lvl)
   $reqlvlup = $bdg->prepare('UPDATE utilisateurs SET lvl = lvl + 1 WHERE id = ?');
   $reqlvlup->execute(array($idjoueur));
 
-  // Trouver recherche du niveau :
-  $reqrechercheduniveau = $bdd->prepare('SELECT r.idrecherche FROM recherche r INNER JOIN gamer.rech_joueur rj ON rj.idrech = r.recherchenecessaire WHERE r.niveauminimal = ? AND rj.rechposs = 1');
-  $reqrechercheduniveau->execute(array($lvl));
-  while ($reprechercheduniveau = $reqrechercheduniveau->fetch())
+  // Trouver recherche du niveau et qui ont une recherche prérequise :
+  $reqrechercheduniveauavecprereq = $bdd->prepare('SELECT r.idrecherche FROM recherche r INNER JOIN gamer.rech_joueur rj ON rj.idrech = r.recherchenecessaire WHERE r.niveauminimal = ? AND rj.rechposs = 1');
+  $reqrechercheduniveauavecprereq->execute(array($lvl));
+  while ($reprechercheduniveau = $reqrechercheduniveauavecprereq->fetch())
+    {
+    creerrecherche($reprechercheduniveau['idrecherche'], $idjoueur);
+    }
+    
+  // Trouver recherche du niveau sans recherche pré-requises
+  $reqrechercheduniveausansprereq = $bdd->prepare('SELECT idrecherche FROM recherche WHERE niveauminimal = ? AND recherchenecessaire = 0');
+  $reqrechercheduniveausansprereq->execute(array($lvl));
+  while ($reprechercheduniveau = $reqrechercheduniveausansprereq->fetch())
     {
     creerrecherche($reprechercheduniveau['idrecherche'], $idjoueur);
     }
@@ -63,15 +71,10 @@ function gestiondegats($idvaisseauquisefaittirerdessus, $pvvaisseau, $degatdutir
   {
   require __DIR__ . '/../include/BDDconnection.php';
 
-  echo '<br>'. $idvaisseauquisefaittirerdessus . ' id du vaisseau qui se fait tirer dessus.<br>';
-  echo $pvvaisseau . ' valeur de ses PV.<br>';
-
   $reqdiminuernbtir = $bdg->prepare("UPDATE composantvaisseau SET tirrestant = tirrestant-1 WHERE idtable = ?");
   $reqdiminuernbtir->execute(array($idarme));
 
   $nvpv = $pvvaisseau - $degatdutir;
-
-  echo $nvpv .' nouveaux pv du vaisseau <br>';
   
   if ($nvpv < 0)
     {
@@ -98,7 +101,6 @@ function gestiondegats($idvaisseauquisefaittirerdessus, $pvvaisseau, $degatdutir
 
     if ($nbchampsastebien > 0)
       {
-      echo 'vaisseau détruit, donc on fait des astéroides normaux. <br>';
       $reqcreerasteroides->execute(array($repinfopvvaisseau['xflotte'], $repinfopvvaisseau['yflotte'], $repinfopvvaisseau['universflotte'], 6, $nbchampsastebien));
       }
     if ($nbchampsastetitane > 0)
@@ -106,15 +108,17 @@ function gestiondegats($idvaisseauquisefaittirerdessus, $pvvaisseau, $degatdutir
       $reqcreerasteroides->execute(array($repinfopvvaisseau['xflotte'], $repinfopvvaisseau['yflotte'], $repinfopvvaisseau['universflotte'], 8, $nbchampsastetitane));
       }
 
-    $reqinfocargo = $bdg->prepare("SELECT typeitems, quantiteitems FROM cargovaisseau WHERE idcargovaisseau = ?");
+    echo 'Id du vaisseau détruit : '.$idvaisseauquisefaittirerdessus.' <br>';
+    $reqinfocargo = $bdg->prepare("SELECT typeitems, quantiteitems FROM cargovaisseau WHERE idvaisseaucargo = ?");
     $reqinfocargo->execute(array($idvaisseauquisefaittirerdessus));
     while ($repinfocargo = $reqinfocargo->fetch())
       { // Cas d'un vaisseau trouvé dans le 1er univers
+      echo 'On passe par la création d\'un asteroide';
       $reqcreerasteroides->execute(array($repinfopvvaisseau['xflotte'], $repinfopvvaisseau['yflotte'], $repinfopvvaisseau['universflotte'], $repinfocargo['typeitems'], $repinfocargo['quantiteitems']));
       }
 
     // cargovaisseau
-    $reqdeletecargo = $bdg->prepare("DELETE FROM cargovaisseau WHERE idcargovaisseau = ?");
+    $reqdeletecargo = $bdg->prepare("DELETE FROM cargovaisseau WHERE idvaisseaucargo = ?");
     $reqdeletecargo->execute(array($idvaisseauquisefaittirerdessus));
 
     // composantvaisseau
@@ -148,40 +152,6 @@ function disparitionvaisseau($idvaisseau)
     $reqdeletevaisseau->execute(array($idvaisseau));
   }
 
-function disparitionflotte()
-  {
-  require __DIR__ . '/../include/BDDconnection.php';
-  // Trouver les flotte qui n'ont pas de vaisseau et trouver leur ID.
-  $reqrepositionnersurlaplanetemere = $bdg->prepare('UPDATE flotte SET xflotte = ?, yflotte = ?, universflotte = ?, universdestination = 0, xdestination = 0,   ydestination = 0, typeordre = 0, bloque = 0 WHERE idflotte = ?');
-  $reqpositionplanetemere = $bdg->prepare('SELECT xplanete, yplanete, universplanete FROM planete WHERE idplanete = ?');
-  $reqsupprimerflotte = $bdg->prepare('DELETE FROM flotte WHERE idflotte = ?');
-  $reqsupprimerbataille = $bdg->prepare('DELETE FROM bataille WHERE idflottedefensive = ? OR idflotteoffensive = ?');
-
-  $reqflottesansvaisseau = $bdg->query('SELECT f.idflotte, f.idplaneteflotte FROM flotte f LEFT JOIN vaisseau v ON f.idflotte = v.idflottevaisseau WHERE v.idflottevaisseau IS NULL');
-  while ($repflottesansvaisseau = $reqflottesansvaisseau->fetch())
-      {
-      $idplanete = abs($repflottesansvaisseau['idplaneteflotte']);
-      $reqpositionplanetemere->execute(array($idplanete));
-      $reppositionplanetemere = $reqpositionplanetemere->fetch();
-      if (isset($reppositionplanetemere['xplanete']))
-        {
-        $reqrepositionnersurlaplanetemere->execute(array($reppositionplanetemere['xplanete'], $reppositionplanetemere['yplanete'], $reppositionplanetemere['universplanete'], $repflottesansvaisseau['idflotte']));
-        }
-      else
-        {
-        $reqsupprimerflotte->execute(array($repflottesansvaisseau['idflotte']));
-        }
-      $reqsupprimerbataille->execute(array($repflottesansvaisseau['idflotte'], $repflottesansvaisseau['idflotte']));
-      }
-
-  $requpdateordre = $bdg->prepare('UPDATE flotte SET universdestination = 0, xdestination = 0, ydestination = 0, typeordre = 0, bloque = 0 WHERE idflotte = ?');
-
-  $reqflotteattaquesanscible = $bdg->query('SELECT f.idflotte FROM flotte f LEFT JOIN bataille b ON b.idflotteoffensive = f.idflotte WHERE b.idbataille IS NULL AND typeordre = 5'); // type ordre 5 = bataille
-  while ($repflotteattaquesanscible = $reqflotteattaquesanscible->fetch())
-      {
-      $requpdateordre->execute(array($repflotteattaquesanscible['idflotte']));
-      }
-  }
 
 function generateurdenom($nbdecaractere)
     {

@@ -84,7 +84,7 @@ elseif ($_POST['supprimer'] == 'non')
 			{ 
 			$reqlimitepop = $bdg->prepare('SELECT scientmax FROM limiteplanete WHERE idlimiteplanete = ?'); 
 			} 
-		$reqlimitepop->execute(array($_SESSION['id'])); 
+		$reqlimitepop->execute(array($_POST['id'])); 
 		$replimitepop = $reqlimitepop->fetch(); 
  
 		if ($repcompterdestination['pop'] + $repcompterencoursdetransfo['pop'] + $_POST['combien'] > $replimitepop[0]) 
@@ -114,7 +114,7 @@ elseif ($_POST['supprimer'] == 'non')
 	$_SESSION['message2'] = $nompopdepart['nompop']; 
 	$_SESSION['message3'] = $nompoparrivee['nompop']; 
  
-	header("location: ../planetes.php?message=10&id=" . urlencode($_POST['id'])); 
+	header("location: ../planete.php?message=10&id=" . urlencode($_POST['id'])); 
 	exit(); 
 	} 
 header("location: ../planete.php?message=31&id=" . urlencode($_POST['id'])); 

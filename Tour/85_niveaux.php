@@ -135,8 +135,8 @@ while($replvl = $reqlvl->fetch())
     case 6:
       // Pour monter de niveau, il faut ramener quelque chose dans les silos. Ou construire de l'équipement.
       $reqcomptersilo->execute(array($replvl['id']));
-      $reqcomptersilo = $reqcomptersilo->fetch();
-      if ($reqcomptersilo['nb']>0)
+      $repcomptersilo = $reqcomptersilo->fetch();
+      if ($repcomptersilo['nb']>0)
         {
         monterniveau($replvl['id'], $replvl['lvl']+1);
         }

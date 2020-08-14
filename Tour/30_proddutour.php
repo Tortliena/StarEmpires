@@ -25,24 +25,24 @@ $reqcompterpop = $bdg->query('SELECT    po.idplanetepop,
 while ($repcompterpop = $reqcompterpop->fetch())
     {
     $efficite = Min(100, $repcompterpop['efficacite']);
-    
+
     // Production des citoyens :
-    $prodbiens = floor($repcompterpop['citoyens'] * 5 * $efficite /100) ;
+    $prodbiens = floor($repcompterpop['citoyens'] * 5 * $efficite /100);
 
     // Production des ouvriers :
-    $prodchantier = floor($repcompterpop['ouvriers'] * 20 * $efficite /100) ;
+    $prodchantier = floor($repcompterpop['ouvriers'] * 20 * $efficite /100);
 
     // Production de recherche :
-    $prodrecherche = floor($repcompterpop['scientifiques'] * 100 * $efficite /100) ;
+    $prodrecherche = floor($repcompterpop['scientifiques'] * 100 * $efficite /100);
    
     // consommation de la population :
-    $consommation = $repcompterpop['population'] * 1 ;
+    $consommation = $repcompterpop['population'] * 1;
 
-    $entretien = 0 ; 
-    $reqentretienbatiment->execute(array($repcompterpop['idplanetepop'] ));
+    $entretien = 0;
+    $reqentretienbatiment->execute(array($repcompterpop['idplanetepop']));
     $repentretienbatiment = $reqentretienbatiment->fetch();
-    $entretien = $entretien + $repentretienbatiment['entretien'] ;
-    
+    $entretien = $entretien + $repentretienbatiment['entretien'];
+
     $creationvariationdutour->execute(array($repcompterpop['idplanetepop'], $prodbiens, $prodchantier, $prodrecherche, $consommation, $entretien));
     }
 

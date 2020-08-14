@@ -3,7 +3,7 @@
 $reqdetectionflotteennemi = $bdg->prepare("SELECT f.idflotte, f.nomflotte FROM flotte f
 		LEFT JOIN planete p on p.idplanete = f.idplaneteflotte
 		INNER JOIN vaisseau v on v.idflottevaisseau = f.idflotte
-		WHERE f.idflotte <> ? AND f.universflotte = ? AND f.xflotte = ? AND f.yflotte = ? AND (p.idjoueurplanete <> ? OR p.idjoueurplanete IS NULL) AND f.idplaneteflotte > 0
+		WHERE f.idflotte <> ? AND f.universflotte = ? AND f.xflotte = ? AND f.yflotte = ? AND (p.idjoueurplanete <> ? OR p.idjoueurplanete IS NULL) AND f.idplaneteflotte >= 0
 		GROUP BY f.idflotte"); // INNER sur vaisseau = pour éliminer les flottes sans vaisseau.
 $reqdetectionflotteennemi->execute(array($_GET['id'], $repflotte['universflotte'], $repflotte['xflotte'], $repflotte['yflotte'], $_SESSION['id']));   
 while($repdetectionflotteennemi = $reqdetectionflotteennemi->fetch())   

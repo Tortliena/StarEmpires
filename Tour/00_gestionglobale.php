@@ -45,6 +45,9 @@ include("45_croissancepop.php");
 include("50_construction.php");
 
 // Lance des batailles avec la flotte attaquante avec toutes les flottes en défense.
+include("51_AIdesflottesneutres.php");
+
+// Lance des batailles avec la flotte attaquante avec toutes les flottes en défense.
 include("52_preparationinvasionplanetaire.php");
 
 // Boum ! ! 
@@ -68,11 +71,23 @@ include("80_gestionvaisseau.php");
 // Mise à jour des niveaux des joueurs.
 include("85_niveaux.php");
 
+// Permet de créer les joueurs spéciaux ou les lieux spéciaux.
+include("88_creationuniverspremiertour.php");
+
+// Créer des planètes en cas de manque de mondes dans l'univers 2.
+include("89_creerplanetes.php");
+
+// Creation des asteroides dans l'univers
+include("90_creerasteroides.php");
+
 // Creation de planetes dans lunivers
-include("90_univers.php");
+include("92_disparitionflotte.php");
+
+// Creation de planetes dans lunivers
+include("94_creationflottealienne.php");
 
 // Permet de créer un résumé du tour pour vérifier les bugs.
 include("95_resumetour.php");
 
-header('Location: ../administration.php?voir=');
+// header('Location: ../administration.php?voir=');
 ?>

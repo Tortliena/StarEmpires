@@ -50,23 +50,23 @@ for($a = 1 ; $a != 0 ; )
         $repinfopvvaisseauattaquant = $reqinfopvvaisseau->fetch();
 
         // Si les deux dernières requetes ne donnent aucune réponse : 
-        if  (       ($repinfopvvaisseaudefensif['tirrestant'] < 1 OR !isset($repinfopvvaisseaudefensif['tirrestant']) )
-        AND         ($repinfopvvaisseauattaquant['tirrestant'] < 1 OR !isset($repinfopvvaisseauattaquant['tirrestant']) ) )
+        if  (   !isset($repinfopvvaisseaudefensif['tirrestant']) OR !isset($repinfopvvaisseauattaquant['tirrestant'])
+                OR ($repinfopvvaisseaudefensif['tirrestant'] < 1 AND $repinfopvvaisseauattaquant['tirrestant'] < 1) )
             { // On désactive la bataille.
-            echo 'désactivation de la bataille' ; 
+            // echo 'désactivation de la bataille' ; 
             $reqdesactiverbataille->execute(array($repbatailleencours['idbataille']));
             goto a;
             }
 
         if ($repinfopvvaisseauattaquant['tirrestant'] > 0)
             { // Si on a une arme de l'attaquant, on gère le tir sur le défenseur.
-            echo 'Tir de lattaquant <br>';
+            // echo 'Tir de lattaquant <br>';
             gestiondegats($repinfopvvaisseaudefensif['idvaisseau'], $repinfopvvaisseaudefensif['HPvaisseau'], $repinfopvvaisseauattaquant['degatpartir'], $repinfopvvaisseauattaquant['idtable'], $repinfopvvaisseauattaquant['idvaisseau']);
             }
 
         if ($repinfopvvaisseaudefensif['tirrestant'] > 0)
             { // Si on a une arme du défenseur, on gère le tir sur l'attaquant.
-            echo 'Tir du défenseur<br>';
+            // echo 'Tir du défenseur<br>';
             gestiondegats($repinfopvvaisseauattaquant['idvaisseau'], $repinfopvvaisseauattaquant['HPvaisseau'], $repinfopvvaisseaudefensif['degatpartir'], $repinfopvvaisseaudefensif['idtable'], $repinfopvvaisseaudefensif['idvaisseau']);
             }
         a:
