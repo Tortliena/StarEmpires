@@ -4,7 +4,6 @@ function formulaireordredeplacement($typeordre, $idflotte, $texteexplication, $v
   switch ($typeordre)
     {
     case 1:
-      $texteexplication = 'Votre flotte se trouve à proximité champs d\'astéroides. ';
       $textevalidation = 'Récolter';
     break;
     case 2:
@@ -57,7 +56,7 @@ function annulerordrededeplacement($typeordre, $idflotte, $xdest, $ydest, $bloqu
         $messageannulerdeplacement = 'Vous avez ordonné à votre flotte de voyager vers une autre dimension. ';
       break;
       case 3:
-        $messageannulerdeplacement = 'Vous avez ordonné à votre flotte d\'envahir une planète. ';
+        $messageannulerdeplacement = 'Vous avez ordonné à votre flotte d\'envahir une planète. Reste '.$ydest.' tours avant réussite.';
       break;
       case 5:
         $messageannulerdeplacement = 'Vous allez attaquer une autre flotte. ';
@@ -121,4 +120,30 @@ function acheterstation($idflotte, $idstation, $iditem, $maxpossible, $nomitem, 
     echo '<p>Pas assez d\'argent pour achetetr '.$nomitem . ' pour '.$prixitem.'$ par unité.</p>';
     }
   }
+
+function tailleasteroide($quantite)
+  {
+  if ($quantite < 3)
+    {
+    $taille = 'taille minuscule';
+    }
+  elseif ($quantite < 8)
+    {
+    $taille = 'petite taille';
+    }
+  elseif ($quantite < 12)
+    {
+    $taille = 'taille moyenne';
+    }
+  elseif ($quantite < 20)
+    {
+    $taille = 'grande taille';
+    }
+  else
+    {
+    $taille = 'taille gigantesque';
+    }
+  return $taille;
+  }
+
   ?>

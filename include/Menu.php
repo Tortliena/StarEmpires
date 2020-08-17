@@ -42,8 +42,8 @@ else
     echo '</a></br>';
         
     echo '<a class ="lienmenu"  href="Capitale.php">Capitale</a> </br>';
-	if ($replvl['lvl'] > 0)
-        { 
+	if ($replvl['lvl'] > 1)
+        {
         echo '<a class ="lienmenu" href="Recherche.php">Recherche</a></br>';
 	    }
 

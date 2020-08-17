@@ -4,6 +4,8 @@ session_start();
 include("../include/BDDconnection.php");
 */
 
+$Commentairestour .= '<br>Début de la gestion des planètes.<br>';
+
 $reqorganisationactuelle = $bdg->prepare('SELECT SUM(organisation) AS orga FROM planete WHERE idjoueurplanete = ? ');
 
 $reqplanetebesoinorga = $bdg->prepare('SELECT COUNT(*) AS besoinorga FROM planete WHERE idjoueurplanete = ? AND efficacite < 110');
@@ -55,10 +57,10 @@ while ($repjoueur= $reqjoueur->fetch())
         
         $organisation = $reporganisationplanete['organisation'] + $augmentation[$i];
         $reqaugmentationorganisation->execute(array($augmentation[$i], $idplanete[$i]));
-        // echo 'De '.$reporganisationplanete['organisation'].' a '.$organisation.' avec un gain de '.$augmentation[$i].' sur la planete '.$idplanete[$i].' ; vakeur de i : '.$i.'<br>';
+
         }
     
-    // echo 'joueur '.$repjoueur['id'].' possede une orga de '.$reporganisationactuelle['orga'].' et son gain dorga est de '.$orgagenere.' et il y a '.$repplanetebesoinorga['besoinorga'].' planete ayant besoin dorga.<br>';
+    $Commentairestour .= 'joueur '.$repjoueur['id'].' possede une orga de '.$reporganisationactuelle['orga'].' et son gain dorga est de '.$orgagenere.' et il y a '.$repplanetebesoinorga['besoinorga'].' planete ayant besoin dorga.<br>';
     }
 
 // Gerer les planetes une par une pour calculer l'efficacite. Faire update efficacite sur les planete (= orga / (pop*10))
@@ -71,6 +73,6 @@ while ($repgestionplanete = $reqgestionplanete->fetch())
     {
     $efficacite = ROUND($repgestionplanete['organisation'] / $repgestionplanete['population'] / 10);
     $reqaugmentationefficacite->execute(array($efficacite, $repgestionplanete['idplanete']));
-    // echo 'La nouvelle efficacite de la planete '.$repgestionplanete['idplanete'].' est de '.$efficacite.'.<br>';
+    $Commentairestour .= 'La nouvelle efficacite de la planete '.$repgestionplanete['idplanete'].' est de '.$efficacite.'.<br>';
     }
 ?>

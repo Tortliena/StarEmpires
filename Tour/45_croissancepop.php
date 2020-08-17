@@ -3,11 +3,6 @@
 session_start();
 include("../include/BDDconnection.php");
 */
-function commentairecroissancedelapopdebut(&$Commentairestour)
-    {
-    $Commentairestour .= '</br> Début de la croissance des pop';
-    }
-commentairecroissancedelapopdebut($Commentairestour);
 
 $reqcompterpop = $bdg->prepare('SELECT COUNT(*) AS nbpopulation FROM population WHERE idplanetepop = ?');
 $creationpop = $bdg->prepare('INSERT INTO population (idplanetepop) VALUES (?)');
@@ -55,10 +50,4 @@ while ($repgestionplanete = $reqgestionplanete->fetch())
         $message ->execute(array($repgestionplanete['idjoueurplanete'], 'Votre population ne pouvait pas grandir faute de place.', 'planete', $repgestionplanete['idplanetepop']));
         }
     }
-
-function commentairecroissancedelapopfin(&$Commentairestour)
-    {
-    $Commentairestour .= '</br> Fin de la croissance des pop';
-    }
-commentairecroissancedelapopfin($Commentairestour);
 ?>

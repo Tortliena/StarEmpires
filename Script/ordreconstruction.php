@@ -2,7 +2,7 @@
 session_start(); 
 include("../include/BDDconnection.php"); 
 include("../function/consommercreeritemsplanetemultiple.php"); 
- 
+
 echo $_SESSION['id'] . '</br>' ; 
 echo $_POST['combien'] . '</br>'; 
 echo $_POST['trucaconstruire'] . '</br>'; 
@@ -41,10 +41,19 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
 		    }	
 
 	    if (isset($repinfoitem['nomlimite'])) // S'il y a un maximum sur l'un de ces batiments. 
-	        { 
-	        $reqlimite = $bdg->prepare('SELECT '.$repinfoitem['nomlimite'].' FROM limiteplanete WHERE idlimiteplanete = ?'); 
-	        $reqlimite->execute(array($_POST['id'])); 
-	        $replimite = $reqlimite->fetch(); // $replimite['0'] 
+	        {
+	        if (is_numeric($repinfoitem['nomlimite']))
+	        	{
+	        	$limite = $repinfoitem['nomlimite'];
+	        	}
+	        else
+	        	{
+   		        $reqlimite = $bdg->prepare('SELECT '.$repinfoitem['nomlimite'].' FROM limiteplanete WHERE idlimiteplanete = ?'); 
+		        $reqlimite->execute(array($_POST['id'])); 
+		        $replimite = $reqlimite->fetch();
+	        	$limite = $replimite['0'];
+	        	}
+
  
 	        $reqcomptechantier = $bdg->prepare('SELECT COUNT(idbat) as nb FROM batiment WHERE typebat = ? AND idplanetebat = ?'); 
 	        $reqcomptechantier->execute(array($_POST['trucaconstruire'], $_POST['id'])); 
@@ -58,9 +67,9 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
 	        	$constencours = $constencours + $repconstructionencours['nombre']; 
 	        	} 
  
-	        if ($replimite['0'] < $repcomptechantier['nb'] + $_POST['combien'] + $constencours) 
+	        if ($limite < $repcomptechantier['nb'] + $_POST['combien'] + $constencours) 
 	            { 
-	            $_SESSION['message1'] = $replimite['0']; 
+	            $_SESSION['message1'] = $limite; 
 	            $_SESSION['message2'] = $repcomptechantier['nb']; 
                 header("Location: ../planete.php?message=29&id=" . urlencode($_POST['id'])); 
 	            exit();   

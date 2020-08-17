@@ -4,11 +4,10 @@ include("../include/BDDconnection.php");
 include("../function/consommercreeritemsplanetemultiple.php");
 
 /*
-echo $_SESSION['pseudo'] . '</br>' ;
 echo $_SESSION['id'] . '</br>' ;
 echo $_POST['perdreressources'] . '</br>' ;
 echo $_POST['idconstruction'] . '</br>' ;
-echo $_POST['id'] . '</br>' ;
+echo $_POST['idplanete'] . '</br>' ;
 */
 
 //Vérifier propriétaire de la construction.  
@@ -16,7 +15,9 @@ $reqproprietaireordreconstruction = $bdg->prepare('SELECT * FROM construction WH
 $reqproprietaireordreconstruction->execute(array($_POST['idconstruction']));
 $repproprietaireordreconstruction = $reqproprietaireordreconstruction->fetch();
 
-if ($repproprietaireordreconstruction['idplaneteconst'] != $_POST['id'])
+$reqordredeconstruction = $bdg->prepare('UPDATE construction SET ordredeconstruction = ? WHERE idconst = ?');
+
+if ($repproprietaireordreconstruction['idplaneteconst'] != $_POST['idplanete'])
     {
     header('Location: ../Accueil.php'); exit();
     }
@@ -56,38 +57,50 @@ if ($_GET['action'] == 'annuler')
         $stmt->bindParam(':idconst', $_POST['idconstruction'], PDO::PARAM_INT);
         $stmt->execute();
         }
-    consommercreeritemsplanetemultiple(0, $repinfoitem['itemnecessaire'], $_POST['id'], $nbitemrembourses);
-    header("location: ../planete.php?message=" . urlencode($nummessage) . "&id=" . urlencode($_POST['id']));
+    consommercreeritemsplanetemultiple(0, $repinfoitem['itemnecessaire'], $_POST['idplanete'], $nbitemrembourses);
+    header("location: ../planete.php?message=" . urlencode($nummessage) . "&id=" . urlencode($_POST['idplanete']));
     exit();
     } // Fin annulation de la construction.
 
 elseif ($_GET['action'] == 'deprioriser')
     { // Cela permet d'envoyer la construction en tout dernier de la liste.
     $reqderniereconst = $bdg->query('SELECT ordredeconstruction FROM construction ORDER BY ordredeconstruction DESC LIMIT 1');
-    $repderniereconst = $reqderniereconst ->fetch();
-    $reqordredeconstruction = $bdg->prepare('UPDATE construction SET ordredeconstruction = ? WHERE idconst = ?');
+    $repderniereconst = $reqderniereconst->fetch();
+
     $reqordredeconstruction->execute(array($repderniereconst['ordredeconstruction']+1, $_POST['idconstruction']));
-    header("location: ../planete.php?message=57&id=" . urlencode($_POST['id']));
+    header("location: ../planete.php?message=57&id=" . urlencode($_POST['idplanete']));
+    exit(); 
+    }
+
+elseif ($_GET['action'] == 'prioriser')
+    { // Cela permet d'envoyer la construction en tout premier de la liste
+    $reqpremiereconst = $bdg->prepare('SELECT ordredeconstruction, idconst FROM construction WHERE idplaneteconst = ? ORDER BY ordredeconstruction ASC LIMIT 1');
+    $reqpremiereconst->execute(array($_POST['idplanete']));
+    $reppremiereconst = $reqpremiereconst->fetch();
+    
+    $reqordredeconstruction->execute(array($reppremiereconst['ordredeconstruction'], $_POST['idconstruction']));
+    $reqordredeconstruction->execute(array($repproprietaireordreconstruction['ordredeconstruction'], $reppremiereconst['idconst']));
+
+    header("location: ../planete.php?message=77&id=" . urlencode($_POST['idplanete']));
     exit(); 
     }
 
 elseif ($_GET['action'] == 'pause')
     { // Cela permet d'envoyer la construction en tout dernier de la liste.
-    $reqordredeconstruction = $bdg->prepare('UPDATE construction SET ordredeconstruction = ? WHERE idconst = ?');
     $reqordredeconstruction->execute(array(0, $_POST['idconstruction']));
-    header("location: ../planete.php?message=58&id=" . urlencode($_POST['id']));
+    header("location: ../planete.php?message=58&id=" . urlencode($_POST['idplanete']));
     exit(); 
     }
 
 elseif ($_GET['action'] == 'reprise')
     { // Cela permet d'envoyer la construction en tout dernier de la liste.
     $reqderniereconst = $bdg->query('SELECT ordredeconstruction FROM construction ORDER BY ordredeconstruction DESC LIMIT 1');
-    $repderniereconst = $reqderniereconst ->fetch();
-    $reqordredeconstruction = $bdg->prepare('UPDATE construction SET ordredeconstruction = ? WHERE idconst = ?');
+    $repderniereconst = $reqderniereconst->fetch();
+
     $reqordredeconstruction->execute(array($repderniereconst['ordredeconstruction']+1, $_POST['idconstruction']));
-    header("location: ../planete.php?message=59&id=" . urlencode($_POST['id']));
+    header("location: ../planete.php?message=59&id=" . urlencode($_POST['idplanete']));
     exit(); 
     }
 
-header("location: ../planete.php?message=31&id=" . urlencode($_POST['id']));
+header("location: ../planete.php?message=31&id=" . urlencode($_POST['idplanete']));
 ?>

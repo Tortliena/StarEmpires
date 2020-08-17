@@ -40,7 +40,6 @@ while ($repverifcargo  = $reqverifcargo ->fetch())
 	$a = $a + $repverifcargo['nb'];
 	}
 
-
 $texte = 'Capacité des soutes : ' . $quantitetransportee . '/' . $souteflotte;
 
 if ($a != 0)

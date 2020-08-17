@@ -143,18 +143,18 @@ switch ($_GET["message"])
     break; 
  
     case 29: 
-        if (empty($_SESSION['message1']) or !isset($_SESSION['message1'])) 
-        { 
-        } 
-        else 
-        { 
-        $a = $_SESSION['message1'] - $_SESSION['message2'] ; 
-        echo "Votre limite pour ce bâtiment est de " . $_SESSION['message1'] . ". Vous en avez " . $_SESSION['message2'] . ". Vous pouvez donc lancer la construction au maximum de " . $a . "."; 
-        } 
+        if (isset($_SESSION['message1'])) 
+            {
+            $a = $_SESSION['message1'] - $_SESSION['message2'];
+            echo "Votre limite pour ce bâtiment est de " . $_SESSION['message1'] . ". Vous en avez " . $_SESSION['message2'] . ". Vous pouvez donc lancer la construction au maximum de " . $a . ".";
+            }
     break; 
  
-    case 30: 
-        echo "Votre limite pour cette population est de " . $_SESSION['message1'] . ". Vous ne pouvez donc pas convertir autant de population." ; 
+    case 30:
+        if (isset($_SESSION['message1']))
+            {
+            echo "Votre limite pour cette population est de " . $_SESSION['message1'] . ". Vous ne pouvez donc pas convertir autant de population." ;
+            }
     break; 
  
     case 31: 
@@ -181,8 +181,11 @@ switch ($_GET["message"])
         echo "Ce vaisseau n'est pas endommagé !" ; 
     break; 
  
-    case 38: 
-        echo "Vous venez d'ordonner à ce vaisseau d'aller en " . $_SESSION['message1'] . "-" . $_SESSION['message2']; 
+    case 38:
+        if (isset($_SESSION['message1']))
+            {
+            echo "Vous venez d'ordonner à ce vaisseau d'aller en " . $_SESSION['message1'] . "-" . $_SESSION['message2']; 
+            }
     break; 
  
     case 39: 
@@ -277,13 +280,10 @@ switch ($_GET["message"])
     break; 
  
     case 63: 
-        if (empty($_SESSION['message1']) or !isset($_SESSION['message1'])) 
-        { 
-        } 
-        else 
-        { 
-        echo "Vous avez lancé la production de " . $_SESSION['message1'] . " " . $_SESSION['message2'] . " ! Notez que vous ne pouvez lancer la production de vaisseau que un par un."; 
-        } 
+        if (isset($_SESSION['message1'])) 
+            { 
+            echo "Vous avez lancé la production de " . $_SESSION['message1'] . " " . $_SESSION['message2'] . " ! Notez que vous ne pouvez lancer la production de vaisseau que un par un."; 
+            } 
     break; 
     case 64: 
         echo "Votre vaisseau est trop gros pour ses moteurs. Mettez moins de composants."; 
@@ -335,6 +335,10 @@ switch ($_GET["message"])
 
     case 76: 
         echo "Impossible de modifier ce plan, il est actuellement utilisé dans nos usines."; 
+    break;
+
+    case 77: 
+        echo "La première construction et celle que vous avez priorisé devraient être inversé maintenant."; 
     break;
     } 
  

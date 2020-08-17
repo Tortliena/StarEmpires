@@ -18,31 +18,31 @@ $reqmettrePV1vaisseau = $bdg->prepare("UPDATE vaisseau SET HPvaisseau = ? WHERE 
 // Divers 
 $message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess , numspemessage) VALUES (?, ?, ?, ?)"); 
 $reqsupprimerordreprecedent = $bdg->prepare('UPDATE flotte SET universdestination = 0, xdestination = 0, ydestination = 0, typeordre = 0, bloque = 0 WHERE idflotte = ?');
-$reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)'); 
- 
-//planete 
-$reqplanete = $bdg->prepare('SELECT idplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? AND idjoueurplanete = ?'); 
-$reqplanete2 = $bdg->prepare('SELECT xplanete, yplanete, universplanete, idjoueurplanete FROM planete WHERE idplanete = ?'); 
-$reqchangementproprioplanete = $bdg->prepare('UPDATE planete SET idjoueurplanete = ?, biens = biens + ?, organisation = 100 WHERE idplanete = ?'); 
-$reqpop = $bdg->prepare('INSERT INTO population(idplanetepop, typepop) VALUES(?, ?)'); 
- 
-// Gestion exploration 
-$reqexplorationexistante = $bdg->prepare("SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? "); 
-$exploration = $bdg->prepare("INSERT INTO explore (x , y, univers , idexplorateur, tourexploration) VALUES (?, ?, ?, ?, ?)"); 
+$reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)');
 
-// Gestion cargo 
+//planete
+$reqplanete = $bdg->prepare('SELECT idplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? AND idjoueurplanete = ?');
+$reqplanete2 = $bdg->prepare('SELECT nomplanete, xplanete, yplanete, universplanete, idjoueurplanete FROM planete WHERE idplanete = ?');
+$reqchangementproprioplanete = $bdg->prepare('UPDATE planete SET idjoueurplanete = ?, biens = biens + ?, organisation = 100 WHERE idplanete = ?');
+$reqpop = $bdg->prepare('INSERT INTO population(idplanetepop, typepop) VALUES(?, ?)');
+
+// Gestion exploration
+$reqexplorationexistante = $bdg->prepare("SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? ");
+$exploration = $bdg->prepare("INSERT INTO explore (x , y, univers , idexplorateur, tourexploration) VALUES (?, ?, ?, ?, ?)");
+
+// Gestion cargo
 $reqverifcargo = $bdd->prepare("    SELECT  v.idvaisseau, v.capacitedesoute
                                     FROM gamer.vaisseau v
                                     LEFT JOIN gamer.cargovaisseau c ON c.idvaisseaucargo  = v.idvaisseau
                                     WHERE v.idflottevaisseau = ?");
 $reqverifcargo2 = $bdg->prepare("SELECT SUM(quantiteitems) AS quantitetransportee, quantiteitems FROM cargovaisseau WHERE idvaisseaucargo = ? AND typeitems like ?");
-$reqcreercargo = $bdg->prepare("INSERT INTO cargovaisseau (idvaisseaucargo, typeitems, quantiteitems) VALUES (?, ?, ?)"); 
-$reqaugmentercargo = $bdg->prepare("UPDATE cargovaisseau SET quantiteitems = ? WHERE idvaisseaucargo = ? AND typeitems = ?"); 
- 
-// Gestion Silo 
+$reqcreercargo = $bdg->prepare("INSERT INTO cargovaisseau (idvaisseaucargo, typeitems, quantiteitems) VALUES (?, ?, ?)");
+$reqaugmentercargo = $bdg->prepare("UPDATE cargovaisseau SET quantiteitems = ? WHERE idvaisseaucargo = ? AND typeitems = ?");
+
+// Gestion Silo
 $reqverifsilo = $bdg->prepare("SELECT quantite FROM silo WHERE idjoueursilo = ? AND iditems = ?"); 
-$reqcreersilo = $bdg->prepare("INSERT INTO silo (idjoueursilo, iditems, quantite) VALUES (?, ?, ?)"); 
-$reqaugmentersilo = $bdg->prepare("UPDATE silo SET quantite = ? WHERE idjoueursilo = ? AND iditems = ?"); 
+$reqcreersilo = $bdg->prepare("INSERT INTO silo (idjoueursilo, iditems, quantite) VALUES (?, ?, ?)");
+$reqaugmentersilo = $bdg->prepare("UPDATE silo SET quantite = ? WHERE idjoueursilo = ? AND iditems = ?");
 
 // Gestion astéroides.
 $reqmajaste = $bda->prepare('UPDATE champsasteroides SET quantite = ? where idasteroide = ?');
@@ -58,7 +58,6 @@ $reqflotte = $bdg->prepare('    SELECT * FROM flotte f
                                 LEFT JOIN planete p ON p.idplanete = f.idplaneteflotte
                                 WHERE typeordre = ?');
 $requpdateordre = $bdg->prepare('UPDATE flotte SET universdestination = ?, xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ?');
-
 
 $reqflotte->execute(array(1)); // ordre de récolte des astéroides (= typeordre 1) 
 while ($repflotte = $reqflotte->fetch()) 
@@ -128,11 +127,18 @@ while ($repflotte = $reqflotte->fetch())
     $reqsupprimerbataille->execute(array($repflotte['idflotte']));
     $diminution = 1;
 
-    if ($repflotte['universdestination'] > $diminution)
+    if ($repflotte['ydestination'] > $diminution)
         {
         // Diminuer le compteur de 1 ou plus.
-        $tempsrestant = $repflotte['universdestination'] - $diminution;
-        $requpdateordre->execute(array($tempsrestant, $repflotte['xdestination'], 0, 3, 1, $repflotte['idflotte']));
+        $tempsrestant = $repflotte['ydestination'] - $diminution;
+        $requpdateordre->execute(array(0, $repflotte['xdestination'], $tempsrestant, 3, 1, $repflotte['idflotte']));
+
+        // $repflotte['xdestination'] = id de la planète envahie.
+        $reqplanete2->execute(array($repflotte['xdestination']));
+        $repplanete = $reqplanete2->fetch();
+        
+        $reqmessageinterne->execute(array('Ministère de la Défense', $repplanete['idjoueurplanete'], 0, 'Invasion de l\'un de nos mondes !', 'Notre planète '.$repplanete['nomplanete'].' est attaquée et elle devrait tomber d\'ici '.$tempsrestant.' tours !'));
+
         }
     else
         {
@@ -141,7 +147,6 @@ while ($repflotte = $reqflotte->fetch())
         $reqchangementproprioplanete->execute(array($repflotte['idjoueurplanete'], 0, $repflotte['xdestination']));
 
         $reqmessageinterne->execute(array('Force d\'invasion', $repflotte['idjoueurplanete'], 0, 'Planète envahie', 'Nos forces viennent de prendre le contrôle de la planète.'));
-
         }
     }
 
@@ -150,7 +155,6 @@ while ($repflotte = $reqflotte->fetch())
 $reqflotte->execute(array(6)); // 6 = ordre de déplacement normaux.
 while ($repflotte = $reqflotte->fetch())
     {
-    echo 'id de la flotte qui va bouger : '.$repflotte['idflotte'].' <br>';
     $vitesse = vitesseflotte($repflotte['idflotte']);
     $arriveadestination = true ; // par défaut, considérer l'ordre comme exécutable en entier;
 

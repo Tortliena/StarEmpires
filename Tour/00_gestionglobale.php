@@ -2,7 +2,7 @@
 session_start();
 include("../include/BDDconnection.php");
 
-$Commentairestour = 'Le tour commence.' ;
+$Commentairestour = 'Le tour commence.';
 
 // Rien n'est fait ici. Juste contient des fonctions.
 include("01_fonctionsdutour.php");
@@ -89,5 +89,5 @@ include("94_creationflottealienne.php");
 // Permet de créer un résumé du tour pour vérifier les bugs.
 include("95_resumetour.php");
 
-// header('Location: ../administration.php?voir=');
+header('Location: ../administration.php?voir=');
 ?>

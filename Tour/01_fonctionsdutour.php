@@ -37,6 +37,7 @@ function monterniveau($idjoueur, $lvl)
   $reqlvlup = $bdg->prepare('UPDATE utilisateurs SET lvl = lvl + 1 WHERE id = ?');
   $reqlvlup->execute(array($idjoueur));
 
+  $Commentairestour .= 'Le joueur '.$idjoueur.' est monté au niveau '.$lvl.'<br>';
   // Trouver recherche du niveau et qui ont une recherche prérequise :
   $reqrechercheduniveauavecprereq = $bdd->prepare('SELECT r.idrecherche FROM recherche r INNER JOIN gamer.rech_joueur rj ON rj.idrech = r.recherchenecessaire WHERE r.niveauminimal = ? AND rj.rechposs = 1');
   $reqrechercheduniveauavecprereq->execute(array($lvl));
@@ -70,14 +71,15 @@ function nombrealeatoireavecpoid(array $ValeurPoid)
 function gestiondegats($idvaisseauquisefaittirerdessus, $pvvaisseau, $degatdutir, $idarme, $idvaisseauquitire)
   {
   require __DIR__ . '/../include/BDDconnection.php';
-
   $reqdiminuernbtir = $bdg->prepare("UPDATE composantvaisseau SET tirrestant = tirrestant-1 WHERE idtable = ?");
   $reqdiminuernbtir->execute(array($idarme));
 
   $nvpv = $pvvaisseau - $degatdutir;
+  $Commentairestour = 'Le vaisseau '.$idvaisseauquisefaittirerdessus.' se fait tirer dessus par le vaisesau '.$idvaisseauquitire.', il perd '.$degatdutir.' PV.<br>';
   
   if ($nvpv < 0)
     {
+    $Commentairestour .= 'Le vaisseau '.$idvaisseauquisefaittirerdessus.' vient de se faire détruire.<br>';
     $reqinfopvvaisseau = $bdg->prepare('  SELECT p.idjoueurplanete, v.nomvaisseau, f.xflotte, f.yflotte, f.universflotte, v.biensvaisseau, v.titanevaisseau, f.idplaneteflotte
                                           FROM vaisseau v
                                           INNER JOIN flotte f ON f.idflotte = v.idflottevaisseau
@@ -108,12 +110,10 @@ function gestiondegats($idvaisseauquisefaittirerdessus, $pvvaisseau, $degatdutir
       $reqcreerasteroides->execute(array($repinfopvvaisseau['xflotte'], $repinfopvvaisseau['yflotte'], $repinfopvvaisseau['universflotte'], 8, $nbchampsastetitane));
       }
 
-    echo 'Id du vaisseau détruit : '.$idvaisseauquisefaittirerdessus.' <br>';
     $reqinfocargo = $bdg->prepare("SELECT typeitems, quantiteitems FROM cargovaisseau WHERE idvaisseaucargo = ?");
     $reqinfocargo->execute(array($idvaisseauquisefaittirerdessus));
     while ($repinfocargo = $reqinfocargo->fetch())
       { // Cas d'un vaisseau trouvé dans le 1er univers
-      echo 'On passe par la création d\'un asteroide';
       $reqcreerasteroides->execute(array($repinfopvvaisseau['xflotte'], $repinfopvvaisseau['yflotte'], $repinfopvvaisseau['universflotte'], $repinfocargo['typeitems'], $repinfocargo['quantiteitems']));
       }
 
@@ -134,6 +134,7 @@ function gestiondegats($idvaisseauquisefaittirerdessus, $pvvaisseau, $degatdutir
     $reqdiminuerpvvaisseau = $bdg->prepare('UPDATE vaisseau SET HPvaisseau = ? WHERE idvaisseau = ?');
     $reqdiminuerpvvaisseau->execute(array($nvpv, $idvaisseauquisefaittirerdessus));
     }
+  return $Commentairestour;
   }
 
 function disparitionvaisseau($idvaisseau)

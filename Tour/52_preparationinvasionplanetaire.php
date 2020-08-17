@@ -18,7 +18,7 @@ while ($repflotte = $reqflotte->fetch())
     {
     if ($repflotte['bloque'] == 0)
         { // Si bloque 0, alors on vient de donner l'ordre.  
-        $requpdateordre->execute(array(10, $repflotte['xdestination'], 0, 3, 1, $repflotte['idflotte']));
+        $requpdateordre->execute(array(0, $repflotte['xdestination'], 10, 3, 1, $repflotte['idflotte']));
         }
 
     $reqtrouverflottedelaplanete->execute(array($repflotte['universflotte'], $repflotte['universflotte'], $repflotte['xflotte'], $repflotte['xflotte'], $repflotte['yflotte'], $repflotte['yflotte']));

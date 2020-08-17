@@ -60,16 +60,23 @@ while ($repplanete = $reqplanete->fetch())
 
         if (isset($repcategorie['nomlimite'])) // S'il y a un maximum sur l'un de ces batiments.
             {
-            // On récupère la limite.
-            $reqlimite = $bdg->prepare('SELECT '.$repcategorie['nomlimite'].' FROM limiteplanete WHERE idlimiteplanete = ?');
-            $reqlimite->execute(array($repplanete['idplanetevariation']));
-            $replimite = $reqlimite->fetch(); // $replimite['0']
+            if (is_numeric($repcategorie['nomlimite']))
+                {
+                $limite = $repcategorie['nomlimite'];
+                }
+            else
+                {
+                $reqcategorie = $bdg->prepare('SELECT '.$repinfoitem['nomlimite'].' FROM limiteplanete WHERE idlimiteplanete = ?'); 
+                $reqcategorie->execute(array($_POST['id'])); 
+                $repcategorie = $reqcategorie->fetch();
+                $limite = $repcategorie['0'];
+                }
 
             // On récupère le nombre de batiments actuels.
             $reqcomptebat->execute(array($repconstruction['trucaconstruire'], $repplanete['idplanetevariation']));
             $repcomptebat = $reqcomptebat->fetch();  
 
-            if ($replimite['0']<=$repcomptebat['nb'])
+            if ($limite<=$repcomptebat['nb'])
                 {
                 $reqsupprimercontruction->execute(array($repconstruction['idconst']));
                 break; // Permet de gérer le cas des construction au delà de la limite.

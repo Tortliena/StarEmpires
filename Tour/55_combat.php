@@ -34,9 +34,9 @@ for($a = 1 ; $a != 0 ; )
     $a = 0; // Si on arrive pas à trouver une bataille, alors on arrête.
     $reqbatailleencours->execute(); // Sélectionne une bataille au hasard.
     $repbatailleencours = $reqbatailleencours->fetch();
-    // echo $repbatailleencours['idbataille'] . 'id de la bataille</br>';
     if (isset($repbatailleencours[0]))
         {
+        $Commentairestour .= 'Bataille avec l\'ID '.$repbatailleencours['idbataille'].'.</br>';
         $a++;
         $reparmeoffensive['degatpartir'] = 0 ;
         $reparmedefensive['degatpartir'] = 0 ;
@@ -53,21 +53,20 @@ for($a = 1 ; $a != 0 ; )
         if  (   !isset($repinfopvvaisseaudefensif['tirrestant']) OR !isset($repinfopvvaisseauattaquant['tirrestant'])
                 OR ($repinfopvvaisseaudefensif['tirrestant'] < 1 AND $repinfopvvaisseauattaquant['tirrestant'] < 1) )
             { // On désactive la bataille.
-            // echo 'désactivation de la bataille' ; 
+            $Commentairestour .= 'Désactivation de la bataille avec l\'ID '.$repbatailleencours['idbataille'] ; 
             $reqdesactiverbataille->execute(array($repbatailleencours['idbataille']));
             goto a;
             }
 
         if ($repinfopvvaisseauattaquant['tirrestant'] > 0)
             { // Si on a une arme de l'attaquant, on gère le tir sur le défenseur.
-            // echo 'Tir de lattaquant <br>';
-            gestiondegats($repinfopvvaisseaudefensif['idvaisseau'], $repinfopvvaisseaudefensif['HPvaisseau'], $repinfopvvaisseauattaquant['degatpartir'], $repinfopvvaisseauattaquant['idtable'], $repinfopvvaisseauattaquant['idvaisseau']);
+            $Commentairestour .= gestiondegats($repinfopvvaisseaudefensif['idvaisseau'], $repinfopvvaisseaudefensif['HPvaisseau'], $repinfopvvaisseauattaquant['degatpartir'], $repinfopvvaisseauattaquant['idtable'], $repinfopvvaisseauattaquant['idvaisseau']);
+            
             }
 
         if ($repinfopvvaisseaudefensif['tirrestant'] > 0)
             { // Si on a une arme du défenseur, on gère le tir sur l'attaquant.
-            // echo 'Tir du défenseur<br>';
-            gestiondegats($repinfopvvaisseauattaquant['idvaisseau'], $repinfopvvaisseauattaquant['HPvaisseau'], $repinfopvvaisseaudefensif['degatpartir'], $repinfopvvaisseaudefensif['idtable'], $repinfopvvaisseaudefensif['idvaisseau']);
+            $Commentairestour .= gestiondegats($repinfopvvaisseauattaquant['idvaisseau'], $repinfopvvaisseauattaquant['HPvaisseau'], $repinfopvvaisseaudefensif['degatpartir'], $repinfopvvaisseaudefensif['idtable'], $repinfopvvaisseaudefensif['idvaisseau']);
             }
         a:
         }

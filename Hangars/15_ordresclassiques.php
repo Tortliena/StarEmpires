@@ -24,18 +24,11 @@ elseif ($touslesvaisseauxontunnoyau == 4)
 	formulaireordredeplacement(2, $_GET['id'], 'Saut dimensionnel : ', $_SESSION['id'], 0, 0);
 	}
 
-// Si il y a un ordre de déplacement en cours :    
+// Si il y a un ordre en cours :    
 if ($repflotte['typeordre']>0)   
 	{
 	annulerordrededeplacement($repflotte['typeordre'], $_GET['id'], $repflotte['xdestination'], $repflotte['ydestination'], $repflotte['bloque']);   
 	}
 
 echo '<p>Votre flotte est en balade en ' . $repflotte['universflotte'] . ' , ' . $repflotte['xflotte'] . ' , ' . $repflotte['yflotte'] . '</p>';   
-
-
-// Formulaire pour donner un ordre de déplacement.   
-if (isset($_GET['x']))   
-	{
-	formulaireordredeplacement(6, $_GET['id'], 0, $_GET['x'], $_GET['y'], $xymax);   
-	}
 ?>

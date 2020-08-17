@@ -4,12 +4,13 @@ session_start();
 include("../include/BDDconnection.php");
 */
 
-$reqmajlimite = $bdg->prepare('UPDATE limiteplanete SET popmax = ?, maxchantier = ?, ouvriermax = ?, maxcentrederecherche = ?, scientmax = ?, maxmegalopole = ? , maxbaselunaire = ? WHERE idlimiteplanete = ?');
+$reqmajlimite = $bdg->prepare('UPDATE limiteplanete SET popmax = ?, ouvriermax = ?, scientmax = ?, maxmegalopole = ? , maxbaselunaire = ?, maxflotte = ? WHERE idlimiteplanete = ?');
 
 $reqcompterbatiment = $bdg->prepare('SELECT sum(case when typebat = 1 then 1 else 0 end) AS centrederecherche,
                                             sum(case when typebat = 2 then 1 else 0 end) AS chantier,
                                             sum(case when typebat = 3 then 1 else 0 end) AS megalopole,
-                                            sum(case when typebat = 4 then 1 else 0 end) AS baselunaire
+                                            sum(case when typebat = 4 then 1 else 0 end) AS baselunaire,
+                                            sum(case when typebat = 33 then 1 else 0 end) AS HQ
                                     FROM batiment WHERE idplanetebat = ?');
 
 // Gerer les planetes une par une. Compter batiments. Taille planete. Compter pop.
@@ -23,22 +24,16 @@ while ($repinfoplanete = $reqinfoplanete->fetch())
 
     $maxpop = $repinfoplanete['taille'] + $repcompterbatiment['megalopole'] + $repcompterbatiment['baselunaire'];
 
-    // Calcul du max de chantiers :
-    $maxchantiers = 1;
-
-    // Calcul du max d'ouvriers :
     $maxouvriers = max (1, $repcompterbatiment['chantier']*5);
 
-    // Calcul du max de centre de recherche :
-    $maxcentrederecherche = 1;
-
-    // Calcul du max de scientifiques
     $maxscientifiques = max (1, $repcompterbatiment['centrederecherche']*5);
     
     $maxmegalopole = floor($repinfoplanete['population']/4);
     
     $maxbaselunaire = $repinfoplanete['lune'];
+
+    $maxflotte = 1 + $repcompterbatiment['HQ'];
     
-    $reqmajlimite->execute(array($maxpop, $maxchantiers, $maxouvriers, $maxcentrederecherche, $maxscientifiques, $maxmegalopole, $maxbaselunaire, $repinfoplanete['idplanete']));
+    $reqmajlimite->execute(array($maxpop, $maxouvriers, $maxscientifiques, $maxmegalopole, $maxbaselunaire, $maxflotte, $repinfoplanete['idplanete']));
     }
 ?>

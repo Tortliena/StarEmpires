@@ -43,27 +43,27 @@ $requtilisateur->execute(array(
     'pass' => $pass_hache,));
 $dernierIDjoueur = $bdg->lastInsertId();
 
+$reqexplorationplanete = $bdg->prepare('INSERT INTO explore (univers, x, y, idexplorateur, tourexploration) VALUES(?, ?, ?, ?, ?)');
+$reqexplorationplanete->execute(array($dernierIDjoueur, 3, 3, $dernierIDjoueur, 1));
+
+//GESTION DE LA CRÉATION DE LA PLANÈTE
 $reqcreerplanete = $bdg->prepare('INSERT INTO planete(xplanete, yplanete, universplanete, idjoueurplanete, biens, organisation, efficacite) VALUES(?, ?, ?, ?, ?, ?, ?)');
 $reqcreerplanete->execute(array(3, 3, $dernierIDjoueur, $dernierIDjoueur, 300, 9000, 100));
 $dernierIDplanete = $bdg->lastInsertId();
-
 // Permet de créer des citoyens de multiples fois
 $reqpop = $bdg->prepare('INSERT INTO population(idplanetepop, typepop) VALUES(?, ?)');
-
 $nbdepop = 6;
 for ($i = 0; $i < $nbdepop; $i++)
     { // Permet d'inserer 6 citoyens sur la planete cree.
     $reqpop->execute(array($dernierIDplanete, 1));
     }
-
 $reqcreervariation = $bdg->prepare('INSERT INTO variationstour (idplanetevariation, prodbiens, consobiens) VALUES(?, ?, ?)');
 $reqcreervariation->execute(array($dernierIDplanete, 5*$nbdepop, $nbdepop));
 $reqcreerlimiteplanete = $bdg->prepare('INSERT INTO limiteplanete (idlimiteplanete) VALUES(?)');
 $reqcreerlimiteplanete->execute(array($dernierIDplanete));
-$reqexplorationplanete = $bdg->prepare('INSERT INTO explore (univers, x, y, idexplorateur, tourexploration) VALUES(?, ?, ?, ?, ?)');
-$reqexplorationplanete->execute(array($dernierIDjoueur, 3, 3, $dernierIDjoueur, 1));
-
-
+$reqcreerquartiergeneral = $bdg->prepare('INSERT INTO batiment (typebat, idplanetebat) VALUES(?, ?)');
+$reqcreerquartiergeneral->execute(array(33, $dernierIDplanete));
+// FIN GESTION CRÉATION PLANETE.
 
 $_SESSION['pseudo'] = $_POST["pseudo"];
 $_SESSION['id'] = $dernierIDjoueur;
