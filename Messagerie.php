@@ -45,7 +45,6 @@ include("include/BDDconnection.php");
     </p>
     </form>
 
-
     <?php
     $reqmessagerecusinterne = $bdg->prepare('SELECT idmessagerieinterne , expediteur , lu , titre , texte FROM messagerieinterne WHERE destinataire = ?');
     $a = 0; // Permet de faire apparaitre une seule fois <h2>Messages internes :</h2>

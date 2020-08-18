@@ -61,6 +61,10 @@ if (isset($_COOKIE['id']) AND !isset($_SESSION['id']))
   	</p>
 </form>
 
+<?php
+require __DIR__ . '/include/affichernews.php';
+?>
+
     </div>
     </body>
 </html>

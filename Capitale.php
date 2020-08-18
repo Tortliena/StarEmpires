@@ -115,6 +115,8 @@ else
   echo 'Pas d\'objectif prévu pour ce niveau.';
   } 
 
+require __DIR__ . '/include/affichernews.php';
+
   ?> 
   </div> 
   </body> 

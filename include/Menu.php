@@ -12,7 +12,7 @@ echo 'Tour '.$touractuel['id'].'</br>' ;
 // Partie non connectée
 if (!isset($_SESSION['pseudo'])) 
 	{
-	echo '<a class ="lienmenu" href="Accueil.php">Accueil</a>' ;
+	echo '<a class ="lienmenu" href="/starempires/Accueil.php">Accueil</a>' ;
 	}
 
 // Partie connectée
@@ -23,7 +23,7 @@ else
     $reqlvl->execute(array($_SESSION['id']));
     $replvl = $reqlvl->fetch();
     echo 'Logging : ' . $_SESSION['pseudo'] . ' </br> ';
-    echo '<a class ="lienmenu" href="script/deconnection.php">Déconnection</a></br>';
+    echo '<a class ="lienmenu" href="/starempires/script/deconnection.php">Déconnection</a></br>';
     echo '<a class ="lienmenu" href="Messagerie.php">Messagerie</br>';
 
     $reqmessnonlu = $bdg->prepare('SELECT COUNT(*) AS nbmessnonlu FROM messagerie WHERE idjoueurrecepteur = ? AND lu = ? AND supprimerecepteur = ?');
@@ -41,15 +41,15 @@ else
         }
     echo '</a></br>';
         
-    echo '<a class ="lienmenu"  href="Capitale.php">Capitale</a> </br>';
+    echo '<a class ="lienmenu"  href="/starempires/Capitale.php">Capitale</a> </br>';
 	if ($replvl['lvl'] > 1)
         {
-        echo '<a class ="lienmenu" href="Recherche.php">Recherche</a></br>';
+        echo '<a class ="lienmenu" href="/starempires/Recherche.php">Recherche</a></br>';
 	    }
 
 	if ($replvl['lvl'] > 6) 
         {
-        echo '<a class ="lienmenu" href="Conception.php">Conception</a></br>';
+        echo '<a class ="lienmenu" href="/starempires/Conception.php">Conception</a></br>';
         }
 
  	echo '</br><span class = "titremenu">Planètes</span></br>';
@@ -60,7 +60,7 @@ else
     $reqplanete->execute(array($_SESSION['id']));
     while ($repplanete = $reqplanete->fetch())
         {
-        echo '<a class ="lienmenu" href="planete.php?id=' . $repplanete['idplanete'] . '">' . $repplanete['nomplanete'] . '</a></br>';
+        echo '<a class ="lienmenu" href="/starempires/planete.php?id=' . $repplanete['idplanete'] . '">' . $repplanete['nomplanete'] . '</a></br>';
        
         $ecrirehangars = 1 ;
         $reqflotte->execute(array($repplanete['idplanete']));
@@ -71,7 +71,7 @@ else
                 if ($ecrirehangars == 1) {echo '</br><span class = "titremenu">Hangars</span></br>' ; }
                     $ecrirehangars = 2 ;
                 
-                echo '<a class ="lienmenu" href="hangars.php?id=' . $repflotte['idflotte'] . '">' . $repflotte['nomflotte'] . '</a></br>';
+                echo '<a class ="lienmenu" href="/starempires/hangars.php?id=' . $repflotte['idflotte'] . '">' . $repflotte['nomflotte'] . '</a></br>';
 
                 switch ($repflotte['typeordre'])
                     {
@@ -116,8 +116,6 @@ else
         $reqflotte->closeCursor();
         } // Fin partie planète
     } // Fin partie connectée.
-
-
 ?>
 
 <!-- Passer le tour manuellement -->
@@ -126,11 +124,12 @@ else
 <input type="submit" value="Passer le tour" />
 </p>
 </form>
-<b><a class ="lienmenu" href="Administration.php">Admin</a></b></br> </br>
-<a class ="lienmenu" href="tour/test.php">test du tour</a> </br> 
-<a class ="lienmenu" href="test.php?id=1">test de page</a> </br>
-<a class ="lienmenu" href="script/test.php?table=autre&amp;backup=non">test de script</a> </br>
-<a class ="lienmenu" href="afaire.php">À faire</a> </br> </br>
+<b><a class ="lienmenu" href="/starempires/administration/Administration.php">Admin</a></b></br> </br>
+<a class ="lienmenu" href="/starempires/tour/test.php">test du tour</a> </br> 
+<a class ="lienmenu" href="/starempires/test.php?id=1">test de page</a> </br>
+<a class ="lienmenu" href="/starempires/script/test.php?table=autre&amp;backup=non">test de script</a> </br>
+<a class ="lienmenu" href="/starempires/administration/afaire.php">À faire</a> </br> </br>
+<a class ="lienmenu" href="/starempires/forum/index.php">Forum</a></br>
 
 </div>    
 </nav>

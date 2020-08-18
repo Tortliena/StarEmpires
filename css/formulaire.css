@@ -39,9 +39,10 @@ input[type="checkbox"] + label:before
 	display: inline-block;
 	font: 16px/1em sans-serif;
 	height: 16px;
-	margin: 0 .25em 0 0;
-	padding: 0;
-	vertical-align: bottom;
+	margin-bottom: 2px;
+	margin-left: 0px;
+	margin-right: 5px;
+	vertical-align: center;
 	width: 16px;
 	}
 
