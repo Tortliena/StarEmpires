@@ -77,7 +77,7 @@ $reqconstencours->execute(array($_GET['id']));
 while ($repconstencours = $reqconstencours->fetch()) 
   { 
   // Formulaire pour gérer la construction : 
-  echo '<form method="post" action="script/gererconstruction.php">'; 
+  echo '<form method="post" action="script/gererconstruction.php">';
  
   if ($repconstencours['trucaconstruire']>0) 
     { // Cas des constructions d'items. 
@@ -97,19 +97,19 @@ while ($repconstencours = $reqconstencours->fetch())
     echo ' et ' . $repconstencours['avancementtitane'] . ' métaux rares'; 
     } 
   echo ' pour le prochain.';   
-  echo '<input type="hidden" name="idplanete" value="'.$_GET['id'].'">'; 
+  echo '<input type="hidden" name="idplanete" value="'.$_GET['id'].'">';
   echo '<input id = "checkbox'.$repconstencours['idconst'].'" type="checkbox" name="perdreressources"/> <label for="checkbox'.$repconstencours['idconst'].'"></label>'; 
   echo '<input type="hidden" name="idconstruction" value="'.$repconstencours['idconst'].'">'; 
-  echo '<a class="infobulle"><input type="image" alt="annuler" src="imagecarte/annuler.png" formaction="script/gererconstruction.php?action=annuler"/><span>Annuler<br>Besoin de cocher la case à gauche dans le cas des construction partiellement avancée ou des vaisseaux. Ressources perdues dans ce cas.</span></a>'; 
+  echo '<a class="infobulle"><input type="image" alt="annuler" src="/starempires/imagecarte/annuler.png" formaction="script/gererconstruction.php?action=annuler"/><span>Annuler<br>Besoin de cocher la case à gauche dans le cas des construction partiellement avancée ou des vaisseaux. Ressources perdues dans ce cas.</span></a>';
   if ($repconstencours['ordredeconstruction']>0) 
     { // La construction est en cours.
-    echo ' <a class="infobulle"><input type="image" alt="prioriser" src="imagecarte/Flechehaut.png" formaction="script/gererconstruction.php?action=prioriser"/><span>Prioriser</span></a>';
-    echo ' <a class="infobulle"><input type="image" alt="deprioriser" src="imagecarte/Flechebas.png" formaction="script/gererconstruction.php?action=deprioriser"/><span>Deprioriser</span></a>';
-    echo ' <a class="infobulle"><input type="image" alt="en pause" src="imagecarte/pause.png" formaction="script/gererconstruction.php?action=pause"/><span>Mettre en pause</span></a>'; 
+    echo ' <a class="infobulle"><input type="image" alt="prioriser" src="/starempires/imagecarte/Flechehaut.png" formaction="script/gererconstruction.php?action=prioriser"/><span>Prioriser</span></a>';
+    echo ' <a class="infobulle"><input type="image" alt="deprioriser" src="/starempires/imagecarte/Flechebas.png" formaction="script/gererconstruction.php?action=deprioriser"/><span>Deprioriser</span></a>';
+    echo ' <a class="infobulle"><input type="image" alt="en pause" src="/starempires/imagecarte/pause.png" formaction="script/gererconstruction.php?action=pause"/><span>Mettre en pause</span></a>'; 
     } 
   elseif ($repconstencours['ordredeconstruction']<1) 
     { // La construction est sur pause. 
-    echo ' <a class="infobulle"><input type="image" alt="reprendre" src="imagecarte/reprendre.png" formaction="script/gererconstruction.php?action=reprise"/><span>Reprendre</span></a>';
+    echo ' <a class="infobulle"><input type="image" alt="reprendre" src="/starempires/imagecarte/reprendre.png" formaction="script/gererconstruction.php?action=reprise"/><span>Reprendre</span></a>';
     }
 
   echo '</form></br>'; 

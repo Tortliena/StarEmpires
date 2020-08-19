@@ -1,5 +1,5 @@
 <?php exit; ?>
-1597766915
+1597774974
 SELECT forum_id FROM phpbb_forums WHERE forum_options & 2 <> 0 LIMIT 1
 6
 a:0:{}

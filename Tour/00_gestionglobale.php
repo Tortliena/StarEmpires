@@ -62,6 +62,9 @@ include("65_exploration.php");
 // Applique la production du tour de recherche sur les recherches en cours.
 include("70_recherchetour.php");
 
+// Destruction des bâtiments.
+include("72_destructionbatiment.php");
+
 // Mise à jour des limites des joueurs (pop, bat).
 include("75_limiteplanete.php");
 
@@ -89,5 +92,6 @@ include("94_creationflottealienne.php");
 // Permet de créer un résumé du tour pour vérifier les bugs.
 include("95_resumetour.php");
 
-header('Location: ../administration.php?voir=');
+// exit;
+header('Location: /starempires/administration/Administration.php?voir=');
 ?>

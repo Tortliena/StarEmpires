@@ -1,11 +1,11 @@
 <?php 
-include("planete/01_entete.php");
+include("01_entete.php");
 
 $reqplanete = $bdg->prepare('SELECT * FROM planete p LEFT JOIN limiteplanete l ON l.idlimiteplanete = p.idplanete WHERE p.idplanete = ?');
 $reqplanete->execute(array($_GET['id']));
 $repplanete = $reqplanete->fetch();
 
-include("planete/02_debutpage.php");
+include("02_debutpage.php");
 
 $reqcompterpop = $bdg->prepare('SELECT  COUNT(*) AS population,
                                         sum(case when typepop = 1 then 1 else 0 end) AS citoyens,
@@ -20,21 +20,21 @@ $reqcompterflotte = $bdg->prepare('SELECT COUNT(*) AS nb FROM flotte WHERE idpla
 $reqcompterflotte->execute(array($_GET['id']));                               
 $repcompterflotte = $reqcompterflotte->fetch();
 
-include("planete/06_infogeneraleplanete.php");
+include("06_infogeneraleplanete.php");
 
-include("planete/10_gestionpop.php");
+include("10_gestionpop.php");
 
 if ($replvl['lvl'] > 1)
   {
-  include("planete/15_infobatiments.php");
+  include("15_infobatiments.php");
   }
 
 if ($repcompterpop['ouvriers']>0)
   { 
-  include("planete/20_chantierconstruction.php");
+  include("20_chantierconstruction.php");
   }
 
-include("planete/25_vaisseauxenorbite.php");
+include("25_vaisseauxenorbite.php");
 
 echo '<table class="silo"><caption><h3>Entrepôts</h3></caption><tr><td class="silo1ereligne">Objet</td><td class="silo1ereligne">Quantité</td><td class="silo1ereligne">Utilité</td></tr>'; 
 if ($repplanete['biens']>0) 
@@ -54,7 +54,7 @@ $reqSiloItems = $bdd->prepare(' SELECT s.quantite, i.description, i.nombatiment
                                 FROM gamer.silo s 
                                 INNER JOIN items i 
                                 ON i.iditem = s.iditems 
-                                WHERE s.idplanetesilo = ?'); 
+                                WHERE s.idplanetesilo = ?');
 $reqSiloItems->execute(array($_GET['id'])); 
  
 while($repSiloItems = $reqSiloItems->fetch()) 
@@ -68,4 +68,4 @@ while($repSiloItems = $reqSiloItems->fetch())
         } 
     }
     ?>  
-</table></div></body> 
+</table></div></body>

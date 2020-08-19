@@ -60,7 +60,7 @@ else
     $reqplanete->execute(array($_SESSION['id']));
     while ($repplanete = $reqplanete->fetch())
         {
-        echo '<a class ="lienmenu" href="/starempires/planete.php?id=' . $repplanete['idplanete'] . '">' . $repplanete['nomplanete'] . '</a></br>';
+        echo '<a class ="lienmenu" href="/starempires/planete/00_planete.php?id=' . $repplanete['idplanete'] . '">' . $repplanete['nomplanete'] . '</a></br>';
        
         $ecrirehangars = 1 ;
         $reqflotte->execute(array($repplanete['idplanete']));
@@ -119,7 +119,7 @@ else
 ?>
 
 <!-- Passer le tour manuellement -->
-<form action="tour/00_Gestionglobale.php">
+<form action="/starempires/tour/00_Gestionglobale.php">
 <p>
 <input type="submit" value="Passer le tour" />
 </p>

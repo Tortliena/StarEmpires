@@ -100,4 +100,7 @@ else
 
 	include("hangars/25_affichervaisseauflotte.php");
 	}
+
+include("hangars/30_rapportdecombat.php");
+
 echo '</div></body></html>';

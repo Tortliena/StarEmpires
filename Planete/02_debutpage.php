@@ -10,8 +10,9 @@ echo '<input name="id" type="hidden" value="'.$_GET['id'].'">';
 echo '<input name="type" type="hidden" value="planete">';
 echo '<input type="submit" value="Renommer"/></h1></form>';
 
-include("include/message.php") ; 
+include("../include/message.php") ; 
 $typemessage = 'planete' ;  
-include("include/resume.php"); 
-include("Function/infobulle.php");
+include("../include/resume.php"); 
+include("../function/infobulle.php");
+include("fonction/detruire.php");
 ?>

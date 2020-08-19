@@ -1,12 +1,14 @@
 <?php 
 session_start(); 
-include("../include/BDDconnection.php"); 
-include("../function/consommercreeritemsplanetemultiple.php"); 
+include("../../include/BDDconnection.php"); 
+include("../../function/consommercreeritemsplanetemultiple.php"); 
 
+/*
 echo $_SESSION['id'] . '</br>' ; 
 echo $_POST['combien'] . '</br>'; 
 echo $_POST['trucaconstruire'] . '</br>'; 
 echo $_POST['id'] . '</br>'; 
+*/
 
 $nummessage = 12; // Message par défaut en cas de construction lancée.
 
@@ -18,7 +20,7 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
 //Vérifier que la quantité est correcte.  
     if (empty($_POST['combien']) or $_POST['combien'] == NULL or $_POST['combien'] < 1 ) 
         { 
-        header("Location: ../planete.php?message=11&id=" . urlencode($_POST['id'])); 
+        header("Location: ../00_planete.php?message=11&id=" . urlencode($_POST['id'])); 
         exit();   
         } 
  
@@ -35,7 +37,7 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
 			$repverifiertechnologie = $reqverifiertechnologie->fetch();
 			if (!isset($repverifiertechnologie['idrechprinc']))
 				{
-				header("Location: ../planete.php?message=31&id=" . urlencode($_POST['id'])); 
+				header("Location: ../00_planete.php?message=31&id=" . urlencode($_POST['id'])); 
 		    	exit();
 		    	} 
 		    }	
@@ -53,7 +55,6 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
 		        $replimite = $reqlimite->fetch();
 	        	$limite = $replimite['0'];
 	        	}
-
  
 	        $reqcomptechantier = $bdg->prepare('SELECT COUNT(idbat) as nb FROM batiment WHERE typebat = ? AND idplanetebat = ?'); 
 	        $reqcomptechantier->execute(array($_POST['trucaconstruire'], $_POST['id'])); 
@@ -71,7 +72,7 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
 	            { 
 	            $_SESSION['message1'] = $limite; 
 	            $_SESSION['message2'] = $repcomptechantier['nb']; 
-                header("Location: ../planete.php?message=29&id=" . urlencode($_POST['id'])); 
+                header("Location: ../00_planete.php?message=29&id=" . urlencode($_POST['id'])); 
 	            exit();   
 	            } 
 	        } 
@@ -83,12 +84,12 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
             $repverifsilo = $reqverifsilo->fetch();        
             if ($repverifsilo['quantite']<$_POST['combien']) 
                 { // Vous n'avez pas assez en stock pour faire autant de construction ! 
-                header("Location: ../planete.php?message=28&id=" . urlencode($_POST['id']));  
+                header("Location: ../00_planete.php?message=28&id=" . urlencode($_POST['id']));  
                 exit(); 
                 } 
             else 
                 { // On a du stock, donc on le consomme. 
-                consommercreeritemsplanetemultiple($repinfoitem['itemnecessaire'], 0, $_POST['id'], $_POST['combien']); 
+                consommercreeritemsplanetemultiple($repinfoitem['itemnecessaire'], 0, $_POST['id'], $_POST['combien']);
                 } 
             } 
         // Permet de gérer le message de construction.  
@@ -105,7 +106,7 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
  
         if (!isset($repinfovaisseau['nomvaisseau'])) 
             { // Vérifier idjoueur et idvaisseau : Virer si pas bon ensemble. 
-            header("Location: ../planete.php?message=31&id=" . urlencode($_POST['id'])); 
+            header("Location: ../00_planete.php?message=31&id=" . urlencode($_POST['id'])); 
             exit(); 
             } 
     	 
@@ -125,7 +126,7 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
 
 		        if ($repinfoitem['itemnecessaire']!=0)
 	        		{ // Item 'constructible' par recherche.
-					header("Location: ../planete.php?message=31&id=" . urlencode($_POST['id']));
+					header("Location: ../00_planete.php?message=31&id=" . urlencode($_POST['id']));
 				    exit();
 				    }
 
@@ -135,7 +136,7 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
 					$repverifiertechnologie = $reqverifiertechnologie->fetch();
 					if (!isset($repverifiertechnologie['idrechprinc']))
 						{
-						header("Location: ../planete.php?message=31&id=" . urlencode($_POST['id']));
+						header("Location: ../00_planete.php?message=31&id=" . urlencode($_POST['id']));
 				    	exit();
 				    	}
 				    }
@@ -155,7 +156,7 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
 			} 
 		if ($a != 0) 
 			{ 
-			header("Location: ../planete.php?message=61&id=" . urlencode($_POST['id'])); 
+			header("Location: ../00_planete.php?message=61&id=" . urlencode($_POST['id'])); 
 		    exit(); 
 		    }
 
@@ -196,6 +197,6 @@ $reqordredeconstruction->execute(array($repderniereconst['ordredeconstruction']+
 $_SESSION['message1'] = $_POST['combien'];
 $_SESSION['message2'] = $reptransformernom['nombatiment'];
 
-header("Location: ../planete.php?message=" . urlencode($nummessage) . "&id=" . urlencode($_POST['id']));
+header("Location: ../00_planete.php?message=" . urlencode($nummessage) . "&id=" . urlencode($_POST['id']));
 exit();
 ?>

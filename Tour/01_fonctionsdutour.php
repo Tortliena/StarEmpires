@@ -68,8 +68,9 @@ function nombrealeatoireavecpoid(array $ValeurPoid)
     }
   }
 
-function gestiondegats($idvaisseauquisefaittirerdessus, $pvvaisseau, $degatdutir, $idarme, $idvaisseauquitire)
+function gestiondegats($idvaisseauquisefaittirerdessus, $pvvaisseau, $degatdutir, $idarme, $idvaisseauquitire, $idflotteattaquant, $idflottedefenseur, $sensbataille)
   {
+  // Si sensbataille = 1 = vaisseau qui tire = flotte attaquant. Si sensbataille = 2 = vaisseau qui tire = flotte defense.
   require __DIR__ . '/../include/BDDconnection.php';
   $reqdiminuernbtir = $bdg->prepare("UPDATE composantvaisseau SET tirrestant = tirrestant-1 WHERE idtable = ?");
   $reqdiminuernbtir->execute(array($idarme));
@@ -77,8 +78,13 @@ function gestiondegats($idvaisseauquisefaittirerdessus, $pvvaisseau, $degatdutir
   $nvpv = $pvvaisseau - $degatdutir;
   $Commentairestour = 'Le vaisseau '.$idvaisseauquisefaittirerdessus.' se fait tirer dessus par le vaisesau '.$idvaisseauquitire.', il perd '.$degatdutir.' PV.<br>';
   
+  $texte1 = '<br>Votre vaisseau ('.$idvaisseauquitire.') vient de tirer sur un vaisseau ennemi ('.$idvaisseauquisefaittirerdessus.'). '.$degatdutir.' dégâts infligés.';
+  $texte2 = '<br>Votre vaisseau ('.$idvaisseauquisefaittirerdessus.') se fait tirer dessus par un vaisseau ennemi ('.$idvaisseauquitire.'). '.$degatdutir.' dégâts recus.';
+
   if ($nvpv < 0)
     {
+    $texte2 .= ' Vaisseau détruit.';
+
     $Commentairestour .= 'Le vaisseau '.$idvaisseauquisefaittirerdessus.' vient de se faire détruire.<br>';
     $reqinfopvvaisseau = $bdg->prepare('  SELECT p.idjoueurplanete, v.nomvaisseau, f.xflotte, f.yflotte, f.universflotte, v.biensvaisseau, v.titanevaisseau, f.idplaneteflotte
                                           FROM vaisseau v
@@ -134,6 +140,37 @@ function gestiondegats($idvaisseauquisefaittirerdessus, $pvvaisseau, $degatdutir
     $reqdiminuerpvvaisseau = $bdg->prepare('UPDATE vaisseau SET HPvaisseau = ? WHERE idvaisseau = ?');
     $reqdiminuerpvvaisseau->execute(array($nvpv, $idvaisseauquisefaittirerdessus));
     }
+
+  $reqtrouverrapportdecombat = $bdg->prepare('SELECT idrapportcombat FROM rapportcombat WHERE idflotteattaquant = ? AND idflottedefenseur = ?');
+  $reqtrouverrapportdecombat->execute(array($idflotteattaquant, $idflottedefenseur));
+  $reptrouverrapportdecombat = $reqtrouverrapportdecombat->fetch();
+
+  // Vérifier si le rapport existe. Si ce n'est pas le cas, le créer.
+  if (!isset($reptrouverrapportdecombat['idrapportcombat']))
+    {
+    $reqcreerrapportcombat = $bdg->prepare('INSERT INTO rapportcombat (idflotteattaquant, idflottedefenseur, texteattaquant, textedefenseur) VALUES(?, ?, ?, ?)');
+    $texteattaquant = 'Début du rapport de combat. Vous attaquez une flotte ('.$idflottedefenseur.').';
+    $textedefenseur = 'Début du rapport de combat. Vous êtes attaqués par une flotte ('.$idflotteattaquant.').';
+    $reqcreerrapportcombat->execute(array($idflotteattaquant, $idflottedefenseur, $texteattaquant, $textedefenseur));
+    }
+
+  if($sensbataille == 1)
+    {
+    $textesupplementaireattaquant = $texte1;
+    $textesupplementairedefenseur = $texte2;
+    }
+  elseif($sensbataille == 2)
+    {
+    $textesupplementaireattaquant = $texte2;
+    $textesupplementairedefenseur = $texte1;
+    }
+
+  // Le compléter.
+  $requpdaterapportcombat = $bdg->prepare('
+        UPDATE rapportcombat
+        SET texteattaquant = concat(texteattaquant, ?), textedefenseur = concat(textedefenseur, ?) WHERE idflotteattaquant = ? AND idflottedefenseur = ?');
+  $requpdaterapportcombat->execute(array($textesupplementaireattaquant, $textesupplementairedefenseur, $idflotteattaquant, $idflottedefenseur));
+
   return $Commentairestour;
   }
 

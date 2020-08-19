@@ -19,4 +19,7 @@ $bdg->exec('DELETE FROM variationstour');
 // Vider la table des évènements en cours
 $bdg->exec('DELETE FROM choixevents');
 
+// Vider la table des évènements en cours
+$bdg->exec('DELETE FROM rapportcombat');
+
 ?>

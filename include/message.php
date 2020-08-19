@@ -340,7 +340,15 @@ switch ($_GET["message"])
     case 77: 
         echo "La première construction et celle que vous avez priorisé devraient être inversé maintenant."; 
     break;
-    } 
+
+    case 78: 
+        echo "Ordre de destruction d'un batiment enregistré."; 
+    break;
+
+    case 79: 
+        echo "Annulation de la destruction du batiment."; 
+    break;
+    }
  
 unset($_SESSION['message1']); 
 unset($_SESSION['message2']); 
