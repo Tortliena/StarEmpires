@@ -313,40 +313,44 @@ switch ($_GET["message"])
         echo "Vous venez d'envoyer votre vaisseau rejoindre la planète."; 
     break;
 
-    case 71: 
-        echo "Vous venez de livrer des biens sur votre planète"; 
+    case 71:
+        echo "Vous venez de livrer des biens sur votre planète";
     break;
 
-    case 72: 
-        echo "Vente effectuée !"; 
+    case 72:
+        echo "Vente effectuée !";
     break;
 
-    case 73: 
-        echo "Achat effectué !"; 
+    case 73:
+        echo "Achat effectué !";
     break;
 
-    case 74: 
-        echo "Composant retiré"; 
-    break;
-    
-    case 75: 
-        echo "Plan de vaisseau modifié"; 
+    case 74:
+        echo "Composant retiré";
     break;
 
-    case 76: 
-        echo "Impossible de modifier ce plan, il est actuellement utilisé dans nos usines."; 
+    case 75:
+        echo "Plan de vaisseau modifié";
     break;
 
-    case 77: 
-        echo "La première construction et celle que vous avez priorisé devraient être inversé maintenant."; 
+    case 76:
+        echo "Impossible de modifier ce plan, il est actuellement utilisé dans nos usines.";
     break;
 
-    case 78: 
-        echo "Ordre de destruction d'un batiment enregistré."; 
+    case 77:
+        echo "La première construction et celle que vous avez priorisé devraient être inversé maintenant.";
     break;
 
-    case 79: 
-        echo "Annulation de la destruction du batiment."; 
+    case 78:
+        echo "Ordre de destruction d'un batiment enregistré.";
+    break;
+
+    case 79:
+        echo "Annulation de la destruction du batiment.";
+    break;
+
+    case 80:
+        echo "Plan réinitialisé.";
     break;
     }
  

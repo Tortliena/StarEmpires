@@ -17,8 +17,9 @@ $reqflotte->execute(array(3)); // Ordre d\'invasion d'une planète.
 while ($repflotte = $reqflotte->fetch()) 
     {
     if ($repflotte['bloque'] == 0)
-        { // Si bloque 0, alors on vient de donner l'ordre.  
-        $requpdateordre->execute(array(0, $repflotte['xdestination'], 10, 3, 1, $repflotte['idflotte']));
+        { // Si bloque 0, alors on vient de donner l'ordre.
+        $tempsinvasion = variable(9); 
+        $requpdateordre->execute(array(0, $repflotte['xdestination'], $tempsinvasion, 3, 1, $repflotte['idflotte']));
         }
 
     $reqtrouverflottedelaplanete->execute(array($repflotte['universflotte'], $repflotte['universflotte'], $repflotte['xflotte'], $repflotte['xflotte'], $repflotte['yflotte'], $repflotte['yflotte']));

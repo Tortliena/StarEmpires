@@ -22,9 +22,12 @@ $reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , 
 
 //planete
 $reqplanete = $bdg->prepare('SELECT idplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? AND idjoueurplanete = ?');
-$reqplanete2 = $bdg->prepare('SELECT nomplanete, xplanete, yplanete, universplanete, idjoueurplanete FROM planete WHERE idplanete = ?');
+$reqplanete2 = $bdg->prepare('SELECT nomplanete, xplanete, yplanete, universplanete, idjoueurplanete, stabiliteenvironnement, environnement, organisation FROM planete WHERE idplanete = ?');
 $reqchangementproprioplanete = $bdg->prepare('UPDATE planete SET idjoueurplanete = ?, biens = biens + ?, organisation = 100 WHERE idplanete = ?');
 $reqpop = $bdg->prepare('INSERT INTO population(idplanetepop, typepop) VALUES(?, ?)');
+$requpenv = $bdg->prepare('UPDATE planete SET stabiliteenvironnement = ?, environnement = ?, organisation = ? WHERE idplanete = ?');
+$tuerunepop = $bdg->prepare('DELETE FROM population WHERE idplanetepop = ? ORDER BY RAND () LIMIT 1');
+$detruireunbatiment = $bdg->prepare('DELETE FROM batiment WHERE idplanetebat = ? ORDER BY RAND () LIMIT 1');
 
 // Gestion exploration
 $reqexplorationexistante = $bdg->prepare("SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? ");
@@ -58,6 +61,17 @@ $reqflotte = $bdg->prepare('    SELECT * FROM flotte f
                                 LEFT JOIN planete p ON p.idplanete = f.idplaneteflotte
                                 WHERE typeordre = ?');
 $requpdateordre = $bdg->prepare('UPDATE flotte SET universdestination = ?, xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ?');
+
+// Trouver les flottes en défense :
+$reqtrouverflottedelaplanete = $bdg->prepare('  SELECT v.idvaisseau FROM flotte f
+                                                INNER JOIN planete p ON p.idplanete = f.idplaneteflotte
+                                                INNER JOIN vaisseau v ON v.idflottevaisseau = f.idflotte
+                                                WHERE f.universflotte = ? AND p.universplanete = ? AND f.xflotte = ? AND p.xplanete = ? AND f.yflotte = ? AND p.yplanete = ?');
+$reqtrouverflottedefense = $bdg->prepare('      SELECT v.idvaisseau FROM flotte f
+                                                INNER JOIN planete p ON p.idplanete = -f.idplaneteflotte
+                                                INNER JOIN vaisseau v ON v.idflottevaisseau = f.idflotte
+                                                WHERE p.universplanete = ? AND p.xplanete = ? AND p.yplanete = ?');
+
 
 $reqflotte->execute(array(1)); // ordre de récolte des astéroides (= typeordre 1) 
 while ($repflotte = $reqflotte->fetch()) 
@@ -126,19 +140,75 @@ while ($repflotte = $reqflotte->fetch())
     // Supprimer toutes les batailles en cours (elles seront recrées lors du prochain tour)
     $reqsupprimerbataille->execute(array($repflotte['idflotte']));
     $diminution = 1;
+    $perteorganisation = 200;
+    // Info sur la planète envahie : $repflotte['xdestination'] = id de la planète envahie.
+    $reqplanete2->execute(array($repflotte['xdestination']));
+    $repplanete = $reqplanete2->fetch();
+
+    // On déterminer s'il reste des vaisseaux dans la flotte défendant la planète.
+    $reqtrouverflottedelaplanete->execute(array($repflotte['universflotte'], $repflotte['universflotte'], $repflotte['xflotte'], $repflotte['xflotte'], $repflotte['yflotte'], $repflotte['yflotte']));
+    $reptrouverflottedelaplanete = $reqtrouverflottedelaplanete->fetch();
+    if (isset($reptrouverflottedelaplanete['idvaisseau']))
+        {
+        $invasionacceleree = true;
+        }
+    else  // Sinon on regarde s'il y en a en orbite
+        {
+        $reqtrouverflottedefense->execute(array($repflotte['universflotte'], $repflotte['xflotte'], $repflotte['yflotte']));
+        $reptrouverflottedefense = $reqtrouverflottedefense->fetch();
+        if (!isset($reptrouverflottedefense['idvaisseau']))
+            {
+            $invasionacceleree = true;
+            } //Et dans l'un ou l'autre des cas, on augmente la vitesse d'invasion.
+        }
+
+    $textemessage = 'Notre planète '.$repplanete['nomplanete'].' est attaquée.';
+    if ($invasionacceleree == true)
+        {
+        $perteorganisation = 300 + $perteorganisation;
+        $diminution = 3;
+        $stabiliteenvironnement = max($repplanete['environnement'] - 100 , 0);
+        $nouvelenvironnement = $repplanete['environnement'] - 100;
+
+        $probapertedunepop = RAND(1,10);
+        if ($probapertedunepop == 1)
+            {
+            $perteorganisation = 500 + $perteorganisation;
+            $Commentairestour .= '<br>Pop tuée sur la planète '.$repflotte['xdestination'].' lors d\'un combat.';
+            $tuerunepop->execute(array($repflotte['xdestination']));
+            $textemessage .= ' Une population a été tuée dans les bombardements.';
+            }
+
+        $probbatdetruit = RAND(1,10);
+        if ($probbatdetruit == 1)
+            {
+            $perteorganisation = 200 + $perteorganisation;
+            $Commentairestour .= '<br>bâtiment détruit sur la planète '.$repflotte['xdestination'].' lors d\'un combat.';
+            $detruireunbatiment ->execute(array($repflotte['xdestination']));
+            $textemessage .= ' Un bâtiment a été détruit dans les bombardements.';
+            }
+        $nouvelleorganisation = max(100, $repplanete['organisation'] - $perteorganisation);
+        $requpenv->execute(array($stabiliteenvironnement, $nouvelenvironnement, $nouvelleorganisation, $repflotte['xdestination']));
+        }
 
     if ($repflotte['ydestination'] > $diminution)
         {
-        // Diminuer le compteur de 1 ou plus.
+        // Diminuer le compteur de 1 ou plus. La planète n'est pas envahie.
         $tempsrestant = $repflotte['ydestination'] - $diminution;
         $requpdateordre->execute(array(0, $repflotte['xdestination'], $tempsrestant, 3, 1, $repflotte['idflotte']));
 
-        // $repflotte['xdestination'] = id de la planète envahie.
-        $reqplanete2->execute(array($repflotte['xdestination']));
-        $repplanete = $reqplanete2->fetch();
-        
-        $reqmessageinterne->execute(array('Ministère de la Défense', $repplanete['idjoueurplanete'], 0, 'Invasion de l\'un de nos mondes !', 'Notre planète '.$repplanete['nomplanete'].' est attaquée et elle devrait tomber d\'ici '.$tempsrestant.' tours !'));
+        // Message pour le défenseur en fonction de l'état de sa défense.
+        if ($invasionacceleree == true)
+            {
+            $tempsrestant = floor($tempsrestant/3);
+            $textemessage .= ' Nos défenses sont dépassées ! Nous allons très rapidement perdre l contrôle de la planète (dans environ '.$tempsrestant.' tours) !';
+            }
+        else
+            {
+            $textemessage = ' Nos défenses tiennent bons, mais les ennemis progressent. Elle devrait tomber d\'ici '.$tempsrestant.' tours !';
+            }
 
+        $reqmessageinterne->execute(array('Ministère de la Défense', $repplanete['idjoueurplanete'], 0, 'Planète envahie', $textemessage));
         }
     else
         {

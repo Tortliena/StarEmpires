@@ -1,7 +1,7 @@
 <?php 
 function vitesseflotte($idflotte) 
   { 
-  require __DIR__ . '/../include/BDDconnection.php';   // $vitesse = vitesseflotte($idflotte) ;
+  require __DIR__ . '/../../include/BDDconnection.php';   // $vitesse = vitesseflotte($idflotte) ;
   // Récupérer les vitesse de tous les vaisseaux et prendre la valeur minimale.
   $vitesse = 0 ; 
   $reqvitessevaisseau = $bdg->prepare("SELECT vitesse FROM vaisseau WHERE idflottevaisseau = ?");
@@ -19,7 +19,7 @@ function vitesseflotte($idflotte)
 
 function souteflotte($idflotte) 
   { 
-  require __DIR__ . '/../include/BDDconnection.php'; // $souteflotte = souteflotte($idflotte) ;
+  require __DIR__ . '/../../include/BDDconnection.php'; // $souteflotte = souteflotte($idflotte) ;
   // Capacité de cargo : faire la somme de tous les vaisseaux.
   $capacitedesoute = 0 ; 
   $reqcapacitedesoute = $bdg->prepare("SELECT SUM(capacitedesoute) as soutetotale FROM vaisseau WHERE idflottevaisseau = ?");
@@ -30,7 +30,7 @@ function souteflotte($idflotte)
 
 function cargaisonflotte($idflotte) 
   { 
-  require __DIR__ . '/../include/BDDconnection.php'; // $quantitetransportee = cargaisonflotte($idflotte) ;
+  require __DIR__ . '/../../include/BDDconnection.php'; // $quantitetransportee = cargaisonflotte($idflotte) ;
   // Cargo actuel : Faire la somme de tout ce qui est transporté.
   $quantitetransportee = 0; 
   $reqcargo = $bdg->prepare("  SELECT SUM(c.quantiteitems) as cargaison
@@ -45,7 +45,7 @@ function cargaisonflotte($idflotte)
 
 function minageflotte($idflotte) 
   { 
-  require __DIR__ . '/../include/BDDconnection.php'; // $minageflotte = minageflotte($idflotte) ;
+  require __DIR__ . '/../../include/BDDconnection.php'; // $minageflotte = minageflotte($idflotte) ;
   // Capacité de minage : Prendre la plus grande valeur. 
   $minage = 0; 
   $reqminage = $bdg->prepare("SELECT capaciteminage FROM vaisseau WHERE idflottevaisseau = ?");
@@ -60,7 +60,7 @@ function minageflotte($idflotte)
 // Présence d'un module de colonisation.
 function colonisateur($idflotte) 
   { 
-  require __DIR__ . '/../include/BDDconnection.php'; // $peutcoloniser = colonisateur($idflotte) ;
+  require __DIR__ . '/../../include/BDDconnection.php'; // $peutcoloniser = colonisateur($idflotte) ;
   // Présence d'un vaisseau colonisateur dans la flotte. 
   $colonisateur = false ; 
   $reqmodulecolonisateur = $bdg->prepare("  SELECT c.idvaisseaucompo
@@ -80,12 +80,12 @@ function colonisateur($idflotte)
 // Présence de noyaux sur toute la flotte
 function touslesvaisseauxontunnoyau($idflotte) 
   { 
-  require __DIR__ . '/../include/BDDconnection.php'; // $touslesvaisseauxontunnoyau = touslesvaisseauxontunnoyau($idflotte) ;
+  require __DIR__ . '/../../include/BDDconnection.php'; // $touslesvaisseauxontunnoyau = touslesvaisseauxontunnoyau($idflotte) ;
   $nombredevaisseau = 0;
   $nombredenoyaux = 0;
   $niveaudesnoyaux = 0 ;
-  // requete pour passer les vaisseaux par un.
 
+  // requete pour passer les vaisseaux par un.
   $reqnoyausurlevaisseau = $bdg->prepare("    SELECT c.totalbonus
                                               FROM composantvaisseau cv
                                               INNER JOIN datawebsite.composant c ON c.idcomposant = cv.iditemcomposant
@@ -107,7 +107,7 @@ function touslesvaisseauxontunnoyau($idflotte)
         }
       elseif ($nombredevaisseau != $nombredenoyaux)
         { // Si on a un nombre de vaisseaux différents de celui des noyaux, alors on a une flotte incapable de voyager.
-        $niveaudesnoyaux = 1 ;
+        $niveaudesnoyaux = 1;
         }
       else
         {
@@ -119,7 +119,7 @@ function touslesvaisseauxontunnoyau($idflotte)
       $nombredenoyaux++;
       }
     $nombredevaisseau++;
-    } 
+    }
 
 /* 
   if($niveaudesnoyaux == 0)
@@ -143,16 +143,15 @@ function touslesvaisseauxontunnoyau($idflotte)
     $touslesvaisseauxontunnoyau = 1;
     }
 */
-return $niveaudesnoyaux;
-
+  return $niveaudesnoyaux;
   }
 
 // Présence d'une arme
-function armement($idflotte) 
+function armement($idflotte)
   {
-  require __DIR__ . '/../include/BDDconnection.php'; // $estarme = armement($idflotte) ;
-  // Présence d'un vaisseau armé dans la flotte. 
-  $arme = false ; 
+  require __DIR__ . '/../../include/BDDconnection.php'; // $estarme = armement($idflotte) ;
+  // Présence d'un vaisseau armé dans la flotte.
+  $arme = false;
   $reqarmedansflotte = $bdg->prepare("  SELECT c.idvaisseaucompo
                                         FROM composantvaisseau c
                                         INNER JOIN vaisseau v ON v.idvaisseau = c.idvaisseaucompo
@@ -161,10 +160,9 @@ function armement($idflotte)
   $reqarmedansflotte->execute(array($idflotte));
   $reparmedansflotte = $reqarmedansflotte->fetch();
   if ($reparmedansflotte['idvaisseaucompo'] > 0)
-    { 
-    $arme = true ; 
-    } 
+    {
+    $arme = true;
+    }
   return $arme;
   }
-
 ?>

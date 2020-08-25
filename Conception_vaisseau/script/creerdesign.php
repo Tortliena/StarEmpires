@@ -1,6 +1,6 @@
 <?php 
 session_start(); 
-include("../include/BDDconnection.php"); 
+include("../../include/BDDconnection.php"); 
 
 if (isset($_POST['remplacementcomposant']))
 	{
@@ -39,7 +39,7 @@ if (isset($_POST['idvaisseau']))
 
     if ($idjoueur != $_SESSION['id'])
         { // vérification que le vaisseau appartient bien au joueur.
-        header('Location: ../accueil.php?message=31');
+        header('Location: ../../accueil.php?message=31');
         exit();
         }
 
@@ -56,7 +56,7 @@ if (isset($_POST['idvaisseau']))
     		}
     	else
     		{
-    		header('Location: ../accueil.php?message=31');
+    		header('Location: ../../accueil.php?message=31');
     		}
 
     	$_POST['nombre']++; // Permet de passer par la case d'ajoute de composant peu après.
@@ -92,7 +92,7 @@ else
     { // Cas de création d'un plan.
     if (is_numeric($_POST['nom']) OR empty($_POST['nom']))
         {
-        header('Location: ../conception.php?message=56');
+        header('Location: ../00_conception.php?message=56');
         exit();
         }
 
@@ -115,7 +115,7 @@ else
             $repcomposant = $reqcomposant->fetch();
             if ($repcomposant['typeitem'] != 'composant')
                 {
-                header('Location: ../accueil.php?message=31');
+                header('Location: ../../accueil.php?message=31');
                 exit();
                 }
             $reqcreercomposantdesign->execute(array($dernierID, $value, $repcomposant['souscategorie']));
@@ -127,18 +127,18 @@ else
 
 if (isset($message))
 	{
-	include("../function/caracteristiquesvaisseau.php");
-	caracteristiquesvaisseau ($idvaisseau, $_SESSION['id']);
+	include("../fonction/caracteristiquesvaisseau.php");
+	caracteristiquesvaisseau($idvaisseau, $_SESSION['id']);
 
 	if ($repvaisseau['idflottevaisseau']>0) // Cas d'un vaisseau réel dans une flotte classique.
 	    {
-	    header("Location: ../vaisseau.php?message=".urlencode($message)."&id=" . urlencode($idvaisseau));
+	    header("Location: ../00_vaisseau.php?message=".urlencode($message)."&id=" . urlencode($idvaisseau));
 	    }
 	else
 	    {
-	    header("Location: ../conception.php?message=".urlencode($message)."&id=" . urlencode($idvaisseau));
+	    header("Location: ../00_conception.php?message=".urlencode($message)."&id=" . urlencode($idvaisseau));
 	    }
 	exit(); 
     }
-header('Location: ../accueil.php?message=431');
+// header('Location: ../../accueil.php?message=431');
 ?>

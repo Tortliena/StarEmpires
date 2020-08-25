@@ -1,23 +1,23 @@
 <?php
 function descriptioncompletevaisseau($idvaisseau, $idjoueur, $lvljoueur)
   {
-  require __DIR__ . '/../include/BDDconnection.php';
-  list($structure, $structuremax) = structurevaisseau ($idvaisseau); 
+  require __DIR__ . '/../../include/BDDconnection.php';
+  list($structure, $structuremax) = structurevaisseau($idvaisseau);
+
+  echo $structure.'/'.$structuremax.' de structure. </br>';
   
-  echo $structure.'/'.$structuremax.' de structure. </br>'; 
-  
-  $reqvaiss = $bdg->prepare('SELECT * FROM vaisseau WHERE idvaisseau = ?'); 
-  $reqvaiss->execute(array($idvaisseau)); 
-  $repvaiss = $reqvaiss->fetch(); 
+  $reqvaiss = $bdg->prepare('SELECT * FROM vaisseau WHERE idvaisseau = ?');
+  $reqvaiss->execute(array($idvaisseau));
+  $repvaiss = $reqvaiss->fetch();
 
   $reqcomposantsurlevaisseau = $bdd->prepare("  SELECT COUNT(idtable) AS nb, i.nombatiment, c.iditemcomposant
                                                 FROM gamer.composantvaisseau c 
                                                 INNER JOIN items i ON i.iditem = c.iditemcomposant 
                                                 WHERE c.idvaisseaucompo = ? AND c.typecomposant = ?
                                                 GROUP BY iditemcomposant"); 
-  $reqcomposantsurlevaisseau->execute(array($idvaisseau, "moteur")); 
-  $repmoteursurlevaisseau = $reqcomposantsurlevaisseau->fetch(); 
-  if (isset($repmoteursurlevaisseau['nombatiment'])) 
+  $reqcomposantsurlevaisseau->execute(array($idvaisseau, "moteur"));
+  $repmoteursurlevaisseau = $reqcomposantsurlevaisseau->fetch();
+  if (isset($repmoteursurlevaisseau['nombatiment']))
     {
     echo $repmoteursurlevaisseau['nombatiment'].'&emsp;&emsp;Vitesse : '.$repvaiss['vitesse'] . ' parsec/cycle. </br>'; 
     }
@@ -26,12 +26,12 @@ function descriptioncompletevaisseau($idvaisseau, $idjoueur, $lvljoueur)
     echo 'Moteur I';
     echo '&emsp;&emsp;Vitesse : '.$repvaiss['vitesse'] . ' parsec/cycle. </br>';
     }
-  
-  $reqcomposantsurlevaisseau->execute(array($idvaisseau, "noyau")); 
-  $repnoyausurlevaisseau = $reqcomposantsurlevaisseau->fetch(); 
-  if (isset($repnoyausurlevaisseau['nombatiment'])) 
+
+  $reqcomposantsurlevaisseau->execute(array($idvaisseau, "noyau"));
+  $repnoyausurlevaisseau = $reqcomposantsurlevaisseau->fetch();
+  if (isset($repnoyausurlevaisseau['nombatiment']))
     {
-    echo $repnoyausurlevaisseau['nombatiment'].'<br>'; 
+    echo $repnoyausurlevaisseau['nombatiment'].'<br>';
     }
   else
     {
@@ -100,19 +100,18 @@ function descriptioncompletevaisseau($idvaisseau, $idjoueur, $lvljoueur)
 
 function modificationvaisseau($idvaisseau, $idjoueur, $lvljoueur, $typedepage)
   { //$typedepage : Si 1, alors page vaisseau, si 2, alors page conception.
-  require __DIR__ . '/../include/BDDconnection.php';
+  require __DIR__ . '/../../include/BDDconnection.php';
   // Début du plan modifié :
   echo '<h3>Modifications en cours :</h3>'; 
 
   list($structure, $structuremax) = structurevaisseau (-$idvaisseau);
   echo $structure.'/'.$structuremax.' de structure. </br>';
 
-  list ($totalprixbien, $totalprixtitane, $capacitedesoute, $capaciteminage, $vitesse, $structure2, $HPvaisseau) = caracteristiquesvaisseau (-$idvaisseau);
-
+  list ($totalprixbien, $totalprixtitane, $capacitedesoute, $capaciteminage, $vitesse, $HPvaisseau) = caracteristiquesvaisseau (-$idvaisseau);
 
   $reqcomposantsurlevaisseau = $bdd->prepare("  SELECT COUNT(idtable) AS nb, i.nombatiment, c.iditemcomposant, c.typecomposant
                                                 FROM gamer.composantvaisseau c 
-                                                INNER JOIN items i ON i.iditem = c.iditemcomposant 
+                                                LEFT JOIN items i ON i.iditem = c.iditemcomposant 
                                                 WHERE c.idvaisseaucompo = ? AND c.typecomposant like ?
                                                 GROUP BY iditemcomposant");
   
@@ -120,8 +119,9 @@ function modificationvaisseau($idvaisseau, $idjoueur, $lvljoueur, $typedepage)
   $reqcomposantsurlevaisseau->execute(array(-$idvaisseau, '%'));
   $repmodifplanexiste = $reqcomposantsurlevaisseau->fetch();
   $reqcomposantsurlevaisseau->execute(array($idvaisseau, '%'));
-  $repplanorigineaquelquechose = $reqcomposantsurlevaisseau->fetch(); 
-  if (!isset($repmodifplanexiste['nombatiment']) AND isset($repplanorigineaquelquechose['nombatiment']))
+  $repplanorigineaquelquechose = $reqcomposantsurlevaisseau->fetch();
+
+  if (!isset($repmodifplanexiste['iditemcomposant']) AND isset($repplanorigineaquelquechose['nombatiment']))
     {
     $reqrecreerplanoriginal = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)'); 
     $reqcomposantsurlevaisseau->execute(array($idvaisseau, '%'));
@@ -132,13 +132,14 @@ function modificationvaisseau($idvaisseau, $idjoueur, $lvljoueur, $typedepage)
         $reqrecreerplanoriginal->execute(array(-$idvaisseau, $repcomposantvaisseauoriginal['iditemcomposant'], $repcomposantvaisseauoriginal['typecomposant']));
         }
       }
+    $reqrecreerplanoriginal->execute(array(-$idvaisseau, 0, 'rien'));
     if($typedepage == 1)
       {
-      header("Location: vaisseau.php?message=".urlencode($_GET['message'])."&id=" . urlencode($_GET['id']));
+      header("Location: 00_vaisseau.php?message=".urlencode($_GET['message'])."&id=" . urlencode($_GET['id']));
       }
     elseif($typedepage == 2)
       {
-      header("Location: conception.php?message=".urlencode($_GET['message'])."&id=" . urlencode($_GET['id']));
+      header("Location: 00_conception.php?message=".urlencode($_GET['message'])."&id=" . urlencode($_GET['id']));
       }
     exit; 
     }

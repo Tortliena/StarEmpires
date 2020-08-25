@@ -1,6 +1,6 @@
 <?php 
 session_start(); 
-include("../include/BDDconnection.php"); 
+require("../../include/BDDconnection.php"); 
  
 /*
 echo $_SESSION['id'] . '</br>' ;
@@ -14,7 +14,7 @@ echo $_POST['supprimer'] . '</br>';
 if ($_POST['supprimer'] == 'oui') 
 	{ 
 	$reqverif = $bdg->prepare('SELECT idjoueurplanete 
-	FROM population po 
+	FROM population po
 	INNER JOIN planete pl ON pl.idplanete = po.idplanetepop 
 	WHERE idpop = ?'); 
  
@@ -28,7 +28,7 @@ if ($_POST['supprimer'] == 'oui')
 		} 
 	$req = $bdg->prepare('UPDATE population SET typepoparrivee = 0 WHERE idpop = ?'); 
 	$req->execute(array($_POST['idpop'])); 
-	header("location: ../planete.php?message=60&id=" . urlencode($_POST['id'])); 
+	header("location: ../00_planete.php?message=60&id=" . urlencode($_POST['id'])); 
 	exit(); 
 	} 
 elseif ($_POST['supprimer'] == 'non') 
@@ -54,16 +54,16 @@ elseif ($_POST['supprimer'] == 'non')
 
 	if ($_POST['popdepart'] == $_POST['poparrivee']) 
 		{ // Cas ou l'on tente de convertir un ouvrier en ouvrier par exemple.  
-		header("Location: ../planete.php?message=24&id=" . urlencode($_POST['id'])); 
+		header("Location: ../00_planete.php?message=24&id=" . urlencode($_POST['id'])); 
 	    exit(); 
 		}  
 	if ($_POST['combien'] <= 0 OR $_POST['combien'] > $repcompterpop['pop']) 
 	    { // Pas bonne quantité. Soit nombre négatif, soit nombre plus grand que ce que l'on peut faire. 
-		header("Location: ../planete.php?message=9&id=" . urlencode($_POST['id'])); 
+		header("Location: ../00_planete.php?message=9&id=" . urlencode($_POST['id'])); 
 	    exit(); 
 	    }
 
-	if (in_array($_POST['poparrivee'], array(2,3))) // permet de limiter aux pop avec des limites. 
+	if (in_array($_POST['poparrivee'], array(2,3,4))) // permet de limiter aux pop avec des limites. 
 		{ 
 		//Compter le nombre de pop de destination  
 		$reqcompterdestination = $bdg->prepare('SELECT COUNT(*) as pop FROM population WHERE idplanetepop = ? AND typepop = ?'); 
@@ -80,42 +80,46 @@ elseif ($_POST['supprimer'] == 'non')
 			{ 
 			$reqlimitepop = $bdg->prepare('SELECT ouvriermax FROM limiteplanete WHERE idlimiteplanete = ?'); 
 			} 
-		elseif($_POST['poparrivee'] == 3) 
-			{ 
+		elseif($_POST['poparrivee'] == 3)
+			{
 			$reqlimitepop = $bdg->prepare('SELECT scientmax FROM limiteplanete WHERE idlimiteplanete = ?'); 
+			}
+		elseif($_POST['poparrivee'] == 4)
+			{ 
+			$reqlimitepop = $bdg->prepare('SELECT soldatmax FROM limiteplanete WHERE idlimiteplanete = ?'); 
 			} 
 		$reqlimitepop->execute(array($_POST['id'])); 
 		$replimitepop = $reqlimitepop->fetch(); 
- 
+
 		if ($repcompterdestination['pop'] + $repcompterencoursdetransfo['pop'] + $_POST['combien'] > $replimitepop[0]) 
 			{ 
 			$_SESSION['message1'] = $replimitepop[0] ;  
-			header("Location: ../planete.php?message=30&id=" . urlencode($_POST['id'])); 
-		    exit(); 
-			}	 
-		} 
+			header("Location: ../00_planete.php?message=30&id=" . urlencode($_POST['id'])); 
+		    exit();
+			}
+		}
 
-	$reqnompop->execute(array($_POST['popdepart'])); 
-	$nompopdepart = $reqnompop->fetch(); 
- 
-	$reqnompop->execute(array($_POST['poparrivee'])); 
-	$nompoparrivee = $reqnompop->fetch(); 
- 
-	$_SESSION['message4'] = $a * $nompoparrivee['prixchangementpop'] ;  
- 
-	do 
-		{ 
-		$req->execute(array($_POST['poparrivee'], $_POST['id'], $_POST['popdepart'])); 
-	    $a--; 
-		} 
-	while($a > 0); 
- 
-	$_SESSION['message1'] = $_POST['combien']; 
-	$_SESSION['message2'] = $nompopdepart['nompop']; 
-	$_SESSION['message3'] = $nompoparrivee['nompop']; 
- 
-	header("location: ../planete.php?message=10&id=" . urlencode($_POST['id'])); 
-	exit(); 
-	} 
-header("location: ../planete.php?message=31&id=" . urlencode($_POST['id'])); 
+	$reqnompop->execute(array($_POST['popdepart']));
+	$nompopdepart = $reqnompop->fetch();
+
+	$reqnompop->execute(array($_POST['poparrivee']));
+	$nompoparrivee = $reqnompop->fetch();
+
+	$_SESSION['message4'] = $a * $nompoparrivee['prixchangementpop'];
+
+	do
+		{
+		$req->execute(array($_POST['poparrivee'], $_POST['id'], $_POST['popdepart']));
+	    $a--;
+		}
+	while($a > 0);
+
+	$_SESSION['message1'] = $_POST['combien'];
+	$_SESSION['message2'] = $nompopdepart['nompop'];
+	$_SESSION['message3'] = $nompoparrivee['nompop'];
+
+	header("location: ../00_planete.php?message=10&id=" . urlencode($_POST['id']));
+	exit();
+	}
+header("location: ../00_planete.php?message=31&id=" . urlencode($_POST['id']));
 ?>

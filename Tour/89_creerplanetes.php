@@ -7,8 +7,8 @@ require __DIR__ . '/../tour/fonctionsdutour.php';
 
 $reqcreerplanete = $bdg->prepare('INSERT INTO planete (
     nomplanete, xplanete, yplanete, universplanete, idjoueurplanete,
-    biens, titane, taille, lune, organisation, efficacite)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?);');
+    biens, titane, taille, lune, organisation, efficacite, environnement)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?);');
 $reqcompterplanete = $bdg->prepare('SELECT COUNT(idplanete) AS nb FROM planete WHERE universplanete = ?');
 $reqcompterplanete->execute(array(-2));
 $repcompterplanete =$reqcompterplanete->fetch();
@@ -25,8 +25,9 @@ if ($repcompterplanete['nb'] < 50 OR !isset($repcompterplanete['nb']))
         $taille = rand(3,6);
         $lune = rand(0,3);
         $nom = generateurdenom(10);
-        
-        $reqcreerplanete->execute(array($nom, $x, $y, -2, 0, 10, 0, $taille, $lune, 10, 0));
+        $environnement = rand(-2500,500);
+
+        $reqcreerplanete->execute(array($nom, $x, $y, -2, 0, 10, 0, $taille, $lune, 10, 0, $environnement));
         }
     }
 ?>

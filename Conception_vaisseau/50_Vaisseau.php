@@ -44,8 +44,8 @@ $typemessage = 'vaisseau' ;
 include("include/resume.php");   
 include("function/fonctionconception.php");
 include("function/fonctionvaisseau.php");   
-include("function/caracteristiquesvaisseau.php"); 
-
+include("function/caracteristiquesvaisseau.php");
+include("function/structurevaisseau.php");
 descriptioncompletevaisseau($_GET['id'], $_SESSION['id'], $replvl['lvl']); 
 
 $a = 0; // Variable permettant de gérer le cas avec un ou plusieurs composants en stock + gére le cas du remplissage des soutes.   

@@ -111,7 +111,7 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
             } 
     	 
 		$a = 0; 
-		$reqcomposantpresent = $bdg->prepare('SELECT COUNT(c.iditemcomposant) AS nb, c.iditemcomposant, s.quantite FROM composantvaisseau c LEFT JOIN silo s ON s.iditems = c.iditemcomposant AND s.idplanetesilo = ? WHERE c.idvaisseaucompo = ? GROUP BY c.iditemcomposant'); 
+		$reqcomposantpresent = $bdg->prepare('SELECT COUNT(c.iditemcomposant) AS nb, c.iditemcomposant, s.quantite FROM composantvaisseau c LEFT JOIN silo s ON s.iditems = c.iditemcomposant AND s.idplanetesilo = ? WHERE c.idvaisseaucompo = ? AND iditemcomposant > 0 GROUP BY c.iditemcomposant'); 
  
 		$reqcomposantpresent->execute(array($_POST['id'], -$_POST['trucaconstruire'])); 
 		while($repcomposantpresent = $reqcomposantpresent->fetch()) 

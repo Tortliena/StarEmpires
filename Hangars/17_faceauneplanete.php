@@ -24,7 +24,8 @@ if (!isset($_GET['x']) OR ($_GET['x'] == $repflotte['xflotte'] AND $_GET['y'] ==
 			{ // Ou ce monde est aux mains de quelqu'un d'autre. 
 			if ($peutenvahir[0] == true)
 				{
-				formulaireordredeplacement(3, $_GET['id'], 0, $repplanete2['idplanete'], 0, 0);   
+				$tempsinvasion = variable(9);
+				formulaireordredeplacement(3, $_GET['id'], 0, $repplanete2['idplanete'], $tempsinvasion, 0);   
 				}
 			else
 				{

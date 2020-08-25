@@ -6,10 +6,11 @@ $Commentairestour = 'Le tour commence.';
 
 // Rien n'est fait ici. Juste contient des fonctions.
 include("01_fonctionsdutour.php");
-include("../function/caracteristiquesvaisseau.php");
+include("../Conception_vaisseau/fonction/caracteristiquesvaisseau.php");
 include("../function/consommercreeritemsplanetemultiple.php");
 include("../function/variable.php");
-include("../function/flotte.php");
+include("../hangars/fonction/flotte.php");
+include("../Conception_vaisseau/fonction/structurevaisseau.php");
 
 // Changer le numéro du tour.
 include("05_incrementerletour.php");
@@ -27,7 +28,13 @@ include("10_vidertable.php");
 include("20_organisationplanete.php");
 
 // Début de changement des pops avec retrait des ressources. 
+include("22_environnementplanete.php");
+
+// Début de changement des pops avec retrait des ressources. 
 include("25_debchangpop.php");
+
+// Calcul de la structure de la flotte pour l'entretien 
+include("28_calculstructureflotte.php");
 
 // Permet de remplir la table *variationstour* qui permet de gérer après les chantiers et les biens.
 include("30_proddutour.php");

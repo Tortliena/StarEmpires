@@ -1,7 +1,7 @@
 <?php
 function caracteristiquesvaisseau ($idvaisseau)
     {
-    require __DIR__ . '/../include/BDDconnection.php';
+    require __DIR__ . '/../../include/BDDconnection.php';
     $totalprixbien = 40;
     $totalprixtitane = 0;
     $capacitedesoute = 0;
@@ -39,7 +39,6 @@ function caracteristiquesvaisseau ($idvaisseau)
         $HPvaisseau = $HPvaisseau + $repinformationcomposant['HPcomposant'];
         $totalprixbien = $totalprixbien + $repinformationcomposant['coutbien'];
         $totalprixtitane = $totalprixtitane + $repinformationcomposant['couttitane'];
-        $structure = $repinformationcomposant['structure'] + $structure;
         }
 
     $capacitedesoute = MAX($capacitedesoute, 1);
@@ -50,8 +49,8 @@ function caracteristiquesvaisseau ($idvaisseau)
         $reqPVvaisseau->execute(array($idvaisseau));
         $repPVvaisseau = $reqPVvaisseau->fetch();
 
-        $requpdatedesignvaisseau = $bdg->prepare('UPDATE vaisseau SET biensvaisseau = ?, titanevaisseau = ?, vitesse = ?, capacitedesoute = ?, capaciteminage = ?, HPmaxvaisseau = ?, structure = ? WHERE idvaisseau = ?'); 
-        $requpdatedesignvaisseau->execute(array($totalprixbien, $totalprixtitane, $vitesse, $capacitedesoute, $capaciteminage, $HPvaisseau, $structure, $idvaisseau));
+        $requpdatedesignvaisseau = $bdg->prepare('UPDATE vaisseau SET biensvaisseau = ?, titanevaisseau = ?, vitesse = ?, capacitedesoute = ?, capaciteminage = ?, HPmaxvaisseau = ? WHERE idvaisseau = ?'); 
+        $requpdatedesignvaisseau->execute(array($totalprixbien, $totalprixtitane, $vitesse, $capacitedesoute, $capaciteminage, $HPvaisseau, $idvaisseau));
         
         if ($repPVvaisseau['HPmaxvaisseau'] != $HPvaisseau)
             {
@@ -62,31 +61,8 @@ function caracteristiquesvaisseau ($idvaisseau)
         }
     else
         {
-        return array ($totalprixbien, $totalprixtitane, $capacitedesoute, $capaciteminage, $vitesse, $structure, $HPvaisseau);
-        // list ($totalprixbien, $totalprixtitane, $capacitedesoute, $capaciteminage, $vitesse, $structure, $HPvaisseau) = caracteristiquesvaisseau ($idvaisseau);
+        return array ($totalprixbien, $totalprixtitane, $capacitedesoute, $capaciteminage, $vitesse, $HPvaisseau);
+        // list ($totalprixbien, $totalprixtitane, $capacitedesoute, $capaciteminage, $vitesse, $HPvaisseau) = caracteristiquesvaisseau ($idvaisseau);
         }
     }
-
-function structurevaisseau($idvaisseau) 
-  { // Utiliser pour afficher au joueur la structure
-  require __DIR__ . '/../include/BDDconnection.php';
-  $structure = 1; 
-  $reqcomposantsurlevaisseau = $bdd->prepare("  SELECT structure FROM gamer.composantvaisseau cv 
-                                                INNER JOIN composant c ON c.idcomposant = cv.iditemcomposant 
-                                                WHERE cv.idvaisseaucompo = ? AND c.typecomposant <> 'moteur'"); 
-  $reqcomposantsurlevaisseau->execute(array($idvaisseau)); 
-  while ($repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch()) 
-    { 
-    $structure = $structure + $repcomposantsurlevaisseau['structure']; 
-    } 
- 
-  $reqmoteursurlevaisseau = $bdd->prepare(" SELECT structure FROM gamer.composantvaisseau cv 
-                                            INNER JOIN composant c ON c.idcomposant = cv.iditemcomposant 
-                                            WHERE cv.idvaisseaucompo = ? AND c.typecomposant = 'moteur' "); 
-  $reqmoteursurlevaisseau->execute(array($idvaisseau)); 
-  $repmoteursurlevaisseau = $reqmoteursurlevaisseau->fetch(); 
-  $structuremax = 12 - $repmoteursurlevaisseau['structure']; 
- 
-  return array($structure, $structuremax); 
-  } 
 ?>

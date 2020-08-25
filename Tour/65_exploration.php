@@ -14,7 +14,7 @@ $reqcompterexplo = $bdg->prepare('SELECT COUNT(*) AS nbcaseexplo  FROM explore W
  
 $reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)'); 
 $reqcreerasteroides = $bda->prepare('INSERT INTO champsasteroides (xaste , yaste , uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)');
-$reqcreerplanete = $bdg->prepare('INSERT INTO planete(xplanete, yplanete, universplanete, taille, lune, biens) VALUES(?, ?, ?, ?, ?, ?)'); 
+$reqcreerplanete = $bdg->prepare('INSERT INTO planete(xplanete, yplanete, universplanete, taille, lune, biens, environnement) VALUES(?, ?, ?, ?, ?, ?, ?)'); 
 
 // Créer vaisseau 
 $reqcreervaisseau = $bdg->prepare('INSERT INTO vaisseau(idflottevaisseau, nomvaisseau, HPmaxvaisseau, HPvaisseau) VALUES(?, ?, ?, ?)');
@@ -54,8 +54,8 @@ while ($repexplorationexistante = $reqexploration->fetch())
             break; 
  
             case 7:
-                $reqcreerplanete->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 4, 1, 10)); 
-                $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Planète habitable', 'Nous venons de trouver une nouvelle planète. Nous allons pouvoir la coloniser. Elle dispose aussi d\'une lune sur laquelle nous allons pouvoir installer une base en déployant d\'énormes ressources. Nous devrions commencer les recherches pour développer l\'équipement nécessaire.'));    
+                $reqcreerplanete->execute(array($repexplorationexistante['x'], $repexplorationexistante['y'], $repexplorationexistante['univers'], 4, 1, 10, -1500)); 
+                $reqmessageinterne->execute(array('Vaisseau d\'exploration', $repexplorationexistante['idexplorateur'], 0, 'Planète habitable', 'Nous venons de trouver une nouvelle planète. Nous allons pouvoir la coloniser. Elle dispose d\'astre dans son orbite que nous appellons lune en astronomie. De plus, il semble que cette planète ait subit une destruction massive suite à l\'impact d\'un asteroide il y a des siècles. Si nous voulons la coloniser, nous allons devoir déployer d\'énormes ressources. Nous devrions commencer les recherches pour développer l\'équipement nécessaire.'));    
             break;
  
             case 10:

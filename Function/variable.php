@@ -10,6 +10,6 @@ function variable($idvariable)
 
   $valeur = $repvariable['valeur']; 
  
-  return array($valeur); 
+  return $valeur; 
   } 
 ?>

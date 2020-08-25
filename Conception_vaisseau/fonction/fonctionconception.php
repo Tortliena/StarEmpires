@@ -1,7 +1,7 @@
 <?php
 function composantdesign($idjoueur, $typecomposant, $textepourrien)
   {
-  require __DIR__ . '/../include/BDDconnection.php';
+  require __DIR__ . '/../../include/BDDconnection.php';
 
   $a = 0;
   if ($typecomposant != 'moteur' AND $typecomposant != 'noyau')
@@ -11,7 +11,6 @@ function composantdesign($idjoueur, $typecomposant, $textepourrien)
     echo '<input type="hidden" name="idvaisseau" value="'.$_GET['id'].'"> ';
     echo '<select name="iditem">';
     }
-
   else
     { // Cas des moteurs et des noyaux.
     echo '<select name="' . $typecomposant . '" id="' . $typecomposant. '">';
@@ -33,16 +32,15 @@ function composantdesign($idjoueur, $typecomposant, $textepourrien)
     }
 
   $reqmenuderoulantartefact = $bdd->prepare('SELECT  i.iditem, i.nombatiment 
-          FROM gamer.silo s
-          LEFT JOIN items i ON s.iditems = i.iditem
+          FROM gamer.silo s LEFT JOIN items i ON s.iditems = i.iditem
           INNER JOIN gamer.planete p ON p.idplanete = s.idplanetesilo
           WHERE p.idjoueurplanete = ? AND i.itemnecessaire != 0 AND i.souscategorie = ?'); // i.itemnecessaire != 0 = évite les répétition avec les items dont on a la tech. Par contre, si on a l'item, et que l'item est associée à une tech, on va pas pouvoir le voir si on a pas la tech.
   $reqmenuderoulantartefact->execute(array($idjoueur, $typecomposant));
-    while ($repmenuderoulantartefact = $reqmenuderoulantartefact->fetch())
-      {
-      echo '<option value="' . $repmenuderoulantartefact['iditem'] . '">' . $repmenuderoulantartefact['nombatiment'] . '</option>' ;
-      $a++; 
-      }
+  while ($repmenuderoulantartefact = $reqmenuderoulantartefact->fetch())
+    {
+    echo '<option value="' . $repmenuderoulantartefact['iditem'] . '">' . $repmenuderoulantartefact['nombatiment'] . '</option>' ;
+    $a++; 
+    }
 
   if ($typecomposant != 'moteur' AND $typecomposant != 'noyau')
     {
@@ -56,7 +54,6 @@ function composantdesign($idjoueur, $typecomposant, $textepourrien)
       echo '</select>&ensp;<input type="submit" value="Ajouter" /></p></form>' ;
       }
     }
-
   else
     { // Cas des moteurs et des noyaux.
     echo '</select></br>';
@@ -65,7 +62,7 @@ function composantdesign($idjoueur, $typecomposant, $textepourrien)
 
 function remplacercomposant($idjoueur, $typecomposant, $textepourrien, $idcomposantactuel)
   {
-  require __DIR__ . '/../include/BDDconnection.php';
+  require __DIR__ . '/../../include/BDDconnection.php';
   $a = 0; 
   echo '<form method="post" action="script/creerdesign.php"><p>';
   echo '<input type="hidden" name="idvaisseau" value="'.$_GET['id'].'"> ';
@@ -102,7 +99,7 @@ $reqmenuderoulantdesign = $bdd->prepare('
 
 function Supprimercomposant($typecomposant, $texte)
     {
-    include("include/BDDconnection.php");
+    include("../include/BDDconnection.php");
     echo '<form method="post" action="script/creerdesign.php"><p>';
     echo '<input type="hidden" name="idvaisseau" value="'.$_GET['id'].'"> ';
     echo '<input type="hidden" name="iditem" value="'.$typecomposant.'"> ';

@@ -23,7 +23,7 @@ while ($repvaisseauenorbite = $reqvaisseauenorbite ->fetch())
   if ($PourcentHP < 100)
     {
     //Requête pour réparer le vaisseau
-    echo '&nbsp<form method="post" action="script/ordrevaisseau.php">'; 
+    echo '&nbsp<form method="post" action="../script/ordrevaisseau.php">'; 
     echo '<input name="idplanete" type="hidden" value="'.$_GET['id'].'">';
     echo '<input name="idvaisseau" type="hidden" value="'.$repvaisseauenorbite['idvaisseau'].'">';
     echo '<input name="idflotte" type="hidden" value="0">';
@@ -35,7 +35,7 @@ while ($repvaisseauenorbite = $reqvaisseauenorbite ->fetch())
   while ($repflotteenorbite = $reqflotteenorbite ->fetch())   
     {
     //requete pour trouver toutes les flottes en orbite du joueur et y envoyer le vaisseau.
-    echo '&nbsp<form method="post" action="script/ordrevaisseau.php">'; 
+    echo '&nbsp<form method="post" action="../script/ordrevaisseau.php">'; 
     echo '<input name="idplanete" type="hidden" value="'.$_GET['id'].'">';
     echo '<input name="idvaisseau" type="hidden" value="'.$repvaisseauenorbite['idvaisseau'].'">';
     echo '<input name="idflotte" type="hidden" value="'.$repflotteenorbite['idflotte'].'">';
@@ -45,7 +45,7 @@ while ($repvaisseauenorbite = $reqvaisseauenorbite ->fetch())
 
   if ($repcompterflotte['nb']<$repplanete['maxflotte'])
     {
-    echo '&nbsp<form method="post" action="script/ordrevaisseau.php">'; 
+    echo '&nbsp<form method="post" action="../script/ordrevaisseau.php">'; 
     echo '<input name="idplanete" type="hidden" value="'.$_GET['id'].'">';
     echo '<input name="idvaisseau" type="hidden" value="'.$repvaisseauenorbite['idvaisseau'].'">';
     echo '<input name="idflotte" type="hidden" value="0">';
@@ -54,7 +54,8 @@ while ($repvaisseauenorbite = $reqvaisseauenorbite ->fetch())
     }
   else
     {
-    infobulle('Impossible de créer une nouvelle flotte, limite atteinte.');
+    infobulle('Impossible de créer une nouvelle flotte, limite atteinte.', 'infobulle');
     }
+  echo '<br>';
   }
 ?>

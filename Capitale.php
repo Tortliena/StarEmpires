@@ -1,32 +1,31 @@
-<?php 
-session_start(); 
-if (!$_SESSION['pseudo']) 
-	{ 
-    header('Location: Accueil.php'); 
-    exit();  
-	} 
-include("include/BDDconnection.php"); 
-?> 
- 
-<!DOCTYPE html><html><head><meta charset="utf-8"/><link rel="stylesheet" href="style.css"/><title>Mon super site</title></head> 
-<body><?php include("include/menu.php"); ?><div class="corps"> 
-<h1>CAPITALE</h1> 
-     
-<?php 
-include("include/message.php") ;  
-$typemessage = 'capitale' ; 
+<?php
+session_start();
+if (!$_SESSION['pseudo'])
+	{
+    header('Location: Accueil.php');
+    exit();
+	}
+include("include/BDDconnection.php");
+?>
+
+<!DOCTYPE html><html><head><meta charset="utf-8"/><link rel="stylesheet" href="style.css"/><title>Mon super site</title></head>
+<body><?php include("include/menu.php"); ?><div class="corps">
+<h1>CAPITALE</h1>
+
+<?php
+include("include/message.php");
+$typemessage = 'capitale';
 include("include/resume.php");
  
-$reqinfoutilisateur = $bdg->prepare('SELECT * FROM utilisateurs WHERE id= ?'); 
-$reqinfoutilisateur->execute(array($_SESSION['id'])); 
-$repinfoutilisateur = $reqinfoutilisateur->fetch(); 
+$reqinfoutilisateur = $bdg->prepare('SELECT * FROM utilisateurs WHERE id= ?');
+$reqinfoutilisateur->execute(array($_SESSION['id']));
+$repinfoutilisateur = $reqinfoutilisateur->fetch();
  
-$recuperereventencours = $bdg->prepare('SELECT * FROM choixevents WHERE idjoueurevent= ?'); 
-$recuperereventencours->execute(array($_SESSION['id'])); 
-$eventencours = $recuperereventencours->fetch(); 
+$recuperereventencours = $bdg->prepare('SELECT * FROM choixevents WHERE idjoueurevent= ?');
+$recuperereventencours->execute(array($_SESSION['id']));
+$eventencours = $recuperereventencours->fetch();
 
-    
-    $reqorganisationactuelle = $bdg->prepare('SELECT  FROM planete WHERE idjoueurplanete = ? ');
+$reqorganisationactuelle = $bdg->prepare('SELECT  FROM planete WHERE idjoueurplanete = ? ');
 
 if ($replvl['lvl'] > 3) 
     {
@@ -63,43 +62,43 @@ if ($replvl['lvl'] > 3)
     echo 'Organisation moyenne de votre empire : '.$organisationmoyenne.'%. ';
 
     include("Function/infobulle.php");
-    infobulle($texteinfobulle);
-    } 
- 
-if (isset($eventencours['texteevent'])) 
-  { 
-  echo $eventencours['texteevent']; 
-  if (isset($eventencours['eventsuite1'])) 
-    { 
-    ?> 
-    <form method="post" action="script/choixevent.php"> 
-    <input type="hidden" name="choix" value="<?php echo $eventencours['eventsuite1'] ;?>"> 
+    infobulle($texteinfobulle, 'infobulle');
+    }
+
+if (isset($eventencours['texteevent']))
+  {
+  echo $eventencours['texteevent'];
+  if (isset($eventencours['eventsuite1']))
+    {
+    ?>
+    <form method="post" action="script/choixevent.php">
+    <input type="hidden" name="choix" value="<?php echo $eventencours['eventsuite1'] ;?>">
     <input type="submit" 
-    <?php if ($repinfoutilisateur['ideventsuivant'] == $eventencours['eventsuite1']) { ?> class="choixactuel" <?php } ?> 
-    value="<?php echo $eventencours['textechoix1'] ;?>" /> 
-    </form><?php 
-    } 
-  if (isset($eventencours['eventsuite2'])) 
-    { 
-    ?> 
-    <form method="post" action="script/choixevent.php"> 
-    <input type="hidden" name="choix" value="<?php echo $eventencours['eventsuite2'] ;?>"> 
+    <?php if ($repinfoutilisateur['ideventsuivant'] == $eventencours['eventsuite1']) { ?> class="choixactuel" <?php } ?>
+    value="<?php echo $eventencours['textechoix1'] ;?>" />
+    </form><?php
+    }
+  if (isset($eventencours['eventsuite2']))
+    {
+    ?>
+    <form method="post" action="script/choixevent.php">
+    <input type="hidden" name="choix" value="<?php echo $eventencours['eventsuite2'] ;?>">
     <input type="submit" 
-    <?php if ($repinfoutilisateur['ideventsuivant'] == $eventencours['eventsuite2']) { ?> class="choixactuel" <?php } ?> 
-    value="<?php echo $eventencours['textechoix2'] ;?>" /> 
-    </form><?php 
-    } 
-  if (isset($eventencours['eventsuite3'])) 
-    { 
-    ?> 
-    <form method="post" action="script/choixevent.php"> 
-    <input type="hidden" name="choix" value="<?php echo $eventencours['eventsuite3'] ;?>"> 
+    <?php if ($repinfoutilisateur['ideventsuivant'] == $eventencours['eventsuite2']) { ?> class="choixactuel" <?php } ?>
+    value="<?php echo $eventencours['textechoix2'] ;?>" />
+    </form><?php
+    }
+  if (isset($eventencours['eventsuite3']))
+    {
+    ?>
+    <form method="post" action="script/choixevent.php">
+    <input type="hidden" name="choix" value="<?php echo $eventencours['eventsuite3'] ;?>">
     <input type="submit" 
-    <?php if ($repinfoutilisateur['ideventsuivant'] == $eventencours['eventsuite3']) { echo 'class="choixactuel"'; } ?> 
-    value="<?php echo $eventencours['textechoix3'] ;?>" /> 
-    </form><?php 
-    } 
-  } 
+    <?php if ($repinfoutilisateur['ideventsuivant'] == $eventencours['eventsuite3']) { echo 'class="choixactuel"'; } ?>
+    value="<?php echo $eventencours['textechoix3'] ;?>" />
+    </form><?php
+    }
+  }
 
 
 echo '</br></br><h3>Objectifs :</h3>'; 

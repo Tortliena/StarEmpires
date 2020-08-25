@@ -45,13 +45,13 @@ $texte = 'Capacité des soutes : ' . $quantitetransportee . '/' . $souteflotte;
 if ($a != 0)
     {
     echo '<p>'.$texteexplication.'.';
-    infobulle($texte);
+    infobulle($texte, 'infobulle');
     echo '</p>' ;
     }
 else
 	{
     echo '<p>Rien dans les soutes.';
-    infobulle($texte);
+    infobulle($texte, 'infobulle');
     echo '</p>' ;
     }
 

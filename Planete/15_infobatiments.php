@@ -22,19 +22,19 @@ if(!isset($repcompterbatiment['traitement2'])){$repcompterbatiment['traitement2'
 if ($repcompterbatiment['chantier'] > 0)
   {
   echo 'Chantier de construction';
-  infobulle('Permet d\'avoir jusqu\'à 5 ouvriers<br>Max 1 par planète');
+  infobulle('Permet d\'avoir jusqu\'à 5 ouvriers<br>Max 1 par planète', 'infobulle');
   destruction(2, $_GET['id']);
   }
 
 if ($repcompterbatiment['centrederecherche'] > 0)
   {
   echo '<br>Centre de recherche';
-  infobulle('Permet d\'avoir jusqu\'à 5 scientifiques<br>Max 1 par planète');
+  infobulle('Permet d\'avoir jusqu\'à 5 scientifiques<br>Max 1 par planète', 'infobulle');
   destruction(1, $_GET['id']);
   }
 
 echo '<br>Mégalopoles : '.$repcompterbatiment['megalopole'].'/'.$repplanete['maxmegalopole'];
-infobulle('Augmente la pop max.<br> Possbilité d\'en construire une par tranche de 4 de pop');
+infobulle('Augmente la pop max.<br> Possbilité d\'en construire une par tranche de 4 de pop', 'infobulle');
 if ($repcompterbatiment['megalopole'] > 0)
   {
   destruction(3, $_GET['id']);
@@ -43,7 +43,7 @@ if ($repcompterbatiment['megalopole'] > 0)
 if ($repplanete['lune'] > 0)
   {
   echo '<br>Base lunaire : '.$repcompterbatiment['baselunaire'].'/'.$repplanete['maxbaselunaire'];
-  infobulle('Augmente la pop max de 1.<>Une constructible par lune.');
+  infobulle('Augmente la pop max de 1.<br>Une constructible par lune.', 'infobulle');
   }
 if ($repcompterbatiment['baselunaire'] > 0)
   {
@@ -53,21 +53,21 @@ if ($repcompterbatiment['baselunaire'] > 0)
 if ($repcompterbatiment['traitement1'] > 0)
   {
   echo '<br>Usine de traitement';
-  infobulle('+30% en biens et +20% en titane lors des traitements des débris</br>Max 1 par planète');
+  infobulle('+30% en biens et +20% en titane lors des traitements des débris</br>Max 1 par planète', 'infobulle');
   destruction(21, $_GET['id']);
   }
 
 if ($repcompterbatiment['traitement2'] > 0)
   {
   echo '<br>Usine de traitement avancée';
-  infobulle('+25% en biens et +60% en titane lors des traitements</br>Max 1 par planète');
+  infobulle('+25% en biens et +60% en titane lors des traitements</br>Max 1 par planète', 'infobulle');
   destruction(22, $_GET['id']);
   }
 
 if ($repcompterbatiment['HQ'] > 0)
   {
   echo '<br>Quartier général des armées';
-  infobulle('Bâtiment unique.<br>+1 aux flottes de la planète');
+  infobulle('Bâtiment unique.<br>+1 aux flottes de la planète', 'infobulle');
   }
 
 echo '<br>';

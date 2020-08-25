@@ -3,13 +3,13 @@
 echo '<form method="post" action="script/conversionpop.php"><p>'; 
 echo '<label for="combien">Convertir </label><input type="number" name="combien" min="1" value="1">'; 
 echo '<select name="popdepart" id="popdepart">'; 
-$reqtypepop = $bdd->query('SELECT idtypepop , nompop , technecessaire FROM typepop ORDER BY idtypepop ASC'); 
+$reqtypepop = $bdd->query('SELECT idtypepop , nompop FROM typepop ORDER BY idtypepop ASC'); 
 while ($reptypepop = $reqtypepop->fetch()) 
   { 
   echo '<option value="'. $reptypepop['idtypepop'] . '">'. $reptypepop['nompop'] .'</option>';  
   } 
 echo '</select><label for="poparrivee"> en </label><select name="poparrivee" id="poparrivee">'; 
-$reqtypepop = $bdd->query('SELECT idtypepop, nompop, technecessaire FROM typepop ORDER BY idtypepop DESC'); 
+$reqtypepop = $bdd->query('SELECT idtypepop, nompop FROM typepop ORDER BY idtypepop DESC'); 
 while ($reptypepop = $reqtypepop->fetch()) 
   { 
   echo '<option value="'. $reptypepop['idtypepop'] . '">'. $reptypepop['nompop'] .'</option>';  

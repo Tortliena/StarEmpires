@@ -5,18 +5,19 @@ if (!$_SESSION['pseudo'])
     header('Location: Accueil.php');
     exit();
 	}
-require __DIR__ . '/include/BDDconnection.php';
+require __DIR__ . '/../include/BDDconnection.php';
 ?>
 
-<!DOCTYPE html><html><head><meta charset="utf-8" /><link rel="stylesheet" href="style.css" /><title>Mon super site</title></head>
-<body><?php include("include/menu.php"); ?><div class="corps">
+<!DOCTYPE html><html><head><meta charset="utf-8" /><link rel="stylesheet" href="../style.css" /><title>Mon super site</title></head>
+<body><?php include("../include/menu.php"); ?><div class="corps">
 <h1>Design des vaisseau</h1>
 
 <?php
-include("include/message.php");
-include("function/fonctionconception.php");
-include("function/fonctionvaisseau.php");
-include("function/caracteristiquesvaisseau.php");
+include("../include/message.php");
+include("fonction/fonctionconception.php");
+include("fonction/fonctionvaisseau.php");
+include("fonction/caracteristiquesvaisseau.php");
+include("fonction/structurevaisseau.php");
 
 $reqcomposantsurlevaisseau = $bdd->prepare("	SELECT COUNT(idtable) AS nb, i.nombatiment, c.iditemcomposant, c.typecomposant
                                                 FROM gamer.composantvaisseau c 
@@ -44,7 +45,9 @@ else
 	{ // Section gérant les modifications de plan.
 
 	// Permet de sortir de la phase de modification d'un plan.
-	echo '<form method="post" action="conception.php"><input type="submit" value="Fin d\'édition du plan"/></form>';
+	echo '<form method="post" action="00_conception.php"><input type="submit" value="Fin d\'édition du plan"/></form>';
+
+	echo '&emsp;<form method="post" action="script/supprimerconception.php?id='.-$_GET['id'].'"><input type="submit" value="Réinitialisation du plan"/></form>';
 
 	// Permet d'avoir le plan actuel :
 	$reqvaiss = $bdg->prepare('SELECT * FROM vaisseau WHERE idflottevaisseau = ? AND idvaisseau = ?');
@@ -77,7 +80,7 @@ while ($repvaiss = $reqvaiss->fetch())
  	$repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch();
 
     echo '<h3>' . $repvaiss['nomvaisseau'] . ' : '; 
-    echo '<a class ="lienmenu" href="Conception.php?id='.$repvaiss['idvaisseau'].'">Modifier</a> ';
+    echo '<a class ="lienmenu" href="00_Conception.php?id='.$repvaiss['idvaisseau'].'">Modifier</a> ';
     echo '<a class ="lienmenu" href="script/supprimerconception.php?id='.$repvaiss['idvaisseau'].'">Supprimer</a></h3>';
 
 	list($structure, $structuremax) = structurevaisseau ($repvaiss['idvaisseau']);

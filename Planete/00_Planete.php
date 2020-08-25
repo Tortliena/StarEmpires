@@ -10,7 +10,8 @@ include("02_debutpage.php");
 $reqcompterpop = $bdg->prepare('SELECT  COUNT(*) AS population,
                                         sum(case when typepop = 1 then 1 else 0 end) AS citoyens,
                                         sum(case when typepop = 2 then 1 else 0 end) AS ouvriers,
-                                        sum(case when typepop = 3 then 1 else 0 end) AS scientifiques
+                                        sum(case when typepop = 3 then 1 else 0 end) AS scientifiques,
+                                        sum(case when typepop = 4 then 1 else 0 end) AS soldats
                                         FROM population
                                         WHERE idplanetepop = ?');
 $reqcompterpop->execute(array($_GET['id']));                               

@@ -1,8 +1,9 @@
 <?php
 session_start();
-require __DIR__ . '/../include/BDDconnection.php';
-require __DIR__ . '/../function/caracteristiquesvaisseau.php';
-require __DIR__ . '/../function/consommercreeritemsplanetemultiple.php';
+require __DIR__ . '/../../include/BDDconnection.php';
+require __DIR__ . '/../fonction/caracteristiquesvaisseau.php';
+require __DIR__ . '/../../function/consommercreeritemsplanetemultiple.php';
+require __DIR__ . '/../fonction/structurevaisseau.php';
 
 
 echo $_SESSION['id'] .' = id du joueur <br>' ;
@@ -23,11 +24,11 @@ $reqvaisseauplan->execute(array($_POST['idvaisseau']));
 $repvaisseauplan = $reqvaisseauplan->fetch();
 
 if ($repvaisseau['idjoueurplanete'] != $_SESSION['id'] AND -$repvaisseauplan['idflottevaisseau'] != $_SESSION['id'])   // Vérification du possesseur du vaisseau. Si pas bon = dégage vers l'acceuil.
-	{ header("location: ../accueil.php?message=31"); exit(); }   
+	{ header("location: ../../accueil.php?message=31"); exit(); }   
 
 list($structure, $structuremax) = structurevaisseau ($_POST['idvaisseau']);
 if ($structure > $structuremax)
-	{ header("location: ../accueil.php?message=31"); exit(); }
+	{ header("location: ../../accueil.php?message=31"); exit(); }
 
 $reqconstructionencours = $bdg->prepare('SELECT idconst FROM construction WHERE trucaconstruire = ?');
 $reqconstructionencours->execute(array(-$_POST['idvaisseau']));   
@@ -56,7 +57,7 @@ if (!isset($repconstructionencours['idconst']))
 				$a++;
 				if ($repinfoitem['itemnecessaire']!=0)
 		    		{ // Item 'constructible' par recherche.
-					header("Location: ../planete.php?message=31&id=" . urlencode($_POST['id']));
+					header("Location: ../../planete/00_planete.php?message=31&id=" . urlencode($_POST['id']));
 				    exit();
 				    }
 
@@ -66,7 +67,7 @@ if (!isset($repconstructionencours['idconst']))
 					$repverifiertechnologie = $reqverifiertechnologie->fetch();
 					if (!isset($repverifiertechnologie['idrechprinc']))
 						{
-						header("Location: ../planete.php?message=31&id=" . urlencode($_POST['id']));
+						header("Location: ../../00_planete.php?message=31&id=" . urlencode($_POST['id']));
 				    	exit();
 				    	}
 				    }
@@ -84,7 +85,7 @@ if (!isset($repconstructionencours['idconst']))
 				}
 			if ($a != 0) 
 				{ // Il manque des items, donc on lance la prod et on sort de là !
-				header("Location: ../planete.php?message=61&id=" . urlencode($repvaisseau['idplanete'])); 
+				header("Location: ../../00_planete.php?message=61&id=" . urlencode($repvaisseau['idplanete'])); 
 			    exit(); 
 			    }
 			} // Fin vérification des items présents dans le vaisseau et le silo vs dans le nouveau vaisseau
@@ -132,19 +133,19 @@ if (!isset($repconstructionencours['idconst']))
 
 	if (-$repvaisseauplan['idflottevaisseau'] == $_SESSION['id'])
 		{ 
-		header("location: ../conception.php?message=75&id=" . urlencode($_POST['idvaisseau']));
+		header("location: ../00_conception.php?message=75&id=" . urlencode($_POST['idvaisseau']));
 		exit;
 		}
 	if ($repvaisseau['idjoueurplanete'] == $_SESSION['id'])
 		{
-		header("location: ../planete.php?message=32&id=" . urlencode($repvaisseau['idplanete']));
+		header("location: ../../planete/00_planete.php?message=32&id=" . urlencode($repvaisseau['idplanete']));
 		exit;
 		}
 	}
 else
 	{
- 	header("location: ../conception.php?message=76&id=" . urlencode($_POST['idvaisseau']));
+ 	header("location: ../00_conception.php?message=76&id=" . urlencode($_POST['idvaisseau']));
 	exit;
 	}
-header("location: ../accueil.php?message=31");
+header("location: ../../accueil.php?message=31");
 ?>

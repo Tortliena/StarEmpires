@@ -1,7 +1,6 @@
 <nav class="menu"><div><h3>Menu</h3></br>
 <?php
-
-require __DIR__ . '/../function/flotte.php';
+require __DIR__ . '/../hangars/fonction/flotte.php';
 
 // Affichage du tour en cours : 
 $reponse = $bda->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1');
@@ -12,7 +11,7 @@ echo 'Tour '.$touractuel['id'].'</br>' ;
 // Partie non connectée
 if (!isset($_SESSION['pseudo'])) 
 	{
-	echo '<a class ="lienmenu" href="/starempires/Accueil.php">Accueil</a>' ;
+	echo '<a class ="lienmenu" href="/starempires/accueil.php">Accueil</a>' ;
 	}
 
 // Partie connectée
@@ -24,7 +23,7 @@ else
     $replvl = $reqlvl->fetch();
     echo 'Logging : ' . $_SESSION['pseudo'] . ' </br> ';
     echo '<a class ="lienmenu" href="/starempires/script/deconnection.php">Déconnection</a></br>';
-    echo '<a class ="lienmenu" href="Messagerie.php">Messagerie</br>';
+    echo '<a class ="lienmenu" href="/starempires/Messagerie.php">Messagerie</br>';
 
     $reqmessnonlu = $bdg->prepare('SELECT COUNT(*) AS nbmessnonlu FROM messagerie WHERE idjoueurrecepteur = ? AND lu = ? AND supprimerecepteur = ?');
     $reqmessnonlu->execute(array($_SESSION['id'], 0, 0));
@@ -49,7 +48,7 @@ else
 
 	if ($replvl['lvl'] > 6) 
         {
-        echo '<a class ="lienmenu" href="/starempires/Conception.php">Conception</a></br>';
+        echo '<a class ="lienmenu" href="/starempires/Conception_vaisseau/00_Conception.php">Conception</a></br>';
         }
 
  	echo '</br><span class = "titremenu">Planètes</span></br>';
