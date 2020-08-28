@@ -10,6 +10,7 @@ $reqcompterbatiment = $bdg->prepare('SELECT sum(case when typebat = 1 then 1 els
                                             sum(case when typebat = 2 then 1 else 0 end) AS chantier,
                                             sum(case when typebat = 3 then 1 else 0 end) AS megalopole,
                                             sum(case when typebat = 4 then 1 else 0 end) AS baselunaire,
+                                            sum(case when typebat = 38 then 1 else 0 end) AS basemilitaire,
                                             sum(case when typebat = 33 then 1 else 0 end) AS HQ
                                     FROM batiment WHERE idplanetebat = ?');
 
@@ -28,7 +29,7 @@ while ($repinfoplanete = $reqinfoplanete->fetch())
 
     $maxscientifiques = max (1, $repcompterbatiment['centrederecherche']*5);
 
-    $maxsoldats = max (2, 0); // Développer cette formule plus tard ?
+    $maxsoldats = max (1, $repcompterbatiment['basemilitaire']*5); // Développer cette formule plus tard ?
     
     $maxmegalopole = floor($repinfoplanete['population']/4);
     

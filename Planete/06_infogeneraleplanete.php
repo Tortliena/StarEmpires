@@ -5,22 +5,27 @@ infobulle('Population maximale de base de la planète', 'infobulle');
 if ($repplanete['environnement'] < -3000)
 	{
 	$environnement = 'détruit';
+	$nomimage = 'environnementdetruit';
 	}
-elseif ($repplanete['environnement'] < -1000)
+elseif ($repplanete['environnement'] < 0)
 	{
 	$environnement = 'abimé';
+	$nomimage = 'environnementabime';
 	}
 elseif ($repplanete['environnement'] < 1000)
 	{
 	$environnement = 'normal';
+	$nomimage = 'environnement';
 	}
 elseif ($repplanete['environnement'] < 3000)
 	{
 	$environnement = 'amélioré';
+	$nomimage = 'environnement';
 	}
 else
 	{
 	$environnement = 'idyllique';
+	$nomimage = 'environnement';
 	}
 
 if ($repplanete['stabiliteenvironnement'] == 1000)
@@ -40,7 +45,35 @@ else
 	$stabenv = 'instable';
 	}
 
-infobulle('Environnement : '.$environnement.'<br>- Change la population maximale de la planète.<br>- Peut diminuer en cas de combat intenses.<br>- Peut-être (ré)augmenté.<br><br>Stabilité de l\'environnement : '.$stabenv.'<br>- Facilité à influencer l\'environnement.', 'environnement');
+infobulle('Environnement : '.$environnement.'<br>- Change la population maximale de la planète.<br>- Peut diminuer en cas de combat intenses.<br>- Peut-être (ré)augmenté.<br><br>Stabilité de l\'environnement : '.$stabenv.'<br>- Facilité à influencer l\'environnement.', $nomimage);
+
+$reqsilo = $bdg->prepare('SELECT	sum(case when iditems = 39 then 1 else 0 end) AS restau,
+	                                sum(case when iditems = 40 then 1 else 0 end) AS amelio
+	                                FROM silo WHERE idplanetesilo = ?');
+$reqsilo->execute(array($_GET['id']));
+$repsilo = $reqsilo->fetch();
+
+if ($repplanete['restauration'] > 0)
+	{
+	echo 'Modification planétaire en cours';
+	infobulle('La stabilité environnementale va diminuer alors que la qualité de l\'environnement va augmenter.<br>Il est conseillé d\'attendre ensuite que la stabilité environnementale diminue avant de retenter d\'améliorer les conditions climatiques', 'infobulle');
+	}	
+elseif (($repplanete['environnement'] < 0 AND $repsilo['restau'] > 0) OR ($repplanete['environnement'] < 3000 AND $repsilo['amelio'] > 0))
+	{
+	echo '&nbsp;<form method="post" action="script/ordreterraformation.php">';
+	echo '<input name="idplanete" type="hidden" value="'.$_GET['id'].'">';
+	echo '<input type="submit" value="Restaurer" />';
+	echo '</form>';
+	if ($repplanete['environnement'] < 0 AND $repsilo['restau'] > 0)
+		{	
+		infobulle('Action qui consomme un module de restauration planétaire.<br>Inefficace si votre stabilité environnementale est faible.', 'infobulle');
+		}
+	else
+		{	
+		infobulle('Action qui consomme un module d\'amélioration planétaire.<br>Inefficace si votre stabilité environnementale est faible.<br>Si vous planète est abimée, vous devriez plutôt restaurer votre planète avant de l\'améliorer', 'infobulle');
+		}
+	}
+
 
 if ($repplanete['lune'] > 0)
   {
@@ -78,7 +111,7 @@ if ($replvl['lvl'] > 11)
 	}
 
 // Affichage de la prod des biens.
-$reqprod = $bdg->prepare('SELECT prodbiens, consobiens, coutstockage, entretien, entretienflotte FROM variationstour WHERE idplanetevariation = ?'); 
+$reqprod = $bdg->prepare('SELECT prodbiens, consobiens, coutstockage, entretien, entretienflotte FROM variationstour WHERE idplanetevariation = ?');
 $reqprod->execute(array($_GET['id']));
 $prodbiens = $reqprod->fetch();
 echo '<br>Évolution des biens du dernier tour : ';

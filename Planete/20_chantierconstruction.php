@@ -95,6 +95,10 @@ while ($repconstencours = $reqconstencours->fetch())
   if($repconstencours['avancementtitane']>0) 
     { 
     echo ' et ' . $repconstencours['avancementtitane'] . ' métaux rares'; 
+    }
+  if($repconstencours['avancementneutrinos']>0) 
+    { 
+    echo ' et ' . $repconstencours['avancementneutrinos'] . ' neutrinos'; 
     } 
   echo ' pour le prochain.';   
   echo '<input type="hidden" name="idplanete" value="'.$_GET['id'].'">';

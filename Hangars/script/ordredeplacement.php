@@ -1,13 +1,15 @@
 <?php 
 session_start(); 
-include("../include/BDDconnection.php"); 
- 
+include("../../include/BDDconnection.php"); 
+
+/*
 echo $_SESSION['id'] . ' ID du joueur </br>';
 echo $_POST['idflotte'] . ' ID de la flotte </br>';
 echo $_POST['typeordre'] . ' Type ordre </br>';
 echo $_POST['xobjectif'] . ' x objectif </br>';
 echo $_POST['yobjectif'] . ' y objectif</br>';
 echo $_POST['confirmer'] . '</br> \'on\' si case coché, \'off\' si non cochée, null si pas de case.';
+*/
 
 // Vérifier propriétaire du vaisseau.
 $reqflotte = $bdg->prepare('    SELECT p.idjoueurplanete, f.idflotte, f.universflotte,
@@ -28,17 +30,9 @@ if ($repflotte['idjoueurplanete'] != $_SESSION['id'])
 // Il faut avoir coché la case pour annuler un ordre bloqué.
 if ($repflotte['bloque'] == 1)
     { // Cas du vaisseau en cours de rénovation ! À virer ?
-    if ($_POST['confirmer'] == 'on')
-        { // Si on valide qu'on veut annuler, alors on peut continuer.
-        }
-    elseif ($_POST['confirmer'] == 'off')
+    if ($_POST['confirmer'] != 'on')
         { // Si la variable existe et est à 0 :
-        $message = 43 ;
-        goto a;
-        }
-    else
-        {
-        $message = 34 ;
+        $message = 43;
         goto a;
         }
     }
@@ -49,6 +43,7 @@ if ($repflotte['bloque'] == 2)
     $message = 47 ;
     goto a;
     }
+
 if ($_POST['typeordre'] == 6)
     { // Ordre de déplacement classique
     //Vérifier que les coordonnées sont différentes.
@@ -70,7 +65,7 @@ if ($_POST['typeordre'] == 1)
     $repasteroide = $reqasteroide->fetch();
     if (!isset($repasteroide['idasteroide']))
         {
-        $message = 35 ;
+        $message = 35;
         goto a;
         }
     $message = 39 ;
@@ -114,6 +109,7 @@ if ($_POST['typeordre'] == 2)
         { // Univers commum
         $repflotte['universflotte'] = $_POST['xobjectif'];
         $_POST['typeordre'] = 10; // Permet d'être traité comme un ordre de saut dimensionnel.
+        $message = 32;
         }
     else
         { // Mauvaise destination
@@ -121,7 +117,6 @@ if ($_POST['typeordre'] == 2)
         exit();
         }
     }
-
 
 if ($_POST['typeordre'] == -1)
     { // Cas de l'annulation d'un ordre.
@@ -146,9 +141,9 @@ else
 if (isset($message))
     {
     a:
-    header("location: ../hangars.php?message=" . $message . "&id=" . urlencode($_POST['idflotte']));
-    exit();
+    header("location: ../00_hangars.php?message=" . $message . "&id=" . urlencode($_POST['idflotte']));
+    exit;
     }
 
-header("Location: ../hangars.php??message=31&id=" . urlencode($_POST['idflotte']));
+header("Location: ../00_hangars.php?message=31&id=" . urlencode($_POST['idflotte']));
 ?>

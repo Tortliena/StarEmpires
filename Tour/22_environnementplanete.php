@@ -4,15 +4,26 @@ session_start();
 include("../include/BDDconnection.php");
 */
 
-$requpenv = $bdg->prepare('UPDATE planete SET stabiliteenvironnement = ? WHERE idplanete = ?');
+$requpenv = $bdg->prepare('UPDATE planete SET stabiliteenvironnement = ?, environnement = ?, restauration = ? WHERE idplanete = ?');
 
-$reqenvironnement = $bdg->prepare('SELECT idplanete, stabiliteenvironnement, environnement FROM planete');
+$reqenvironnement = $bdg->prepare('SELECT idplanete, stabiliteenvironnement, environnement, restauration FROM planete');
 $reqenvironnement->execute();
 while($repenvironnement = $reqenvironnement->fetch())
     {
-    $bonus = max(-5, min(5, -$repenvironnement['environnement']/1000)); // Bonus de max +/-5; de +3 avec un environnement dégradé (permet de booster les planètes rasées et ralentir les grosses planètes)
-    $variation = 10 + $bonus;
-    $nouvellestabilite = min(1000 , $repenvironnement['stabiliteenvironnement'] + $variation);
-    $requpenv->execute(array($nouvellestabilite, $repenvironnement['idplanete']));
+    $restauraion = $repenvironnement['restauration'];
+    $environnement = $repenvironnement['environnement'];
+
+	// Stabilité va monter de 5 à 15. +15 si la planète est très abimée et + 5 si elle est parfaite.
+	$variationstab = 10 + max(-5, min(5, -$repenvironnement['environnement']/500)); 
+
+    if ($repenvironnement['restauration'] > 0)
+    	{
+    	$restauraion--;
+    	$variationstab = $variationstab - 50;
+    	$environnement = $environnement + FLOOR(80*$repenvironnement['stabiliteenvironnement']/1000) ;
+    	}
+
+    $nouvellestabilite = max(0  , min(1000 , $repenvironnement['stabiliteenvironnement'] + $variationstab));
+    $requpenv->execute(array($nouvellestabilite, $environnement, $restauraion, $repenvironnement['idplanete']));
     }
 ?>

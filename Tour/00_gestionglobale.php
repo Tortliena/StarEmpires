@@ -90,6 +90,9 @@ include("89_creerplanetes.php");
 // Creation des asteroides dans l'univers
 include("90_creerasteroides.php");
 
+// Creation des asteroides au neutrinos
+include("91_neutrinos.php");
+
 // Creation de planetes dans lunivers
 include("92_disparitionflotte.php");
 
@@ -99,6 +102,6 @@ include("94_creationflottealienne.php");
 // Permet de créer un résumé du tour pour vérifier les bugs.
 include("95_resumetour.php");
 
-// exit;
+//exit;
 header('Location: /starempires/administration/Administration.php?voir=');
 ?>

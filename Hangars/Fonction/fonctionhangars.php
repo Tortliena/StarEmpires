@@ -37,7 +37,7 @@ function formulaireordredeplacement($typeordre, $idflotte, $texteexplication, $v
   echo '<form method="post" action="script/ordredeplacement.php"><p>';
   echo '<input name="xobjectif" type="hidden" value="' . $valeur1 . '">';
   echo '<input name="yobjectif" type="hidden" value="' . $valeur2 . '">';
-  echo $texteexplication ;
+  echo $texteexplication;
   echo '<input name="typeordre" type="hidden" value="' . $typeordre . '">';
   echo '<input name="idflotte" type="hidden" value="' . $idflotte . '">';
   echo '<input type="submit" value="' . $textevalidation . '" />';
@@ -73,17 +73,17 @@ function annulerordrededeplacement($typeordre, $idflotte, $xdest, $ydest, $bloqu
       case 11:
         $messageannulerdeplacement = 'Colonisation en cours. ';
       break;
-      default :
+      default:
         $messageannulerdeplacement = 'ORDRE NON PREVU ! Voir fonction hangars/annuler ';
       break;
     }
     echo '<form method="post" action="script/ordredeplacement.php"><p>';
-    echo $messageannulerdeplacement ;
+    echo $messageannulerdeplacement;
     echo '<input name="idflotte" type="hidden" value="' . $idflotte . '">';
     if ($bloque == 1)
       {
-      echo '<input type="hidden" name="confirmer" value="off"/>'; 
-      echo '<input id = "checkbox" type="checkbox" name="confirmer"/> <label for="checkbox"></label>  '; 
+      echo '<input type="hidden" name="confirmer" value="off"/>';
+      echo '<input id = "checkbox" type="checkbox" name="confirmer"/> <label for="checkbox"></label>  ';
       }
     echo '<input name="typeordre" type="hidden" value="-1">';
     echo '<input type="submit" value="Supprimer l\'ordre"/>';
@@ -112,7 +112,7 @@ function acheterstation($idflotte, $idstation, $iditem, $maxpossible, $nomitem, 
     echo '<input name="iditem" type="hidden" value="'.$iditem.'">';
     echo '<input name="idstation" type="hidden" value="'.$idstation.'">';
     echo '<input name="typetransaction" type="hidden" value="2">';
-    echo '<input type="number" name="combien" min="1" max="'.$maxpossible.'" value="'.$maxpossible.'">';  
+    echo '<input type="number" name="combien" min="1" max="'.$maxpossible.'" value="'.$maxpossible.'">';
     echo '<input type="submit" value="acheter"/></p></form>';
     }
   else
@@ -145,5 +145,4 @@ function tailleasteroide($quantite)
     }
   return $taille;
   }
-
-  ?>
+?>

@@ -18,7 +18,7 @@ if (!isset($_SESSION['pseudo']))
 else
 	{
 	// récupérer le niveau du joueur.
-   	$reqlvl = $bdg->prepare('SELECT lvl, creditgalactique from utilisateurs WHERE id= ?');
+   	$reqlvl = $bdg->prepare('SELECT lvl, creditgalactique, niveauadmin from utilisateurs WHERE id= ?');
     $reqlvl->execute(array($_SESSION['id']));
     $replvl = $reqlvl->fetch();
     echo 'Logging : ' . $_SESSION['pseudo'] . ' </br> ';
@@ -70,7 +70,7 @@ else
                 if ($ecrirehangars == 1) {echo '</br><span class = "titremenu">Hangars</span></br>' ; }
                     $ecrirehangars = 2 ;
                 
-                echo '<a class ="lienmenu" href="/starempires/hangars.php?id=' . $repflotte['idflotte'] . '">' . $repflotte['nomflotte'] . '</a></br>';
+                echo '<a class ="lienmenu" href="/starempires/hangars/00_hangars.php?id=' . $repflotte['idflotte'] . '">' . $repflotte['nomflotte'] . '</a></br>';
 
                 switch ($repflotte['typeordre'])
                     {

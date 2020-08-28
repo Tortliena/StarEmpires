@@ -162,12 +162,8 @@ switch ($_GET["message"])
     break; 
  
     case 32: 
-        echo "Vous venez de lancer une rénovation du vaisseau." ; 
-    break; 
- 
-    case 34: 
-        echo "Vous devez annuler l'ordre de rénovation avant de donner tout autre ordre à ce vaisseau." ; 
-    break; 
+        echo "Saut enregistré." ; 
+    break;
  
     case 35: 
         echo "Pas de champs d'astéroides à proximité !" ; 
@@ -351,6 +347,14 @@ switch ($_GET["message"])
 
     case 80:
         echo "Plan réinitialisé.";
+    break;
+
+    case 81:
+        echo "Restauration planétaire lancée !";
+    break;
+
+    case 82:
+        echo "Amélioration planétaire lancée !";
     break;
     }
  

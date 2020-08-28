@@ -9,9 +9,9 @@ $message = $bdg->prepare("INSERT INTO messagetour (idjoumess, message, domaineme
 
 // Gestion construction :
 $reqsupprimercontruction = $bdg->prepare('DELETE FROM construction WHERE idconst =  ? ');
-$diminutiondeun = $bdg->prepare('UPDATE construction SET nombre = nombre - 1, avancementbiens = ?, avancementtitane = ? WHERE idconst = ?');
+$diminutiondeun = $bdg->prepare('UPDATE construction SET nombre = nombre - 1, avancementbiens = ?, avancementtitane = ?, avancementneutrinos = ? WHERE idconst = ?');
 $reqconstruction = $bdg->prepare("SELECT * FROM construction WHERE idplaneteconst = ? AND ordredeconstruction > 0 ORDER BY ordredeconstruction ASC");
-$avancement = $bdg->prepare("UPDATE construction SET avancementbiens = ?, avancementtitane = ? WHERE idconst = ?");
+$avancement = $bdg->prepare("UPDATE construction SET avancementbiens = ?, avancementtitane = ?, avancementneutrinos = ? WHERE idconst = ?");
 $construirebatiment = $bdg->prepare('INSERT INTO batiment (typebat, idplanetebat) VALUES (?, ?)');
 $reqlocalisationplanete = $bdg->prepare('SELECT xplanete, yplanete, universplanete FROM planete WHERE idplanete = ?');
 $construirevaisseau = $bdg->prepare('INSERT INTO vaisseau (idflottevaisseau, nomvaisseau) VALUES (?, ?)');
@@ -29,31 +29,34 @@ $reqcreerflotte = $bdg->prepare('INSERT INTO flotte (idplaneteflotte) VALUES (?)
 
 
 // Par ailleurs :
-$miseajourdesressources = $bdg->prepare("UPDATE planete SET biens = ?, titane = ? WHERE idplanete = ?");
+$miseajourdesressources = $bdg->prepare("UPDATE planete SET biens = ?, titane = ?, neutrinos = ? WHERE idplanete = ?");
 $reqcategorie = $bdd->prepare("SELECT typeitem, nombatiment, itemnecessaire, nomlimite FROM items WHERE iditem = ?");
 $reqcomptebat = $bdg->prepare('SELECT COUNT(idbat) as nb FROM batiment WHERE typebat = ? AND idplanetebat = ?');
 
 //Gestion des construction planete par planete
 $reqplanete = $bdg->query('SELECT v.idplanetevariation, p.idjoueurplanete, 
-                        v.chantier, p.biens, p.titane ti
+                        v.chantier, p.biens, p.titane, p.neutrinos
                         FROM variationstour v INNER JOIN planete p
                         ON p.idplanete = v.idplanetevariation
                         ORDER BY p.idjoueurplanete');
 while ($repplanete = $reqplanete->fetch())
     { // Créer les variables qui vont être utilisées dans les boucles :
     $chantier =  $repplanete['chantier'] ;
-    $biens = $repplanete['biens'] ;
-    $titane = $repplanete['ti'] ;
+    $biens = $repplanete['biens'];
+    $titane = $repplanete['titane'];
+    $neutrinos = $repplanete['neutrinos'];
 
     // Gestion des constructions une par une et uniquement celles du joueur sélectionné.
     $reqconstruction->execute(array($repplanete['idplanetevariation']));
     while ($repconstruction = $reqconstruction->fetch())
         { // Créer les variables qui vont être utilisées dans les boucles :
         $nb = $repconstruction['nombre'];
-        $avancementbiens = $repconstruction['avancementbiens'] ;
-        $nouvavbien = $repconstruction['avancementbiens'] ;
-        $avancementtitane = $repconstruction['avancementtitane'] ;
-        $nouvavtitane = $repconstruction['avancementbiens'] ;
+        $avancementbiens = $repconstruction['avancementbiens'];
+        $nouvavbien = $repconstruction['avancementbiens'];
+        $avancementtitane = $repconstruction['avancementtitane'];
+        $nouvavtitane = $repconstruction['avancementtitane'];
+        $avancementneutrinos = $repconstruction['avancementneutrinos'];
+        $nouvavneutrinos = $repconstruction['avancementneutrinos'];
         $itemaajouteraustock = 0;
 
         a: // Revenir ici si prod se finie et qu'il y a un round 2.
@@ -107,13 +110,23 @@ while ($repplanete = $reqplanete->fetch())
             }
         else {$nouvavtitane = 0;}
 
-        if ($chantier == 0 OR ($chantier < 5 AND $titane > 0)) 
+        if ($avancementneutrinos > 1)  // S'il reste du titane à investir, faire cette partie.
+            {
+            $minneutrinos = min($chantier/20, $avancementneutrinos, $neutrinos);
+            $nouvavneutrinos = $avancementneutrinos - $minneutrinos;
+
+            $chantier = $chantier - $minneutrinos * 5;
+            $neutrinos = $neutrinos - $minneutrinos;
+            }
+        else {$nouvavneutrinos = 0;}
+
+        if ($chantier == 0 OR ($chantier < 5 AND $titane > 0) OR ($chantier < 20 AND $neutrinos > 0)) 
             {
             $message ->execute(array($repplanete['idplanetevariation']  , 'Manque d\'ouvriers !' , 'Construction' , $repconstruction['idconst'])) ;
             }
 
         // Si je peux finir le chantier : 
-        if ($nouvavbien == 0 AND $nouvavtitane == 0)
+        if ($nouvavbien == 0 AND $nouvavtitane == 0 AND $nouvavneutrinos == 0)
             {
             $reqcategorie ->execute(array($repconstruction['trucaconstruire']));
             $repcategorie = $reqcategorie ->fetch();
@@ -208,7 +221,16 @@ while ($repplanete = $reqplanete->fetch())
                 $message ->execute(array($repplanete['idjoueurplanete'] , $mess , 'planete', $repplanete['idplanetevariation']));
                 }
 
-            if ($repconstruction['trucaconstruire'] != 7 AND $repconstruction['trucaconstruire'] != 9)
+            elseif ($repconstruction['trucaconstruire'] == 37)
+                { // 37 = purification de neutrinos
+                $recdebrisirradies = rand(20, 50); // REVOIR CETTE PARTIE AVEC DES RECYCLEURS ?
+
+                $neutrinos = $neutrinos + $recdebrisirradies;
+                $mess = 'Le recyclage des débris vous a rapporté ' . $recdebrisirradies . ' barres de neutrinos.' ;
+                $message ->execute(array($repplanete['idjoueurplanete'] , $mess , 'planete', $repplanete['idplanetevariation']));
+                }
+
+            if ($repconstruction['trucaconstruire'] != 7 AND $repconstruction['trucaconstruire'] != 9 AND $repconstruction['trucaconstruire'] != 37)
                 {
                 $mess = $repcategorie['nombatiment'].' : Construction finie' ;
                 $message ->execute(array($repplanete['idjoueurplanete'] , $mess , 'planete', $repplanete['idplanetevariation']));
@@ -224,17 +246,18 @@ while ($repplanete = $reqplanete->fetch())
             else
                 {
                 $avancementbiens = $repconstruction['prixbiens'];
-                $avancementtitane = $repconstruction['prixtitane'] ;
-                $diminutiondeun->execute(array($avancementbiens, $avancementtitane, $repconstruction['idconst']));
+                $avancementtitane = $repconstruction['prixtitane'];
+                $avancementneutrinos = $repconstruction['prixneutrinos'];
+                $diminutiondeun->execute(array($avancementbiens, $avancementtitane, $avancementneutrinos, $repconstruction['idconst']));
                 $nb-- ;
                 goto a;
                 }
             }
         else
             {
-            $avancement ->execute(array($nouvavbien, $nouvavtitane, $repconstruction['idconst']));
+            $avancement ->execute(array($nouvavbien, $nouvavtitane, $nouvavneutrinos, $repconstruction['idconst']));
             }
         }
-    $miseajourdesressources->execute(array($biens, $titane, $repplanete['idplanetevariation'])); 
+    $miseajourdesressources->execute(array($biens, $titane, $neutrinos, $repplanete['idplanetevariation'])); 
     }
 ?>

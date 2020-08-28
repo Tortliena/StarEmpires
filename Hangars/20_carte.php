@@ -4,6 +4,8 @@
 // Revoir cette requete pour trouver que les flottes 'ennemies'. 
 $reqflottecarte = $bdg->prepare('SELECT idflotte FROM flotte WHERE xflotte = ? AND yflotte = ? AND universflotte = ? AND idplaneteflotte = 0 LIMIT 1');
 
+$reqetoileneutrinos = $bdg->prepare('SELECT idetoileneutrinos FROM etoileneutrinos WHERE xneutrinos = ? AND yneutrinos = ? AND universneutrinos = ?');
+
 // Carte spatiale :   
 for ($y = 0 ; $y <= $xymax ; $y++)   
 	{   
@@ -28,26 +30,29 @@ for ($x = 0 ; $x <= $xymax ; $x++)
 		$repflottecarte = $reqflottecarte->fetch();
 		
 		$reqasteroide->execute(array($x , $y, $repflotte['universflotte']));   
-		$repasteroide = $reqasteroide->fetch();   
+		$repasteroide = $reqasteroide->fetch();
+
+		$reqetoileneutrinos->execute(array($x , $y, $repflotte['universflotte']));   
+		$repetoileneutrinos = $reqetoileneutrinos->fetch();   
 
 		if ($repflotte['xflotte'] == $x AND $repflotte['yflotte'] == $y) // Si je suis sur mon vaisseau, afficher mon vaisseau.   
 			{   
-			echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/monvaisseau.png" alt="monvaisseau" /></a></td>';   
+			echo '<td class = "tdcarte"><a href="00_hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/monvaisseau.png" alt="monvaisseau" /></a></td>';   
 			}   
 		// Mettre ici un /* pour enlever le brouillard de guerre.
-		elseif (!isset($repdect['idexplore']))
-			{// Si la case n'est pas exploré, alors afficher planète cachée ou station cachée s'il y a lieu, sinon rien.  
+		elseif (!isset($repdect['idexplore']) AND $repflotte['universflotte'] > -3)
+			{// Si la case n'est pas exploré, alors afficher planète cachée ou station cachée s'il y a lieu, sinon rien.
 			if (isset($repstation['idstation']))   
 				{ 
-				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/Pointinteret.png" alt="pointinteret" /></a></td>' ;   
+				echo '<td class = "tdcarte"><a href="00_hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/Pointinteret.png" alt="pointinteret" /></a></td>' ;   
 				} 
 			elseif (isset($repplanete['idplanete']))   
 				{ 
-				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/planeteinconnu.png" alt="planete" /></a></td>' ;   
+				echo '<td class = "tdcarte"><a href="00_hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/planeteinconnu.png" alt="planete" /></a></td>' ;   
 				}
 			else
 				{   
-				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/inconnu.png" alt="inconnu" /></a></td>' ;   
+				echo '<td class = "tdcarte"><a href="00_hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/inconnu.png" alt="inconnu" /></a></td>' ;   
 				}
 			}
 		// Mettre ici un */ pour enlever le brouillard de guerre !
@@ -55,23 +60,27 @@ for ($x = 0 ; $x <= $xymax ; $x++)
 			{
 			if (isset($repstation['idstation']))   
 				{ // Sinon, si la case est occupée par une planète, l'afficher.   
-				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/station.png" alt="station" /></a></td>' ;   
+				echo '<td class = "tdcarte"><a href="00_hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/station.png" alt="station" /></a></td>' ;   
 				}
 			elseif (isset($repplanete['idplanete']))   
 				{ // Sinon, si la case est occupée par une planète, l'afficher.   
-				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/planete.png" alt="planete" /></a></td>' ;   
+				echo '<td class = "tdcarte"><a href="00_hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/planete.png" alt="planete" /></a></td>' ;   
 				}
 			elseif (isset($repasteroide['idasteroide']))   
 				{ // Sinon, si la case est occupée par un champs d'astéroides, l'afficher.   
-				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/asteroide.png" alt="asteroide" /></a></td>' ;   
+				echo '<td class = "tdcarte"><a href="00_hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/asteroide.png" alt="asteroide" /></a></td>' ;   
 				}
 			elseif (isset($repflottecarte['idflotte']))
 				{ // Sinon, si la case est occupée par un champs d'astéroides, l'afficher.   
-				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/vaisseaumechant.png" alt="vaisseaumechant" /></a></td>' ;     
+				echo '<td class = "tdcarte"><a href="00_hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/vaisseaumechant.png" alt="vaisseaumechant" /></a></td>' ;     
+				}
+			elseif (isset($repetoileneutrinos['idetoileneutrinos']))
+				{ // Sinon, si la case est occupée par une étoile à neutrinos.  
+				echo '<td class = "tdcarte"><a href="00_hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/etoileneutrinos.png" alt="Étoile à neutrinos" /></a></td>' ;     
 				}
 			else
 				{   
-				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="imagecarte/explore.png" alt="explore" /></a></td>' ;   
+				echo '<td class = "tdcarte"><a href="00_hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/explore.png" alt="explore" /></a></td>' ;   
 				}   
 			}
 		}   

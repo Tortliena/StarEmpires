@@ -5,11 +5,12 @@ if (!$_SESSION['pseudo'])
   header('Location: Accueil.php');   
   exit();   
   }   
-include("include/BDDconnection.php");   
+include("../include/BDDconnection.php");   
 ?>   
-<!DOCTYPE html><html><head><meta charset="utf-8" /><link rel="stylesheet" href="style.css" /><title>Mon super site</title></head>   
+<!DOCTYPE html><html><head><meta charset="utf-8" /><link rel="stylesheet" href="../style.css" /><title>Mon super site</title></head>   
    
-<body><?php include("include/menu.php");    
+<body>
+<?php include("../include/menu.php");    
 
 $reqvaisseau = $bdg->prepare('SELECT * FROM vaisseau WHERE idvaisseau = ?');
 $reqvaisseau->execute(array($_GET['id']));
@@ -39,13 +40,13 @@ if ($repinfoplanete['idjoueurplanete'] != $_SESSION['id'])
 <input type="submit" value="Renommer"/></h1></form>   
    
 <?php   
-include("include/message.php");   
+include("../include/message.php");   
 $typemessage = 'vaisseau' ;   
-include("include/resume.php");   
-include("function/fonctionconception.php");
-include("function/fonctionvaisseau.php");   
-include("function/caracteristiquesvaisseau.php");
-include("function/structurevaisseau.php");
+include("../include/resume.php");   
+include("fonction/fonctionconception.php");
+include("fonction/fonctionvaisseau.php");   
+include("fonction/caracteristiquesvaisseau.php");
+include("fonction/structurevaisseau.php");
 descriptioncompletevaisseau($_GET['id'], $_SESSION['id'], $replvl['lvl']); 
 
 $a = 0; // Variable permettant de gérer le cas avec un ou plusieurs composants en stock + gére le cas du remplissage des soutes.   

@@ -1,5 +1,5 @@
 <?php
-include("hangars/1_entete.php");
+include("1_entete.php");
 
 $reqflotte = $bdg->prepare('SELECT * FROM flotte WHERE idflotte = ?');
 $reqflotte->execute(array($_GET['id']));
@@ -59,12 +59,12 @@ $peutcoloniser = colonisateur($_GET['id']);
 $estarme = armement($_GET['id']);
 $vitesse = vitesseflotte($_GET['id']);
 
-include("hangars/2_debutpage.php");
+include("2_debutpage.php");
 
-include("hangars/3_infoflotte.php");
+include("3_infoflotte.php");
 
 // Inclu aussi les ordres de déchargement face à une planète.
-include("hangars/10_gestionsoute.php");
+include("10_gestionsoute.php");
 
 if ($repflotte['universflotte'] > 0)
 	{
@@ -77,30 +77,30 @@ else
 
 if ($repflotte['universflotte'] == 0)
 	{
-	include("hangars/11_sautencours.php");
+	include("11_sautencours.php");
 	}
 else
 	{
-	include("hangars/12_ordreasteroides.php");
+	include("12_ordreasteroides.php");
 
-	include("hangars/13_flottesproximite.php");
+	include("13_flottesproximite.php");
 
-	include("hangars/14_commercestation.php");
+	include("14_commercestation.php");
 
-	include("hangars/15_ordresclassiques.php");
+	include("15_ordresclassiques.php");
 
 	if (isset($_GET['x']))
 		{ // Formulaire pour donner un ordre de déplacement.   
 		formulaireordredeplacement(6, $_GET['id'], 0, $_GET['x'], $_GET['y'], $xymax);
 		}
 
-	include("hangars/17_faceauneplanete.php");
+	include("17_faceauneplanete.php");
 
-	include("hangars/20_carte.php");
+	include("20_carte.php");
 
-	include("hangars/25_affichervaisseauflotte.php");
+	include("25_affichervaisseauflotte.php");
 	}
 
-include("hangars/30_rapportdecombat.php");
+include("30_rapportdecombat.php");
 
 echo '</div></body></html>';

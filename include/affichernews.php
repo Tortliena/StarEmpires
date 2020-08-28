@@ -7,10 +7,15 @@ $reqvoirnews->bindParam(':nombredenews', $nombredenews, PDO::PARAM_INT);
 $reqvoirnews->bindParam(':exclusion', $combiendenewsexclues, PDO::PARAM_INT);
 $reqvoirnews->execute();
 while($repvoirnews = $reqvoirnews->fetch())
-  {
-  echo 'Date : '.$repvoirnews['datenews'].'<br>';
-  echo 'Titre : '.$repvoirnews['titrenews'].'<br>';
-  echo $repvoirnews['textenews'].'<br><br>';
-  }
+	{
+	echo 'Date : '.$repvoirnews['datenews'];
+	echo '&ensp;Titre : '.$repvoirnews['titrenews'];
+	if (isset($replvl['niveauadmin']) AND $replvl['niveauadmin'] >0)
+		{
+		echo '&ensp;<form method="post" action="/starempires/administration/Administration.php?idnews='. urlencode($repvoirnews['idnews']).'">';
+		echo '<input type="submit" value="Modifier" /></form>';
+		}
+	echo '<br>'.$repvoirnews['textenews'].'<br><br>';
+	}
   echo '</p>';
 ?>

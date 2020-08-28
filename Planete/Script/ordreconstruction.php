@@ -12,8 +12,8 @@ echo $_POST['id'] . '</br>';
 
 $nummessage = 12; // Message par défaut en cas de construction lancée.
 
-$reqcreerconstruction = $bdg->prepare('INSERT INTO construction(trucaconstruire, nombre, idplaneteconst, avancementbiens, avancementtitane, prixbiens, prixtitane) VALUES(:trucaconstruire, :nombre, :idplaneteconst, :avancementbiens, :avancementtitane, :prixbiens, :prixtitane)'); 
-$reqinfoitem = $bdd->prepare('SELECT coutbien, couttitane, itemnecessaire, nomlimite, technescessaire FROM items WHERE iditem = ?'); 
+$reqcreerconstruction = $bdg->prepare('INSERT INTO construction(trucaconstruire, nombre, idplaneteconst, avancementbiens, avancementtitane, avancementneutrinos, prixbiens, prixtitane, prixneutrinos) VALUES(:trucaconstruire, :nombre, :idplaneteconst, :avancementbiens, :avancementtitane, :avancementneutrinos, :prixbiens, :prixtitane, :prixneutrinos)'); 
+$reqinfoitem = $bdd->prepare('SELECT coutbien, couttitane, coutneutrinos, itemnecessaire, nomlimite, technescessaire FROM items WHERE iditem = ?'); 
 
 $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHERE idjoueurrecherche = ? AND idrech = ? AND rechposs = 1');
 
@@ -149,8 +149,10 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
 			        'idplaneteconst' => $_POST['id'],
 			        'avancementbiens' => $repinfoitem['coutbien'],
 			        'avancementtitane' => $repinfoitem['couttitane'],
+			        'avancementneutrinos' => $repinfoitem['coutneutrinos'],
 			        'prixbiens' => $repinfoitem['coutbien'],
-			        'prixtitane' => $repinfoitem['couttitane']));
+			        'prixtitane' => $repinfoitem['couttitane'],
+				    'avancementneutrinos' => $repinfoitem['coutneutrinos']));
 			    	}
 				} 
 			} 
@@ -169,6 +171,7 @@ $reqverifiertechnologie = $bdg->prepare('SELECT idrechprinc FROM rech_joueur WHE
       	// Si on a tout les équipements en stock :
 	    $repinfoitem['coutbien'] = 50;
 	    $repinfoitem['couttitane'] = 0;
+	    $repinfoitem['coutneutrinos'] = 0;
 	    $reptransformernom['nombatiment'] = $repinfovaisseau['nomvaisseau'];
 
 	    if ($_POST['combien'] > 1)
@@ -184,8 +187,10 @@ $reqcreerconstruction->execute(array(
     'idplaneteconst' => $_POST['id'],
     'avancementbiens' => $repinfoitem['coutbien'],
     'avancementtitane' => $repinfoitem['couttitane'],
+   	'avancementneutrinos' => $repinfoitem['coutneutrinos'],
     'prixbiens' => $repinfoitem['coutbien'],
-    'prixtitane' => $repinfoitem['couttitane']));
+    'prixtitane' => $repinfoitem['couttitane'],
+	'prixneutrinos' => $repinfoitem['coutneutrinos']));
 
 // Permet de gérer l'ordre de construction.
 $dernierID = $bdg->lastInsertId();

@@ -263,8 +263,8 @@ while ($repflotte = $reqflotte->fetch())
     // Applique le déplacement : 
     $applicationdeplacement->execute(array($xeffectif , $yeffectif , $repflotte['universdestination'], $repflotte['idflotte'])); 
 
-    if (isset($repflotte['idjoueurplanete']))
-        { // Permet de gérer le cas des flottes neutres.
+    if (isset($repflotte['idjoueurplanete']) AND $repflotte['universdestination'] > -3)
+        { // $repflotte['idjoueurplanete'] = Permet de gérer le cas des flottes neutres. $repflotte['universdestination'] : Pas d'exploration dans l'univers 3.
         $mess = 'Cette flotte vient de se déplacer. Elle était avant en ' . $repflotte['xflotte'] . '-' . $repflotte['yflotte'] ;  
         $message ->execute(array($repflotte['idjoueurplanete'] , $mess , 'flotte' , $repflotte['idflotte'])) ; 
         
@@ -364,8 +364,8 @@ while ($repflotte = $reqflotte->fetch())
             // Exploration si case inconnue : 
             $reqexplorationexistante->execute(array($xeffectif , $yeffectif , $universdestination, $repflotte['idjoueurplanete'])); 
             $repexplorationexistante = $reqexplorationexistante->fetch();  
-            if (empty($repexplorationexistante['idexplore'])) 
-                { 
+            if (empty($repexplorationexistante['idexplore']) AND $universdestination > -3) 
+                {
                 $exploration ->execute(array($xeffectif , $yeffectif , $universdestination, $repflotte['idjoueurplanete'], $touractuel['id'])) ; 
                 //Créer message pour le joueur. 
                 $messexplo = 'Cette flotte vient d\'explorer le parsec (' . $xeffectif  . ' - ' . $yeffectif .').'  ;  
