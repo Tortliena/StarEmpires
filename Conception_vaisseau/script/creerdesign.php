@@ -1,6 +1,6 @@
 <?php 
 session_start(); 
-include("../../include/BDDconnection.php"); 
+include("../../include/bddconnection.php"); 
 
 if (isset($_POST['remplacementcomposant']))
 	{
@@ -20,13 +20,13 @@ if (isset($_POST['idvaisseau']))
     {
     $idvaisseau = $_POST['idvaisseau']; 
 
-    $reqvaisseau = $bdg->prepare('SELECT idflottevaisseau FROM vaisseau WHERE idvaisseau = ?'); 
+    $reqvaisseau = $bd->prepare('SELECT idflottevaisseau FROM c_vaisseau WHERE idvaisseau = ?'); 
     $reqvaisseau->execute(array($_POST['idvaisseau'])); 
     $repvaisseau = $reqvaisseau->fetch();
 
     if ($repvaisseau['idflottevaisseau']>0) // Cas d'un vaisseau réel dans une flotte classique.
         {
-        $reqidjoueurdelaflotte = $bdg->prepare('SELECT p.idjoueurplanete FROM flotte f INNER JOIN planete p ON p.idplanete = -f.idplaneteflotte WHERE f.idflotte = ?'); 
+        $reqidjoueurdelaflotte = $bd->prepare('SELECT p.idjoueurplanete FROM c_flotte f INNER JOIN c_planete p ON p.idplanete = -f.idplaneteflotte WHERE f.idflotte = ?'); 
         $reqidjoueurdelaflotte->execute(array($repvaisseau['idflottevaisseau'])); 
         $repidjoueurdelaflotte = $reqidjoueurdelaflotte ->fetch();
 
@@ -43,7 +43,7 @@ if (isset($_POST['idvaisseau']))
         exit();
         }
 
-   	$reqcomposant = $bdd ->prepare('SELECT typecomposant FROM composant WHERE idcomposant = ?');
+   	$reqcomposant = $bd ->prepare('SELECT typecomposant FROM a_composant WHERE idcomposant = ?');
     $reqcomposant->execute(array($_POST['iditem'])); 
     $repcomposant = $reqcomposant->fetch(); 
 
@@ -51,7 +51,7 @@ if (isset($_POST['idvaisseau']))
     	{
     	if ($repcomposant['typecomposant'] == 'moteur' OR $repcomposant['typecomposant'] == 'noyau')
     		{
-	        $reqsupprimermoteurounoyau = $bdg->prepare('DELETE FROM composantvaisseau WHERE idvaisseaucompo = ? AND typecomposant = ?');
+	        $reqsupprimermoteurounoyau = $bd->prepare('DELETE FROM c_composantvaisseau WHERE idvaisseaucompo = ? AND typecomposant = ?');
 	        $reqsupprimermoteurounoyau->execute(array(-$_POST['idvaisseau'], $repcomposant['typecomposant']));
     		}
     	else
@@ -64,12 +64,12 @@ if (isset($_POST['idvaisseau']))
 
     if ($_POST['nombre'] >= 0) // Correspond à ajouter un composant
         {
-        $reqcomposant = $bdd ->prepare('SELECT typecomposant FROM composant WHERE idcomposant = ?');
+        $reqcomposant = $bd ->prepare('SELECT typecomposant FROM a_composant WHERE idcomposant = ?');
         $reqcomposant->execute(array($_POST['iditem'])); 
         $repcomposant = $reqcomposant->fetch(); 
 
         // Dans ce cas, insérer le composant dans le vaisseau :
-        $reqcreercomposantdesign = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)'); 
+        $reqcreercomposantdesign = $bd->prepare('INSERT INTO c_composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)'); 
         for ($i = 1; $i <= $_POST['nombre']; $i++)
             { 
             $reqcreercomposantdesign->execute(array(-$_POST['idvaisseau'], $_POST['iditem'], $repcomposant['typecomposant']));
@@ -78,7 +78,7 @@ if (isset($_POST['idvaisseau']))
         }
     elseif ($_POST['nombre'] < 0) // Correspond à supprimer des composants
         {
-        $reqsupprimercomposant = $bdg->prepare('DELETE FROM composantvaisseau WHERE iditemcomposant = ? AND idvaisseaucompo = ? LIMIT 1');
+        $reqsupprimercomposant = $bd->prepare('DELETE FROM c_composantvaisseau WHERE iditemcomposant = ? AND idvaisseaucompo = ? LIMIT 1');
         
         $nombredeboucle = -$_POST['nombre'];
         for ($i = 1; $i <= $nombredeboucle; $i++) 
@@ -92,20 +92,19 @@ else
     { // Cas de création d'un plan.
     if (is_numeric($_POST['nom']) OR empty($_POST['nom']))
         {
-        header('Location: ../00_conception.php?message=56');
+        header('Location: ../conception.php?message=56');
         exit();
         }
 
     // Créer design global.
-    $reqcreerdesign = $bdg->prepare('INSERT INTO vaisseau (idflottevaisseau, nomvaisseau) VALUES (?, ?)');
+    $reqcreerdesign = $bd->prepare('INSERT INTO c_vaisseau (idflottevaisseau, nomvaisseau) VALUES (?, ?)');
     $reqcreerdesign->execute(array(-$_SESSION['id'], $_POST['nom'])); 
-    $dernierID = $bdg->lastInsertId();
+    $dernierID = $bd->lastInsertId();
 
-    $reqcomposant = $bdd ->prepare('SELECT i.souscategorie, i.typeitem 
-                                    FROM datawebsite.composant c 
-                                    INNER JOIN datawebsite.items i ON c.idcomposant = i.iditem 
+    $reqcomposant = $bd ->prepare(' SELECT i.souscategorie, i.typeitem FROM a_composant c 
+                                    INNER JOIN a_items i ON c.idcomposant = i.iditem 
                                     WHERE c.idcomposant = ?');
-    $reqcreercomposantdesign = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)');
+    $reqcreercomposantdesign = $bd->prepare('INSERT INTO c_composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)');
  
     foreach($_POST as $value)
         {
@@ -132,13 +131,13 @@ if (isset($message))
 
 	if ($repvaisseau['idflottevaisseau']>0) // Cas d'un vaisseau réel dans une flotte classique.
 	    {
-	    header("Location: ../00_vaisseau.php?message=".urlencode($message)."&id=" . urlencode($idvaisseau));
+	    header("Location: ../vaisseau.php?message=".urlencode($message)."&id=" . urlencode($idvaisseau));
 	    }
 	else
 	    {
-	    header("Location: ../00_conception.php?message=".urlencode($message)."&id=" . urlencode($idvaisseau));
+	    header("Location: ../conception.php?message=".urlencode($message)."&id=" . urlencode($idvaisseau));
 	    }
-	exit(); 
+	exit();
     }
-// header('Location: ../../accueil.php?message=431');
+header('Location: ../../accueil.php?message=31');
 ?>

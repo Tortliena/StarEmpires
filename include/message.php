@@ -356,6 +356,10 @@ switch ($_GET["message"])
     case 82:
         echo "Amélioration planétaire lancée !";
     break;
+
+    case 83:
+        echo "Colonisation lancée !";
+    break;
     }
  
 unset($_SESSION['message1']); 

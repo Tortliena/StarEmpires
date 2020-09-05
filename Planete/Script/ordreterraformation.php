@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("../../include/BDDconnection.php");
+include("../../include/bddconnection.php");
 include("../../function/consommercreeritemsplanetemultiple.php");
 
 echo $_SESSION['id'] . '</br>' ;
@@ -8,25 +8,26 @@ echo $_POST['idplanete'] . '</br>';
 
 if (!isset($_SESSION['id']) OR !isset($_POST['idplanete']))
 	{
-	header('Location: ../Accueil.php'); exit();
+	header('Location: ../accueil.php'); exit();
 	}
 
-$reqplanete = $bdg->prepare('SELECT * FROM planete WHERE idplanete = ?');
+$reqplanete = $bd->prepare('SELECT * FROM c_planete WHERE idplanete = ?');
 $reqplanete->execute(array($_POST['idplanete']));
 $repplanete = $reqplanete->fetch();
 
 // Vérifier propriétaire de la planète + si un restauration est en cours + si la planète est pas trop améliorée déjà.
 if ($repplanete['idjoueurplanete'] != $_SESSION['id'] OR $repplanete['restauration'] > 0 OR $repplanete['environnement'] > 3000)
 	{
-	header('Location: ../Accueil.php'); exit();
+	header('Location: ../accueil.php'); exit();
 	}
 
-$reqsilo = $bdg->prepare('SELECT sum(case when iditems = 39 then 1 else 0 end) AS restau, sum(case when iditems = 40 then 1 else 0 end) AS amelio FROM silo WHERE idplanetesilo = ?');
+$reqsilo = $bd->prepare('SELECT sum(case when iditems = 39 then 1 else 0 end) AS restau,
+								sum(case when iditems = 40 then 1 else 0 end) AS amelio
+								FROM c_silo WHERE idplanetesilo = ?');
 $reqsilo->execute(array($_POST['idplanete']));
 $repsilo = $reqsilo->fetch();
 
-$reqlancerrestauration = $bdg->prepare('UPDATE planete SET restauration = ? WHERE idplanete = ?');
-
+$reqlancerrestauration = $bd->prepare('UPDATE c_planete SET restauration = ? WHERE idplanete = ?');
 
 // Si inf à 0, alors chercher restaurateur.
 if ($repplanete['environnement'] < 0 AND $repsilo['restau'] > 0)
@@ -46,8 +47,8 @@ elseif ($repplanete['environnement'] < 3000 AND $repsilo['amelio'] > 0)
 	}
 else
 	{
-	header('Location: ../Accueil.php'); exit();
+	header('Location: ../accueil.php'); exit();
 	}
 
-header("Location: ../00_planete.php?message=" . urlencode($message) . "&id=" . urlencode($_POST['idplanete']));
+header("Location: ../planete.php?message=" . urlencode($message) . "&id=" . urlencode($_POST['idplanete']));
 ?>

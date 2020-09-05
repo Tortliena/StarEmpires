@@ -1,33 +1,31 @@
 <?php
 /*
 session_start();
-include("../include/BDDconnection.php");
+include("../include/bddconnection.php");
 */
 
-$applicationvariationdutour = $bdg->prepare("   UPDATE planete SET biens = 
-                                                (CASE WHEN (biens < ?) THEN 0 ELSE (biens - ?) END)
-                                                where idplanete = ? ");
+$applicationvariationdutour = $bd->prepare("UPDATE c_planete SET biens = 
+                                            (CASE WHEN (biens < ?) THEN 0 ELSE (biens - ?) END)
+                                            where idplanete = ? ");
 
-$message = $bdg->prepare("INSERT INTO messagetour (idjoumess, message, domainemess, numspemessage) VALUES ( ? , ? , ?, ?)"); 
+$message = $bd->prepare("INSERT INTO c_messagetour(idjoumess, message, domainemess, numspemessage) VALUES ( ? , ? , ?, ?)"); 
 
 // Changer des pops dans les cas :
 // 1) la pop de depart nest pas citoyenne et la pop darrivee n'est pas citoyen aussi
 // 2) La pop darrivee n'est pas citoyen ou rien.
-$reqcounterpoppouvantchanger = $bdg->prepare("SELECT COUNT(*) AS nb FROM population
-                                WHERE idplanetepop = ?
-                                AND ((typepop <> 1 AND typepoparrivee <> 1)
-                                    OR typepoparrivee > 1 ) ");
+$reqcounterpoppouvantchanger = $bd->prepare("   SELECT COUNT(*) AS nb FROM c_population
+                                                WHERE idplanetepop = ? AND
+                                                ((typepop <> 1 AND typepoparrivee <> 1) OR typepoparrivee > 1 )");
                                              
-$requpdatepop = $bdg->prepare(" UPDATE population SET typepoparrivee = 1
-                                WHERE idplanetepop = ?
-                                AND ((typepop <> 1 AND typepoparrivee <> 1)
-                                    OR typepoparrivee > 1)
+$requpdatepop = $bd->prepare("  UPDATE c_population SET typepoparrivee = 1
+                                WHERE idplanetepop = ? AND
+                                ((typepop <> 1 AND typepoparrivee <> 1) OR typepoparrivee > 1)
                                 ORDER BY RAND() LIMIT 1");
 
-$variationdutour = $bdg->prepare('UPDATE variationstour SET coutstockage = ? where idplanetevariation = ?');
+$variationdutour = $bd->prepare('UPDATE c_variationstour SET coutstockage = ? where idplanetevariation = ?');
 
 // Ajout au stock actuel.
-$reqinfoplanete = $bdg->query('SELECT v.idplanetevariation, v.prodbiens, v.consobiens, v.entretien, p.biens, p.idjoueurplanete FROM planete p INNER JOIN variationstour v ON v.idplanetevariation = p.idplanete ORDER BY p.idplanete');
+$reqinfoplanete = $bd->query('SELECT v.idplanetevariation, v.prodbiens, v.consobiens, v.entretien, p.biens, p.idjoueurplanete FROM c_planete p INNER JOIN c_variationstour v ON v.idplanetevariation = p.idplanete ORDER BY p.idplanete');
 while ($repinfoplanete = $reqinfoplanete->fetch())
     {      
     $gain = 0;

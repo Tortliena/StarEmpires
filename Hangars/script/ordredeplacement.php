@@ -1,6 +1,6 @@
 <?php 
 session_start(); 
-include("../../include/BDDconnection.php"); 
+include("../../include/bddconnection.php"); 
 
 /*
 echo $_SESSION['id'] . ' ID du joueur </br>';
@@ -12,12 +12,11 @@ echo $_POST['confirmer'] . '</br> \'on\' si case coché, \'off\' si non cochée,
 */
 
 // Vérifier propriétaire du vaisseau.
-$reqflotte = $bdg->prepare('    SELECT p.idjoueurplanete, f.idflotte, f.universflotte,
-                                f.xflotte, f.yflotte, f.universdestination,
+$reqflotte = $bd->prepare(' SELECT p.idjoueurplanete, f.idflotte, f.universflotte, f.xflotte, f.yflotte, f.universdestination,
                                 f.xdestination, f.ydestination, f.typeordre, f.bloque
-                                FROM flotte f
-                                INNER JOIN planete p ON p.idplanete = f.idplaneteflotte
-                                WHERE f.idflotte = ?');
+                            FROM c_flotte f
+                            INNER JOIN c_planete p ON p.idplanete = f.idplaneteflotte
+                            WHERE f.idflotte = ?');
 $reqflotte->execute(array($_POST['idflotte']));
 $repflotte = $reqflotte->fetch();
 
@@ -44,7 +43,52 @@ if ($repflotte['bloque'] == 2)
     goto a;
     }
 
-if ($_POST['typeordre'] == 6)
+// supprimer ordre précédent.
+$reqmettreajourordre = $bd->prepare('UPDATE c_flotte SET universdestination = ?, xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ?');
+$reqmettreajourordre->execute(array(0, 0, 0, 0, 0, $_POST['idflotte']));
+
+// Supprimer ordre de bataille :
+$reqsupprimerbataille = $bd->prepare('DELETE FROM c_bataille WHERE idflotteoffensive  = ?');
+$reqsupprimerbataille->execute(array($_POST['idflotte']));
+
+if ($_POST['typeordre'] == 1)
+    { // 1 = miner
+    // Vérifier qu'il y a un champs d'asteroides près de la flotte.
+    $reqasteroide = $bd->prepare('SELECT idasteroide FROM c_champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
+    $reqasteroide->execute(array($repflotte['xflotte'] , $repflotte['yflotte'], $repflotte['universflotte'])); 
+    $repasteroide = $reqasteroide->fetch();
+    if (!isset($repasteroide['idasteroide']))
+        {
+        $message = 35;
+        goto a;
+        }
+    $message = 39 ;
+    }
+elseif ($_POST['typeordre'] == 2)
+    { // Ordre de saut spécifique
+    if (in_array($_POST['xobjectif'], array(-3, -2, $_SESSION['id'])))
+        { // Univers commum
+        $repflotte['universflotte'] = $_POST['xobjectif'];
+        $_POST['typeordre'] = 10; // Permet d'être traité comme un ordre de saut dimensionnel.
+        $message = 32;
+        }
+    else
+        { // Mauvaise destination
+        header('Location: ../accueil.php?message=31');
+        exit();
+        }
+    }
+elseif ($_POST['typeordre'] == 4)
+    { // Terraformation
+    $message = 81;
+    }
+elseif ($_POST['typeordre'] == 5)
+    { // Bataille
+    $reqcreerbataille = $bd->prepare('INSERT INTO c_bataille (idflotteoffensive, idflottedefensive) VALUES(?, ?)');
+    $reqcreerbataille ->execute(array($_POST['idflotte'], $_POST['xobjectif']));
+    $message = 46;
+    }
+elseif ($_POST['typeordre'] == 6)
     { // Ordre de déplacement classique
     //Vérifier que les coordonnées sont différentes.
     if ($repflotte['xflotte'] == $_POST['xobjectif'] AND $repflotte['yflotte'] == $_POST['yobjectif'])
@@ -56,37 +100,7 @@ if ($_POST['typeordre'] == 6)
     $_SESSION['message1'] = $_POST['xobjectif'];
     $_SESSION['message2'] = $_POST['yobjectif'];
     }
-
-if ($_POST['typeordre'] == 1)
-    { // 1 = miner
-    // Vérifier qu'il y a un champs d'asteroides près de la flotte.
-    $reqasteroide = $bda->prepare('SELECT idasteroide FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? LIMIT 1');
-    $reqasteroide->execute(array($repflotte['xflotte'] , $repflotte['yflotte'], $repflotte['universflotte'])); 
-    $repasteroide = $reqasteroide->fetch();
-    if (!isset($repasteroide['idasteroide']))
-        {
-        $message = 35;
-        goto a;
-        }
-    $message = 39 ;
-    }
-
-// supprimer ordre précédent.
-$reqmettreajourordre = $bdg->prepare('UPDATE flotte SET universdestination = ?, xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ?');
-$reqmettreajourordre->execute(array(0, 0, 0, 0, 0, $_POST['idflotte']));
-
-// Supprimer ordre de bataille :
-$reqsupprimerbataille = $bdg->prepare('DELETE FROM bataille WHERE idflotteoffensive  = ?');
-$reqsupprimerbataille->execute(array($_POST['idflotte']));
-
-if ($_POST['typeordre'] == 5)
-    { // Bataille
-    $reqcreerbataille = $bdg->prepare('INSERT INTO bataille (idflotteoffensive, idflottedefensive) VALUES(?, ?)');
-    $reqcreerbataille ->execute(array($_POST['idflotte'], $_POST['xobjectif']));
-    $message = 46;
-    }
-
-if ($_POST['typeordre'] == 10)
+elseif ($_POST['typeordre'] == 10)
     { // Ordre de saut.
     if ($repflotte['universflotte'] > 0)
         { // Univers commum
@@ -102,20 +116,9 @@ if ($_POST['typeordre'] == 10)
         exit();
         }
     }
-
-if ($_POST['typeordre'] == 2)
-    { // Ordre de saut spécifique
-    if (in_array($_POST['xobjectif'], array(-3, -2, $_SESSION['id'])))
-        { // Univers commum
-        $repflotte['universflotte'] = $_POST['xobjectif'];
-        $_POST['typeordre'] = 10; // Permet d'être traité comme un ordre de saut dimensionnel.
-        $message = 32;
-        }
-    else
-        { // Mauvaise destination
-        header('Location: ../accueil.php?message=31');
-        exit();
-        }
+elseif ($_POST['typeordre'] == 11)
+    { // colonisation
+    $message = 83;
     }
 
 if ($_POST['typeordre'] == -1)
@@ -141,9 +144,9 @@ else
 if (isset($message))
     {
     a:
-    header("location: ../00_hangars.php?message=" . $message . "&id=" . urlencode($_POST['idflotte']));
+    header("location: ../hangars.php?message=" . $message . "&id=" . urlencode($_POST['idflotte']));
     exit;
     }
 
-header("Location: ../00_hangars.php?message=31&id=" . urlencode($_POST['idflotte']));
+header("Location: ../hangars.php?message=31&id=" . urlencode($_POST['idflotte']));
 ?>

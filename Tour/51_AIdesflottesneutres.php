@@ -1,19 +1,19 @@
 <?php
 /*
 session_start();
-require __DIR__ . '/../include/BDDconnection.php';
+require __DIR__ . '/../include/bddconnection.php';
 */
 
-$requpdateordre = $bdg->prepare('UPDATE flotte SET universdestination = ?, xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ?');
-$reqflotteneutre = $bdg->prepare('SELECT * FROM flotte WHERE idplaneteflotte = 0 AND universflotte < 0');
-$reqflottepresentesurplace = $bdg->prepare('SELECT idflotte FROM flotte WHERE universflotte = ? AND xflotte = ? AND yflotte = ? AND idplaneteflotte > 0 ORDER BY RAND() LIMIT 1');
+$requpdateordre = $bd->prepare('UPDATE c_flotte SET universdestination = ?, xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ?');
+$reqflotteneutre = $bd->prepare('SELECT * FROM c_flotte WHERE idplaneteflotte = 0 AND universflotte < 0');
+$reqflottepresentesurplace = $bd->prepare('SELECT f.idflotte FROM c_flotte f INNER JOIN c_vaisseau v ON v.idflottevaisseau = f.idflotte WHERE f.universflotte = ? AND f.xflotte = ? AND f.yflotte = ? AND f.idplaneteflotte > 0 ORDER BY RAND() LIMIT 1');
 
 // Gestion bataille :
-$reqcreerbataille = $bdg->prepare('INSERT INTO bataille (idflotteoffensive, idflottedefensive) VALUES (?, ?)');
-$reqsupprimerbataille = $bdg->prepare('DELETE FROM bataille WHERE idflotteoffensive = ?');
+$reqcreerbataille = $bd->prepare('INSERT INTO c_bataille (idflotteoffensive, idflottedefensive) VALUES (?, ?)');
+$reqsupprimerbataille = $bd->prepare('DELETE FROM c_bataille WHERE idflotteoffensive = ?');
 
 // Trouver un astéroide à moins de 8 parsecs de distance.
-$reqtrouverasteroide = $bda->prepare('  SELECT xaste, yaste FROM champsasteroides   
+$reqtrouverasteroide = $bd->prepare('  SELECT xaste, yaste FROM c_champsasteroides   
                                         WHERE xaste BETWEEN ? + 8 AND ? - 8 AND yaste BETWEEN ? + 8 AND ? - 8 AND uniaste = ?
                                         ORDER BY RAND() LIMIT 1');
 
@@ -37,7 +37,6 @@ while ($repflotteneutre = $reqflotteneutre->fetch())
         }
     else // Pas défaut, aller au hasard, sinon, aller voir un astéroide. Le but est de créer des conflits avec les joueurs.
         {
-        echo 'On passe ici ! '; 
         $xdestination = RAND(0, 20);
         $ydestination = RAND(0, 20);
         $reqtrouverasteroide->execute(array($repflotteneutre['xflotte'], $repflotteneutre['xflotte'], $repflotteneutre['xflotte'], $repflotteneutre['xflotte'], $repflotteneutre['universflotte']));

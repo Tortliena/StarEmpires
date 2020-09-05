@@ -1,11 +1,11 @@
 <?php
 /*
 session_start();
-include("../include/BDDconnection.php");
+include("../include/bddconnection.php");
 include("../function/caracteristiquesvaisseau.php");
 */
 
-$reqselectionvaisseau = $bdg->query('SELECT idvaisseau FROM vaisseau ORDER BY idvaisseau');
+$reqselectionvaisseau = $bd->query('SELECT idvaisseau FROM c_vaisseau ORDER BY idvaisseau');
 while ($repselectionvaisseau = $reqselectionvaisseau->fetch())
     {
     caracteristiquesvaisseau ($repselectionvaisseau['idvaisseau']); 

@@ -6,10 +6,10 @@ if (isset($repstation['idstation']))
 	    echo '<p>Une station accepte de faire du commerce ! </p>';
 
 		// Requête pour compter le nombre d'item.
-		$reqcargocommerce = $bdg->prepare("	SELECT SUM(c.quantiteitems) AS nb, i.nombatiment 
-							                FROM cargovaisseau c   
-							                INNER JOIN datawebsite.items i ON i.iditem = c.typeitems
-							                INNER JOIN vaisseau v ON v.idvaisseau = c.idvaisseaucargo   
+		$reqcargocommerce = $bd->prepare("	SELECT SUM(c.quantiteitems) AS nb, i.nombatiment 
+							                FROM c_cargovaisseau c   
+							                INNER JOIN a_items i ON i.iditem = c.typeitems
+							                INNER JOIN c_vaisseau v ON v.idvaisseau = c.idvaisseaucargo   
 							                WHERE v.idflottevaisseau = ? AND i.iditem = ?");
 
 		// Cas des débris de métaux rares

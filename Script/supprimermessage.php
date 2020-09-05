@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("../include/BDDconnection.php");
+include("../include/bddconnection.php");
 
 /*
 echo $_SESSION['pseudo'] . '</br>' ;
@@ -8,10 +8,10 @@ echo $_SESSION['id'] . '</br>' ;
 echo $_POST['idmessage'] . '</br>';
 */
 
-$reqsupemetteur = $bdg->prepare('UPDATE messagerie SET supprimeemetteur =  ? WHERE idmessagerie = ?');
-$reqsupdestinataire = $bdg->prepare('UPDATE messagerie SET supprimerecepteur =  ? WHERE idmessagerie = ?');
+$reqsupemetteur = $bd->prepare('UPDATE c_messagerie SET supprimeemetteur =  ? WHERE idmessagerie = ?');
+$reqsupdestinataire = $bd->prepare('UPDATE c_messagerie SET supprimerecepteur =  ? WHERE idmessagerie = ?');
 
-$reqmessage = $bdg->prepare('SELECT idjoueuremetteur , idjoueurrecepteur FROM messagerie WHERE idmessagerie = ?');
+$reqmessage = $bd->prepare('SELECT idjoueuremetteur, idjoueurrecepteur FROM c_messagerie WHERE idmessagerie = ?');
 $reqmessage ->execute(array($_POST['idmessage']));
 $repmessage = $reqmessage ->fetch(); 
 

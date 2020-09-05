@@ -1,6 +1,6 @@
 <?php
 session_start();
-require __DIR__ . '/../include/BDDconnection.php';
+require __DIR__ . '/../include/bddconnection.php';
 
 /*
 echo $_SESSION['id'] .' id du joueur <br>' ;
@@ -10,37 +10,36 @@ echo $_POST['idflotte'] .' = id de la flotte (0 = création d\'une flotte ou ré
 echo $_POST['mouvement'] .' avec 1 = envoyer en orbite, 2 créer une flotte, 3 envoyer sur planète, 4 réparer depuis planète, 5 réparer depuis flotte.'; 
 */
 
-$reqflotteenorbite = $bdg->prepare("SELECT nomflotte FROM flotte WHERE idplaneteflotte = ? AND universflotte = ? AND xflotte = ? AND yflotte = ? AND idflotte = ?") ; 
-$reqcreerflotte = $bdg->prepare('	INSERT INTO flotte (idplaneteflotte, universflotte, xflotte, yflotte, nomflotte, typeordre)
-											VALUES (?, ?, ?, ?, ?, ?);');
+$reqflotteenorbite = $bd->prepare('SELECT nomflotte FROM c_flotte
+									WHERE idplaneteflotte = ? AND universflotte = ? AND xflotte = ? AND yflotte = ? AND idflotte = ?'); 
+$reqcreerflotte = $bd->prepare('INSERT INTO c_flotte(idplaneteflotte, universflotte, xflotte, yflotte, nomflotte, typeordre)
+								VALUES (?, ?, ?, ?, ?, ?);');
 
-$reqvaisseau = $bdg->prepare('	SELECT f.idplaneteflotte, v.HPmaxvaisseau, v.HPvaisseau, v.biensvaisseau, v.titanevaisseau
-								FROM vaisseau v
-								INNER JOIN flotte f ON v.idflottevaisseau = f.idflotte
+$reqvaisseau = $bd->prepare('	SELECT f.idplaneteflotte, v.HPmaxvaisseau, v.HPvaisseau, v.biensvaisseau, v.titanevaisseau
+								FROM c_vaisseau v
+								INNER JOIN c_flotte f ON v.idflottevaisseau = f.idflotte
 								WHERE v.idvaisseau = ?');
 $reqvaisseau->execute(array($_POST['idvaisseau']));   
 $repvaisseau = $reqvaisseau->fetch();   
 
 $idplanete = abs($repvaisseau['idplaneteflotte']);  // Permet de gérer les cas ou la flotte est dans une flotte de défense.
-$reqplanete = $bdg->prepare('	SELECT idjoueurplanete, universplanete, xplanete, yplanete, idplanete
-								FROM planete
-								WHERE idplanete = ?');
+$reqplanete = $bd->prepare('	SELECT idjoueurplanete, universplanete, xplanete, yplanete, idplanete
+								FROM c_planete WHERE idplanete = ?');
 $reqplanete->execute(array($idplanete));   
 $repplanete = $reqplanete->fetch();
 
-
 if ($repplanete['idjoueurplanete'] != $_SESSION['id'])   // Vérification du possesseur du vaisseau. Si pas bon = dégage vers l'acceuil.
-	{ header("location: ../accueil.php?message=31"); exit(); }
+	{ header("location: ../accueil.php?message=31"); exit();}
 
 if ($_POST['idplanete'] != $idplanete)   // Vérification que la planète entrée est la bonne.
-	{ header("location: ../accueil.php?message=31"); exit(); }
+	{ header("location: ../accueil.php?message=31"); exit();}
 if (in_array($_POST['mouvement'], array(1, 3, 5)))
 	{
 	// Vérifier que la flotte est bel et bien en orbite de la planète : 
 	$reqflotteenorbite->execute(array($_POST['idplanete'], $repplanete['universplanete'], $repplanete['xplanete'], $repplanete['yplanete'], $_POST['idflotte'])); 
 	$repflotteenorbite = $reqflotteenorbite->fetch(); 
 	if (!isset($repflotteenorbite['nomflotte']))
-		{ header("location: ../accueil.php?message=31"); exit(); }	
+		{ header("location: ../accueil.php?message=31"); exit();}	
 	}
 
 if ($_POST['mouvement'] == 1)
@@ -51,21 +50,21 @@ if ($_POST['mouvement'] == 1)
 elseif ($_POST['mouvement'] == 2)
 	{ // Créer la flotte qui va acceuillir le vaisseau.
 	$reqcreerflotte->execute(array($repplanete['idplanete'], $repplanete['universplanete'], $repplanete['xplanete'], $repplanete['yplanete'], 'nouvelleflotte', 0));
-	$_POST['idflotte'] = $bdg->lastInsertId();
+	$_POST['idflotte'] = $bd->lastInsertId();
 	$idflotte = $_POST['idflotte'];
 	$idmessage = 68; 
 	}
 elseif ($_POST['mouvement'] == 3)
 	{ // Rejoindre la planète
 	// récupérer l'ID de la flotte en orbite autour de la planète, éventuellement la créer. 
-	$reqflotteendefense = $bdg->prepare("SELECT idflotte FROM flotte WHERE idplaneteflotte = ?") ;
+	$reqflotteendefense = $bd->prepare("SELECT idflotte FROM c_flotte WHERE idplaneteflotte = ?") ;
 	$reqflotteendefense->execute(array(-$_POST['idplanete'])); 
 	$repflotteendefense = $reqflotteendefense->fetch();
 
 	if (!isset($repflotteendefense['idflotte']))
 		{
 		$reqcreerflotte->execute(array(-$repplanete['idplanete'], $repplanete['universplanete'], $repplanete['xplanete'], $repplanete['yplanete'], 'nouvelleflotte', 0));
-		$idflotte = $bdg->lastInsertId();
+		$idflotte = $bd->lastInsertId();
 		}
 	else
 		{
@@ -100,31 +99,30 @@ elseif ($_POST['mouvement'] == 4 OR $_POST['mouvement'] == 5)
         $prixtitanereparation = ROUND($repvaisseau['titanevaisseau']*(1 - $repvaisseau['HPvaisseau']/$repvaisseau['HPmaxvaisseau'])/2); 
         
         // Requete pour gérer l'ordre des constructions. 
-        $reqderniereconst = $bdg->query('SELECT ordredeconstruction FROM construction ORDER BY ordredeconstruction DESC LIMIT 1'); 
+        $reqderniereconst = $bd->query('SELECT ordredeconstruction FROM c_construction ORDER BY ordredeconstruction DESC LIMIT 1'); 
         $repderniereconst = $reqderniereconst ->fetch(); 
 
         // Insérer construction/prix 
-        $reqcreerconstruction = $bdg->prepare('INSERT INTO construction 
-            (trucaconstruire, nombre, idplaneteconst, avancementbiens, avancementtitane, prixbiens, prixtitane, ordredeconstruction) 
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?)'); 
+        $reqcreerconstruction = $bd->prepare('INSERT INTO c_construction(trucaconstruire, nombre, idplaneteconst, avancementbiens, avancementtitane, prixbiens, prixtitane, ordredeconstruction) 
+            								VALUES(?, ?, ?, ?, ?, ?, ?, ?)'); 
         $reqcreerconstruction->execute(array($trucaconstruire, 1, $_POST['idplanete'], $prixbienreparation, $prixtitanereparation, $prixbienreparation, $prixtitanereparation, $repderniereconst['ordredeconstruction']+1)); 
  
-        $dernierID = $bdg->lastInsertId(); 
+        $dernierID = $bd->lastInsertId(); 
         }
 	}
 
 if (isset($idmessage) AND isset($idflotte))
 	{
-	$requpdatevaisseau = $bdg->prepare('UPDATE vaisseau SET idflottevaisseau = ? WHERE idvaisseau = ?');
+	$requpdatevaisseau = $bd->prepare('UPDATE c_vaisseau SET idflottevaisseau = ? WHERE idvaisseau = ?');
 	if ($idflotte > 0 OR $_POST['mouvement'] == 5) // Vaisseau dans une flotte et avec ordre de réparation. Si inf à zéro, alors vaisseau sur planète.
 		{
 		$requpdatevaisseau->execute(array($idflotte, $_POST['idvaisseau']));
-		header("location: ../hangars.php?message=".urlencode($idmessage)."&id=" . urlencode($_POST['idflotte']));
+		header("location: ../hangars/hangars.php?message=".urlencode($idmessage)."&id=" . urlencode($_POST['idflotte']));
 		}
 	else
 		{
 		$requpdatevaisseau->execute(array(0, $_POST['idvaisseau']));
-		header("location: ../planete.php?message=".urlencode($idmessage)."&id=" . urlencode(-$idflotte));
+		header("location: ../planete/planete.php?message=".urlencode($idmessage)."&id=" . urlencode(-$idflotte));
 		}
 	exit();
 	}

@@ -1,10 +1,10 @@
 <?php 
 function vitesseflotte($idflotte) 
   { 
-  require __DIR__ . '/../../include/BDDconnection.php';   // $vitesse = vitesseflotte($idflotte) ;
+  require __DIR__ . '/../../include/bddconnection.php';   // $vitesse = vitesseflotte($idflotte) ;
   // Récupérer les vitesse de tous les vaisseaux et prendre la valeur minimale.
   $vitesse = 0 ; 
-  $reqvitessevaisseau = $bdg->prepare("SELECT vitesse FROM vaisseau WHERE idflottevaisseau = ?");
+  $reqvitessevaisseau = $bd->prepare("SELECT vitesse FROM c_vaisseau WHERE idflottevaisseau = ?");
   $reqvitessevaisseau->execute(array($idflotte)); 
   while ($repvitessevaisseau = $reqvitessevaisseau->fetch()) 
     { 
@@ -19,10 +19,9 @@ function vitesseflotte($idflotte)
 
 function souteflotte($idflotte) 
   { 
-  require __DIR__ . '/../../include/BDDconnection.php'; // $souteflotte = souteflotte($idflotte) ;
+  require __DIR__ . '/../../include/bddconnection.php'; // $souteflotte = souteflotte($idflotte) ;
   // Capacité de cargo : faire la somme de tous les vaisseaux.
-  $capacitedesoute = 0 ; 
-  $reqcapacitedesoute = $bdg->prepare("SELECT SUM(capacitedesoute) as soutetotale FROM vaisseau WHERE idflottevaisseau = ?");
+  $reqcapacitedesoute = $bd->prepare("SELECT SUM(capacitedesoute) as soutetotale FROM c_vaisseau WHERE idflottevaisseau = ?");
   $reqcapacitedesoute->execute(array($idflotte));
   $repcapacitedesoute = $reqcapacitedesoute->fetch();
   return $repcapacitedesoute['soutetotale']; 
@@ -30,13 +29,13 @@ function souteflotte($idflotte)
 
 function cargaisonflotte($idflotte) 
   { 
-  require __DIR__ . '/../../include/BDDconnection.php'; // $quantitetransportee = cargaisonflotte($idflotte) ;
+  require __DIR__ . '/../../include/bddconnection.php'; // $quantitetransportee = cargaisonflotte($idflotte) ;
   // Cargo actuel : Faire la somme de tout ce qui est transporté.
   $quantitetransportee = 0; 
-  $reqcargo = $bdg->prepare("  SELECT SUM(c.quantiteitems) as cargaison
-                                    FROM cargovaisseau c
-                                    INNER JOIN vaisseau v ON c.idvaisseaucargo  = v.idvaisseau
-                                    WHERE v.idflottevaisseau = ?") ;
+  $reqcargo = $bd->prepare("SELECT SUM(c.quantiteitems) as cargaison
+                            FROM c_cargovaisseau c
+                            INNER JOIN c_vaisseau v ON c.idvaisseaucargo  = v.idvaisseau
+                            WHERE v.idflottevaisseau = ?") ;
   $reqcargo->execute(array($idflotte));
   $repcargo = $reqcargo->fetch();
   $quantitetransportee = 0 + $repcargo['cargaison']; 
@@ -45,10 +44,10 @@ function cargaisonflotte($idflotte)
 
 function minageflotte($idflotte) 
   { 
-  require __DIR__ . '/../../include/BDDconnection.php'; // $minageflotte = minageflotte($idflotte) ;
+  require __DIR__ . '/../../include/bddconnection.php'; // $minageflotte = minageflotte($idflotte) ;
   // Capacité de minage : Prendre la plus grande valeur. 
   $minage = 0; 
-  $reqminage = $bdg->prepare("SELECT capaciteminage FROM vaisseau WHERE idflottevaisseau = ?");
+  $reqminage = $bd->prepare("SELECT capaciteminage FROM c_vaisseau WHERE idflottevaisseau = ?");
   $reqminage->execute(array($idflotte)); 
   while ($repminage = $reqminage->fetch()) 
     { 
@@ -60,13 +59,13 @@ function minageflotte($idflotte)
 // Présence d'un module de colonisation.
 function colonisateur($idflotte) 
   { 
-  require __DIR__ . '/../../include/BDDconnection.php'; // $peutcoloniser = colonisateur($idflotte) ;
+  require __DIR__ . '/../../include/bddconnection.php'; // $peutcoloniser = colonisateur($idflotte) ;
   // Présence d'un vaisseau colonisateur dans la flotte. 
   $colonisateur = false ; 
-  $reqmodulecolonisateur = $bdg->prepare("  SELECT c.idvaisseaucompo
-                                            FROM composantvaisseau c
-                                            INNER JOIN vaisseau v ON v.idvaisseau = c.idvaisseaucompo
-                                            WHERE v.idflottevaisseau = ? AND c.iditemcomposant = 23");
+  $reqmodulecolonisateur = $bd->prepare(" SELECT c.idvaisseaucompo
+                                          FROM c_composantvaisseau c
+                                          INNER JOIN c_vaisseau v ON v.idvaisseau = c.idvaisseaucompo
+                                          WHERE v.idflottevaisseau = ? AND c.iditemcomposant = 23");
   // 23 = ID du composant de colonisation.
   $reqmodulecolonisateur->execute(array($idflotte));
   $repmodulecolonisateur = $reqmodulecolonisateur->fetch();
@@ -77,23 +76,54 @@ function colonisateur($idflotte)
   return array ($colonisateur, $repmodulecolonisateur['idvaisseaucompo']);
   }
 
+// Capacité de térratormation en fonction des modules.
+function terraformation($idflotte) 
+  {
+  require __DIR__ . '/../../include/bddconnection.php'; // $peutterra = terraformation($idflotte);
+  // Présence d'un terraformeur dans la flotte. 
+  $reqmoduleterra = $bd->prepare(" SELECT sum(case when c.iditemcomposant = '39' then 1 else 0 end) restauration,
+                                          sum(case when c.iditemcomposant = '40' then 1 else 0 end) amélioration
+                                          FROM c_composantvaisseau c
+                                          INNER JOIN c_vaisseau v ON v.idvaisseau = c.idvaisseaucompo
+                                          WHERE v.idflottevaisseau = ?");
+  // 39 = Module de restauration ; 40 = module d'amélioration.
+
+  $reqmoduleterra->execute(array($idflotte));
+  $repmoduleterra = $reqmoduleterra->fetch();
+  if ($repmoduleterra['amélioration'] > 0 AND $repmoduleterra['restauration'])
+    {
+    $terraformer = '3' ; 
+    }
+  elseif ($repmoduleterra['amélioration'] > 0)
+    {
+    $terraformer = '2' ; 
+    }
+  elseif ($repmoduleterra['restauration'] > 0)
+    {
+    $terraformer = '1' ; 
+    }
+  else
+    {
+    $terraformer = '0' ; 
+    }
+  return array ($terraformer);
+  }
+
 // Présence de noyaux sur toute la flotte
 function touslesvaisseauxontunnoyau($idflotte) 
   { 
-  require __DIR__ . '/../../include/BDDconnection.php'; // $touslesvaisseauxontunnoyau = touslesvaisseauxontunnoyau($idflotte) ;
+  require __DIR__ . '/../../include/bddconnection.php'; // $touslesvaisseauxontunnoyau = touslesvaisseauxontunnoyau($idflotte) ;
   $nombredevaisseau = 0;
   $nombredenoyaux = 0;
   $niveaudesnoyaux = 0 ;
 
   // requete pour passer les vaisseaux par un.
-  $reqnoyausurlevaisseau = $bdg->prepare("    SELECT c.totalbonus
-                                              FROM composantvaisseau cv
-                                              INNER JOIN datawebsite.composant c ON c.idcomposant = cv.iditemcomposant
-                                              WHERE cv.idvaisseaucompo = ? AND c.typebonus = ?");
+  $reqnoyausurlevaisseau = $bd->prepare(" SELECT c.totalbonus
+                                          FROM c_composantvaisseau cv
+                                          INNER JOIN a_composant c ON c.idcomposant = cv.iditemcomposant
+                                          WHERE cv.idvaisseaucompo = ? AND c.typebonus = ?");
 
-  $reqvaisseaudanslaflotte = $bdg->prepare("  SELECT idvaisseau
-                                              FROM vaisseau
-                                              WHERE idflottevaisseau = ?");
+  $reqvaisseaudanslaflotte = $bd->prepare(" SELECT idvaisseau FROM c_vaisseau WHERE idflottevaisseau = ?");
   $reqvaisseaudanslaflotte->execute(array($idflotte));
   while($repvaisseaudanslaflotte = $reqvaisseaudanslaflotte->fetch())   
     {
@@ -149,12 +179,11 @@ function touslesvaisseauxontunnoyau($idflotte)
 // Présence d'une arme
 function armement($idflotte)
   {
-  require __DIR__ . '/../../include/BDDconnection.php'; // $estarme = armement($idflotte) ;
+  require __DIR__ . '/../../include/bddconnection.php'; // $estarme = armement($idflotte) ;
   // Présence d'un vaisseau armé dans la flotte.
   $arme = false;
-  $reqarmedansflotte = $bdg->prepare("  SELECT c.idvaisseaucompo
-                                        FROM composantvaisseau c
-                                        INNER JOIN vaisseau v ON v.idvaisseau = c.idvaisseaucompo
+  $reqarmedansflotte = $bd->prepare("   SELECT c.idvaisseaucompo FROM c_composantvaisseau c
+                                        INNER JOIN c_vaisseau v ON v.idvaisseau = c.idvaisseaucompo
                                         WHERE v.idflottevaisseau = ? AND c.typecomposant = 'arme'");
   // 23 = ID du composant de colonisation.
   $reqarmedansflotte->execute(array($idflotte));

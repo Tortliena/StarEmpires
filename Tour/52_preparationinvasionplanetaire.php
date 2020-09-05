@@ -1,16 +1,16 @@
 <?php
 /*
 session_start();
-require __DIR__ . '/../include/BDDconnection.php';
+require __DIR__ . '/../include/bddconnection.php';
 */
 
-$requpdateordre = $bdg->prepare('UPDATE flotte SET universdestination = ?, xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ?');
-$reqflotte = $bdg->prepare('SELECT * FROM flotte f
-                            INNER JOIN planete p ON p.idplanete = f.idplaneteflotte
+$requpdateordre = $bd->prepare('UPDATE c_flotte SET universdestination = ?, xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ?');
+$reqflotte = $bd->prepare(' SELECT * FROM c_flotte f
+                            INNER JOIN c_planete p ON p.idplanete = f.idplaneteflotte
                             WHERE typeordre = ?');
-$reqtrouverflottedelaplanete = $bdg->prepare('SELECT f.idflotte FROM flotte f INNER JOIN planete p ON p.idplanete = f.idplaneteflotte WHERE f.universflotte = ? AND p.universplanete = ? AND f.xflotte = ? AND p.xplanete = ? AND f.yflotte = ? AND p.yplanete = ?');
-$reqtrouverflottedefense = $bdg->prepare('SELECT f.idflotte FROM flotte f INNER JOIN planete p ON p.idplanete = -f.idplaneteflotte WHERE p.universplanete = ? AND p.xplanete = ? AND p.yplanete = ?');
-$reqcreerbataille = $bdg->prepare('INSERT INTO bataille (idflotteoffensive, idflottedefensive) VALUES (?, ?)'); 
+$reqtrouverflottedelaplanete = $bd->prepare('SELECT f.idflotte FROM c_flotte f INNER JOIN planete p ON p.idplanete = f.idplaneteflotte WHERE f.universflotte = ? AND p.universplanete = ? AND f.xflotte = ? AND p.xplanete = ? AND f.yflotte = ? AND p.yplanete = ?');
+$reqtrouverflottedefense = $bd->prepare('SELECT f.idflotte FROM c_flotte f INNER JOIN planete p ON p.idplanete = -f.idplaneteflotte WHERE p.universplanete = ? AND p.xplanete = ? AND p.yplanete = ?');
+$reqcreerbataille = $bd->prepare('INSERT INTO c_bataille(idflotteoffensive, idflottedefensive) VALUES (?, ?)'); 
  
 
 $reqflotte->execute(array(3)); // Ordre d\'invasion d'une planète.

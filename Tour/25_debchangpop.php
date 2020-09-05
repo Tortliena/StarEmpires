@@ -1,16 +1,17 @@
 <?php
 /*
 session_start();
-include("../include/BDDconnection.php");
+include("../include/bddconnection.php");
 */
 
-$reqplanete = $bdg->prepare('SELECT biens, idjoueurplanete FROM planete WHERE idplanete = ?');
-$miseajourdesressources = $bdg->prepare("UPDATE planete SET biens = ? WHERE idplanete = ?");
-$miseajourpop = $bdg->prepare("UPDATE population SET typepop = ? , typepoparrivee = ? WHERE idpop = ?");
-$message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess, numspemessage) VALUES (?, ?, ?, ?)") ;
+$reqplanete = $bd->prepare('SELECT biens, idjoueurplanete FROM c_planete WHERE idplanete = ?');
+$miseajourdesressources = $bd->prepare("UPDATE c_planete SET biens = ? WHERE idplanete = ?");
+$miseajourpop = $bd->prepare("UPDATE c_population SET typepop = ?, typepoparrivee = ? WHERE idpop = ?");
+$message = $bd->prepare("INSERT INTO c_messagetour (idjoumess , message , domainemess, numspemessage) VALUES (?, ?, ?, ?)") ;
 
-$reqselectpop = $bdd->query('SELECT p.idplanetepop, t.prixchangementpop, p.typepoparrivee, p.idpop, p.typepop
-FROM gamer.population p INNER JOIN typepop t ON t.idtypepop = p.typepoparrivee WHERE NOT typepoparrivee = 0');
+$reqselectpop = $bd->query('  SELECT p.idplanetepop, t.prixchangementpop, p.typepoparrivee, p.idpop, p.typepop
+                              FROM c_population p INNER JOIN a_typepop t ON t.idtypepop = p.typepoparrivee
+                              WHERE NOT typepoparrivee = 0');
 while ($repselectpop = $reqselectpop->fetch())
   {
   $reqplanete->execute(array($repselectpop['idplanetepop']));

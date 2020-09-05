@@ -9,8 +9,5 @@ session_destroy();
 setcookie("id", 0, time(), "/"); 
 setcookie("pass", 0, time(), "/");
 
-
-
 header('Location: ../accueil.php?message=8');
-
 ?>

@@ -1,11 +1,9 @@
 <?php
 $a = 0;
-$reqflotteenorbite = $bdg->prepare("SELECT idflotte, nomflotte FROM flotte WHERE idplaneteflotte = ? AND universflotte = ? AND xflotte = ? AND yflotte = ?") ;   
-$reqvaisseauenorbite = $bdg->prepare("SELECT v.idvaisseau, v.nomvaisseau, v.HPmaxvaisseau, v.HPvaisseau   
-                FROM vaisseau v
-                INNER JOIN flotte f
-                ON f.idflotte = v.idflottevaisseau
-                WHERE idplaneteflotte = ?") ;   
+$reqflotteenorbite = $bd->prepare("SELECT idflotte, nomflotte FROM c_flotte WHERE idplaneteflotte = ? AND universflotte = ? AND xflotte = ? AND yflotte = ?") ;   
+$reqvaisseauenorbite = $bd->prepare(" SELECT v.idvaisseau, v.nomvaisseau, v.HPmaxvaisseau, v.HPvaisseau   
+                                      FROM c_vaisseau v INNER JOIN c_flotte f ON f.idflotte = v.idflottevaisseau
+                                      WHERE idplaneteflotte = ?") ;   
 $reqvaisseauenorbite ->execute(array(-$_GET['id']));   
 while ($repvaisseauenorbite = $reqvaisseauenorbite ->fetch())   
   {
@@ -17,8 +15,7 @@ while ($repvaisseauenorbite = $reqvaisseauenorbite ->fetch())
 
   $PourcentHP = $repvaisseauenorbite['HPvaisseau'] / $repvaisseauenorbite['HPmaxvaisseau'] * 100 ;   
 
-
-  echo '<a href="vaisseau.php?id=' . $repvaisseauenorbite['idvaisseau'] . '">' . $repvaisseauenorbite['nomvaisseau'] . '</a> (' . number_format($PourcentHP, 0) . '%) ';
+  echo '<a href="../conception_vaisseau/vaisseau.php?id=' . $repvaisseauenorbite['idvaisseau'] . '">' . $repvaisseauenorbite['nomvaisseau'] . '</a> (' . number_format($PourcentHP, 0) . '%) ';
   
   if ($PourcentHP < 100)
     {

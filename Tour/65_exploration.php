@@ -1,31 +1,31 @@
 <?php 
 /* 
 session_start(); 
-include("../include/BDDconnection.php"); 
+include("../include/bddconnection.php"); 
 */ 
  
 // Tour en cours : $touractuel['id'] 
-$reponse = $bda->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1'); 
+$reponse = $bd->query('SELECT id FROM c_tour ORDER BY id DESC LIMIT 1'); 
 $touractuel = $reponse->fetch(); 
  
 // Compter le nombre de case explorées et seulement celles AVANT et du joueur. 
-$reqexploration = $bdg->prepare('SELECT idexplore , x , y, univers, idexplorateur FROM explore WHERE tourexploration = ?'); 
-$reqcompterexplo = $bdg->prepare('SELECT COUNT(*) AS nbcaseexplo  FROM explore WHERE idexplorateur = ? AND idexplore <= ? AND univers > 0') ; 
+$reqexploration = $bd->prepare('SELECT idexplore , x , y, univers, idexplorateur FROM c_explore WHERE tourexploration = ?'); 
+$reqcompterexplo = $bd->prepare('SELECT COUNT(*) AS nbcaseexplo  FROM c_explore WHERE idexplorateur = ? AND idexplore <= ? AND univers > 0') ; 
  
-$reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)'); 
-$reqcreerasteroides = $bda->prepare('INSERT INTO champsasteroides (xaste , yaste , uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)');
-$reqcreerplanete = $bdg->prepare('INSERT INTO planete(xplanete, yplanete, universplanete, taille, lune, biens, environnement) VALUES(?, ?, ?, ?, ?, ?, ?)'); 
+$reqmessageinterne = $bd->prepare('INSERT INTO c_messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)'); 
+$reqcreerasteroides = $bd->prepare('INSERT INTO c_champsasteroides (xaste , yaste , uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)');
+$reqcreerplanete = $bd->prepare('INSERT INTO c_planete(xplanete, yplanete, universplanete, taille, lune, biens, environnement) VALUES(?, ?, ?, ?, ?, ?, ?)'); 
 
 // Créer vaisseau 
-$reqcreervaisseau = $bdg->prepare('INSERT INTO vaisseau(idflottevaisseau, nomvaisseau, HPmaxvaisseau, HPvaisseau) VALUES(?, ?, ?, ?)');
-$reqcreerflotte = $bdg->prepare('INSERT INTO flotte (idplaneteflotte, universflotte, xflotte, yflotte, nomflotte) VALUES(?, ?, ?, ?, ?)');          
-$reqinfovaisseau = $bdg->prepare('SELECT idvaisseau FROM vaisseau ORDER BY idvaisseau DESC LIMIT 1'); 
-$reqcreercargo = $bdg->prepare('INSERT INTO cargovaisseau(idvaisseaucargo, typeitems, quantiteitems) VALUES(?, ?, ?)');
+$reqcreervaisseau = $bd->prepare('INSERT INTO c_vaisseau(idflottevaisseau, nomvaisseau, HPmaxvaisseau, HPvaisseau) VALUES(?, ?, ?, ?)');
+$reqcreerflotte = $bd->prepare('INSERT INTO c_flotte (idplaneteflotte, universflotte, xflotte, yflotte, nomflotte) VALUES(?, ?, ?, ?, ?)');          
+$reqinfovaisseau = $bd->prepare('SELECT c_idvaisseau FROM vaisseau ORDER BY idvaisseau DESC LIMIT 1'); 
+$reqcreercargo = $bd->prepare('INSERT INTO c_cargovaisseau(idvaisseaucargo, typeitems, quantiteitems) VALUES(?, ?, ?)');
 
-$reqcreerordredeplacement = $bdg->prepare('UPDATE flotte SET xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ? '); 
-$reqcreercomposant = $bdg->prepare('INSERT INTO composantvaisseau(idvaisseaucompo, iditemcomposant, typecomposant) VALUES(?, ?, ?)');
+$reqcreerordredeplacement = $bd->prepare('UPDATE c_flotte SET xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ? '); 
+$reqcreercomposant = $bd->prepare('INSERT INTO c_composantvaisseau(idvaisseaucompo, iditemcomposant, typecomposant) VALUES(?, ?, ?)');
 
-$reqinfoflotteexplorateur = $bdg->prepare('SELECT idflotte FROM flotte WHERE xflotte = ? AND yflotte = ? AND universflotte = ?'); 
+$reqinfoflotteexplorateur = $bd->prepare('SELECT c_idflotte FROM flotte WHERE xflotte = ? AND yflotte = ? AND universflotte = ?'); 
 
 // Permet de traiter les explorations du tour. 
 $reqexploration->execute(array($touractuel['id'])); 
@@ -70,9 +70,9 @@ while ($repexplorationexistante = $reqexploration->fetch())
 
                 // On cree un vaisseau alien.
                 $reqcreerflotte->execute(array(0, $repexplorationexistante['univers'], $repexplorationexistante['x'], $repexplorationexistante['y'], 'Épave spatiale'));
-                $IDflottealien = $bdg->lastInsertId();
+                $IDflottealien = $bd->lastInsertId();
                 $reqcreervaisseau->execute(array($IDflottealien, 'Épave spatiale', 20, 20));
-                $IDduvaisseaualien = $bdg->lastInsertId();
+                $IDduvaisseaualien = $bd->lastInsertId();
                 $reqcreercomposant->execute(array($IDduvaisseaualien, 13, 'arme'));
                 $reqcreercargo->execute(array($IDduvaisseaualien, 18, 1));
                 $reqcreercargo->execute(array($IDduvaisseaualien, 16, 1));

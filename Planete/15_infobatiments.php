@@ -1,7 +1,7 @@
 <?php
 echo '<h2>Bâtiments :</h2>'; 
 
-$reqcompterbatiment = $bdg->prepare('SELECT sum(case when typebat = 1 then 1 else 0 end) AS centrederecherche,
+$reqcompterbatiment = $bd->prepare('SELECT  sum(case when typebat = 1 then 1 else 0 end) AS centrederecherche,
                                             sum(case when typebat = 2 then 1 else 0 end) AS chantier,
                                             sum(case when typebat = 3 then 1 else 0 end) AS megalopole,
                                             sum(case when typebat = 4 then 1 else 0 end) AS baselunaire,
@@ -9,7 +9,7 @@ $reqcompterbatiment = $bdg->prepare('SELECT sum(case when typebat = 1 then 1 els
                                             sum(case when typebat = 22 then 1 else 0 end) AS traitement2,
                                             sum(case when typebat = 38 then 1 else 0 end) AS basemilitaire,
                                             sum(case when typebat = 33 then 1 else 0 end) AS HQ
-                                            FROM batiment WHERE idplanetebat = ?');
+                                            FROM c_batiment WHERE idplanetebat = ?');
 $reqcompterbatiment->execute(array($_GET['id']));
 $repcompterbatiment = $reqcompterbatiment->fetch();
 
@@ -80,7 +80,7 @@ if ($repcompterbatiment['HQ'] > 0)
 
 echo '<br>';
 
-$reqdestructionencours = $bdg->prepare('SELECT d.iddestruction, d.idbatimentdestruction, i.nombatiment FROM destruction d INNER JOIN datawebsite.items i ON i.iditem = d.idbatimentdestruction WHERE idplanetedestruction = ?');
+$reqdestructionencours = $bd->prepare('SELECT d.iddestruction, d.idbatimentdestruction, i.nombatiment FROM c_destruction d INNER JOIN a_items i ON i.iditem = d.idbatimentdestruction WHERE idplanetedestruction = ?');
 $reqdestructionencours->execute(array($_GET['id']));
 $repdestructionencours = $reqdestructionencours->fetch();
 
@@ -89,5 +89,4 @@ if (isset($repdestructionencours['iddestruction']))
   echo 'Vous avez ordonné de détruire un(e) '.lcfirst($repdestructionencours['nombatiment']);
   destruction(0, $_GET['id']);
   }
-
 ?>

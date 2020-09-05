@@ -1,7 +1,7 @@
 <?php 
 function infobulle($texteinfobulle, $image) 
 	{ 
-	echo '&ensp;<a class="infobulle"><img src="/starempires/imagecarte/'.$image.'.png" alt=" infobulle "/><span>';
+	echo '&ensp;<a class="infobulle"><img src="/imagecarte/'.$image.'.png" alt=" infobulle "/><span>';
 	echo $texteinfobulle ;
 	echo '</span></a>';
 	}

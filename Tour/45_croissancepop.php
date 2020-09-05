@@ -1,20 +1,19 @@
 <?php
 /*
 session_start();
-include("../include/BDDconnection.php");
+include("../include/bddconnection.php");
 */
 
-$reqcompterpop = $bdg->prepare('SELECT COUNT(*) AS nbpopulation FROM population WHERE idplanetepop = ?');
-$creationpop = $bdg->prepare('INSERT INTO population (idplanetepop) VALUES (?)');
-$message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess, numspemessage) VALUES (?, ?, ?, ?)") ; 
+$reqcompterpop = $bd->prepare('SELECT COUNT(*) AS nbpopulation FROM c_population WHERE idplanetepop = ?');
+$creationpop = $bd->prepare('INSERT INTO c_population(idplanetepop) VALUES (?)');
+$message = $bd->prepare("INSERT INTO c_messagetour(idjoumess, message, domainemess, numspemessage) VALUES (?, ?, ?, ?)") ; 
 
 // Gerer les planetes une par une.
-$reqgestionplanete = $bdg->query('SELECT    l.popmax, pl.idjoueurplanete, p.idplanetepop, pl.efficacite,
-                                            COUNT(*) AS population
-                                            FROM population AS p
-                                            INNER JOIN limiteplanete AS l ON p.idplanetepop = l.idlimiteplanete
-                                            INNER JOIN planete AS pl ON p.idplanetepop = pl.idplanete
-                                            GROUP BY p.idplanetepop');
+$reqgestionplanete = $bd->query('   SELECT l.popmax, pl.idjoueurplanete, p.idplanetepop, pl.efficacite, COUNT(*) AS population
+                                    FROM c_population AS p
+                                    INNER JOIN c_limiteplanete AS l ON p.idplanetepop = l.idlimiteplanete
+                                    INNER JOIN c_planete AS pl ON p.idplanetepop = pl.idplanete
+                                    GROUP BY p.idplanetepop');
 while ($repgestionplanete = $reqgestionplanete->fetch())
     {
     if ($repgestionplanete['popmax'] > $repgestionplanete['population'])

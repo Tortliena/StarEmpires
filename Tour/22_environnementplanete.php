@@ -1,12 +1,12 @@
 <?php
 /*
 session_start();
-include("../include/BDDconnection.php");
+include("../include/bddconnection.php");
 */
 
-$requpenv = $bdg->prepare('UPDATE planete SET stabiliteenvironnement = ?, environnement = ?, restauration = ? WHERE idplanete = ?');
+$requpenv = $bd->prepare('UPDATE c_planete SET stabiliteenvironnement = ?, environnement = ?, restauration = ? WHERE idplanete = ?');
 
-$reqenvironnement = $bdg->prepare('SELECT idplanete, stabiliteenvironnement, environnement, restauration FROM planete');
+$reqenvironnement = $bd->prepare('SELECT idplanete, stabiliteenvironnement, environnement, restauration FROM c_planete');
 $reqenvironnement->execute();
 while($repenvironnement = $reqenvironnement->fetch())
     {

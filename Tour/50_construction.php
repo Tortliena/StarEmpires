@@ -1,44 +1,42 @@
 <?php
 /*
 session_start();
-include("../include/BDDconnection.php");
+include("../include/bddconnection.php");
 include("fonctionsdutour.php");
 */
 
-$message = $bdg->prepare("INSERT INTO messagetour (idjoumess, message, domainemess, numspemessage) VALUES (?, ?, ? , ?)") ;
+$message = $bd->prepare("INSERT INTO c_messagetour(idjoumess, message, domainemess, numspemessage) VALUES (?, ?, ? , ?)") ;
 
 // Gestion construction :
-$reqsupprimercontruction = $bdg->prepare('DELETE FROM construction WHERE idconst =  ? ');
-$diminutiondeun = $bdg->prepare('UPDATE construction SET nombre = nombre - 1, avancementbiens = ?, avancementtitane = ?, avancementneutrinos = ? WHERE idconst = ?');
-$reqconstruction = $bdg->prepare("SELECT * FROM construction WHERE idplaneteconst = ? AND ordredeconstruction > 0 ORDER BY ordredeconstruction ASC");
-$avancement = $bdg->prepare("UPDATE construction SET avancementbiens = ?, avancementtitane = ?, avancementneutrinos = ? WHERE idconst = ?");
-$construirebatiment = $bdg->prepare('INSERT INTO batiment (typebat, idplanetebat) VALUES (?, ?)');
-$reqlocalisationplanete = $bdg->prepare('SELECT xplanete, yplanete, universplanete FROM planete WHERE idplanete = ?');
-$construirevaisseau = $bdg->prepare('INSERT INTO vaisseau (idflottevaisseau, nomvaisseau) VALUES (?, ?)');
+$reqsupprimercontruction = $bd->prepare('DELETE FROM c_construction WHERE idconst =  ? ');
+$diminutiondeun = $bd->prepare('UPDATE c_construction SET nombre = nombre - 1, avancementbiens = ?, avancementtitane = ?, avancementneutrinos = ? WHERE idconst = ?');
+$reqconstruction = $bd->prepare("SELECT * FROM c_construction WHERE idplaneteconst = ? AND ordredeconstruction > 0 ORDER BY ordredeconstruction ASC");
+$avancement = $bd->prepare("UPDATE c_construction SET avancementbiens = ?, avancementtitane = ?, avancementneutrinos = ? WHERE idconst = ?");
+$construirebatiment = $bd->prepare('INSERT INTO c_batiment(typebat, idplanetebat) VALUES(?, ?)');
+$reqlocalisationplanete = $bd->prepare('SELECT xplanete, yplanete, universplanete FROM c_planete WHERE idplanete = ?');
+$construirevaisseau = $bd->prepare('INSERT INTO c_vaisseau(idflottevaisseau, nomvaisseau) VALUES(?, ?)');
 
 // Cas des conceptions :
-$reqinsertcomposant = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)');
-$reqcomposant = $bdg->prepare('SELECT iditemcomposant, typecomposant FROM composantvaisseau WHERE idvaisseaucompo = ?');
-$reqinfovaisseau = $bdg->prepare('SELECT idflottevaisseau, nomvaisseau FROM vaisseau WHERE idvaisseau = ?');
-$reqsupprimerdeplacement = $bdg->prepare('DELETE FROM ordredeplacement WHERE idvaisseaudeplacement = ?');
-$requpdatevaisseau = $bdg->prepare('UPDATE vaisseau SET HPmaxvaisseau = 1, idflottevaisseau = ? WHERE idvaisseau = ?');
+$reqinsertcomposant = $bd->prepare('INSERT INTO c_composantvaisseau(idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)');
+$reqcomposant = $bd->prepare('SELECT iditemcomposant, typecomposant FROM c_composantvaisseau WHERE idvaisseaucompo = ?');
+$reqinfovaisseau = $bd->prepare('SELECT idflottevaisseau, nomvaisseau FROM c_vaisseau WHERE idvaisseau = ?');
+$reqsupprimerdeplacement = $bd->prepare('DELETE FROM c_ordredeplacement WHERE idvaisseaudeplacement = ?');
+$requpdatevaisseau = $bd->prepare('UPDATE c_vaisseau SET HPmaxvaisseau = 1, idflottevaisseau = ? WHERE idvaisseau = ?');
 
 // Gestion flotte : 
-$reqtrouverflotte = $bdg->prepare('SELECT idflotte FROM flotte WHERE idplaneteflotte = ?');
-$reqcreerflotte = $bdg->prepare('INSERT INTO flotte (idplaneteflotte) VALUES (?)');
+$reqtrouverflotte = $bd->prepare('SELECT idflotte FROM c_flotte WHERE idplaneteflotte = ?');
+$reqcreerflotte = $bd->prepare('INSERT INTO c_flotte(idplaneteflotte) VALUES(?)');
 
 
 // Par ailleurs :
-$miseajourdesressources = $bdg->prepare("UPDATE planete SET biens = ?, titane = ?, neutrinos = ? WHERE idplanete = ?");
-$reqcategorie = $bdd->prepare("SELECT typeitem, nombatiment, itemnecessaire, nomlimite FROM items WHERE iditem = ?");
-$reqcomptebat = $bdg->prepare('SELECT COUNT(idbat) as nb FROM batiment WHERE typebat = ? AND idplanetebat = ?');
+$miseajourdesressources = $bd->prepare("UPDATE c_planete SET biens = ?, titane = ?, neutrinos = ? WHERE idplanete = ?");
+$reqcategorie = $bd->prepare("SELECT typeitem, nombatiment, itemnecessaire, nomlimite FROM a_items WHERE iditem = ?");
+$reqcomptebat = $bd->prepare('SELECT COUNT(idbat) as nb FROM c_batiment WHERE typebat = ? AND idplanetebat = ?');
 
 //Gestion des construction planete par planete
-$reqplanete = $bdg->query('SELECT v.idplanetevariation, p.idjoueurplanete, 
-                        v.chantier, p.biens, p.titane, p.neutrinos
-                        FROM variationstour v INNER JOIN planete p
-                        ON p.idplanete = v.idplanetevariation
-                        ORDER BY p.idjoueurplanete');
+$reqplanete = $bd->query('  SELECT v.idplanetevariation, p.idjoueurplanete, v.chantier, p.biens, p.titane, p.neutrinos
+                            FROM c_variationstour v INNER JOIN c_planete p ON p.idplanete = v.idplanetevariation
+                            ORDER BY p.idjoueurplanete');
 while ($repplanete = $reqplanete->fetch())
     { // Créer les variables qui vont être utilisées dans les boucles :
     $chantier =  $repplanete['chantier'] ;
@@ -69,7 +67,7 @@ while ($repplanete = $reqplanete->fetch())
                 }
             else
                 {
-                $reqcategorie = $bdg->prepare('SELECT '.$repinfoitem['nomlimite'].' FROM limiteplanete WHERE idlimiteplanete = ?'); 
+                $reqcategorie = $bd->prepare('SELECT '.$repinfoitem['nomlimite'].' FROM c_limiteplanete WHERE idlimiteplanete = ?'); 
                 $reqcategorie->execute(array($_POST['id'])); 
                 $repcategorie = $reqcategorie->fetch();
                 $limite = $repcategorie['0'];
@@ -158,13 +156,13 @@ while ($repplanete = $reqplanete->fetch())
                 else
                     {// la flotte de défense n'existe pas, donc on la créé et on va envoyer le vaisseau dedans.
                     $reqcreerflotte->execute(array(-$repplanete['idplanetevariation']));
-                    $idflotte = $bdg->lastInsertId();
+                    $idflotte = $bd->lastInsertId();
                     }
 
                 if ($repinfovaisseau['idflottevaisseau'] < 0)
                     { // Si id de la flotte est négatif, alors c'est un plan, donc c'est un nouveau vaisseau.
                     $construirevaisseau->execute(array($idflotte, $repinfovaisseau['nomvaisseau']));
-                    $IDdunouveauvaisseau = $bdg->lastInsertId();
+                    $IDdunouveauvaisseau = $bd->lastInsertId();
                     $reqcomposant->execute(array(-$repconstruction['trucaconstruire']));
                     while ($repcomposant= $reqcomposant->fetch())
                         {// Insérer les composants dans le nouveau vaisseau

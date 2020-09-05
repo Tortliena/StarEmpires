@@ -1,6 +1,6 @@
 <?php 
 session_start(); 
-require __DIR__ . '/../include/BDDconnection.php'; 
+require __DIR__ . '/../include/bddconnection.php'; 
 require __DIR__ . '/../function/variable.php';
 require __DIR__ . '/../function/retirerajouteritemsflottemultiple.php';
 require __DIR__ . '/../function/flotte.php';
@@ -15,22 +15,21 @@ echo $_POST['combien'] . ' nombre des items à vendre</br>';
 echo $_POST['typetransaction'] . ' 1 = vendre, 2 = acheter';
 */
 
-$reqcrediterjoueur = $bdg->prepare('UPDATE utilisateurs SET creditgalactique = creditgalactique + ? WHERE id = ?');
-$reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)'); 
+$reqcrediterjoueur = $bd->prepare('UPDATE c_utilisateurs SET creditgalactique = creditgalactique + ? WHERE id = ?');
+$reqmessageinterne = $bd->prepare('INSERT INTO c_messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)'); 
 
 // Vérifier propriétaire du vaisseau.
-$reqflotte = $bdg->prepare('    SELECT p.idjoueurplanete, f.universflotte,
-                                f.xflotte, f.yflotte, f.idflotte
-                                FROM flotte f
-                                INNER JOIN planete p ON p.idplanete = f.idplaneteflotte
-                                WHERE f.idflotte = ?');
+$reqflotte = $bd->prepare(' SELECT p.idjoueurplanete, f.universflotte, f.xflotte, f.yflotte, f.idflotte
+                            FROM c_flotte f
+                            INNER JOIN c_planete p ON p.idplanete = f.idplaneteflotte
+                            WHERE f.idflotte = ?');
 
 $reqflotte->execute(array($_POST['idflotte']));
 $repflotte = $reqflotte->fetch();
 
 
 // Trouver si la station est à portée : 
-$reqstation = $bdg->prepare('SELECT idstation FROM station WHERE xstation = ? AND ystation = ? AND universstation = ? AND idstation = ?'); 
+$reqstation = $bd->prepare('SELECT idstation FROM c_station WHERE xstation = ? AND ystation = ? AND universstation = ? AND idstation = ?'); 
 $reqstation->execute(array($repflotte['xflotte'], $repflotte['yflotte'], $repflotte['universflotte'], $_POST['idstation'])); 
 $repstation = $reqstation->fetch();
 
@@ -43,11 +42,11 @@ if (!isset($repstation['idstation']) OR $repflotte['idjoueurplanete'] != $_SESSI
 if ($_POST['typetransaction'] == 1)
     { // DÉBUT PARTIE VENTE
     // Vérifier les quantités 
-    $reqverifcargo = $bdd->prepare("    SELECT SUM(c.quantiteitems) as nb
-                                        FROM gamer.vaisseau v
-                                        LEFT JOIN gamer.cargovaisseau c ON c.idvaisseaucargo  = v.idvaisseau
-                                        INNER JOIN items i ON i.iditem = c.typeitems
-                                        WHERE v.idflottevaisseau = ? AND i.iditem = ?");
+    $reqverifcargo = $bd->prepare(" SELECT SUM(c.quantiteitems) as nb
+                                    FROM c_vaisseau v
+                                    LEFT JOIN c_cargovaisseau c ON c.idvaisseaucargo  = v.idvaisseau
+                                    INNER JOIN a_items i ON i.iditem = c.typeitems
+                                    WHERE v.idflottevaisseau = ? AND i.iditem = ?");
     $reqverifcargo->execute(array($repflotte['idflotte'], $_POST['iditem'])); 
     $repverifcargo = $reqverifcargo->fetch();
     if ($repverifcargo['nb'] < $_POST['combien'])

@@ -1,19 +1,19 @@
 <?php
 /*
 session_start();
-include("../include/BDDconnection.php");
+include("../include/bddconnection.php");
 */
 
 $Commentairestour .= '<br>Début de la gestion des planètes.<br>';
 
-$reqorganisationactuelle = $bdg->prepare('SELECT SUM(organisation) AS orga FROM planete WHERE idjoueurplanete = ? ');
+$reqorganisationactuelle = $bd->prepare('SELECT SUM(organisation) AS orga FROM c_planete WHERE idjoueurplanete = ? ');
 
-$reqplanetebesoinorga = $bdg->prepare('SELECT COUNT(*) AS besoinorga FROM planete WHERE idjoueurplanete = ? AND efficacite < 110');
+$reqplanetebesoinorga = $bd->prepare('SELECT COUNT(*) AS besoinorga FROM c_planete WHERE idjoueurplanete = ? AND efficacite < 110');
 
-$reqaugmentationorganisation = $bdg->prepare('UPDATE planete SET organisation = organisation + ? WHERE idplanete = ?');
-$reqaugmentationefficacite = $bdg->prepare('UPDATE planete SET efficacite = ? WHERE idplanete = ?');
+$reqaugmentationorganisation = $bd->prepare('UPDATE c_planete SET organisation = organisation + ? WHERE idplanete = ?');
+$reqaugmentationefficacite = $bd->prepare('UPDATE c_planete SET efficacite = ? WHERE idplanete = ?');
 
-$reqjoueur = $bdg->query('SELECT id FROM utilisateurs ORDER BY id ASC');
+$reqjoueur = $bd->query('SELECT id FROM c_utilisateurs ORDER BY id ASC');
 while ($repjoueur= $reqjoueur->fetch())
     { // Gestion des joueurs un par un.
     
@@ -41,7 +41,7 @@ while ($repjoueur= $reqjoueur->fetch())
     
     for ($i = 0; $i < $repplanetebesoinorga['besoinorga']; $i++)
         {
-        $reqidplanetebesoinorga = $bdg->query('SELECT idplanete FROM planete WHERE idjoueurplanete ='.$repjoueur['id'].' AND efficacite < 110 ORDER BY organisation ASC LIMIT '.$i.', 1'); // Je ne peux pas faire de preparation car j'ai une limite avec une variable ?!
+        $reqidplanetebesoinorga = $bd->query('SELECT idplanete FROM c_planete WHERE idjoueurplanete ='.$repjoueur['id'].' AND efficacite < 110 ORDER BY organisation ASC LIMIT '.$i.', 1'); // Je ne peux pas faire de preparation car j'ai une limite avec une variable ?!
         $repidplanetebesoinorga = $reqidplanetebesoinorga->fetch();
         
         $idplanete[$i] = $repidplanetebesoinorga['idplanete'];
@@ -52,7 +52,7 @@ while ($repjoueur= $reqjoueur->fetch())
     
     for ($i = 0; $i < $repplanetebesoinorga['besoinorga']; $i++)
         { // fonction permettant de distribuer les gains entre les planetes.
-        $reqorganisationplanete = $bdg->query('SELECT organisation FROM planete WHERE idplanete ='.$idplanete[$i].'');
+        $reqorganisationplanete = $bd->query('SELECT organisation FROM c_planete WHERE idplanete ='.$idplanete[$i].'');
         $reporganisationplanete  = $reqorganisationplanete ->fetch();
         
         $organisation = $reporganisationplanete['organisation'] + $augmentation[$i];
@@ -64,11 +64,10 @@ while ($repjoueur= $reqjoueur->fetch())
     }
 
 // Gerer les planetes une par une pour calculer l'efficacite. Faire update efficacite sur les planete (= orga / (pop*10))
-$reqgestionplanete = $bdg->query('SELECT    pl.idplanete, pl.organisation,
-                                            COUNT(*) AS population
-                                            FROM population AS p
-                                            INNER JOIN planete AS pl ON p.idplanetepop = pl.idplanete
-                                            GROUP BY p.idplanetepop');
+$reqgestionplanete = $bd->query('   SELECT pl.idplanete, pl.organisation, COUNT(*) AS population
+                                    FROM c_population AS p
+                                    INNER JOIN c_planete AS pl ON p.idplanetepop = pl.idplanete
+                                    GROUP BY p.idplanetepop');
 while ($repgestionplanete = $reqgestionplanete->fetch())
     {
     $efficacite = ROUND($repgestionplanete['organisation'] / $repgestionplanete['population'] / 10);

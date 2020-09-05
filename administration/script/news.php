@@ -1,6 +1,6 @@
 <?php
 session_start();
-require __DIR__ . '/../../include/BDDconnection.php';
+require __DIR__ . '/../../include/bddconnection.php';
 
 echo 'Id du joueur : '.$_SESSION['id'].'</br>' ;
 echo 'Texte de la news : '.$_POST['textenews'].'</br>';
@@ -9,12 +9,12 @@ echo 'id de la news en cours de modifications (s\'il y a lieu) : '.$_POST['modif
 
 if(isset($_POST['modifnews']))
 	{
-	$reqMAJnews = $bda->prepare('UPDATE news SET textenews = ?, titrenews = ? WHERE idnews = ?');
+	$reqMAJnews = $bd->prepare('UPDATE b_news SET textenews = ?, titrenews = ? WHERE idnews = ?');
 	$reqMAJnews->execute(array($_POST['textenews'], $_POST['titre'], $_POST['modifnews']));
 	}
 else
 	{
-	$reqcreernews = $bda->prepare('INSERT INTO news(textenews, titrenews) VALUES(?, ?)');
+	$reqcreernews = $bd->prepare('INSERT INTO b_news(textenews, titrenews) VALUES(?, ?)');
 	$reqcreernews->execute(array($_POST['textenews'], $_POST['titre']));
 	}
 

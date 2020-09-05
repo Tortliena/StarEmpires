@@ -47,9 +47,9 @@ else
 
 infobulle('Environnement : '.$environnement.'<br>- Change la population maximale de la planète.<br>- Peut diminuer en cas de combat intenses.<br>- Peut-être (ré)augmenté.<br><br>Stabilité de l\'environnement : '.$stabenv.'<br>- Facilité à influencer l\'environnement.', $nomimage);
 
-$reqsilo = $bdg->prepare('SELECT	sum(case when iditems = 39 then 1 else 0 end) AS restau,
+$reqsilo = $bd->prepare('	SELECT	sum(case when iditems = 39 then 1 else 0 end) AS restau,
 	                                sum(case when iditems = 40 then 1 else 0 end) AS amelio
-	                                FROM silo WHERE idplanetesilo = ?');
+	                        FROM c_silo WHERE idplanetesilo = ?');
 $reqsilo->execute(array($_GET['id']));
 $repsilo = $reqsilo->fetch();
 
@@ -111,7 +111,7 @@ if ($replvl['lvl'] > 11)
 	}
 
 // Affichage de la prod des biens.
-$reqprod = $bdg->prepare('SELECT prodbiens, consobiens, coutstockage, entretien, entretienflotte FROM variationstour WHERE idplanetevariation = ?');
+$reqprod = $bd->prepare('SELECT prodbiens, consobiens, coutstockage, entretien, entretienflotte FROM c_variationstour WHERE idplanetevariation = ?');
 $reqprod->execute(array($_GET['id']));
 $prodbiens = $reqprod->fetch();
 echo '<br>Évolution des biens du dernier tour : ';
@@ -120,15 +120,13 @@ echo $totalvariation;
 infobulle('Production : +'.$prodbiens['prodbiens'].'<br>Utilisation par la population : -'.$prodbiens['consobiens'].'<br>Cout de stockage : -'.$prodbiens['coutstockage'].'<br> Frais d\'entretien des bâtiments : -'.$prodbiens['entretien'].'<br>Entretien militaire : -'.$prodbiens['entretienflotte'], 'infobulle');
 
 
-$reqstructureflottedefense = $bdg->prepare('   SELECT structuretotale
-                                        FROM flotte WHERE idplaneteflotte = ?');
+$reqstructureflottedefense = $bd->prepare('SELECT structuretotale FROM c_flotte WHERE idplaneteflotte = ?');
 $reqstructureflottedefense->execute(array(-$_GET['id']));
 $repstructureflottedefense = $reqstructureflottedefense->fetch();
 
 $texteentretienflotte = '';
 $total = 0;
-$reqstructureflotte = $bdg->prepare('   SELECT structuretotale, nomflotte
-                                        FROM flotte WHERE idplaneteflotte = ? AND structuretotale > 0');
+$reqstructureflotte = $bd->prepare('SELECT structuretotale, nomflotte FROM c_flotte WHERE idplaneteflotte = ? AND structuretotale > 0');
 $reqstructureflotte->execute(array($_GET['id']));
 while ($repstructureflotte = $reqstructureflotte->fetch())
 	{

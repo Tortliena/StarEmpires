@@ -1,18 +1,18 @@
 <?php
 function descriptioncompletevaisseau($idvaisseau, $idjoueur, $lvljoueur)
   {
-  require __DIR__ . '/../../include/BDDconnection.php';
+  require __DIR__ . '/../../include/bddconnection.php';
   list($structure, $structuremax) = structurevaisseau($idvaisseau);
 
   echo $structure.'/'.$structuremax.' de structure. </br>';
   
-  $reqvaiss = $bdg->prepare('SELECT * FROM vaisseau WHERE idvaisseau = ?');
+  $reqvaiss = $bd->prepare('SELECT * FROM c_vaisseau WHERE idvaisseau = ?');
   $reqvaiss->execute(array($idvaisseau));
   $repvaiss = $reqvaiss->fetch();
 
-  $reqcomposantsurlevaisseau = $bdd->prepare("  SELECT COUNT(idtable) AS nb, i.nombatiment, c.iditemcomposant
-                                                FROM gamer.composantvaisseau c 
-                                                INNER JOIN items i ON i.iditem = c.iditemcomposant 
+  $reqcomposantsurlevaisseau = $bd->prepare("   SELECT COUNT(idtable) AS nb, i.nombatiment, c.iditemcomposant
+                                                FROM c_composantvaisseau c 
+                                                INNER JOIN a_items i ON i.iditem = c.iditemcomposant 
                                                 WHERE c.idvaisseaucompo = ? AND c.typecomposant = ?
                                                 GROUP BY iditemcomposant"); 
   $reqcomposantsurlevaisseau->execute(array($idvaisseau, "moteur"));
@@ -100,7 +100,7 @@ function descriptioncompletevaisseau($idvaisseau, $idjoueur, $lvljoueur)
 
 function modificationvaisseau($idvaisseau, $idjoueur, $lvljoueur, $typedepage)
   { //$typedepage : Si 1, alors page vaisseau, si 2, alors page conception.
-  require __DIR__ . '/../../include/BDDconnection.php';
+  require __DIR__ . '/../../include/bddconnection.php';
   // Début du plan modifié :
   echo '<h3>Modifications en cours :</h3>'; 
 
@@ -109,9 +109,9 @@ function modificationvaisseau($idvaisseau, $idjoueur, $lvljoueur, $typedepage)
 
   list ($totalprixbien, $totalprixtitane, $capacitedesoute, $capaciteminage, $vitesse, $HPvaisseau) = caracteristiquesvaisseau (-$idvaisseau);
 
-  $reqcomposantsurlevaisseau = $bdd->prepare("  SELECT COUNT(idtable) AS nb, i.nombatiment, c.iditemcomposant, c.typecomposant
-                                                FROM gamer.composantvaisseau c 
-                                                LEFT JOIN items i ON i.iditem = c.iditemcomposant 
+  $reqcomposantsurlevaisseau = $bd->prepare("   SELECT COUNT(idtable) AS nb, i.nombatiment, c.iditemcomposant, c.typecomposant
+                                                FROM c_composantvaisseau c 
+                                                LEFT JOIN a_items i ON i.iditem = c.iditemcomposant 
                                                 WHERE c.idvaisseaucompo = ? AND c.typecomposant like ?
                                                 GROUP BY iditemcomposant");
   
@@ -123,7 +123,7 @@ function modificationvaisseau($idvaisseau, $idjoueur, $lvljoueur, $typedepage)
 
   if (!isset($repmodifplanexiste['iditemcomposant']) AND isset($repplanorigineaquelquechose['nombatiment']))
     {
-    $reqrecreerplanoriginal = $bdg->prepare('INSERT INTO composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)'); 
+    $reqrecreerplanoriginal = $bd->prepare('INSERT INTO c_composantvaisseau (idvaisseaucompo, iditemcomposant, typecomposant) VALUES (?, ?, ?)'); 
     $reqcomposantsurlevaisseau->execute(array($idvaisseau, '%'));
     while($repcomposantvaisseauoriginal = $reqcomposantsurlevaisseau->fetch())
       {
@@ -135,11 +135,11 @@ function modificationvaisseau($idvaisseau, $idjoueur, $lvljoueur, $typedepage)
     $reqrecreerplanoriginal->execute(array(-$idvaisseau, 0, 'rien'));
     if($typedepage == 1)
       {
-      header("Location: 00_vaisseau.php?message=".urlencode($_GET['message'])."&id=" . urlencode($_GET['id']));
+      header("Location: vaisseau.php?message=".urlencode($_GET['message'])."&id=" . urlencode($_GET['id']));
       }
     elseif($typedepage == 2)
       {
-      header("Location: 00_conception.php?message=".urlencode($_GET['message'])."&id=" . urlencode($_GET['id']));
+      header("Location: conception.php?message=".urlencode($_GET['message'])."&id=" . urlencode($_GET['id']));
       }
     exit; 
     }

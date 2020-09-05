@@ -1,7 +1,7 @@
 <?php
 function caracteristiquesvaisseau ($idvaisseau)
     {
-    require __DIR__ . '/../../include/BDDconnection.php';
+    require __DIR__ . '/../../include/bddconnection.php';
     $totalprixbien = 40;
     $totalprixtitane = 0;
     $capacitedesoute = 0;
@@ -10,12 +10,12 @@ function caracteristiquesvaisseau ($idvaisseau)
     $structure = -11;
     $vitesse = 1;
 
-    $reqinformationcomposant = $bdg ->prepare('
-      SELECT c.idcomposant, c.typebonus, c.totalbonus, c.HPcomposant, i.coutbien, i.couttitane, c.structure
-      FROM gamer.composantvaisseau cv
-      INNER JOIN datawebsite.composant c ON cv.iditemcomposant = c.idcomposant
-      INNER JOIN datawebsite.items i ON cv.iditemcomposant = i.iditem
-      WHERE cv.idvaisseaucompo = ?');
+    $reqinformationcomposant = $bd ->prepare('  SELECT c.idcomposant, c.typebonus, c.totalbonus, c.HPcomposant,
+                                                i.coutbien, i.couttitane, c.structure
+                                                FROM c_composantvaisseau cv
+                                                INNER JOIN a_composant c ON cv.iditemcomposant = c.idcomposant
+                                                INNER JOIN a_items i ON cv.iditemcomposant = i.iditem
+                                                WHERE cv.idvaisseaucompo = ?');
     $reqinformationcomposant->execute(array($idvaisseau));
     while ($repinformationcomposant = $reqinformationcomposant->fetch())
         {
@@ -45,17 +45,17 @@ function caracteristiquesvaisseau ($idvaisseau)
 
     if ($idvaisseau > 0) // On passe par cette partie seulement durant le tour normalement.
         {
-        $reqPVvaisseau = $bdg ->prepare('SELECT HPmaxvaisseau FROM vaisseau WHERE idvaisseau = ?');
+        $reqPVvaisseau = $bd ->prepare('SELECT HPmaxvaisseau FROM c_vaisseau WHERE idvaisseau = ?');
         $reqPVvaisseau->execute(array($idvaisseau));
         $repPVvaisseau = $reqPVvaisseau->fetch();
 
-        $requpdatedesignvaisseau = $bdg->prepare('UPDATE vaisseau SET biensvaisseau = ?, titanevaisseau = ?, vitesse = ?, capacitedesoute = ?, capaciteminage = ?, HPmaxvaisseau = ? WHERE idvaisseau = ?'); 
+        $requpdatedesignvaisseau = $bd->prepare('UPDATE c_vaisseau SET biensvaisseau = ?, titanevaisseau = ?, vitesse = ?, capacitedesoute = ?, capaciteminage = ?, HPmaxvaisseau = ? WHERE idvaisseau = ?'); 
         $requpdatedesignvaisseau->execute(array($totalprixbien, $totalprixtitane, $vitesse, $capacitedesoute, $capaciteminage, $HPvaisseau, $idvaisseau));
         
         if ($repPVvaisseau['HPmaxvaisseau'] != $HPvaisseau)
             {
             // echo 'On passe par la boucle permettant de changer les PV. PV max avant : '.$repPVvaisseau['HPmaxvaisseau'].'. PV max apres et appliques : '.$HPvaisseau.'.<br>';
-            $requpdatePVvaisseau = $bdg ->prepare('UPDATE vaisseau SET HPvaisseau = ? WHERE idvaisseau = ?');
+            $requpdatePVvaisseau = $bd->prepare('UPDATE c_vaisseau SET HPvaisseau = ? WHERE idvaisseau = ?');
             $requpdatePVvaisseau->execute(array($HPvaisseau, $idvaisseau));
             }
         }

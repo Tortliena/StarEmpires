@@ -1,15 +1,15 @@
 <?php
 /*
 session_start();
-require __DIR__ . '/../include/BDDconnection.php';
+require __DIR__ . '/../include/bddconnection.php';
 require __DIR__ . '/../tour/fonctionsdutour.php';
 */
 
-$reqcreerplanete = $bdg->prepare('INSERT INTO planete (
-    nomplanete, xplanete, yplanete, universplanete, idjoueurplanete,
-    biens, titane, taille, lune, organisation, efficacite, environnement)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?);');
-$reqcompterplanete = $bdg->prepare('SELECT COUNT(idplanete) AS nb FROM planete WHERE universplanete = ?');
+$reqplanete = $bd->prepare('SELECT idplanete FROM c_planete WHERE universplanete = ? AND xplanete = ? AND yplanete = ?');
+$reqcreerplanete = $bd->prepare('INSERT INTO c_planete( nomplanete, xplanete, yplanete, universplanete, idjoueurplanete,
+                                                        biens, titane, taille, lune, organisation, efficacite, environnement)
+                                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?);');
+$reqcompterplanete = $bd->prepare('SELECT COUNT(idplanete) AS nb FROM c_planete WHERE universplanete = ?');
 $reqcompterplanete->execute(array(-2));
 $repcompterplanete =$reqcompterplanete->fetch();
 if ($repcompterplanete['nb'] < 50 OR !isset($repcompterplanete['nb']))

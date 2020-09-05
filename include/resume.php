@@ -10,7 +10,7 @@ else
   $numspemessage = $_GET['id'];
   }
 
-$reqres = $bdg->prepare('SELECT message FROM messagetour WHERE idjoumess = ? AND domainemess = ? AND numspemessage = ?');
+$reqres = $bd->prepare('SELECT message FROM c_messagetour WHERE idjoumess = ? AND domainemess = ? AND numspemessage = ?');
 $reqres->execute(array($_SESSION['id'], $typemessage, $numspemessage));
 while ($repres = $reqres->fetch())
   {

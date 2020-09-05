@@ -1,10 +1,10 @@
 <?php
 function structurevaisseau($idvaisseau)
   { // Utiliser pour afficher au joueur la structure
-  require __DIR__ . '/../../include/BDDconnection.php';
+  require __DIR__ . '/../../include/bddconnection.php';
   $structure = 1;
-  $reqcomposantsurlevaisseau = $bdd->prepare("  SELECT structure FROM gamer.composantvaisseau cv
-                                                INNER JOIN composant c ON c.idcomposant = cv.iditemcomposant
+  $reqcomposantsurlevaisseau = $bd->prepare("  SELECT structure FROM c_composantvaisseau cv
+                                                INNER JOIN a_composant c ON c.idcomposant = cv.iditemcomposant
                                                 WHERE cv.idvaisseaucompo = ? AND c.typecomposant <> 'moteur'");
   $reqcomposantsurlevaisseau->execute(array($idvaisseau));
   while ($repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch())
@@ -12,8 +12,8 @@ function structurevaisseau($idvaisseau)
     $structure = $structure + $repcomposantsurlevaisseau['structure'];
     }
 
-  $reqmoteursurlevaisseau = $bdd->prepare(" SELECT structure FROM gamer.composantvaisseau cv
-                                            INNER JOIN composant c ON c.idcomposant = cv.iditemcomposant
+  $reqmoteursurlevaisseau = $bd->prepare("  SELECT structure FROM c_composantvaisseau cv
+                                            INNER JOIN a_composant c ON c.idcomposant = cv.iditemcomposant
                                             WHERE cv.idvaisseaucompo = ? AND c.typecomposant = 'moteur' ");
   $reqmoteursurlevaisseau->execute(array($idvaisseau));
   $repmoteursurlevaisseau = $reqmoteursurlevaisseau->fetch();

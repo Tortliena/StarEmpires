@@ -1,13 +1,13 @@
 <?php
 function consommercreeritemsplanetemultiple($iditemdepart, $iditemarrivee, $idplanete, $nbdefois)
   {
-  require __DIR__ . '/../include/BDDconnection.php';
+  require __DIR__ . '/../include/bddconnection.php';
   // Gestion silo :
-  $reqverifsilo = $bdg->prepare('SELECT quantite, idsilo FROM silo WHERE idplanetesilo = ? AND iditems = ?');
-  $reqcreersilo = $bdg->prepare('INSERT INTO silo (idplanetesilo, iditems, quantite) VALUES (?, ?, ?)');
-  $diminutionsilo = $bdg->prepare('UPDATE silo SET quantite = quantite - 1 WHERE idsilo = ?' );
-  $augmentersilo = $bdg->prepare('UPDATE silo SET quantite = quantite + 1 WHERE idsilo = ?' );
-  $reqsupprimersilo = $bdg->prepare('DELETE FROM silo WHERE idsilo = ?');
+  $reqverifsilo = $bd->prepare('SELECT quantite, idsilo FROM c_silo WHERE idplanetesilo = ? AND iditems = ?');
+  $reqcreersilo = $bd->prepare('INSERT INTO c_silo (idplanetesilo, iditems, quantite) VALUES (?, ?, ?)');
+  $diminutionsilo = $bd->prepare('UPDATE c_silo SET quantite = quantite - 1 WHERE idsilo = ?' );
+  $augmentersilo = $bd->prepare('UPDATE c_silo SET quantite = quantite + 1 WHERE idsilo = ?' );
+  $reqsupprimersilo = $bd->prepare('DELETE FROM c_silo WHERE idsilo = ?');
 
   for ($i = 1; $i <= $nbdefois; $i++)
     {

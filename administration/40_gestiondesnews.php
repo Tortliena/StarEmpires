@@ -1,7 +1,7 @@
 <?php
 if (isset($_GET["idnews"]))
   {
-  $reqnewsencours = $bda->prepare('SELECT * FROM news WHERE idnews = ?');
+  $reqnewsencours = $bd->prepare('SELECT * FROM b_news WHERE idnews = ?');
   $reqnewsencours->execute(array($_GET["idnews"]));
   $repnewsencours = $reqnewsencours->fetch();
   }

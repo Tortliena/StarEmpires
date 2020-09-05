@@ -1,15 +1,15 @@
 <?php
 /*
 session_start();
-require __DIR__ . '/../include/BDDconnection.php';
+require __DIR__ . '/../include/bddconnection.php';
 require __DIR__ . '/../tour/fonctionsdutour.php';
 */
 
-$reqcreerasteroides = $bda->prepare('INSERT INTO champsasteroides (xaste, yaste, uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)'); 
+$reqcreerasteroides = $bd->prepare('INSERT INTO c_champsasteroides (xaste, yaste, uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)'); 
 
-$reqquantiteasteroides = $bda->prepare('SELECT sum(quantite) as total FROM champsasteroides WHERE xaste	= ? AND yaste = ? AND uniaste = ? AND typeitemsaste = ?');
+$reqquantiteasteroides = $bd->prepare('SELECT sum(quantite) as total FROM c_champsasteroides WHERE xaste	= ? AND yaste = ? AND uniaste = ? AND typeitemsaste = ?');
 
-$reqinfoetoileneutrinos = $bdg->query('SELECT * FROM etoileneutrinos');
+$reqinfoetoileneutrinos = $bd->query('SELECT * FROM c_etoileneutrinos');
 while($repinfoetoileneutrinos = $reqinfoetoileneutrinos->fetch())
 	{
 	// Permet d'avoir la quantité d'astéroides présents autour de l'étoile pour en limiter le nombre.

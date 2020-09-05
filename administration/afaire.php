@@ -1,15 +1,7 @@
 <?php
-session_start();
-
-require __DIR__ . '/../include/BDDconnection.php';
-
-echo '<!DOCTYPE html><html><head><meta charset="utf-8" /><link rel="stylesheet" href="../style.css" /><title>Mon super site</title></head><body>';
-
-require __DIR__ . '/../include/menu.php'; ?>
-
-  <div class="corps">
-
-    <form method="post" action="script/ajouterafaire.php">
+include("../include/entete.php");
+?>
+<form method="post" action="script/ajouterafaire.php">
     <p>
         <input type="text" name="nouveauprojet" id="nouveauprojet" placeholder="nouveau projet" size="40" maxlength="127" />
         <select name="niveaudeprojet" id="niveaudeprojet">
@@ -26,7 +18,7 @@ require __DIR__ . '/../include/menu.php'; ?>
 
 <h2>En cours :</h2>
 <?php
-$reponse = $bda->prepare('SELECT texteafaire, idafaire FROM afaire WHERE priorite = ? ORDER BY idafaire');
+$reponse = $bd->prepare('SELECT texteafaire, idafaire FROM b_afaire WHERE priorite = ? ORDER BY idafaire');
 $reponse->execute(array('encours'));
 while ($donnees = $reponse->fetch())
   {

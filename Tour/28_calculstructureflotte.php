@@ -1,15 +1,15 @@
 <?php
 /*
 session_start();
-include("../include/BDDconnection.php");
+include("../include/bddconnection.php");
 include("../function/structurevaisseau.php");
 */
 
-$reqvaisseau = $bdg->prepare('SELECT idvaisseau FROM vaisseau WHERE idflottevaisseau = ?');
-$reqMAJflotte = $bdg->prepare('UPDATE flotte SET structuretotale = ? WHERE idflotte = ?');
+$reqvaisseau = $bd->prepare('SELECT idvaisseau FROM c_vaisseau WHERE idflottevaisseau = ?');
+$reqMAJflotte = $bd->prepare('UPDATE c_flotte SET structuretotale = ? WHERE idflotte = ?');
 
 
-$reqflotte = $bdg->query("SELECT idflotte FROM flotte");
+$reqflotte = $bd->query("SELECT idflotte FROM c_flotte");
 while($repflotte = $reqflotte->fetch())
   {
   $structureflotte = 0;

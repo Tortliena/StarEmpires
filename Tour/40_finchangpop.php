@@ -1,11 +1,11 @@
 <?php
 /*
 session_start();
-include("../script/BDDconnection.php");
+include("../script/bddconnection.php");
 */
 
-$reqselectpop = $bdg->prepare('SELECT typepoparrivee, idpop FROM population WHERE typepop = ?');
-$miseajourpop = $bdg->prepare("UPDATE population SET typepop = ? , typepoparrivee = ? WHERE idpop = ?");
+$reqselectpop = $bd->prepare('SELECT typepoparrivee, idpop FROM c_population WHERE typepop = ?');
+$miseajourpop = $bd->prepare("UPDATE c_population SET typepop = ? , typepoparrivee = ? WHERE idpop = ?");
 
 $reqselectpop->execute(array(0));
 while ($repselectpop = $reqselectpop->fetch())

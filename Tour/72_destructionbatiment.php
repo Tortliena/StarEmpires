@@ -1,16 +1,16 @@
 <?php
 /*
 session_start();
-include("../include/BDDconnection.php");
+include("../include/bddconnection.php");
 */
 
-$reqdetruireunbatiment = $bdg->prepare('DELETE FROM batiment WHERE typebat = ? AND idplanetebat = ? LIMIT 1');
+$reqdetruireunbatiment = $bd->prepare('DELETE FROM c_batiment WHERE typebat = ? AND idplanetebat = ? LIMIT 1');
 
-$reqdestruction = $bdg->query('SELECT idbatimentdestruction, idplanetedestruction FROM destruction');
+$reqdestruction = $bd->query('SELECT idbatimentdestruction, idplanetedestruction FROM c_destruction');
 while($repdestruction = $reqdestruction->fetch())
     {
     $reqdetruireunbatiment->execute(array($repdestruction['idbatimentdestruction'], $repdestruction['idplanetedestruction']));
     }
 
-$reqannulerdestruction = $bdg->query('DELETE FROM destruction');
+$reqannulerdestruction = $bd->query('DELETE FROM c_destruction');
 ?>

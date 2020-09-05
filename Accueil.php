@@ -1,36 +1,11 @@
 <?php
-session_start();
-include("include/bddconnection.php");
-
-if (isset($_COOKIE['id']) AND !isset($_SESSION['id']))
-  {
-  header('Location: Script/connection.php');
-  exit();
-  }
-
+include($_SERVER['DOCUMENT_ROOT'].'/include/entete.php');
 ?>
 
-<!DOCTYPE html>
-<html>
-    <head>
-          <meta charset="utf-8" />
-          <link rel="stylesheet" href="style.css" />
-          <title>Mon super site</title>
-	</head>
-
-    <body>
-	<header>
-    <!-- L'en-tête -->
-	<!-- Faire un entete sur une page à part ? -->
-    </header>
-
-<?php include("include/menu.php"); ?>
-
-<div class="corps">
 
 <h1>Bienvenue</h1>
 <!-- Soit message de bienvenue, soit un message d'erreur ici -->
-<?php include("include/message.php"); ?>
+<?php include("include/message.php");?>
 
 <h3>Connection :</h3>
 <form method="post" action="script/connection.php">

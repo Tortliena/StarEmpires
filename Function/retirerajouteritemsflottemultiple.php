@@ -1,24 +1,24 @@
 <?php
 function retirerajouteritemsflottemultiple($iditemretire, $iditemajoute, $idflotte, $nbdefois)
 	{
-	require __DIR__ . '/../include/BDDconnection.php';
+	require __DIR__ . '/../include/bddconnection.php';
 	// Gestion silo :
-	$reqverifcargo = $bdg->prepare('	SELECT c.quantiteitems, c.idcargovaisseau FROM cargovaisseau c
-										INNER JOIN vaisseau v ON v.idvaisseau = c.idvaisseaucargo
-										WHERE v.idflottevaisseau = ? AND c.typeitems = ? LIMIT 1');
+	$reqverifcargo = $bd->prepare('	SELECT c.quantiteitems, c.idcargovaisseau FROM cargovaisseau c
+									INNER JOIN c_vaisseau v ON v.idvaisseau = c.idvaisseaucargo
+									WHERE v.idflottevaisseau = ? AND c.typeitems = ? LIMIT 1');
 
-	$reqtrouveridcargo = $bdg->prepare('SELECT idcargovaisseau FROM cargovaisseau
+	$reqtrouveridcargo = $bd->prepare('	SELECT idcargovaisseau FROM c_cargovaisseau
 										WHERE idvaisseaucargo = ? AND typeitems = ? LIMIT 1');
 
-	$reqsupprimersilo = $bdg->prepare('DELETE FROM cargovaisseau WHERE idcargovaisseau = ?');
+	$reqsupprimersilo = $bd->prepare('DELETE FROM c_cargovaisseau WHERE idcargovaisseau = ?');
 
-	$reqcreercargo = $bdg->prepare('INSERT INTO cargovaisseau (idvaisseaucargo, typeitems, quantiteitems) VALUES (?, ?, ?)');
+	$reqcreercargo = $bd->prepare('INSERT INTO c_cargovaisseau (idvaisseaucargo, typeitems, quantiteitems) VALUES (?, ?, ?)');
 	
-	$augmentercargo = $bdg->prepare('UPDATE cargovaisseau SET quantiteitems = quantiteitems + 1 WHERE idcargovaisseau = ?' );
-	$diminutioncargo = $bdg->prepare('UPDATE cargovaisseau SET quantiteitems = quantiteitems - 1 WHERE idcargovaisseau = ?' );
+	$augmentercargo = $bd->prepare('UPDATE c_cargovaisseau SET quantiteitems = quantiteitems + 1 WHERE idcargovaisseau = ?' );
+	$diminutioncargo = $bd->prepare('UPDATE c_cargovaisseau SET quantiteitems = quantiteitems - 1 WHERE idcargovaisseau = ?' );
 
-	$reqcomptersoute = $bdg->prepare('	SELECT v.capacitedesoute, SUM(c.quantiteitems) AS nb, v.idvaisseau 
-										FROM vaisseau v LEFT JOIN cargovaisseau c ON v.idvaisseau = c.idvaisseaucargo
+	$reqcomptersoute = $bd->prepare('	SELECT v.capacitedesoute, SUM(c.quantiteitems) AS nb, v.idvaisseau 
+										FROM c_vaisseau v LEFT JOIN c_cargovaisseau c ON v.idvaisseau = c.idvaisseaucargo
 										WHERE v.idflottevaisseau = ?
 										GROUP BY v.idvaisseau');	
 

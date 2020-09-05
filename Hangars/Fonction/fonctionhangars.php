@@ -14,6 +14,9 @@ function formulaireordredeplacement($typeordre, $idflotte, $texteexplication, $v
       $texteexplication = 'Un monde habité se trouve à proximité. ';
       $textevalidation = 'Envahir';
     break;
+    case 4:
+      $textevalidation = 'Terraformer';
+    break;
     case 5:
       $textevalidation = 'Attaquer';
     break;
@@ -57,6 +60,9 @@ function annulerordrededeplacement($typeordre, $idflotte, $xdest, $ydest, $bloqu
       break;
       case 3:
         $messageannulerdeplacement = 'Vous avez ordonné à votre flotte d\'envahir une planète. Reste '.$ydest.' tours avant réussite.';
+      break;
+      case 4:
+        $messageannulerdeplacement = 'Vous avez ordonné à votre flotte de terraformer une planète.';
       break;
       case 5:
         $messageannulerdeplacement = 'Vous allez attaquer une autre flotte. ';

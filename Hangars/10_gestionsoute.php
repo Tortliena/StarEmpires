@@ -1,12 +1,12 @@
 <?php
 $a = 0; // Variable permettant de gérer le cas avec un ou plusieurs composants en stock + gére le cas du remplissage des soutes.
 // Requête pour compter le nombre d'item.
-$reqverifcargo = $bdg->prepare("	SELECT SUM(c.quantiteitems) AS nb, i.nombatiment, i.iditem
-					                FROM cargovaisseau c   
-					                INNER JOIN datawebsite.items i ON i.iditem = c.typeitems
-					                INNER JOIN vaisseau v ON v.idvaisseau = c.idvaisseaucargo   
-					                WHERE v.idflottevaisseau = ?
-					                GROUP BY i.iditem");
+$reqverifcargo = $bd->prepare("	SELECT SUM(c.quantiteitems) AS nb, i.nombatiment, i.iditem
+								FROM c_cargovaisseau c   
+								INNER JOIN a_items i ON i.iditem = c.typeitems
+								INNER JOIN c_vaisseau v ON v.idvaisseau = c.idvaisseaucargo   
+								WHERE v.idflottevaisseau = ?
+								GROUP BY i.iditem");
 $reqverifcargo ->execute(array($_GET['id']));
 while ($repverifcargo  = $reqverifcargo ->fetch())
 	{
@@ -56,9 +56,9 @@ else
     }
 
 $a = 0;
-$reqverifsilo = $bdg->prepare("	SELECT s.iditems, s.quantite, i.nombatiment
-				                FROM silo s
-				                INNER JOIN datawebsite.items i ON i.iditem = s.iditems  
+$reqverifsilo = $bd->prepare("	SELECT s.iditems, s.quantite, i.nombatiment
+				                FROM c_silo s
+				                INNER JOIN a_items i ON i.iditem = s.iditems  
 				                WHERE s.idplanetesilo = ? and i.typeitem = ?");
 $reqverifsilo ->execute(array($repplanete2['idplanete'], 'produit'));
 while ($repverifsilo  = $reqverifsilo ->fetch())

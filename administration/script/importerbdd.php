@@ -1,23 +1,9 @@
 <?php 
 session_start();
-require __DIR__ . '/../../include/BDDconnection.php';
+require __DIR__ . '/../../include/bddconnection.php';
 
-if ($_GET['table'] == 'autre')
-	{
-	define("DB_NAME", 'autre');
-	define("BACKUP_FILE", 'autre.sql');
-	}
-elseif ($_GET['table'] == 'gamer')
-	{
-	define("DB_NAME", 'gamer');
-	define("BACKUP_FILE", 'gamer.sql');
-	}
-elseif ($_GET['table'] == 'datawebsite')
-	{
-	define("DB_NAME", 'datawebsite');
-	define("BACKUP_FILE", 'datawebsite.sql');
-	}
-
+define("DB_NAME", 'kaien_starsempire');
+define("BACKUP_FILE", 'kaien_starsempire.sql');
 define("DB_USER", 'root');
 define("DB_PASSWORD", 'root');
 define("DB_HOST", 'localhost');
@@ -237,16 +223,5 @@ if (php_sapi_name() != "cli") {
     echo '</div>';
 }
 
-if ($_GET['table'] == 'autre')
-	{
-	echo '<a class ="lienmenu" href="importerbdd.php?table=gamer">Continuer</a></br>';
-	}
-elseif ($_GET['table'] == 'gamer')
-	{
-	echo '<a class ="lienmenu" href="importerbdd.php?table=datawebsite">Continuer</a></br>';
-	}
-elseif ($_GET['table'] == 'datawebsite')
-	{
-	echo '<a class ="lienmenu" href="../Administration.php">Retour à l\'administration</a></br>';
-	}
+echo '<a class ="lienmenu" href="../administration.php">Retour à l\'administration</a></br>';
 ?>

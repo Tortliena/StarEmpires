@@ -18,9 +18,9 @@ if ($repplanete['neutrinos']>0)
   echo '<td class="siloquantite">'.$repplanete['neutrinos'].'</td>';
   echo '<td class="silodescription">Vous avez réussi à extraire des neutrinos pour en faire un matériaux capable de rejeter une grande quantité d\'énergie au besoin.</td></tr>';
   }
-$reqSiloItems = $bdd->prepare(' SELECT s.quantite, i.description, i.nombatiment
-                                FROM gamer.silo s
-                                INNER JOIN items i
+$reqSiloItems = $bd->prepare(' SELECT s.quantite, i.description, i.nombatiment
+                                FROM c_silo s
+                                INNER JOIN a_items i
                                 ON i.iditem = s.iditems
                                 WHERE s.idplanetesilo = ?');
 $reqSiloItems->execute(array($_GET['id']));

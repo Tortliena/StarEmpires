@@ -1,6 +1,6 @@
 <?php
 session_start();
-require __DIR__ . '/../include/BDDconnection.php';
+require __DIR__ . '/../include/bddconnection.php';
 
 /*
 echo $_SESSION['id'] .' id du joueur <br>' ;
@@ -32,8 +32,9 @@ if (empty($_POST['nouveaunom']))
 
 if ($_POST['type'] == 'flotte')
 	{
-	$trouverflotte = $bdg->prepare('SELECT f.idflotte FROM flotte f INNER JOIN planete p ON p.idplanete = f.idplaneteflotte OR p.idplanete = -f.idplaneteflotte 
-		WHERE f.idflotte = ? AND p.idjoueurplanete = ?');
+	$trouverflotte = $bd->prepare('	SELECT f.idflotte FROM c_flotte f
+									INNER JOIN c_planete p ON p.idplanete = f.idplaneteflotte OR p.idplanete = -f.idplaneteflotte 
+									WHERE f.idflotte = ? AND p.idjoueurplanete = ?');
 	$trouverflotte->execute(array($_POST['id'], $_SESSION['id']));
 	$flotte = $trouverflotte->fetch();
 	// Si aucun résultat, alors on a pas de ''$flotte'', donc on fait pas la requete de renommage donc on arrive à la fin du script.
@@ -41,7 +42,7 @@ if ($_POST['type'] == 'flotte')
 
 	if (isset($flotte[0]))
 		{
-		$renommerflotte = $bdg->prepare('UPDATE flotte SET nomflotte = ? WHERE idflotte = ?' );
+		$renommerflotte = $bd->prepare('UPDATE c_flotte SET nomflotte = ? WHERE idflotte = ?' );
 		$renommerflotte->execute(array($_POST['nouveaunom'], $_POST['id']));
 
 		header("location: ../hangars.php?message=26&id=" . urlencode($_POST['id']));
@@ -53,23 +54,23 @@ if ($_POST['type'] == 'flotte')
 elseif ($_POST['type'] == 'vaisseau')
 	{
 	// Cas d'un vaisseau réel : 
-	$reqvaisseau = $bdg->prepare('	SELECT p.idjoueurplanete
-									FROM vaisseau v
-									INNER JOIN flotte f ON v.idflottevaisseau = f.idflotte
-									INNER JOIN planete p ON f.idplaneteflotte = p.idplanete OR -f.idplaneteflotte = p.idplanete
+	$reqvaisseau = $bd->prepare('	SELECT p.idjoueurplanete
+									FROM c_vaisseau v
+									INNER JOIN c_flotte f ON v.idflottevaisseau = f.idflotte
+									INNER JOIN c_planete p ON f.idplaneteflotte = p.idplanete OR -f.idplaneteflotte = p.idplanete
 									WHERE v.idvaisseau = ?');
 	$reqvaisseau->execute(array($_POST['id']));   
 	$repvaisseau = $reqvaisseau->fetch();
 
 	// Cas d'un plan : 
-	$reqvaisseauplan = $bdg->prepare('SELECT idflottevaisseau FROM vaisseau v WHERE idvaisseau = ?');
+	$reqvaisseauplan = $bd->prepare('SELECT idflottevaisseau FROM c_vaisseau v WHERE idvaisseau = ?');
 	$reqvaisseauplan->execute(array($_POST['id']));   
 	$repvaisseauplan = $reqvaisseauplan->fetch();
 
 	if ($repvaisseau['idjoueurplanete'] != $_SESSION['id'] AND -$repvaisseauplan['idflottevaisseau'] != $_SESSION['id'])   // Vérification du possesseur du vaisseau. Si pas bon = dégage vers l'acceuil.
 		{ header("location: ../accueil.php?message=31"); exit(); }   
 
-	$renommervaisseau = $bdg->prepare('UPDATE vaisseau SET nomvaisseau = ? WHERE idvaisseau = ?' );
+	$renommervaisseau = $bd->prepare('UPDATE c_vaisseau SET nomvaisseau = ? WHERE idvaisseau = ?' );
 	$renommervaisseau->execute(array($_POST['nouveaunom'], $_POST['id']));
 
 	if ($repvaisseau['idjoueurplanete'] == $_SESSION['id'])
@@ -87,7 +88,7 @@ elseif ($_POST['type'] == 'vaisseau')
 
 elseif ($_POST['type'] == 'planete')
 	{
-	$renommerplanete = $bdg->prepare('UPDATE planete SET nomplanete = ? WHERE idplanete = ? AND idjoueurplanete = ?' );
+	$renommerplanete = $bd->prepare('UPDATE c_planete SET nomplanete = ? WHERE idplanete = ? AND idjoueurplanete = ?' );
 	$renommerplanete->execute(array($_POST['nouveaunom'] , $_POST['id'], $_SESSION['id']));
 	header("location: ../planete.php?message=26&id=" . urlencode($_POST['id']));
 	exit();

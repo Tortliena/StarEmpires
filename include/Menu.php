@@ -3,7 +3,7 @@
 require __DIR__ . '/../hangars/fonction/flotte.php';
 
 // Affichage du tour en cours : 
-$reponse = $bda->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1');
+$reponse = $bd->query('SELECT id FROM c_tour ORDER BY id DESC LIMIT 1');
 $touractuel = $reponse->fetch();
 $reponse->closeCursor(); 
 echo 'Tour '.$touractuel['id'].'</br>' ; 
@@ -11,25 +11,25 @@ echo 'Tour '.$touractuel['id'].'</br>' ;
 // Partie non connectée
 if (!isset($_SESSION['pseudo'])) 
 	{
-	echo '<a class ="lienmenu" href="/starempires/accueil.php">Accueil</a>' ;
+	echo '<a class ="lienmenu" href="/accueil.php">Accueil</a>' ;
 	}
 
 // Partie connectée
 else
 	{
 	// récupérer le niveau du joueur.
-   	$reqlvl = $bdg->prepare('SELECT lvl, creditgalactique, niveauadmin from utilisateurs WHERE id= ?');
+   	$reqlvl = $bd->prepare('SELECT lvl, creditgalactique, niveauadmin from c_utilisateurs WHERE id= ?');
     $reqlvl->execute(array($_SESSION['id']));
     $replvl = $reqlvl->fetch();
     echo 'Logging : ' . $_SESSION['pseudo'] . ' </br> ';
-    echo '<a class ="lienmenu" href="/starempires/script/deconnection.php">Déconnection</a></br>';
-    echo '<a class ="lienmenu" href="/starempires/Messagerie.php">Messagerie</br>';
+    echo '<a class ="lienmenu" href="/script/deconnection.php">Déconnection</a></br>';
+    echo '<a class ="lienmenu" href="/messagerie.php">Messagerie</br>';
 
-    $reqmessnonlu = $bdg->prepare('SELECT COUNT(*) AS nbmessnonlu FROM messagerie WHERE idjoueurrecepteur = ? AND lu = ? AND supprimerecepteur = ?');
+    $reqmessnonlu = $bd->prepare('SELECT COUNT(*) AS nbmessnonlu FROM c_messagerie WHERE idjoueurrecepteur = ? AND lu = ? AND supprimerecepteur = ?');
     $reqmessnonlu->execute(array($_SESSION['id'], 0, 0));
     $repmessnonlu = $reqmessnonlu->fetch();
 
-    $reqmessnonluinterne = $bdg->prepare('SELECT COUNT(*) AS reqmessnonluinterne FROM messagerieinterne WHERE destinataire = ? AND lu = ?');
+    $reqmessnonluinterne = $bd->prepare('SELECT COUNT(*) AS reqmessnonluinterne FROM c_messagerieinterne WHERE destinataire = ? AND lu = ?');
     $reqmessnonluinterne->execute(array($_SESSION['id'], 0));
     $repmessnonluinterne  = $reqmessnonluinterne->fetch();
 
@@ -40,26 +40,26 @@ else
         }
     echo '</a></br>';
         
-    echo '<a class ="lienmenu"  href="/starempires/Capitale.php">Capitale</a> </br>';
+    echo '<a class ="lienmenu"  href="/capitale.php">Capitale</a> </br>';
 	if ($replvl['lvl'] > 1)
         {
-        echo '<a class ="lienmenu" href="/starempires/Recherche.php">Recherche</a></br>';
+        echo '<a class ="lienmenu" href="/recherche.php">Recherche</a></br>';
 	    }
 
 	if ($replvl['lvl'] > 6) 
         {
-        echo '<a class ="lienmenu" href="/starempires/Conception_vaisseau/00_Conception.php">Conception</a></br>';
+        echo '<a class ="lienmenu" href="/conception_vaisseau/conception.php">Conception</a></br>';
         }
 
  	echo '</br><span class = "titremenu">Planètes</span></br>';
     
-    $reqflotte = $bdg->prepare('SELECT idflotte, nomflotte, typeordre FROM flotte  WHERE idplaneteflotte = ? ORDER BY idflotte');
-    $reqplanete = $bdg->prepare('SELECT nomplanete, idplanete FROM planete WHERE idjoueurplanete = ? ORDER BY idplanete');
+    $reqflotte = $bd->prepare('SELECT idflotte, nomflotte, typeordre FROM c_flotte  WHERE idplaneteflotte = ? ORDER BY idflotte');
+    $reqplanete = $bd->prepare('SELECT nomplanete, idplanete FROM c_planete WHERE idjoueurplanete = ? ORDER BY idplanete');
     
     $reqplanete->execute(array($_SESSION['id']));
     while ($repplanete = $reqplanete->fetch())
         {
-        echo '<a class ="lienmenu" href="/starempires/planete/00_planete.php?id=' . $repplanete['idplanete'] . '">' . $repplanete['nomplanete'] . '</a></br>';
+        echo '<a class ="lienmenu" href="/planete/planete.php?id=' . $repplanete['idplanete'] . '">' . $repplanete['nomplanete'] . '</a></br>';
        
         $ecrirehangars = 1 ;
         $reqflotte->execute(array($repplanete['idplanete']));
@@ -70,7 +70,7 @@ else
                 if ($ecrirehangars == 1) {echo '</br><span class = "titremenu">Hangars</span></br>' ; }
                     $ecrirehangars = 2 ;
                 
-                echo '<a class ="lienmenu" href="/starempires/hangars/00_hangars.php?id=' . $repflotte['idflotte'] . '">' . $repflotte['nomflotte'] . '</a></br>';
+                echo '<a class ="lienmenu" href="/hangars/hangars.php?id=' . $repflotte['idflotte'] . '">' . $repflotte['nomflotte'] . '</a></br>';
 
                 switch ($repflotte['typeordre'])
                     {
@@ -89,7 +89,11 @@ else
                     case 3:
                     echo "Invasion";
                     break;
-                                  
+                    
+                    case 4:
+                        echo "Terraformation";
+                    break;
+                                       
                     case 5:
                     echo "BATAILLE";
                     break;
@@ -118,17 +122,18 @@ else
 ?>
 
 <!-- Passer le tour manuellement -->
-<form action="/starempires/tour/00_Gestionglobale.php">
+<form action="/tour/gestionglobale.php">
 <p>
 <input type="submit" value="Passer le tour" />
 </p>
 </form>
-<b><a class ="lienmenu" href="/starempires/administration/Administration.php">Admin</a></b></br> </br>
-<a class ="lienmenu" href="/starempires/tour/test.php">test du tour</a> </br> 
-<a class ="lienmenu" href="/starempires/test.php?id=1">test de page</a> </br>
-<a class ="lienmenu" href="/starempires/script/test.php?table=autre&amp;backup=non">test de script</a> </br>
-<a class ="lienmenu" href="/starempires/administration/afaire.php">À faire</a> </br> </br>
-<a class ="lienmenu" href="/starempires/forum/index.php">Forum</a></br>
+<b><a class ="lienmenu" href="/administration/administration.php">Admin</a></b></br> </br>
+<!--
+<a class ="lienmenu" href="/tour/test.php">test du tour</a> </br> 
+<a class ="lienmenu" href="/test.php?id=1">test de page</a> </br>
+<a class ="lienmenu" href="/script/test.php?table=autre&amp;backup=non">test de script</a> </br>-->
+<a class ="lienmenu" href="/administration/afaire.php">À faire</a> </br> </br>
+<!--<a class ="lienmenu" href="/forum/index.php">Forum</a></br>-->
 
 </div>    
 </nav>

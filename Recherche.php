@@ -1,35 +1,17 @@
 <?php
-session_start();
-if (!$_SESSION['pseudo'])
-	{
-    header('Location: Accueil.php');
-    exit();
-	}
-include("include/BDDconnection.php");
-?>
+include("include/entete.php");
 
-<!DOCTYPE html>
-<html><head><meta charset="utf-8" /><link rel="stylesheet" href="style.css" /><title>Mon super site</title></head><body>
+echo '<h1>RECHERCHE</h1>';
 
-<?php include("include/menu.php"); ?>
-
-<div class="corps">
-<h1>RECHERCHE</h1>
-<?php
 include("include/message.php") ; 
 $typemessage = 'recherche' ;
 include("include/resume.php");
 
 // Afficher la recherche en cours !
-$reqrecherencours = $bdd->prepare("
-      SELECT recherche.nomrecherche 
-      FROM recherche
-      INNER JOIN gamer.rech_joueur
-      ON recherche.idrecherche = rech_joueur.idrech
-      AND rech_joueur.rechposs = 0
-      AND rech_joueur.idjoueurrecherche = ?
-      ORDER BY rech_joueur.ordrerecherche ASC
-      LIMIT 1 ");
+$reqrecherencours = $bd->prepare("	SELECT r.nomrecherche FROM a_recherche r
+      								INNER JOIN c_rech_joueur rj ON r.idrecherche = rj.idrech
+      								WHERE rj.rechposs = 0 AND rj.idjoueurrecherche = ?
+      								ORDER BY rj.ordrerecherche ASC LIMIT 1 ");
 $reqrecherencours->execute(array($_SESSION['id']));
 $reprecherencours = $reqrecherencours->fetch() ; 
     
@@ -45,11 +27,11 @@ else
 echo '<h2>Recherches possibles :</h2>';
 
 // Recherche actuelle : Permet d'évaluer la difficulté d'une recherche plus loin.
-$afficherrecherche = $bdg->prepare('SELECT recherche FROM utilisateurs WHERE id = ?');
+$afficherrecherche = $bd->prepare('SELECT recherche FROM c_utilisateurs WHERE id = ?');
 $afficherrecherche->execute(array($_SESSION['id']));
 $recherche = $afficherrecherche->fetch();
 
-$reqrechercheencours = $bdd->prepare("SELECT * FROM recherche INNER JOIN gamer.rech_joueur ON recherche.idrecherche = rech_joueur.idrech WHERE rech_joueur.idjoueurrecherche = ? AND rech_joueur.rechposs = 0 ORDER BY rech_joueur.ordrerecherche ASC");
+$reqrechercheencours = $bd->prepare("SELECT * FROM a_recherche r INNER JOIN c_rech_joueur rj ON r.idrecherche = rj.idrech WHERE rj.idjoueurrecherche = ? AND rj.rechposs = 0 ORDER BY rj.ordrerecherche ASC");
 $reqrechercheencours->execute(array($_SESSION['id']));
 while ($reprechercheencours = $reqrechercheencours->fetch())
 	{
@@ -94,9 +76,9 @@ while ($reprechercheencours = $reqrechercheencours->fetch())
 $reqrechercheencours->closeCursor();
 echo '<h2>Recherches finies :</h2>';
 
-$reqrecherchefinie = $bdd->prepare("  SELECT r.nomrecherche , r.descriptionrecherche
-                                      FROM recherche AS r
-                                      INNER JOIN gamer.rech_joueur AS rj
+$reqrecherchefinie = $bd->prepare("  SELECT r.nomrecherche , r.descriptionrecherche
+                                      FROM a_recherche AS r
+                                      INNER JOIN c_rech_joueur AS rj
                                       ON r.idrecherche = rj.idrech
                                       WHERE rj.idjoueurrecherche = ?
                                       AND rj.rechposs = 1");

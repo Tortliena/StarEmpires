@@ -1,11 +1,11 @@
 <?php
 session_start();
-include("../include/BDDconnection.php");
+include("../include/bddconnection.php");
 
 if (isset($_COOKIE['id']) AND !isset($_SESSION['id']))
     {
     $_POST['pass'] = $_COOKIE['pass'];
-    $req = $bdg->prepare('SELECT motdepasse, id, pseudo FROM utilisateurs WHERE id = ?');
+    $req = $bd->prepare('SELECT motdepasse, id, pseudo FROM c_utilisateurs WHERE id = ?');
     $req->execute(array($_COOKIE['id']));
     $resultat = $req->fetch();
     goto a;
@@ -15,7 +15,7 @@ setcookie("id", 0, time(), "/");
 setcookie("pass", 0, time(), "/");
 
 //  Récupération de l'utilisateur et de son pass hashé
-$req = $bdg->prepare('SELECT motdepasse, id, pseudo FROM utilisateurs WHERE pseudo = ?');
+$req = $bd->prepare('SELECT motdepasse, id, pseudo FROM c_utilisateurs WHERE pseudo = ?');
 $req->execute(array($_POST["pseudo"]));
 $resultat = $req->fetch();
 a: // On arrive ici si on a déjà des cookies.
@@ -39,35 +39,34 @@ $isPasswordCorrect = password_verify($_POST['pass'], $resultat['motdepasse']);
 
 // Cas ou l'on a pas entré un pseudo existant.
 if (!$resultat)
-{
+    {
     header('Location: ../accueil.php?message=7');
     exit();
-}
+    }
 
-// Cas ou l'on a a bien entré le pseudo et le mdp.
+// Un pseudo existe tel que rentré.
 else
-{
-    if ($isPasswordCorrect)
     {
+    if ($isPasswordCorrect)
+        {
         $_SESSION['pseudo'] = $resultat["pseudo"];
         $_SESSION['id'] = $resultat['id'];
         if (isset($_POST["cookie"]))
-        {
+            {
             echo 'boucle de cookie </br>' ;
             setcookie("id", $_SESSION['id'], time() + (86400 * 30), "/");
             setcookie("pass", $_POST['pass'], time() + (86400 * 30), "/");
-        }
+            }
         header('Location: ../capitale.php');
         exit();
+        } 
+    else // Le pseudo existe, mais le mot de passe ne colle pas.
+        {
+        setcookie("id", 0, time(), "/");
+        setcookie("pass", 0, time(), "/");
+        header('Location: ../accueil.php?message=6');
+        exit();
+        }
     }
-
-// Le pseudo existe, mais le mot de passe ne colle pas.
-    else {
-    setcookie("id", 0, time(), "/");
-    setcookie("pass", 0, time(), "/");
-    header('Location: ../accueil.php?message=6');
-    exit();
-    }
-}
 
 ?>

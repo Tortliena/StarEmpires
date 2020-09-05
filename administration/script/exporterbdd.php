@@ -1,19 +1,6 @@
 <?php 
 session_start();
-require __DIR__ . '/../../include/BDDconnection.php';
-
-if ($_GET['table'] == 'autre')
-    {
-    define("DB_NAME", 'autre');
-    }
-elseif ($_GET['table'] == 'gamer')
-    {
-    define("DB_NAME", 'gamer');
-    }
-elseif ($_GET['table'] == 'datawebsite')
-    {
-    define("DB_NAME", 'datawebsite');
-    }
+require __DIR__ . '/../../include/bddconnection.php';
 
 if ($_GET['backup'] == 'non')
     {
@@ -24,12 +11,45 @@ elseif ($_GET['backup'] == 'oui')
     define("BACKUP_DIR", '../bddbackup/');
     }
 
+// Code permettant de choisir les tables à exporter.
+if ($_GET['table'] == 'univers')
+    {
+    $reqtexteniveau = $bd->prepare("SELECT TABLE_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE CONSTRAINT_SCHEMA = 'kaien_starsempire' AND TABLE_NAME LIKE 'c%'"); 
+    }
+elseif ($_GET['table'] == 'news')
+    {
+    $reqtexteniveau = $bd->prepare("SELECT TABLE_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE CONSTRAINT_SCHEMA = 'kaien_starsempire' AND TABLE_NAME LIKE 'b%'"); 
+    }
+elseif ($_GET['table'] == 'datasite')
+    {
+    $reqtexteniveau = $bd->prepare("SELECT TABLE_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE CONSTRAINT_SCHEMA = 'kaien_starsempire' AND TABLE_NAME LIKE 'a%'"); 
+    }
+else
+    {
+    $reqtexteniveau = $bd->prepare("SELECT TABLE_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE CONSTRAINT_SCHEMA = 'kaien_starsempire'"); 
+    }
+$a = 0;
+$reqtexteniveau->execute(); 
+while($reptexteniveau = $reqtexteniveau->fetch())
+    {
+    if ($a == 0)
+    {
+    $nomsdestables = $reptexteniveau['TABLE_NAME'];
+    }
+    else
+    {
+    $nomsdestables .= ', '.$reptexteniveau['TABLE_NAME'];
+    }
+    $a++;
+    }
+
 // Source du script : http://www.iamrohit.in/simple-backup-restore-mysql-database-via-php-script/
 
 define("DB_USER", 'root');
 define("DB_PASSWORD", 'root');
+define("DB_NAME", 'kaien_starsempire');
 define("DB_HOST", 'localhost');
-define("TABLES", '*');
+define("TABLES", $nomsdestables);
 define("CHARSET", 'utf8');
 define("GZIP_BACKUP_FILE", false);
 define("DISABLE_FOREIGN_KEY_CHECKS", true);
@@ -320,29 +340,13 @@ if (php_sapi_name() != "cli")
     echo '</div>';
     }
 
-if ($_GET['table'] == 'autre' AND $_GET['backup'] == 'non')
+if ($_GET['backup'] == 'non')
     {
-    echo '<a class ="lienmenu" href="exporterbdd.php?table=gamer&amp;backup=non">Continuer1</a></br>';
-    }
-elseif ($_GET['table'] == 'gamer' AND $_GET['backup'] == 'non')
-    {
-    echo '<a class ="lienmenu" href="exporterbdd.php?table=datawebsite&amp;backup=non">Continuer2</a></br>';
-    }
-elseif ($_GET['table'] == 'datawebsite' AND $_GET['backup'] == 'non')
-    {
-    echo '<a class ="lienmenu" href="../Administration.php">Retour à l\'administration</a></br></br>';
+    echo '<a class ="lienmenu" href="../administration.php">Retour à l\'administration</a></br></br>';
     echo '<a class ="lienmenu" href="exporterbdd.php?table=autre&amp;backup=oui">Faire un backup</a></br>';
-    }
-elseif ($_GET['table'] == 'autre' AND $_GET['backup'] == 'oui')
-    {
-    echo '<a class ="lienmenu" href="exporterbdd.php?table=gamer&amp;backup=oui">Continuer3</a></br>';
-    }
-elseif ($_GET['table'] == 'gamer' AND $_GET['backup'] == 'oui')
-    {
-    echo '<a class ="lienmenu" href="exporterbdd.php?table=datawebsite&amp;backup=oui">Continuer4</a></br>';
     }
 else
     {
-    echo '<a class ="lienmenu" href="../Administration.php">Retour à l\'administration</a></br></br>';
+    echo '<a class ="lienmenu" href="../administration.php">Retour à l\'administration</a></br></br>';
     }
 ?>

@@ -1,73 +1,73 @@
 <?php 
 /* 
 session_start(); 
-include("../include/BDDconnection.php"); 
+include("../include/bddconnection.php"); 
 include("fonctionsdutour.php"); 
 */ 
  
-$reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)'); 
+$reqmessageinterne = $bd->prepare('INSERT INTO c_messagerieinterne(expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)'); 
  
 // Pour lvl 1 à 2 
-$reqcountpop = $bdg->prepare('SELECT    sum(case when po.typepop = ? then 1 else 0 end) AS nb 
-                                        FROM population AS po 
-                                        INNER JOIN planete AS pl ON po.idplanetepop = pl.idplanete 
-                                        WHERE pl.idjoueurplanete = ?');
+$reqcountpop = $bd->prepare(' SELECT sum(case when po.typepop = ? then 1 else 0 end) AS nb 
+                              FROM c_population AS po 
+                              INNER JOIN c_planete AS pl ON po.idplanetepop = pl.idplanete 
+                              WHERE pl.idjoueurplanete = ?');
 
 // Pour lvl 2 à 3 
-$reqrechechemoteur = $bdg->prepare('SELECT COUNT(*) AS nb FROM rech_joueur WHERE idjoueurrecherche = ? AND rechposs = 1'); 
+$reqrechechemoteur = $bd->prepare('SELECT COUNT(*) AS nb FROM c_rech_joueur WHERE idjoueurrecherche = ? AND rechposs = 1'); 
  
 // Pour lvl 3 à 4
-$reqvaisseausorti = $bdg->prepare(' SELECT COUNT(*) AS nb
-                                    FROM flotte f
-                                    INNER JOIN planete p ON p.idplanete = f.idplaneteflotte
+$reqvaisseausorti = $bd->prepare('  SELECT COUNT(*) AS nb
+                                    FROM c_flotte f
+                                    INNER JOIN c_planete p ON p.idplanete = f.idplaneteflotte
                                     WHERE idjoueurplanete = ?'); 
  
 // Pour lvl 4 à 5
-$reqcompterexplo = $bdg->prepare('SELECT COUNT(*) AS nb FROM explore WHERE idexplorateur = ?') ;
+$reqcompterexplo = $bd->prepare('SELECT COUNT(*) AS nb FROM c_explore WHERE idexplorateur = ?') ;
 
 // Pour lvl 5 à 6 
-$reqpvperdusurunvaisseau = $bdg->prepare("  SELECT idvaisseau
-                                            FROM vaisseau v
+$reqpvperdusurunvaisseau = $bd->prepare("   SELECT idvaisseau
+                                            FROM c_vaisseau v
                                             INNER JOIN flotte f ON f.idflotte = v.idflottevaisseau
                                             INNER JOIN planete p ON p.idplanete = f.idplaneteflotte
                                             WHERE HPmaxvaisseau <> HPvaisseau AND  idjoueurplanete = ?"); 
 
 // Pour lvl 6 à 7 
-$reqcomptersilo = $bdg->prepare(' SELECT COUNT(*) AS nb FROM silo s
-                                  INNER JOIN planete p ON p.idplanete = s.idplanetesilo
+$reqcomptersilo = $bd->prepare('  SELECT COUNT(*) AS nb FROM c_silo s
+                                  INNER JOIN c_planete p ON p.idplanete = s.idplanetesilo
                                   WHERE p.idjoueurplanete = ?'); 
 
 // Pour lvl 7 à 8 
-$reqcomposantsurlevaisseau = $bdg->prepare("SELECT COUNT(*) AS nb  
-                                            FROM gamer.composantvaisseau c 
-                                            INNER JOIN vaisseau v ON v.idvaisseau = c.idvaisseaucompo
-                                            INNER JOIN flotte f ON f.idflotte = v.idflottevaisseau
-                                            INNER JOIN planete p ON p.idplanete = f.idplaneteflotte
+$reqcomposantsurlevaisseau = $bd->prepare(" SELECT COUNT(*) AS nb  
+                                            FROM c_composantvaisseau c 
+                                            INNER JOIN c_vaisseau v ON v.idvaisseau = c.idvaisseaucompo
+                                            INNER JOIN c_flotte f ON f.idflotte = v.idflottevaisseau
+                                            INNER JOIN c_planete p ON p.idplanete = f.idplaneteflotte
                                             WHERE p.idjoueurplanete = ?"); 
   
 // Pour lvl 8 à 9 
-$reqcompterplanete = $bdg->prepare('SELECT COUNT(*) AS nb FROM planete WHERE idjoueurplanete = ?');
+$reqcompterplanete = $bd->prepare('SELECT COUNT(*) AS nb FROM c_planete WHERE idjoueurplanete = ?');
  
 // Pour lvl 9 à 10 : 
-$reqepavedetruite = $bdg->prepare('SELECT COUNT(*) AS nb FROM flotte WHERE idplaneteflotte = 0 AND universflotte = ?'); 
+$reqepavedetruite = $bd->prepare('SELECT COUNT(*) AS nb FROM c_flotte WHERE idplaneteflotte = 0 AND universflotte = ?'); 
 
 // Pour lvl 10 à 11 : 
-$reqnoyaudanslesilo = $bdg->prepare(' SELECT COUNT(*) AS nb FROM silo s
-                                      INNER JOIN planete p ON p.idplanete = s.idplanetesilo
+$reqnoyaudanslesilo = $bd->prepare('  SELECT COUNT(*) AS nb FROM c_silo s
+                                      INNER JOIN c_planete p ON p.idplanete = s.idplanetesilo
                                       WHERE p.idjoueurplanete = ? AND s.iditems = ?'); 
 
 // Pour lvl 11 à 12 : 
-$reqflottedansuneautredimension = $bdg->prepare(' SELECT COUNT(*) AS nb FROM flotte f
-                                                  INNER JOIN planete p ON f.idplaneteflotte = p.idplanete
+$reqflottedansuneautredimension = $bd->prepare('  SELECT COUNT(*) AS nb FROM c_flotte f
+                                                  INNER JOIN c_planete p ON f.idplaneteflotte = p.idplanete
                                                   WHERE p.idjoueurplanete = ? AND universflotte = ?');
 
 //Pour lvl 12 à 13 : 
-$reqargentgalactique = $bdg->prepare('SELECT creditgalactique FROM utilisateurs WHERE id = ?');
+$reqargentgalactique = $bd->prepare('SELECT creditgalactique FROM c_utilisateurs WHERE id = ?');
 
 //Pour lvl 13 à 14 : 
 // Voir 10-11, même fonction.
  
-$reqlvl = $bdg->QUERY('SELECT lvl, id from utilisateurs ORDER BY id ASC'); 
+$reqlvl = $bd->QUERY('SELECT lvl, id from c_utilisateurs ORDER BY id ASC'); 
 while($replvl = $reqlvl->fetch()) 
   { 
   switch ($replvl['lvl']) 
@@ -96,7 +96,7 @@ while($replvl = $reqlvl->fetch())
         $reqmessageinterne->execute(array('Conseil civil', $replvl['id'], 0, 'Développement', 'Nous entrons dans une nouvelle ère. Nous pourrions avoir besoin de massivement investir dans notre puissance industrielle et scienfique. Nous avons besoin de développer des labos de recherche de taille mondiale et des chantiers de construction capable de réaliser d\'énormes projets.'));
 
         // Permet de creer un design pour le joueur. 
-        $reqcreerdesign = $bdg->prepare('INSERT INTO vaisseau (idflottevaisseau, nomvaisseau) VALUES (?, ?)'); 
+        $reqcreerdesign = $bd->prepare('INSERT INTO c_vaisseau(idflottevaisseau, nomvaisseau) VALUES (?, ?)'); 
         $reqcreerdesign->execute(array(-$replvl['id'], 'Vaisseau d\'exploration'));
         } 
     break; 

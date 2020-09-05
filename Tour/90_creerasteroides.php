@@ -1,14 +1,14 @@
 <?php
 /*
 session_start();
-require __DIR__ . '/../include/BDDconnection.php';
+require __DIR__ . '/../include/bddconnection.php';
 require __DIR__ . '/../tour/fonctionsdutour.php';
 */
 
-$reqcreerasteroides = $bda->prepare('INSERT INTO champsasteroides (xaste, yaste, uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)'); 
-$reqplanete = $bdg->prepare('SELECT idplanete FROM planete WHERE universplanete = ? AND xplanete = ? AND yplanete = ?');
+$reqcreerasteroides = $bd->prepare('INSERT INTO c_champsasteroides (xaste, yaste, uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)'); 
+$reqplanete = $bd->prepare('SELECT idplanete FROM c_planete WHERE universplanete = ? AND xplanete = ? AND yplanete = ?');
 
-$reqquantiteasteroides = $bda->prepare('SELECT sum(quantite) as total FROM champsasteroides WHERE uniaste = ?');
+$reqquantiteasteroides = $bd->prepare('SELECT sum(quantite) as total FROM c_champsasteroides WHERE uniaste = ?');
 $reqquantiteasteroides ->execute(array(-2));
 $repquantiteasteroides = $reqquantiteasteroides->fetch();
 

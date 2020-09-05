@@ -1,75 +1,81 @@
 <?php 
 /*
 session_start();
-require __DIR__ . '/../include/BDDconnection.php'; 
+require __DIR__ . '/../include/bddconnection.php'; 
 require __DIR__ . '/../function/consommercreeritemsplanetemultiple.php';
 require __DIR__ . '/../function/flotte.php';
 */
 
 // récupérer le num du tour ($touractuel['id']) 
-$reqtouractuel = $bda->query('SELECT id FROM tour ORDER BY id DESC LIMIT 1'); 
+$reqtouractuel = $bd->query('SELECT id FROM c_tour ORDER BY id DESC LIMIT 1'); 
 $touractuel = $reqtouractuel->fetch(); 
  
 // Gestion vaisseau 
-$applicationdeplacement = $bdg->prepare("UPDATE flotte SET xflotte = ? , yflotte = ?, universflotte = ? WHERE idflotte = ? "); 
-$reqmettrePV1flotte = $bdg->prepare("UPDATE flotte SET xflotte = ?, yflotte = ?, typeordre = ?, bloque = ? WHERE idflotte = ? "); 
-$reqmettrePV1vaisseau = $bdg->prepare("UPDATE vaisseau SET HPvaisseau = ? WHERE idflottevaisseau = ? "); 
+$applicationdeplacement = $bd->prepare("UPDATE c_flotte SET xflotte = ? , yflotte = ?, universflotte = ? WHERE idflotte = ? "); 
+$reqmettrePV1flotte = $bd->prepare("UPDATE c_flotte SET xflotte = ?, yflotte = ?, typeordre = ?, bloque = ? WHERE idflotte = ? "); 
+$reqmettrePV1vaisseau = $bd->prepare("UPDATE c_vaisseau SET HPvaisseau = ? WHERE idflottevaisseau = ? "); 
 
 // Divers 
-$message = $bdg->prepare("INSERT INTO messagetour (idjoumess , message , domainemess , numspemessage) VALUES (?, ?, ?, ?)"); 
-$reqsupprimerordreprecedent = $bdg->prepare('UPDATE flotte SET universdestination = 0, xdestination = 0, ydestination = 0, typeordre = 0, bloque = 0 WHERE idflotte = ?');
-$reqmessageinterne = $bdg->prepare('INSERT INTO messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)');
+$message = $bd->prepare("INSERT INTO c_messagetour(idjoumess, message, domainemess, numspemessage) VALUES (?, ?, ?, ?)"); 
+$reqsupprimerordreprecedent = $bd->prepare('UPDATE c_flotte SET universdestination = 0, xdestination = 0, ydestination = 0, typeordre = 0, bloque = 0 WHERE idflotte = ?');
+$reqmessageinterne = $bd->prepare('INSERT INTO c_messagerieinterne(expediteur, destinataire, lu, titre, texte) VALUES (?, ?, ?, ?, ?)');
 
 //planete
-$reqplanete = $bdg->prepare('SELECT idplanete FROM planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? AND idjoueurplanete = ?');
-$reqplanete2 = $bdg->prepare('SELECT nomplanete, xplanete, yplanete, universplanete, idjoueurplanete, stabiliteenvironnement, environnement, organisation FROM planete WHERE idplanete = ?');
-$reqchangementproprioplanete = $bdg->prepare('UPDATE planete SET idjoueurplanete = ?, biens = biens + ?, organisation = 100 WHERE idplanete = ?');
-$reqpop = $bdg->prepare('INSERT INTO population(idplanetepop, typepop) VALUES(?, ?)');
-$requpenv = $bdg->prepare('UPDATE planete SET stabiliteenvironnement = ?, environnement = ?, organisation = ? WHERE idplanete = ?');
-$tuerunepop = $bdg->prepare('DELETE FROM population WHERE idplanetepop = ? ORDER BY RAND () LIMIT 1');
-$detruireunbatiment = $bdg->prepare('DELETE FROM batiment WHERE idplanetebat = ? ORDER BY RAND () LIMIT 1');
+$reqplanete = $bd->prepare('SELECT idplanete FROM c_planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? AND idjoueurplanete = ?');
+$reqplanete2 = $bd->prepare('SELECT * FROM c_planete WHERE idplanete = ?');
+$reqchangementproprioplanete = $bd->prepare('UPDATE c_planete SET idjoueurplanete = ?, biens = biens + ?, organisation = 100 WHERE idplanete = ?');
+$reqpop = $bd->prepare('INSERT INTO c_population(idplanetepop, typepop) VALUES(?, ?)');
+$requpenv = $bd->prepare('UPDATE c_planete SET stabiliteenvironnement = ?, environnement = ?, organisation = ? WHERE idplanete = ?');
+$requprestau = $bd->prepare('UPDATE c_planete SET restauration = ? WHERE idplanete = ?');
+
+$tuerunepop = $bd->prepare('DELETE FROM c_population WHERE idplanetepop = ? ORDER BY RAND () LIMIT 1');
+$detruireunbatiment = $bd->prepare('DELETE FROM c_batiment WHERE idplanetebat = ? ORDER BY RAND () LIMIT 1');
 
 // Gestion exploration
-$reqexplorationexistante = $bdg->prepare("SELECT idexplore FROM explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? ");
-$exploration = $bdg->prepare("INSERT INTO explore (x , y, univers , idexplorateur, tourexploration) VALUES (?, ?, ?, ?, ?)");
+$reqexplorationexistante = $bd->prepare("SELECT idexplore FROM c_explore WHERE x = ? AND y = ? AND univers = ? AND idexplorateur = ? ");
+$exploration = $bd->prepare("INSERT INTO c_explore(x , y, univers , idexplorateur, tourexploration) VALUES(?, ?, ?, ?, ?)");
 
 // Gestion cargo
-$reqverifcargo = $bdd->prepare("    SELECT  v.idvaisseau, v.capacitedesoute
-                                    FROM gamer.vaisseau v
-                                    LEFT JOIN gamer.cargovaisseau c ON c.idvaisseaucargo  = v.idvaisseau
-                                    WHERE v.idflottevaisseau = ?");
-$reqverifcargo2 = $bdg->prepare("SELECT SUM(quantiteitems) AS quantitetransportee, quantiteitems FROM cargovaisseau WHERE idvaisseaucargo = ? AND typeitems like ?");
-$reqcreercargo = $bdg->prepare("INSERT INTO cargovaisseau (idvaisseaucargo, typeitems, quantiteitems) VALUES (?, ?, ?)");
-$reqaugmentercargo = $bdg->prepare("UPDATE cargovaisseau SET quantiteitems = ? WHERE idvaisseaucargo = ? AND typeitems = ?");
+$reqverifcargo = $bd->prepare(" SELECT  v.idvaisseau, v.capacitedesoute FROM c_vaisseau v
+                                LEFT JOIN c_cargovaisseau c ON c.idvaisseaucargo  = v.idvaisseau
+                                WHERE v.idflottevaisseau = ?");
+$reqverifcargo2 = $bd->prepare("SELECT SUM(quantiteitems) AS quantitetransportee, quantiteitems FROM c_cargovaisseau WHERE idvaisseaucargo = ? AND typeitems like ?");
+$reqcreercargo = $bd->prepare("INSERT INTO c_cargovaisseau (idvaisseaucargo, typeitems, quantiteitems) VALUES (?, ?, ?)");
+$reqaugmentercargo = $bd->prepare("UPDATE c_cargovaisseau SET quantiteitems = ? WHERE idvaisseaucargo = ? AND typeitems = ?");
 
 // Gestion Silo
-$reqverifsilo = $bdg->prepare("SELECT quantite FROM silo WHERE idjoueursilo = ? AND iditems = ?"); 
-$reqcreersilo = $bdg->prepare("INSERT INTO silo (idjoueursilo, iditems, quantite) VALUES (?, ?, ?)");
-$reqaugmentersilo = $bdg->prepare("UPDATE silo SET quantite = ? WHERE idjoueursilo = ? AND iditems = ?");
+$reqverifsilo = $bd->prepare("SELECT quantite FROM c_silo WHERE idjoueursilo = ? AND iditems = ?"); 
+$reqcreersilo = $bd->prepare("INSERT INTO c_silo (idjoueursilo, iditems, quantite) VALUES (?, ?, ?)");
+$reqaugmentersilo = $bd->prepare("UPDATE c_silo SET quantite = ? WHERE idjoueursilo = ? AND iditems = ?");
 
 // Gestion astéroides.
-$reqmajaste = $bda->prepare('UPDATE champsasteroides SET quantite = ? where idasteroide = ?');
-$reqsupaste = $bda->prepare('DELETE FROM champsasteroides WHERE idasteroide = ?');
-$reqasteroide = $bda->prepare('SELECT idasteroide, quantite, typeitemsaste FROM champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? ORDER BY RAND () LIMIT 1');
+$reqmajaste = $bd->prepare('UPDATE c_champsasteroides SET quantite = ? WHERE idasteroide = ?');
+$reqsupaste = $bd->prepare('DELETE FROM c_champsasteroides WHERE idasteroide = ?');
+$reqasteroide = $bd->prepare('SELECT idasteroide, quantite, typeitemsaste FROM c_champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? ORDER BY RAND () LIMIT 1');
 
 // Gestion bataille
-$reqsupprimerbataille = $bdg->prepare('DELETE FROM bataille WHERE idflotteoffensive = ?');
+$reqsupprimerbataille = $bd->prepare('DELETE FROM c_bataille WHERE idflotteoffensive = ?');
 
+// Module présent dans la flotte
+$reqmodule = $bd->prepare(" SELECT v.idvaisseau FROM c_composantvaisseau c
+                            INNER JOIN c_vaisseau v ON v.idvaisseau = c.idvaisseaucompo
+                            WHERE v.idflottevaisseau = ? AND c.iditemcomposant = ?
+                            LIMIT 1");
 
 // Requetes dans combat, parce qu'on l'utilise là bas.
-$reqflotte = $bdg->prepare('    SELECT * FROM flotte f
-                                LEFT JOIN planete p ON p.idplanete = f.idplaneteflotte
+$reqflotte = $bd->prepare('     SELECT * FROM c_flotte f
+                                LEFT JOIN c_planete p ON p.idplanete = f.idplaneteflotte
                                 WHERE typeordre = ?');
-$requpdateordre = $bdg->prepare('UPDATE flotte SET universdestination = ?, xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ?');
+$requpdateordre = $bd->prepare('UPDATE c_flotte SET universdestination = ?, xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ?');
 
 // Trouver les flottes en défense :
-$reqtrouverflottedelaplanete = $bdg->prepare('  SELECT v.idvaisseau FROM flotte f
-                                                INNER JOIN planete p ON p.idplanete = f.idplaneteflotte
-                                                INNER JOIN vaisseau v ON v.idflottevaisseau = f.idflotte
+$reqtrouverflottedelaplanete = $bd->prepare('   SELECT v.idvaisseau FROM c_flotte f
+                                                INNER JOIN c_planete p ON p.idplanete = f.idplaneteflotte
+                                                INNER JOIN c_vaisseau v ON v.idflottevaisseau = f.idflotte
                                                 WHERE f.universflotte = ? AND p.universplanete = ? AND f.xflotte = ? AND p.xplanete = ? AND f.yflotte = ? AND p.yplanete = ?');
-$reqtrouverflottedefense = $bdg->prepare('      SELECT v.idvaisseau FROM flotte f
-                                                INNER JOIN planete p ON p.idplanete = -f.idplaneteflotte
-                                                INNER JOIN vaisseau v ON v.idflottevaisseau = f.idflotte
+$reqtrouverflottedefense = $bd->prepare('       SELECT v.idvaisseau FROM flotte f
+                                                INNER JOIN c_planete p ON p.idplanete = -f.idplaneteflotte
+                                                INNER JOIN c_vaisseau v ON v.idflottevaisseau = f.idflotte
                                                 WHERE p.universplanete = ? AND p.xplanete = ? AND p.yplanete = ?');
 
 
@@ -218,6 +224,44 @@ while ($repflotte = $reqflotte->fetch())
 
         $reqmessageinterne->execute(array('Force d\'invasion', $repflotte['idjoueurplanete'], 0, 'Planète envahie', 'Nos forces viennent de prendre le contrôle de la planète.'));
         }
+    }
+
+$reqflotte->execute(array(4)); // = Terraformation
+while ($repflotte = $reqflotte->fetch()) 
+    { //$repflotte['xdestination'] = id de la planete
+    $reqplanete2->execute(array($repflotte['xdestination'])); 
+    $repplanete = $reqplanete2->fetch(); 
+
+    $messterra = 'Terraformation non lancée.';
+    if ($repplanete['environnement'] > 3000 OR $repplanete['restauration'] > 0 OR $repflotte['universflotte'] != $repplanete['universplanete'] OR $repflotte['xflotte'] != $repplanete['xplanete'] OR $repflotte['yflotte'] != $repplanete['yplanete'])
+        {
+        }
+    else
+        {
+        if ($repplanete['environnement'] < 0)
+            { // Cas de la restauration planétaire sur un monde abimé.
+            $reqmodule->execute(array($repflotte['idflotte'], 39));
+            $repmodule = $reqmodule->fetch();
+            $tempsrestau = 20;
+            $messterra = 'Un vaisseau avec un module de restauration planétaire a été utilisé pour restaurer une planète.';
+            }
+        
+        if (!isset($repmodule['idvaisseau']))
+            { // Cas de l'amélioration planétaire quelque soit l'environnement (mais - 3000). 
+            $reqmodule->execute(array($repflotte['idflotte'], 40));
+            $repmodule = $reqmodule->fetch();
+            $tempsrestau = 30;
+            $messterra = 'Un vaisseau avec un module d\'amélioration planétaire a été utilisé pour restaurer une planète.';
+            }
+
+        if (isset($repmodule['idvaisseau']))
+            { // Un vaisseau peut terra, donc faire disparaitre le vaisseau + appliquer la restauration.
+            disparitionvaisseau($repmodule['idvaisseau']);
+            $requprestau->execute(array($tempsrestau, $repflotte['xdestination']));
+            }
+        }
+    $reqmessageinterne->execute(array('Conseil civil', $repflotte['idjoueurplanete'], 0, 'Terraformation', $messterra));
+    $reqsupprimerordreprecedent->execute(array($repflotte['idflotte']));   
     }
 
 // (5) = Combat : Cet ordre ne fait rien ici, tout est géré avec les batailles.
@@ -370,11 +414,11 @@ while ($repflotte = $reqflotte->fetch())
                 //Créer message pour le joueur. 
                 $messexplo = 'Cette flotte vient d\'explorer le parsec (' . $xeffectif  . ' - ' . $yeffectif .').'  ;  
                 $message ->execute(array($repflotte['idjoueurplanete'] , $messexplo , 'flotte' , $repflotte['idflotte'])) ; 
-                } 
-            } 
-        } 
-    } 
- 
+                }
+            }
+        }
+    }
+
 $reqflotte->execute(array(11)); // = colonisation 
 while ($repflotte = $reqflotte->fetch()) 
     { //$repflotte['xdestination'] = id de la planete
@@ -383,18 +427,16 @@ while ($repflotte = $reqflotte->fetch())
     $peutcoloniser = colonisateur($repflotte['idflotte']) ;
 
     if ($repflotte['universflotte'] == $repplanete['universplanete'] AND $repflotte['xflotte'] == $repplanete['xplanete'] AND $repflotte['yflotte'] == $repplanete['yplanete'] AND $repplanete['idjoueurplanete'] == 0 AND $peutcoloniser == true) 
-        { 
+        {
         $bonusbiens = variable(2);
         $reqchangementproprioplanete->execute(array($repflotte['idjoueurplanete'], $bonusbiens[0], $repflotte['xdestination'])); 
-        $reqpop->execute(array($repflotte['xdestination'], 1)); 
-         
-        $messcolonisation = 'Cette flotte vient de coloniser une planete.'  ;  
-        $message ->execute(array($repflotte['idjoueurplanete'] , $messcolonisation, 'flotte' , $repflotte['idflotte'])) ; 
-         
+        $reqpop->execute(array($repflotte['xdestination'], 1));
+        $messcolonisation = 'Cette flotte vient de coloniser une planete.';
+        $message ->execute(array($repflotte['idjoueurplanete'] , $messcolonisation, 'flotte' , $repflotte['idflotte'])) ;
         $reqmessageinterne->execute(array('Conseil civil', $repflotte['idjoueurplanete'], 0, 'planète colonisée', 'Nous venons de coloniser une nouvelle planète. Le vaisseau colonisateur a été perdu dans le processus'));
 
-        disparitionvaisseau($peutcoloniser[1]); 
-        } 
+        disparitionvaisseau($peutcoloniser[1]);
+        }
     $reqsupprimerordreprecedent->execute(array($repflotte['idflotte'])); 
-    } 
+    }
 ?>

@@ -1,6 +1,6 @@
 <?php 
 session_start();
-require __DIR__ . '/../../include/BDDconnection.php';
+require __DIR__ . '/../../include/bddconnection.php';
 
 if (!isset($_GET['confirmer']))
     {
@@ -10,22 +10,11 @@ if (!isset($_GET['confirmer']))
 
 else
 	{
-	$reqnomtable = $bda->query("SELECT distinct TABLE_SCHEMA, TABLE_NAME from INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'autre' OR TABLE_SCHEMA = 'gamer'");
+	$reqnomtable = $bd->query("SELECT TABLE_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE CONSTRAINT_SCHEMA = 'kaien_starsempire' AND TABLE_NAME LIKE 'c%'");
 	while ($repnomtable  = $reqnomtable ->fetch())
 		{
-		if ($repnomtable['TABLE_NAME'] != 'afaire')
-			{
-			if ($repnomtable['TABLE_SCHEMA'] == 'autre')  
-				{ // Besoin de faire 2 requetes différentes car nom de la variable de connection différente !
-				$reqtruncateautre = $bda->prepare('TRUNCATE TABLE '.$repnomtable['TABLE_NAME'].'');
-				$reqtruncateautre->execute(array());
-				}	
-			elseif ($repnomtable['TABLE_SCHEMA'] == 'gamer')
-				{
-				$reqtruncateautre = $bdg->prepare('TRUNCATE TABLE '.$repnomtable['TABLE_NAME'].'');
-				$reqtruncateautre->execute(array());
-				}	
-			}
+		$reqtruncateautre = $bd->prepare('TRUNCATE TABLE '.$repnomtable['TABLE_NAME'].'');
+		$reqtruncateautre->execute(array());
 		}
 	}
 
@@ -37,5 +26,5 @@ session_destroy();
 setcookie("id", 0, time(), "/"); 
 setcookie("pass", 0, time(), "/");
 
-header('Location: ../accueil.php');
+header('Location: ../../tour/gestionglobale.php');
 ?>
