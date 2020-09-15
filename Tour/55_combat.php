@@ -62,7 +62,6 @@ for($a = 1 ; $a != 0 ; )
             if ($repinfopvvaisseauattaquant['tirrestant'] > 0)
                 { // Si on a une arme de l'attaquant, on gère le tir sur le défenseur.
                 $Commentairestour .= gestiondegats($repinfopvvaisseaudefensif['idvaisseau'], $repinfopvvaisseaudefensif['HPvaisseau'], $repinfopvvaisseauattaquant['degatpartir'], $repinfopvvaisseauattaquant['idtable'], $repinfopvvaisseauattaquant['idvaisseau'], $repinfopvvaisseauattaquant['idflottevaisseau'], $repinfopvvaisseaudefensif['idflottevaisseau'], 1);
-                
                 }
     
             if ($repinfopvvaisseaudefensif['tirrestant'] > 0)

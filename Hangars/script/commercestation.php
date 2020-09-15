@@ -1,10 +1,10 @@
 <?php 
 session_start(); 
-require __DIR__ . '/../include/bddconnection.php'; 
-require __DIR__ . '/../function/variable.php';
-require __DIR__ . '/../function/retirerajouteritemsflottemultiple.php';
-require __DIR__ . '/../function/flotte.php';
-
+require __DIR__ . '/../../include/bddconnection.php'; 
+require __DIR__ . '/../../function/variable.php';
+require __DIR__ . '/../../function/retirerajouteritemsflottemultiple.php';
+require __DIR__ . '/../fonction/flotte.php';
+require __DIR__ . '/includesecuriteflotte.php';
 /*
 echo $_SESSION['pseudo'] . ' Pseudo du joueur </br>' ; 
 echo $_SESSION['id'] . ' id du joueur </br>' ; 
@@ -17,16 +17,6 @@ echo $_POST['typetransaction'] . ' 1 = vendre, 2 = acheter';
 
 $reqcrediterjoueur = $bd->prepare('UPDATE c_utilisateurs SET creditgalactique = creditgalactique + ? WHERE id = ?');
 $reqmessageinterne = $bd->prepare('INSERT INTO c_messagerieinterne (expediteur , destinataire , lu , titre , texte) VALUES (?, ?, ?, ?, ?)'); 
-
-// Vérifier propriétaire du vaisseau.
-$reqflotte = $bd->prepare(' SELECT p.idjoueurplanete, f.universflotte, f.xflotte, f.yflotte, f.idflotte
-                            FROM c_flotte f
-                            INNER JOIN c_planete p ON p.idplanete = f.idplaneteflotte
-                            WHERE f.idflotte = ?');
-
-$reqflotte->execute(array($_POST['idflotte']));
-$repflotte = $reqflotte->fetch();
-
 
 // Trouver si la station est à portée : 
 $reqstation = $bd->prepare('SELECT idstation FROM c_station WHERE xstation = ? AND ystation = ? AND universstation = ? AND idstation = ?'); 
@@ -60,15 +50,18 @@ if ($_POST['typetransaction'] == 1)
         $nom = 'débris de métaux rares';
         $prixparunite = variable(3);     
         }
-
-    if ($_POST['iditem'] == 26)
+    elseif ($_POST['iditem'] == 26)
         {
         $nom = 'titane en barres';
         $prixparunite = variable(7);     
         }
+    elseif ($_POST['iditem'] == 41)
+        {
+        $nom = 'neutrinos en barre';
+        $prixparunite = variable(10);     
+        }
 
-
-    $prix = $_POST['combien'] * $prixparunite[0]; 
+    $prix = $_POST['combien'] * $prixparunite; 
     $message = 'Un vaisseau vient de vendre ' . $_POST['combien'] . ' ' . $nom . ' pour '.$prix.'$.';   
     retirerajouteritemsflottemultiple($_POST['iditem'], 0, $_POST['idflotte'], $_POST['combien']);
     $reqmessageinterne->execute(array('Ministère de l\'économie', $repflotte['idjoueurplanete'], 0, 'Vente galactique', $message));

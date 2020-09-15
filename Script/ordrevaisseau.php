@@ -29,17 +29,17 @@ $reqplanete->execute(array($idplanete));
 $repplanete = $reqplanete->fetch();
 
 if ($repplanete['idjoueurplanete'] != $_SESSION['id'])   // Vérification du possesseur du vaisseau. Si pas bon = dégage vers l'acceuil.
-	{ header("location: ../accueil.php?message=31"); exit();}
+	{ header("location: /accueil.php?message=31"); exit();}
 
 if ($_POST['idplanete'] != $idplanete)   // Vérification que la planète entrée est la bonne.
-	{ header("location: ../accueil.php?message=31"); exit();}
+	{ header("location: /accueil.php?message=31"); exit();}
 if (in_array($_POST['mouvement'], array(1, 3, 5)))
 	{
 	// Vérifier que la flotte est bel et bien en orbite de la planète : 
 	$reqflotteenorbite->execute(array($_POST['idplanete'], $repplanete['universplanete'], $repplanete['xplanete'], $repplanete['yplanete'], $_POST['idflotte'])); 
 	$repflotteenorbite = $reqflotteenorbite->fetch(); 
 	if (!isset($repflotteenorbite['nomflotte']))
-		{ header("location: ../accueil.php?message=31"); exit();}	
+		{ header("location: /accueil.php?message=31"); exit();}	
 	}
 
 if ($_POST['mouvement'] == 1)
@@ -117,15 +117,15 @@ if (isset($idmessage) AND isset($idflotte))
 	if ($idflotte > 0 OR $_POST['mouvement'] == 5) // Vaisseau dans une flotte et avec ordre de réparation. Si inf à zéro, alors vaisseau sur planète.
 		{
 		$requpdatevaisseau->execute(array($idflotte, $_POST['idvaisseau']));
-		header("location: ../hangars/hangars.php?message=".urlencode($idmessage)."&id=" . urlencode($_POST['idflotte']));
+		header("location: /hangars/hangars.php?message=".urlencode($idmessage)."&id=" . urlencode($_POST['idflotte']));
 		}
 	else
 		{
 		$requpdatevaisseau->execute(array(0, $_POST['idvaisseau']));
-		header("location: ../planete/planete.php?message=".urlencode($idmessage)."&id=" . urlencode(-$idflotte));
+		header("location: /planete/planete.php?message=".urlencode($idmessage)."&id=" . urlencode(-$idflotte));
 		}
 	exit();
 	}
 	
-header("location: ../accueil.php?message=31");
+header("location: /accueil.php?message=31");
 ?>

@@ -7,7 +7,7 @@ require __DIR__ . '/../tour/fonctionsdutour.php';
 
 $reqcreerasteroides = $bd->prepare('INSERT INTO c_champsasteroides (xaste, yaste, uniaste, typeitemsaste, quantite) VALUES (?, ?, ?, ?, ?)'); 
 
-$reqquantiteasteroides = $bd->prepare('SELECT sum(quantite) as total FROM c_champsasteroides WHERE xaste	= ? AND yaste = ? AND uniaste = ? AND typeitemsaste = ?');
+$reqquantiteasteroides = $bd->prepare('SELECT sum(quantite) as total FROM c_champsasteroides WHERE xaste = ? AND yaste = ? AND uniaste = ? AND typeitemsaste = ?');
 
 $reqinfoetoileneutrinos = $bd->query('SELECT * FROM c_etoileneutrinos');
 while($repinfoetoileneutrinos = $reqinfoetoileneutrinos->fetch())

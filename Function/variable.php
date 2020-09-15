@@ -11,7 +11,6 @@ function variable($idvariable)
   $repvariable = $reqvariable->fetch();
 
   $valeur = $repvariable['valeur']; 
- 
   return $valeur;
   } 
 ?>

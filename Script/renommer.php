@@ -13,21 +13,26 @@ if (empty($_POST['nouveaunom']))
     {
     if ($_POST['type'] == 'flotte')
     	{
-    	header("location: ../hangars.php?message=18&id=" . urlencode($_POST['id']));
-    	exit();
+    	header("location: ../hangars/hangars.php?message=18&id=" . urlencode($_POST['id']));
+    	exit;
     	}
     elseif ($_POST['type'] == 'planete')
     	{
-    	header("location: ../planete.php?message=18&id=" . urlencode($_POST['id']));
-    	exit();
-    	}
-    elseif ($_POST['type'] == 'vaisseau')
+    	header("location: ../planete/planete.php?message=18&id=" . urlencode($_POST['id']));
+    	exit;
+		}
+	elseif ($_POST['type'] == 'vaisseau')
     	{
-    	header("location: ../vaisseau.php?message=18&id=" . urlencode($_POST['id']));
-    	exit();
+    	header("location: ../conception_vaisseau/vaisseau.php?message=18&id=" . urlencode($_POST['id']));
+    	exit;
+		}
+	elseif ($_POST['type'] == 'plan')
+    	{
+    	header("location: ../conception_vaisseau/conception.php?message=18&id=" . urlencode($_POST['id']));
+    	exit;
     	}
     header("location: ../accueil.php?message=31");
-    exit();
+    exit;
 	}
 
 if ($_POST['type'] == 'flotte')
@@ -39,18 +44,22 @@ if ($_POST['type'] == 'flotte')
 	$flotte = $trouverflotte->fetch();
 	// Si aucun résultat, alors on a pas de ''$flotte'', donc on fait pas la requete de renommage donc on arrive à la fin du script.
 
-
 	if (isset($flotte[0]))
 		{
 		$renommerflotte = $bd->prepare('UPDATE c_flotte SET nomflotte = ? WHERE idflotte = ?' );
 		$renommerflotte->execute(array($_POST['nouveaunom'], $_POST['id']));
 
-		header("location: ../hangars.php?message=26&id=" . urlencode($_POST['id']));
+		header("location: ../hangars/hangars.php?message=26&id=" . urlencode($_POST['id']));
 		exit();
 		}
 	}
-
-
+elseif ($_POST['type'] == 'planete')
+	{
+	$renommerplanete = $bd->prepare('UPDATE c_planete SET nomplanete = ? WHERE idplanete = ? AND idjoueurplanete = ?' );
+	$renommerplanete->execute(array($_POST['nouveaunom'] , $_POST['id'], $_SESSION['id']));
+	header("location: ../planete/planete.php?message=26&id=" . urlencode($_POST['id']));
+	exit();
+	}
 elseif ($_POST['type'] == 'vaisseau')
 	{
 	// Cas d'un vaisseau réel : 
@@ -62,35 +71,27 @@ elseif ($_POST['type'] == 'vaisseau')
 	$reqvaisseau->execute(array($_POST['id']));   
 	$repvaisseau = $reqvaisseau->fetch();
 
+	if ($repvaisseau['idjoueurplanete'] != $_SESSION['id'])
+		{ header("location: ../accueil.php?message=31"); exit();}
+
+	$renommervaisseau = $bd->prepare('UPDATE c_vaisseau SET nomvaisseau = ? WHERE idvaisseau = ?' );
+	$renommervaisseau->execute(array($_POST['nouveaunom'], $_POST['id']));
+	header("location: ../conception_vaisseau/vaisseau.php?message=26&id=" . urlencode($_POST['id']));
+	exit();
+	}
+elseif ($_POST['type'] == 'plan')
+	{
 	// Cas d'un plan : 
 	$reqvaisseauplan = $bd->prepare('SELECT idflottevaisseau FROM c_vaisseau v WHERE idvaisseau = ?');
 	$reqvaisseauplan->execute(array($_POST['id']));   
 	$repvaisseauplan = $reqvaisseauplan->fetch();
 
-	if ($repvaisseau['idjoueurplanete'] != $_SESSION['id'] AND -$repvaisseauplan['idflottevaisseau'] != $_SESSION['id'])   // Vérification du possesseur du vaisseau. Si pas bon = dégage vers l'acceuil.
+	if (-$repvaisseauplan['idflottevaisseau'] != $_SESSION['id'])   // Vérification du possesseur du vaisseau. Si pas bon = dégage vers l'acceuil.
 		{ header("location: ../accueil.php?message=31"); exit(); }   
 
 	$renommervaisseau = $bd->prepare('UPDATE c_vaisseau SET nomvaisseau = ? WHERE idvaisseau = ?' );
 	$renommervaisseau->execute(array($_POST['nouveaunom'], $_POST['id']));
-
-	if ($repvaisseau['idjoueurplanete'] == $_SESSION['id'])
-		{
-		header("location: ../vaisseau.php?message=26&id=" . urlencode($_POST['id']));
-		exit();
-		}
-	else
-		{
-		header("location: ../conception.php?message=26&id=" . urlencode($_POST['id']));
-		exit();
-		}
-	}
-
-
-elseif ($_POST['type'] == 'planete')
-	{
-	$renommerplanete = $bd->prepare('UPDATE c_planete SET nomplanete = ? WHERE idplanete = ? AND idjoueurplanete = ?' );
-	$renommerplanete->execute(array($_POST['nouveaunom'] , $_POST['id'], $_SESSION['id']));
-	header("location: ../planete.php?message=26&id=" . urlencode($_POST['id']));
+	header("location: ../conception_vaisseau/conception.php?message=26&id=" . urlencode($_POST['id']));
 	exit();
 	}
 

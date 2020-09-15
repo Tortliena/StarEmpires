@@ -2,6 +2,7 @@
 session_start();
 include("../../include/bddconnection.php");
 include("../../function/consommercreeritemsplanetemultiple.php");
+include("includesecuriteplanete.php");
 
 /*
 echo $_SESSION['id'] . '</br>' ;

@@ -22,7 +22,7 @@ if ($repinfoplanete['idjoueurplanete'] != $_SESSION['id'])
   
 ?>   
 
-<form method="post" action="script/renommer.php"><h1>Vaisseau : <?php echo $repvaisseau['nomvaisseau'] ;?>    
+<form method="post" action="/script/renommer.php"><h1>Vaisseau : <?php echo $repvaisseau['nomvaisseau'] ;?>    
 <input type="text" name="nouveaunom" id="nouveaunom" placeholder="nouveau nom" size="25" maxlength="80" />   
 <input name="id" type="hidden" value="<?php echo $_GET['id'] ;?>">   
 <input name="type" type="hidden" value="vaisseau">   
@@ -74,8 +74,9 @@ if ($replvl['lvl']>=5)
   {   
   $PourcentHP = $repvaisseau['HPvaisseau'] / $repvaisseau['HPmaxvaisseau'] * 100 ;   
   echo '<p>PV : ' . number_format($PourcentHP, 0) . '%';    
-  }   
+  }
 
+echo '&emsp;<form method="post" action="script/supprimerconception.php?id='.-$_GET['id'].'"><input type="submit" value="Réinitialisation du plan"/></form>';
 if ($repinfoflotte['idplaneteflotte']<0) // Pouvoir faire une modification d'un vaisseau uniquement s'il est dans une flotte de défense.
   {
   // Fonction et valeur en retour lié au plan modifié.

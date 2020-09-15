@@ -1,6 +1,7 @@
 <?php 
 session_start(); 
-include("../../include/bddconnection.php"); 
+require __DIR__ . '/../../include/bddconnection.php'; 
+require __DIR__ . '/includesecuriteflotte.php';
 
 /*
 echo $_SESSION['id'] . ' ID du joueur </br>';
@@ -10,21 +11,6 @@ echo $_POST['xobjectif'] . ' x objectif </br>';
 echo $_POST['yobjectif'] . ' y objectif</br>';
 echo $_POST['confirmer'] . '</br> \'on\' si case coché, \'off\' si non cochée, null si pas de case.';
 */
-
-// Vérifier propriétaire du vaisseau.
-$reqflotte = $bd->prepare(' SELECT p.idjoueurplanete, f.idflotte, f.universflotte, f.xflotte, f.yflotte, f.universdestination,
-                                f.xdestination, f.ydestination, f.typeordre, f.bloque
-                            FROM c_flotte f
-                            INNER JOIN c_planete p ON p.idplanete = f.idplaneteflotte
-                            WHERE f.idflotte = ?');
-$reqflotte->execute(array($_POST['idflotte']));
-$repflotte = $reqflotte->fetch();
-
-if ($repflotte['idjoueurplanete'] != $_SESSION['id'])
-    {
-    header('Location: ../accueil.php?message=31');
-    exit();
-    }
 
 // Il faut avoir coché la case pour annuler un ordre bloqué.
 if ($repflotte['bloque'] == 1)
@@ -115,6 +101,7 @@ elseif ($_POST['typeordre'] == 10)
         header('Location: ../accueil.php?message=31');
         exit();
         }
+    $message = 32;
     }
 elseif ($_POST['typeordre'] == 11)
     { // colonisation
@@ -148,5 +135,5 @@ if (isset($message))
     exit;
     }
 
-header("Location: ../hangars.php?message=31&id=" . urlencode($_POST['idflotte']));
+header("Location: ../hangars.php?message=531&id=" . urlencode($_POST['idflotte']));
 ?>

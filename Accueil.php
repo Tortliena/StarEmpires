@@ -2,7 +2,6 @@
 include($_SERVER['DOCUMENT_ROOT'].'/include/entete.php');
 ?>
 
-
 <h1>Bienvenue</h1>
 <!-- Soit message de bienvenue, soit un message d'erreur ici -->
 <?php include("include/message.php");?>

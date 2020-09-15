@@ -1,10 +1,21 @@
 <?php
+$nombrenewsaffichees = 3;
+if (isset($_GET['news']))
+	{
+	$idnews = $_GET['news'];
+	}
+else
+	{
+	$idnews = 0;
+	}
+
+$reqnbnews = $bd->query('SELECT COUNT(*) nb FROM b_news');
+$repnbnews = $reqnbnews->fetch();
+
 echo '<p><h3>News du site : </h3>';
-$nombredenews = 3;
-$combiendenewsexclues = 0 ;
 $reqvoirnews = $bd->prepare('SELECT * FROM b_news ORDER BY datenews DESC LIMIT :exclusion , :nombredenews ');
-$reqvoirnews->bindParam(':nombredenews', $nombredenews, PDO::PARAM_INT);
-$reqvoirnews->bindParam(':exclusion', $combiendenewsexclues, PDO::PARAM_INT);
+$reqvoirnews->bindParam(':nombredenews', $nombrenewsaffichees, PDO::PARAM_INT);
+$reqvoirnews->bindParam(':exclusion', $idnews, PDO::PARAM_INT);
 $reqvoirnews->execute();
 while($repvoirnews = $reqvoirnews->fetch())
 	{
@@ -17,5 +28,16 @@ while($repvoirnews = $reqvoirnews->fetch())
 		}
 	echo '<br>'.$repvoirnews['textenews'].'<br><br>';
 	}
-  echo '</p>';
+	
+if ($idnews > 0)
+	{
+	$idnewsprecedente = max(0, $idnews-$nombrenewsaffichees);
+	echo '<button onclick="window.location.href = \''.$_SERVER['PHP_SELF'].'?news='.$idnewsprecedente.' \';">Précédents</button>';
+	}
+if ($idnews < $repnbnews['nb']-$nombrenewsaffichees)
+	{
+	$idnewssuivante = min($idnews + $nombrenewsaffichees, $repnbnews['nb'] - $nombrenewsaffichees);
+	echo '<button onclick="window.location.href = \''.$_SERVER['PHP_SELF'].'?news='.$idnewssuivante.' \';">Suivants</button>';
+	}
+echo '</p>';
 ?>

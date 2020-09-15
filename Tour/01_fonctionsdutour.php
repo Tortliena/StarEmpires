@@ -9,7 +9,7 @@ function creerrecherche($idrecherche, $idjoueur)
 
   if ($reprechercheexistedeja['idrechprinc'] == 0)
     {
-    $prixrech = $bd->prepare("SELECT prixrecherche, nomrecherche FROM c_recherche WHERE idrecherche = ? ");
+    $prixrech = $bd->prepare("SELECT prixrecherche, nomrecherche FROM a_recherche WHERE idrecherche = ? ");
     $reqcreerrecherche = $bd->prepare("INSERT INTO c_rech_joueur(idjoueurrecherche, ordrerecherche, idrech, rechnesc) VALUES (?,?,?,?)");  
     
     $prixrech->execute(array($idrecherche));
@@ -37,9 +37,8 @@ function monterniveau($idjoueur, $lvl)
   $reqlvlup = $bd->prepare('UPDATE c_utilisateurs SET lvl = lvl + 1 WHERE id = ?');
   $reqlvlup->execute(array($idjoueur));
 
-  $Commentairestour .= 'Le joueur '.$idjoueur.' est monté au niveau '.$lvl.'<br>';
   // Trouver recherche du niveau et qui ont une recherche prérequise :
-  $reqrechercheduniveauavecprereq = $bd->prepare('SELECT r.idrecherche FROM a_recherche r INNER JOIN gamer.rech_joueur rj ON rj.idrech = r.recherchenecessaire WHERE r.niveauminimal = ? AND rj.rechposs = 1');
+  $reqrechercheduniveauavecprereq = $bd->prepare('SELECT r.idrecherche FROM a_recherche r INNER JOIN c_rech_joueur rj ON rj.idrech = r.recherchenecessaire WHERE r.niveauminimal = ? AND rj.rechposs = 1');
   $reqrechercheduniveauavecprereq->execute(array($lvl));
   while ($reprechercheduniveau = $reqrechercheduniveauavecprereq->fetch())
     {
@@ -53,6 +52,8 @@ function monterniveau($idjoueur, $lvl)
     {
     creerrecherche($reprechercheduniveau['idrecherche'], $idjoueur);
     }
+  $Commentairestour = 'Le joueur '.$idjoueur.' est monté au niveau '.$lvl.'<br>';
+  return $Commentairestour;
   }
 
 function nombrealeatoireavecpoid(array $ValeurPoid)
@@ -83,6 +84,7 @@ function gestiondegats($idvaisseauquisefaittirerdessus, $pvvaisseau, $degatdutir
 
   if ($nvpv < 0)
     {
+    $texte1 .= ' Vaisseau détruit.';
     $texte2 .= ' Vaisseau détruit.';
 
     $Commentairestour .= 'Le vaisseau '.$idvaisseauquisefaittirerdessus.' vient de se faire détruire.<br>';

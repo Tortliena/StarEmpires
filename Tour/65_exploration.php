@@ -25,7 +25,7 @@ $reqcreercargo = $bd->prepare('INSERT INTO c_cargovaisseau(idvaisseaucargo, type
 $reqcreerordredeplacement = $bd->prepare('UPDATE c_flotte SET xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ? '); 
 $reqcreercomposant = $bd->prepare('INSERT INTO c_composantvaisseau(idvaisseaucompo, iditemcomposant, typecomposant) VALUES(?, ?, ?)');
 
-$reqinfoflotteexplorateur = $bd->prepare('SELECT c_idflotte FROM flotte WHERE xflotte = ? AND yflotte = ? AND universflotte = ?'); 
+$reqinfoflotteexplorateur = $bd->prepare('SELECT idflotte FROM c_flotte WHERE xflotte = ? AND yflotte = ? AND universflotte = ?'); 
 
 // Permet de traiter les explorations du tour. 
 $reqexploration->execute(array($touractuel['id'])); 

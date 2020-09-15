@@ -43,10 +43,25 @@ while($reptexteniveau = $reqtexteniveau->fetch())
     $a++;
     }
 
+$fichier = '../kaien_starsempire.sql';
+if(file_exists($fichier))
+    unlink( $fichier );
+
+$path = $_SERVER['DOCUMENT_ROOT'];
+
+if ($path == 'C:/wamp64/www/Starempires')
+    {
+    define("DB_USER", 'root');
+    define("DB_PASSWORD", 'root');
+    }
+else
+    {
+    define("DB_USER", 'kaien_kaien');
+    define("DB_PASSWORD", 'ucqX8kaS7LtT3ni');
+    }
+
 // Source du script : http://www.iamrohit.in/simple-backup-restore-mysql-database-via-php-script/
 
-define("DB_USER", 'root');
-define("DB_PASSWORD", 'root');
 define("DB_NAME", 'kaien_starsempire');
 define("DB_HOST", 'localhost');
 define("TABLES", $nomsdestables);

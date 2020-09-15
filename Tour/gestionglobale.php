@@ -18,12 +18,6 @@ include("05_incrementerletour.php");
 // Vider table des messages
 include("10_vidertable.php");
 
-// Évènements aléatoires qui arrivent aux joueurs qui ne sont pas dans une chaine d'évènements.
-// include("15_eventaleatoire.php");
-
-// Évènements aléatoires qui arrivent aux joueurs qui ne sont pas dans une chaine d'évènements.
-// include("16_eventsuite.php");
-
 // Début de changement des pops avec retrait des ressources. 
 include("20_organisationplanete.php");
 

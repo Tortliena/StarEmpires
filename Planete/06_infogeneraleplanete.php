@@ -56,7 +56,7 @@ $repsilo = $reqsilo->fetch();
 if ($repplanete['restauration'] > 0)
 	{
 	echo 'Modification planétaire en cours';
-	infobulle('La stabilité environnementale va diminuer alors que la qualité de l\'environnement va augmenter.<br>Il est conseillé d\'attendre ensuite que la stabilité environnementale diminue avant de retenter d\'améliorer les conditions climatiques', 'infobulle');
+	infobulle('La stabilité environnementale va diminuer alors que la qualité de l\'environnement va augmenter.<br>Il est conseillé d\'attendre ensuite que la stabilité environnementale remonte avant de retenter d\'améliorer les conditions climatiques', 'infobulle');
 	}	
 elseif (($repplanete['environnement'] < 0 AND $repsilo['restau'] > 0) OR ($repplanete['environnement'] < 3000 AND $repsilo['amelio'] > 0))
 	{

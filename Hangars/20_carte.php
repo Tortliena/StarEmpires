@@ -62,6 +62,10 @@ for ($x = 0 ; $x <= $xymax ; $x++)
 				{ // Sinon, si la case est occupée par une planète, l'afficher.   
 				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/station.png" alt="station" /></a></td>' ;   
 				}
+			elseif (isset($repetoileneutrinos['idetoileneutrinos']))
+				{ // Sinon, si la case est occupée par une étoile à neutrinos.  
+				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/etoileneutrinos.png" alt="Étoile à neutrinos" /></a></td>' ;     
+				}
 			elseif (isset($repplanete['idplanete']))   
 				{ // Sinon, si la case est occupée par une planète, l'afficher.   
 				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/planete.png" alt="planete" /></a></td>' ;   
@@ -71,12 +75,8 @@ for ($x = 0 ; $x <= $xymax ; $x++)
 				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/asteroide.png" alt="asteroide" /></a></td>' ;   
 				}
 			elseif (isset($repflottecarte['idflotte']))
-				{ // Sinon, si la case est occupée par un champs d'astéroides, l'afficher.   
+				{ // Sinon, si la case est occupée par une flotte neutre, l'afficher.   
 				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/vaisseaumechant.png" alt="vaisseaumechant" /></a></td>' ;     
-				}
-			elseif (isset($repetoileneutrinos['idetoileneutrinos']))
-				{ // Sinon, si la case est occupée par une étoile à neutrinos.  
-				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/etoileneutrinos.png" alt="Étoile à neutrinos" /></a></td>' ;     
 				}
 			else
 				{   

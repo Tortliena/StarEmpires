@@ -7,10 +7,11 @@
     padding-left:10px;   
     }
 
-.menu ul
+.menu li
     {
 	padding-top: 1px;
-	padding-left:20px;
+    margin-left:20px;
+    display: list-item;
     }
 
 .lienmenu
@@ -38,4 +39,10 @@
     font-weight:bold;
     margin-bottom:-10px;
     margin-right:-10px;
+    }
+
+.ordreflotte
+    {
+	padding-top: 1px;
+    margin-left:20px;
     }

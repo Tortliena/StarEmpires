@@ -3,7 +3,7 @@ function retirerajouteritemsflottemultiple($iditemretire, $iditemajoute, $idflot
 	{
 	require __DIR__ . '/../include/bddconnection.php';
 	// Gestion silo :
-	$reqverifcargo = $bd->prepare('	SELECT c.quantiteitems, c.idcargovaisseau FROM cargovaisseau c
+	$reqverifcargo = $bd->prepare('	SELECT c.quantiteitems, c.idcargovaisseau FROM c_cargovaisseau c
 									INNER JOIN c_vaisseau v ON v.idvaisseau = c.idvaisseaucargo
 									WHERE v.idflottevaisseau = ? AND c.typeitems = ? LIMIT 1');
 

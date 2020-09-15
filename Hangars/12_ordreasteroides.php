@@ -19,7 +19,7 @@ if (isset($repasteroide['nb']))
 			formulaireordredeplacement(1, $_GET['id'], $texteexplication, 0, 0, 0);   
 			}
 		}
-	elseif ($repdect['idexplore'])
+	elseif ($repdect['idexplore'] OR $repflotte['universflotte'] < -2)
 		{
 		echo 'Champs d\'astéroides en '.$_GET['x'].'-'.$_GET['y'].' de '.$taille.'.';		
 		}

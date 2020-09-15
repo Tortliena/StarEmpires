@@ -7,15 +7,13 @@ $reponse = $bd->query('SELECT id FROM c_tour ORDER BY id DESC LIMIT 1');
 $touractuel = $reponse->fetch();
 $reponse->closeCursor(); 
 echo 'Tour '.$touractuel['id'].'</br>' ; 
-
-// Partie non connectée
 if (!isset($_SESSION['pseudo'])) 
 	{
-	echo '<a class ="lienmenu" href="/accueil.php">Accueil</a>' ;
-	}
-
+    echo '<a class ="lienmenu" href="/accueil.php">Accueil</a><br>' ;
+    }
+echo '<a class ="lienmenu" href="/forum/index.php">Forum</a></br><br>';
 // Partie connectée
-else
+if (isset($_SESSION['pseudo'])) 
 	{
 	// récupérer le niveau du joueur.
    	$reqlvl = $bd->prepare('SELECT lvl, creditgalactique, niveauadmin from c_utilisateurs WHERE id= ?');
@@ -51,7 +49,7 @@ else
         echo '<a class ="lienmenu" href="/conception_vaisseau/conception.php">Conception</a></br>';
         }
 
- 	echo '</br><span class = "titremenu">Planètes</span></br>';
+ 	echo '</br><span class = "titremenu">Planètes</span>';
     
     $reqflotte = $bd->prepare('SELECT idflotte, nomflotte, typeordre FROM c_flotte  WHERE idplaneteflotte = ? ORDER BY idflotte');
     $reqplanete = $bd->prepare('SELECT nomplanete, idplanete FROM c_planete WHERE idjoueurplanete = ? ORDER BY idplanete');
@@ -59,7 +57,7 @@ else
     $reqplanete->execute(array($_SESSION['id']));
     while ($repplanete = $reqplanete->fetch())
         {
-        echo '<a class ="lienmenu" href="/planete/planete.php?id=' . $repplanete['idplanete'] . '">' . $repplanete['nomplanete'] . '</a></br>';
+        echo '</br><a class ="lienmenu" href="/planete/planete.php?id=' . $repplanete['idplanete'] . '">' . $repplanete['nomplanete'] . '</a></br>';
        
         $ecrirehangars = 1 ;
         $reqflotte->execute(array($repplanete['idplanete']));
@@ -67,11 +65,7 @@ else
             {
             if (vitesseflotte($repflotte['idflotte']) > 0)
                 {
-                if ($ecrirehangars == 1) {echo '</br><span class = "titremenu">Hangars</span></br>' ; }
-                    $ecrirehangars = 2 ;
-                
-                echo '<a class ="lienmenu" href="/hangars/hangars.php?id=' . $repflotte['idflotte'] . '">' . $repflotte['nomflotte'] . '</a></br>';
-
+                echo '<li class ="listemenu"><a class ="lienmenu" href="/hangars/hangars.php?id=' . $repflotte['idflotte'] . '">' . $repflotte['nomflotte'] . '</a></li><span class ="ordreflotte">';
                 switch ($repflotte['typeordre'])
                     {
                     case 0:
@@ -114,10 +108,12 @@ else
                     echo "ordre special !";
                     }
                 }
-            echo '</br></br>'; 
+            echo '</span></br>'; 
             } // Fin code pour les flottes.
         $reqflotte->closeCursor();
         } // Fin partie planète
+    echo '<br><br><a class ="lienmenu" href="/administration/administration.php">Admin</a></br>';
+    echo '<a class ="lienmenu" href="/administration/afaire.php">À faire</a></br>';
     } // Fin partie connectée.
 ?>
 
@@ -127,13 +123,11 @@ else
 <input type="submit" value="Passer le tour" />
 </p>
 </form>
-<b><a class ="lienmenu" href="/administration/administration.php">Admin</a></b></br> </br>
+
 <!--
 <a class ="lienmenu" href="/tour/test.php">test du tour</a> </br> 
 <a class ="lienmenu" href="/test.php?id=1">test de page</a> </br>
 <a class ="lienmenu" href="/script/test.php?table=autre&amp;backup=non">test de script</a> </br>-->
-<a class ="lienmenu" href="/administration/afaire.php">À faire</a> </br> </br>
-<!--<a class ="lienmenu" href="/forum/index.php">Forum</a></br>-->
 
 </div>    
 </nav>

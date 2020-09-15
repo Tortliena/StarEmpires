@@ -7,7 +7,6 @@ function caracteristiquesvaisseau ($idvaisseau)
     $capacitedesoute = 0;
     $capaciteminage = 0;
     $HPvaisseau = 3;
-    $structure = -11;
     $vitesse = 1;
 
     $reqinformationcomposant = $bd ->prepare('  SELECT c.idcomposant, c.typebonus, c.totalbonus, c.HPcomposant,

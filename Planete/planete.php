@@ -33,6 +33,7 @@ if ($replvl['lvl'] > 1)
 if ($repcompterpop['ouvriers']>0)
   { 
   include("20_chantierconstruction.php");
+  include("22_constructionsencours.php");
   }
 
 include("25_vaisseauxenorbite.php");

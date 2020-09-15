@@ -387,15 +387,27 @@ while ($repflotte = $reqflotte->fetch())
         elseif ($repflotte['xdestination'] == 0) 
             { // Dans ce cas, la flotte est arrivée 
             if ($repflotte['universdestination'] > 0) 
-              { // Dans ce cas, la flotte va vers l'univers d'origine du joueur. 
-              $xeffectif = rand(1,5); 
-              $yeffectif = rand(1,5); 
-              } 
+                { // Dans ce cas, la flotte va vers l'univers d'origine du joueur. 
+                $xeffectif = rand(1,5); 
+                $yeffectif = rand(1,5); 
+                } 
             else 
-              { // Dans ce cas, la flotte va vers un autre univers : 
-              $xeffectif = rand(1,20); 
-              $yeffectif = rand(1,20); 
-              } 
+                { // Dans ce cas, la flotte va vers un autre univers :             
+                $valeurpossibles = array(1, 2, 3, 4, 5, 15, 16, 17, 18, 19, 20);
+                $valeur1 = $valeurpossibles[array_Rand($valeurpossibles, 1)];
+                $valeur2 = rand(1,20);
+                $a = rand(1,2);
+                if ($a == 1)
+                    {
+                    $xeffectif = $valeur1; 
+                    $yeffectif = $valeur2; 
+                    }
+                else
+                    {
+                    $xeffectif = $valeur2; 
+                    $yeffectif = $valeur1; 
+                    }
+                } 
             $universdestination = $repflotte['universdestination']; 
                          
             //Créer message pour le joueur. 

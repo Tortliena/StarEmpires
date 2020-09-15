@@ -14,7 +14,7 @@ while ($reptypepop = $reqtypepop->fetch())
   { 
   echo '<option value="'. $reptypepop['idtypepop'] . '">'. $reptypepop['nompop'] .'</option>';  
   } 
-echo '</select><input type="hidden" name="id" value="'.$_GET['id'].'"><input type="hidden" name="supprimer" value="non"><input type="submit" value="Valider"/></p></form>'; 
+echo '</select><input type="hidden" name="idplanete" value="'.$_GET['id'].'"><input type="hidden" name="supprimer" value="non"><input type="submit" value="Valider"/></p></form>'; 
  
 // Permet de visualiser les ordres de conversion de pop en cours.  
 $reqpoptransf = $bd->prepare('SELECT p.typepop, p.typepoparrivee, p.idpop, t.nompop AS depart, y.nompop AS arrivee 
@@ -28,7 +28,7 @@ while ($reppoptransf = $reqpoptransf->fetch())
   { 
   echo '<form method="post" action="script/conversionpop.php">'; 
   echo '<input type="hidden" name="supprimer" value="oui">'; 
-  echo '<input type="hidden" name="id" value="'.$_GET['id'].'">'; 
+  echo '<input type="hidden" name="idplanete" value="'.$_GET['id'].'">'; 
   echo '<input type="hidden" name="idpop" value="'.$reppoptransf['idpop'].'">'; 
   echo 'Vous êtes en train de transformer un ' . $reppoptransf['depart'] . ' en ' . $reppoptransf['arrivee'] ; 
   echo ' <input type="submit" value="Annuler"/></form></br>'; 

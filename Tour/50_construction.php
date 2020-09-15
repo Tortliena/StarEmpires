@@ -227,6 +227,28 @@ while ($repplanete = $reqplanete->fetch())
                 $mess = 'Le recyclage des débris vous a rapporté ' . $recdebrisirradies . ' barres de neutrinos.' ;
                 $message ->execute(array($repplanete['idjoueurplanete'] , $mess , 'planete', $repplanete['idplanetevariation']));
                 }
+            
+            elseif ($repconstruction['trucaconstruire'] == 27)
+                { // 27 = utilisation du titane en barres.
+                $gaindetitane = rand(40, 60); // REVOIR CETTE PARTIE AVEC DES RECYCLEURS ?
+                $gainbien = rand(200, 400);
+
+                $biens = $biens + $gainbien;
+                $titane = $titane + $gaindetitane;
+                $mess = 'L\'utilisation des barres en titane vous a rapporté ' . $gainbien . ' biens et '.$gaindetitane.' de titane.' ;
+                $message ->execute(array($repplanete['idjoueurplanete'] , $mess , 'planete', $repplanete['idplanetevariation']));
+                }
+
+            elseif ($repconstruction['trucaconstruire'] == 42)
+                { // 42 = utilisation des barres de neutrinos.
+                $gainneutrinos = rand(40, 60); // REVOIR CETTE PARTIE AVEC DES RECYCLEURS ?
+                $gainbien = rand(200, 400);
+
+                $biens = $biens + $gainbien;
+                $neutrinos = $neutrinos + $gainneutrinos;
+                $mess = 'L\'utilisation des barres de neutrinos vous a rapporté ' . $gainbien . ' biens et '.$gainneutrinos.' de neutrinos stabilisés.' ;
+                $message ->execute(array($repplanete['idjoueurplanete'] , $mess , 'planete', $repplanete['idplanetevariation']));
+                }
 
             if ($repconstruction['trucaconstruire'] != 7 AND $repconstruction['trucaconstruire'] != 9 AND $repconstruction['trucaconstruire'] != 37)
                 {

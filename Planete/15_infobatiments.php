@@ -31,14 +31,14 @@ if ($repcompterbatiment['centrederecherche'] > 0)
   {
   echo '<br>Centre de recherche';
   infobulle('Permet d\'avoir jusqu\'à 5 scientifiques<br>Max 1 par planète', 'infobulle');
-  destruction(38, $_GET['id']);
+  destruction(1, $_GET['id']);
   }
 
 if ($repcompterbatiment['basemilitaire'] > 0)
   {
   echo '<br>Base militaire';
   infobulle('Permet d\'avoir jusqu\'à 5 soldats<br>Max 1 par planète', 'infobulle');
-  destruction(1, $_GET['id']);
+  destruction(38, $_GET['id']);
   }
 
 echo '<br>Mégalopoles : '.$repcompterbatiment['megalopole'].'/'.$repplanete['maxmegalopole'];

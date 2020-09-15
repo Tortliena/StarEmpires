@@ -51,7 +51,7 @@ function minageflotte($idflotte)
   $reqminage->execute(array($idflotte)); 
   while ($repminage = $reqminage->fetch()) 
     { 
-    $minage = max($minage, $repminage['capaciteminage']);
+    $minage = $minage + $repminage['capaciteminage'];
     } 
   return $minage; 
   }

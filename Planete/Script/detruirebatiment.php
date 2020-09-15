@@ -2,6 +2,7 @@
 session_start(); 
 include("../../include/bddconnection.php"); 
 include("../../function/consommercreeritemsplanetemultiple.php"); 
+include("includesecuriteplanete.php");
 
 /*
 echo $_SESSION['id'] . ' = ID du joueur.</br>' ; 
@@ -19,7 +20,6 @@ if ($_POST['idbatiment'] > 0)
 	$reqinsertdestruction = $bd->prepare('INSERT INTO c_destruction (idplanetedestruction, idbatimentdestruction) VALUES (?,?)');
 	$reqinsertdestruction->execute(array($_POST['idplanete'], $_POST['idbatiment']));
 	}
-
 
 header("location: ../planete.php?message=".urlencode($message)."&id=".urlencode($_POST['idplanete']));
 ?>

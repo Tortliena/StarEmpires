@@ -41,19 +41,19 @@ function descriptioncompletevaisseau($idvaisseau, $idjoueur, $lvljoueur)
   $a = 0;
   $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "soute")); 
   while($repsoutesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
-        {
-        $a++;
-        echo $repsoutesurlevaisseau['nb'].' '.$repsoutesurlevaisseau['nombatiment'] .'&emsp;' ; 
-        }
-    if ($a == 0)
-      {
-        echo 'Soute à échantillons : &emsp;' ; 
-        }
-    echo $repvaiss['capacitedesoute'] . ' places dans les soutes. </br>'; 
+    {
+    $a++;
+    echo $repsoutesurlevaisseau['nb'].' '.$repsoutesurlevaisseau['nombatiment'] .'&emsp;' ; 
+    }
+  if ($a == 0)
+    {
+    echo 'Soute à échantillons : &emsp;' ; 
+    }
+  echo $repvaiss['capacitedesoute'] . ' places dans les soutes. </br>'; 
 
-    echo 'Armement : '; 
-    $a = 0; // Voir plus tard pour refaire cette partie.
-    $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "arme")); 
+  echo 'Armement : '; 
+  $a = 0; // Voir plus tard pour refaire cette partie.
+  $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "arme")); 
   while($reparmesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
         {
         if ($a==0)
@@ -75,9 +75,15 @@ function descriptioncompletevaisseau($idvaisseau, $idjoueur, $lvljoueur)
     echo $texte.'<br>'; 
     }
   echo $repvaiss['capaciteminage'] . ' capacité de minage. <br>'; 
+
+  $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "autre")); 
+  while($repmodules = $reqcomposantsurlevaisseau->fetch())
+    {
+    echo $repmodules['nombatiment'] .'<br>' ; 
+    }
   
-    $a = 0; // Voir plus tard pour refaire cette partie.
-    $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "coque")); 
+  $a = 0; // Voir plus tard pour refaire cette partie.
+  $reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "coque")); 
   while($repcoquesurlevaisseau = $reqcomposantsurlevaisseau->fetch())
         {
         $texte = $repcoquesurlevaisseau['nb'].' '.$repcoquesurlevaisseau['nombatiment'] ; 
@@ -149,8 +155,6 @@ function modificationvaisseau($idvaisseau, $idjoueur, $lvljoueur, $typedepage)
   if (isset($repmoteursurlevaisseau['nombatiment']))
     {
     echo $repmoteursurlevaisseau['nombatiment'].'&emsp;&emsp;Vitesse : '.$vitesse. ' parsec/cycle.';
-
-    echo 'ID du composant : ' . $repmoteursurlevaisseau['iditemcomposant']; 
     } 
   else 
     { 

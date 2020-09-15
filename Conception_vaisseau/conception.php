@@ -43,10 +43,10 @@ else
 	$reqvaiss->execute(array(-$_SESSION['id'], $_GET['id'])); 
 	$repvaiss = $reqvaiss->fetch(); 
  
-	echo '<form method="post" action="script/renommer.php"><h3>' . $repvaiss['nomvaisseau'] . ' : ';
+	echo '<form method="post" action="/script/renommer.php"><h3>' . $repvaiss['nomvaisseau'] . ' : ';
 	echo '<input type="text" name="nouveaunom" id="nouveaunom" placeholder="nouveau nom" size="25" maxlength="80"/> ';
 	echo '<input name="id" type="hidden" value="'.$_GET['id'].'"> ';
-	echo '<input name="type" type="hidden" value="vaisseau"> ';
+	echo '<input name="type" type="hidden" value="plan"> ';
 	echo '<input type="submit" value="Renommer"/></h3></form> ';
 
 	echo '<h3>Actuellement :</h3>'; 
@@ -57,6 +57,7 @@ else
 	list ($structure, $structuremax) = modificationvaisseau($_GET['id'], $_SESSION['id'], $replvl['lvl'], 2);
 	}
 
+
 $ecrirehangars = 1;
 $reqvaiss = $bd->prepare('SELECT * FROM c_vaisseau WHERE idflottevaisseau = ? ORDER BY idvaisseau');
 $reqvaiss->execute(array(-$_SESSION['id']));
@@ -64,9 +65,6 @@ while ($repvaiss = $reqvaiss->fetch())
     {
     if ($ecrirehangars == 1) {echo '<h2>Design existants :</h2>' ; }
         $ecrirehangars = 2 ;
-
- 	$reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "arme"));
- 	$repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch();
 
     echo '<h3>' . $repvaiss['nomvaisseau'] . ' : '; 
     echo '<a class ="lienmenu" href="conception.php?id='.$repvaiss['idvaisseau'].'">Modifier</a> ';
@@ -79,15 +77,28 @@ while ($repvaiss = $reqvaiss->fetch())
     echo $repvaiss['capacitedesoute'] . ' places dans les soutes. </br>';
 	echo $repvaiss['capaciteminage'] . ' capacité de minage. </br>';
 	echo 'Armement : ';
-	if (isset($repcomposantsurlevaisseau['nombatiment']))
+	$a = 0;
+	$reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "arme"));
+	while($repcomposantsurlevaisseau = $reqcomposantsurlevaisseau->fetch())
 		{
-		echo ucfirst($repcomposantsurlevaisseau['nombatiment']);
+		if ($a > 0)
+			{
+			echo ', ';
+			}
+		echo $repcomposantsurlevaisseau['nb'].' '.$repcomposantsurlevaisseau['nombatiment'];
+		$a++;
 		}
-	else
+	if ($a == 0)
 		{
 		echo 'Vaisseau non armé.';
 		}
-	echo '</br>'.$repvaiss['HPmaxvaisseau'] . ' PV. </br>';
+	echo '</br>';
+	$reqcomposantsurlevaisseau->execute(array($repvaiss['idvaisseau'], "autre")); 
+	while($repmodules = $reqcomposantsurlevaisseau->fetch())
+	  {
+	  echo $repmodules['nombatiment'] .'<br>' ; 
+	  }
+	echo $repvaiss['HPmaxvaisseau'] . ' PV. </br>';
 	echo 'Prix : ';
 	echo $repvaiss['biensvaisseau'] . ' biens';
 	if ($repvaiss['titanevaisseau'] > 0)

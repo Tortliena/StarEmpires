@@ -15,7 +15,7 @@ $nombredeflotteacreer = 0;
 // On compte le nombre de flotte actuellement dans l'univers pour déterminer le nombre de flotte à créer.
 $reqcompterflottealien = $bd->query('SELECT COUNT(idflotte) AS nb FROM c_flotte WHERE universflotte = -2 AND idplaneteflotte = 0');
 $repcompterflottealien = $reqcompterflottealien->fetch();
-if ($repcompterflottealien['nb'] < 20)
+if ($repcompterflottealien['nb'] < 15)
 	{
 	$nombredeflotteacreer = 2;
 	}

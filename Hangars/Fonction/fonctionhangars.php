@@ -123,7 +123,7 @@ function acheterstation($idflotte, $idstation, $iditem, $maxpossible, $nomitem, 
     }
   else
     {
-    echo '<p>Pas assez d\'argent pour achetetr '.$nomitem . ' pour '.$prixitem.'$ par unité.</p>';
+    echo '<p>Pas assez d\'argent pour acheter '.$nomitem . ' pour '.$prixitem.'$ par unité.</p>';
     }
   }
 

@@ -1,33 +1,21 @@
 <?php 
 session_start(); 
-require __DIR__ . '/../include/bddconnection.php'; 
-require __DIR__ . '/../function/consommercreeritemsplanetemultiple.php';
-require __DIR__ . '/../function/retirerajouteritemsflottemultiple.php';
-require __DIR__ . '/../function/flotte.php';
+require __DIR__ . '/../../include/bddconnection.php'; 
+require __DIR__ . '/../../function/consommercreeritemsplanetemultiple.php';
+require __DIR__ . '/../../function/retirerajouteritemsflottemultiple.php';
+require __DIR__ . '/../fonction/flotte.php';
+require __DIR__ . '/includesecuriteflotte.php';
 
+/*
 echo $_SESSION['id'] . ' id du joueur </br>';
 echo $_POST['idflotte'] . ' id de la flotte</br>';
 echo $_POST['iditem'] . ' id des items </br>';
 echo $_POST['nombre'] . ' nombre d\'item a (de)charger</br>';
 echo $_POST['typeechange'] . ' type d\'ordre</br>'; //1 = chargement, 2 = déchargement
+*/
 
 $souteflotte = souteflotte($_POST['idflotte']);
 $quantitetransportee = cargaisonflotte($_POST['idflotte']);
-
-// Vérifier propriétaire du vaisseau.
-$reqflotte = $bd->prepare(' SELECT p.idjoueurplanete, f.universflotte, f.xflotte, f.yflotte, f.idflotte
-                            FROM c_flotte f
-                            INNER JOIN c_planete p ON p.idplanete = f.idplaneteflotte
-                            WHERE f.idflotte = ?');
-
-$reqflotte->execute(array($_POST['idflotte']));
-$repflotte = $reqflotte->fetch();
-
-if ($repflotte['idjoueurplanete'] != $_SESSION['id'])
-    {
-    header('Location: ../accueil.php?message=31');
-    exit();
-    }
 
 // Trouver si une planète du joueur est à proximité : 
 $reqplanete = $bd->prepare('SELECT idplanete FROM c_planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? AND idjoueurplanete = ?'); 

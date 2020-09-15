@@ -129,6 +129,10 @@ if (!isset($repconstructionencours['idconst']))
 	$reqappliquerplan = $bd->prepare('UPDATE c_composantvaisseau SET idvaisseaucompo = ? WHERE idvaisseaucompo = ?');
 	$reqappliquerplan->execute(array($_POST['idvaisseau'], -$_POST['idvaisseau']));
 
+	// permet de supprimer le composant 0 :
+	$reqsupprimerplanprecedent = $bd->prepare('DELETE FROM c_composantvaisseau WHERE idvaisseaucompo = ? AND iditemcomposant = 0');
+	$reqsupprimerplanprecedent->execute(array($_POST['idvaisseau']));
+
 	caracteristiquesvaisseau ($_POST['idvaisseau']);
 
 	if (-$repvaisseauplan['idflottevaisseau'] == $_SESSION['id'])

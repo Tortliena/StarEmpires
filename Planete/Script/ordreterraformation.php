@@ -2,21 +2,15 @@
 session_start();
 include("../../include/bddconnection.php");
 include("../../function/consommercreeritemsplanetemultiple.php");
+include("includesecuriteplanete.php");
 
+/*
 echo $_SESSION['id'] . '</br>' ;
 echo $_POST['idplanete'] . '</br>';
-
-if (!isset($_SESSION['id']) OR !isset($_POST['idplanete']))
-	{
-	header('Location: ../accueil.php'); exit();
-	}
-
-$reqplanete = $bd->prepare('SELECT * FROM c_planete WHERE idplanete = ?');
-$reqplanete->execute(array($_POST['idplanete']));
-$repplanete = $reqplanete->fetch();
+*/
 
 // Vérifier propriétaire de la planète + si un restauration est en cours + si la planète est pas trop améliorée déjà.
-if ($repplanete['idjoueurplanete'] != $_SESSION['id'] OR $repplanete['restauration'] > 0 OR $repplanete['environnement'] > 3000)
+if ($repplanete['restauration'] > 0 OR $repplanete['environnement'] > 3000)
 	{
 	header('Location: ../accueil.php'); exit();
 	}

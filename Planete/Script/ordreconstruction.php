@@ -2,12 +2,13 @@
 session_start(); 
 include("../../include/bddconnection.php"); 
 include("../../function/consommercreeritemsplanetemultiple.php"); 
+include("includesecuriteplanete.php");
 
 /*
 echo $_SESSION['id'] . '</br>' ; 
 echo $_POST['combien'] . '</br>'; 
 echo $_POST['trucaconstruire'] . '</br>'; 
-echo $_POST['id'] . '</br>'; 
+echo $_POST['idplanete'] . '</br>'; 
 */
 
 $nummessage = 12; // Message par défaut en cas de construction lancée.
@@ -22,7 +23,7 @@ $reqverifiertechnologie = $bd->prepare('SELECT idrechprinc FROM c_rech_joueur WH
 //Vérifier que la quantité est correcte.  
     if (empty($_POST['combien']) or $_POST['combien'] == NULL or $_POST['combien'] < 1 ) 
         { 
-        header("Location: ../planete.php?message=11&id=" . urlencode($_POST['id'])); 
+        header("Location: ../planete.php?message=11&id=" . urlencode($_POST['idplanete'])); 
         exit();   
         } 
  
@@ -39,7 +40,7 @@ $reqverifiertechnologie = $bd->prepare('SELECT idrechprinc FROM c_rech_joueur WH
 			$repverifiertechnologie = $reqverifiertechnologie->fetch();
 			if (!isset($repverifiertechnologie['idrechprinc']))
 				{
-				header("Location: ../planete.php?message=31&id=" . urlencode($_POST['id'])); 
+				header("Location: ../planete.php?message=31&id=" . urlencode($_POST['idplanete'])); 
 		    	exit();
 		    	} 
 		    }	
@@ -53,18 +54,18 @@ $reqverifiertechnologie = $bd->prepare('SELECT idrechprinc FROM c_rech_joueur WH
 	        else
 	        	{
    		        $reqlimite = $bd->prepare('SELECT '.$repinfoitem['nomlimite'].' FROM c_limiteplanete WHERE idlimiteplanete = ?'); 
-		        $reqlimite->execute(array($_POST['id'])); 
+		        $reqlimite->execute(array($_POST['idplanete'])); 
 		        $replimite = $reqlimite->fetch();
 	        	$limite = $replimite['0'];
 	        	}
  
 	        $reqcomptechantier = $bd->prepare('SELECT COUNT(idbat) as nb FROM c_batiment WHERE typebat = ? AND idplanetebat = ?'); 
-	        $reqcomptechantier->execute(array($_POST['trucaconstruire'], $_POST['id'])); 
+	        $reqcomptechantier->execute(array($_POST['trucaconstruire'], $_POST['idplanete'])); 
 	        $repcomptechantier = $reqcomptechantier->fetch();  // $repcomptechantier['nb'] 
  
 	        $constencours = 0; //Permet de récupérer le nombre de construction en cours. 
 	        $reqconstructionencours = $bd->prepare('SELECT nombre FROM c_construction WHERE trucaconstruire = ? AND idplaneteconst = ?'); 
-	        $reqconstructionencours->execute(array($_POST['trucaconstruire'], $_POST['id'])); 
+	        $reqconstructionencours->execute(array($_POST['trucaconstruire'], $_POST['idplanete'])); 
 	        while($repconstructionencours=$reqconstructionencours->fetch()) 
 	        	{ 
 	        	$constencours = $constencours + $repconstructionencours['nombre']; 
@@ -81,17 +82,17 @@ $reqverifiertechnologie = $bd->prepare('SELECT idrechprinc FROM c_rech_joueur WH
  
         if ($repinfoitem['itemnecessaire'] > 1) 
             { // Cas ou l'on a besoin d'un item en stock pour faire cette construction 
-            $reqverifsilo = $bd->prepare('SELECT c_quantite FROM silo WHERE idplanetesilo = ? AND iditems = ?'); 
+            $reqverifsilo = $bd->prepare('SELECT quantite FROM c_silo WHERE idplanetesilo = ? AND iditems = ?'); 
             $reqverifsilo->execute(array($_POST['id'], $repinfoitem['itemnecessaire'])); 
             $repverifsilo = $reqverifsilo->fetch();        
             if ($repverifsilo['quantite']<$_POST['combien']) 
                 { // Vous n'avez pas assez en stock pour faire autant de construction ! 
-                header("Location: ../planete.php?message=28&id=" . urlencode($_POST['id']));  
+                header("Location: ../planete.php?message=28&id=" . urlencode($_POST['idplanete']));  
                 exit(); 
                 } 
             else 
                 { // On a du stock, donc on le consomme. 
-                consommercreeritemsplanetemultiple($repinfoitem['itemnecessaire'], 0, $_POST['id'], $_POST['combien']);
+                consommercreeritemsplanetemultiple($repinfoitem['itemnecessaire'], 0, $_POST['idplanete'], $_POST['combien']);
                 } 
             } 
         // Permet de gérer le message de construction.  
@@ -108,14 +109,14 @@ $reqverifiertechnologie = $bd->prepare('SELECT idrechprinc FROM c_rech_joueur WH
  
         if (!isset($repinfovaisseau['nomvaisseau'])) 
             { // Vérifier idjoueur et idvaisseau : Virer si pas bon ensemble. 
-            header("Location: ../planete.php?message=31&id=" . urlencode($_POST['id'])); 
+            header("Location: ../planete.php?message=31&id=" . urlencode($_POST['idplanete'])); 
             exit(); 
             } 
     	 
 		$a = 0; 
 		$reqcomposantpresent = $bd->prepare('SELECT COUNT(c.iditemcomposant) AS nb, c.iditemcomposant, s.quantite FROM c_composantvaisseau c LEFT JOIN c_silo s ON s.iditems = c.iditemcomposant AND s.idplanetesilo = ? WHERE c.idvaisseaucompo = ? AND iditemcomposant > 0 GROUP BY c.iditemcomposant'); 
  
-		$reqcomposantpresent->execute(array($_POST['id'], -$_POST['trucaconstruire'])); 
+		$reqcomposantpresent->execute(array($_POST['idplanete'], -$_POST['trucaconstruire'])); 
 		while($repcomposantpresent = $reqcomposantpresent->fetch()) 
 			{
 			$nombreditemmanquant = $repcomposantpresent['nb'] - $repcomposantpresent['quantite'];
@@ -128,7 +129,7 @@ $reqverifiertechnologie = $bd->prepare('SELECT idrechprinc FROM c_rech_joueur WH
 
 		        if ($repinfoitem['itemnecessaire']!=0)
 	        		{ // Item 'constructible' par recherche.
-					header("Location: ../planete.php?message=31&id=" . urlencode($_POST['id']));
+					header("Location: ../planete.php?message=31&id=" . urlencode($_POST['idplanete']));
 				    exit();
 				    }
 
@@ -138,7 +139,7 @@ $reqverifiertechnologie = $bd->prepare('SELECT idrechprinc FROM c_rech_joueur WH
 					$repverifiertechnologie = $reqverifiertechnologie->fetch();
 					if (!isset($repverifiertechnologie['idrechprinc']))
 						{
-						header("Location: ../planete.php?message=31&id=" . urlencode($_POST['id']));
+						header("Location: ../planete.php?message=31&id=" . urlencode($_POST['idplanete']));
 				    	exit();
 				    	}
 				    }
@@ -148,7 +149,7 @@ $reqverifiertechnologie = $bd->prepare('SELECT idrechprinc FROM c_rech_joueur WH
 					$reqcreerconstruction->execute(array(
 			        'trucaconstruire' => $repcomposantpresent['iditemcomposant'],
 			        'nombre' => 1,
-			        'idplaneteconst' => $_POST['id'],
+			        'idplaneteconst' => $_POST['idplanete'],
 			        'avancementbiens' => $repinfoitem['coutbien'],
 			        'avancementtitane' => $repinfoitem['couttitane'],
 			        'avancementneutrinos' => $repinfoitem['coutneutrinos'],
@@ -160,15 +161,15 @@ $reqverifiertechnologie = $bd->prepare('SELECT idrechprinc FROM c_rech_joueur WH
 			} 
 		if ($a != 0) 
 			{ 
-			header("Location: ../planete.php?message=61&id=" . urlencode($_POST['id'])); 
+			header("Location: ../planete.php?message=61&id=" . urlencode($_POST['idplanete'])); 
 		    exit(); 
 		    }
 
-		$reqcomposantpresent->execute(array($_POST['id'], -$_POST['trucaconstruire']));
+		$reqcomposantpresent->execute(array($_POST['idplanete'], -$_POST['trucaconstruire']));
 		while($repcomposantpresent = $reqcomposantpresent->fetch()) 
 			{
 			// On refait le tour, mais cette fois, on sait que tout est dans les stocks.
-			consommercreeritemsplanetemultiple($repcomposantpresent['iditemcomposant'], 0, $_POST['id'], $repcomposantpresent['nb']);
+			consommercreeritemsplanetemultiple($repcomposantpresent['iditemcomposant'], 0, $_POST['idplanete'], $repcomposantpresent['nb']);
 			}
       	// Si on a tout les équipements en stock :
 	    $repinfoitem['coutbien'] = 50;
@@ -186,7 +187,7 @@ $reqverifiertechnologie = $bd->prepare('SELECT idrechprinc FROM c_rech_joueur WH
 $reqcreerconstruction->execute(array(
     'trucaconstruire' => $_POST['trucaconstruire'],
     'nombre' => $_POST['combien'],
-    'idplaneteconst' => $_POST['id'],
+    'idplaneteconst' => $_POST['idplanete'],
     'avancementbiens' => $repinfoitem['coutbien'],
     'avancementtitane' => $repinfoitem['couttitane'],
    	'avancementneutrinos' => $repinfoitem['coutneutrinos'],
@@ -197,13 +198,13 @@ $reqcreerconstruction->execute(array(
 // Permet de gérer l'ordre de construction.
 $dernierID = $bd->lastInsertId();
 $reqderniereconst = $bd->query('SELECT ordredeconstruction FROM c_construction ORDER BY ordredeconstruction DESC LIMIT 1');
-$repderniereconst = $reqderniereconst ->fetch();
+$repderniereconst = $reqderniereconst->fetch();
 $reqordredeconstruction = $bd->prepare('UPDATE c_construction SET ordredeconstruction = ? WHERE idconst = ?');
 $reqordredeconstruction->execute(array($repderniereconst['ordredeconstruction']+1, $dernierID));
 
 $_SESSION['message1'] = $_POST['combien'];
 $_SESSION['message2'] = $reptransformernom['nombatiment'];
 
-header("Location: ../planete.php?message=" . urlencode($nummessage) . "&id=" . urlencode($_POST['id']));
+header("Location: ../planete.php?message=" . urlencode($nummessage) . "&id=" . urlencode($_POST['idplanete']));
 exit();
 ?>
