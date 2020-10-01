@@ -6,7 +6,7 @@ if (isset($_GET["idnews"]))
   $repnewsencours = $reqnewsencours->fetch();
   }
 
-echo '<br><h3>News du site :</h3>';
+echo '<br><h3>Modifier news du site :</h3>';
 echo '<form method="post" action="script/news.php"><p>';
 echo '<input type="text" name="titre" id="titre" placeholder="titre du message" size="25" maxlength="80"';
 if (isset($_GET["idnews"]))

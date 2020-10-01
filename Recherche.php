@@ -31,30 +31,28 @@ $afficherrecherche = $bd->prepare('SELECT recherche FROM c_utilisateurs WHERE id
 $afficherrecherche->execute(array($_SESSION['id']));
 $recherche = $afficherrecherche->fetch();
 
+$a = 0;
 $reqrechercheencours = $bd->prepare("SELECT * FROM a_recherche r INNER JOIN c_rech_joueur rj ON r.idrecherche = rj.idrech WHERE rj.idjoueurrecherche = ? AND rj.rechposs = 0 ORDER BY rj.ordrerecherche ASC");
 $reqrechercheencours->execute(array($_SESSION['id']));
 while ($reprechercheencours = $reqrechercheencours->fetch())
 	{
-	?>
-	<form method="post" action="script/enregistrementrecherche.php">
-	<?php  echo $reprechercheencours['nomrecherche'] . ' : ' . $reprechercheencours['descriptionrecherche'] ; ?>
-	<input type="hidden" value="<?php echo $reprechercheencours['idrecherche'] ; ?>" name="idrecherche" />
-  	<?php  // Partie affichant la difficulté des recherches.
-	if (isset($reprechercheencours['avrech'])) // Si la recherche existe, alors afficher cette partie.
-		{?> </br>Difficultée : <?php
-		if ($recherche[0] == 0)
-			{echo '<span class="impossible">Pas de recherche au dernier tour</span>';}
-		elseif ($recherche[0] * 20 < $reprechercheencours['rechnesc'])
-			{echo '<span class="impossible">Quasi-impossible</span>';}
-		elseif ($recherche[0] * 10 < $reprechercheencours['rechnesc'])
-			{echo '<span class="difficile">Dur</span>';}
-		elseif ($recherche[0] * 5 < $reprechercheencours['rechnesc'])
-			{echo '<span class="normal">Normal</span>';}
-		else
-			{echo '<span class="tresfacile">facile</span>' ;}
-		echo '&nbsp; ; &nbsp;';
+	if ($a > 0)
+		{
+		echo '<form method="post">';
 		}
-
+	
+	echo '<p>'.$reprechercheencours['nomrecherche'] . ' : ' . $reprechercheencours['descriptionrecherche'].'<br>Difficulté : ';
+	if ($recherche[0] == 0)
+		{echo '<span class="impossible">Pas de recherche au dernier tour</span>';}
+	elseif ($recherche[0] * 20 < $reprechercheencours['rechnesc'])
+		{echo '<span class="impossible">Quasi-impossible</span>';}
+	elseif ($recherche[0] * 10 < $reprechercheencours['rechnesc'])
+		{echo '<span class="difficile">Dur</span>';}
+	elseif ($recherche[0] * 5 < $reprechercheencours['rechnesc'])
+		{echo '<span class="normal">Normal</span>';}
+	else
+		{echo '<span class="tresfacile">facile</span>' ;}
+	echo '&nbsp; ; &nbsp;';
 
 	echo 'Avancement actuel : ';
 	// Affichage de l'avancement actuel
@@ -67,10 +65,17 @@ while ($reprechercheencours = $reqrechercheencours->fetch())
 	elseif ($reprechercheencours['avrech'] / $reprechercheencours['rechnesc'] < 1)
 		{echo '<span class="fort">presque fini</span>' ;}
 	elseif ($reprechercheencours['avrech'] / $reprechercheencours['rechnesc'] >= 1)
-		{echo '<span class="fort">Devrait être fini</span>' ;}?>
+		{echo '<span class="fort">Devrait être fini</span>' ;}
 
-	<input type="submit" value="Rechercher" />
-	</form> </p>  <?php
+	if ($a > 0)
+		{
+		echo '<input type="hidden" value="'.$reprechercheencours['idrecherche'].'" name="idrecherche" />';
+		echo '&ensp;<a class="infobulle"><input type="image" src="/imagecarte/recherche.png" alt=" Rechercher " formaction="script/enregistrementrecherche.php"/>';
+		echo '<span>Priorise cette recherche.</span></a></form>';
+		}
+
+	echo '</p>';
+	$a++;
 	}
 
 $reqrechercheencours->closeCursor();

@@ -68,5 +68,5 @@ $reqcreerquartiergeneral->execute(array(33, $dernierIDplanete));
 $_SESSION['pseudo'] = $_POST["pseudo"];
 $_SESSION['id'] = $dernierIDjoueur;
 
-header('Location: ../capitale.php?message=4');
+header('Location: ../capitale/capitale.php?message=4');
 ?>

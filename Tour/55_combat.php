@@ -5,8 +5,17 @@ require __DIR__ . '/../include/bddconnection.php';
 require __DIR__ . '/../tour/01_fonctionsdutour.php';
 */
 
-// Toutes les batailles sont actives :
-$reqactivertouteslesbatailles = $bd->query('UPDATE c_bataille SET active = 1');
+
+
+// Activer les batailles à taitrer :
+if ($tourrestraint == 'non')
+    {
+    $reqactivertouteslesbatailles = $bd->query('UPDATE c_bataille SET active = 1');
+    }
+else
+    {
+    $reqactivertouteslesbatailles = $bd->query("UPDATE c_bataille SET active = 1 WHERE idflotteoffensive IN ('.$idflottes.')");
+    }
 
 // Recharge des armes :
 $reqrechargearmes = $bd->prepare('UPDATE c_composantvaisseau SET tirrestant = ? WHERE iditemcomposant = ?');

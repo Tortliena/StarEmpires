@@ -1,7 +1,7 @@
 <?php
 function destruction($idbatiment, $idplanete)
 	{
-	echo '<form method="post" action="script/detruire.php">';
+	echo '<form method="post">';
 	echo '<input type="hidden" name="idplanete" value="'.$idplanete.'">';
 	echo '<input type="hidden" name="idbatiment" value="'.$idbatiment.'">';
 	if ($idbatiment > 0)

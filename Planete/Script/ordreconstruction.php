@@ -83,9 +83,9 @@ $reqverifiertechnologie = $bd->prepare('SELECT idrechprinc FROM c_rech_joueur WH
         if ($repinfoitem['itemnecessaire'] > 1) 
             { // Cas ou l'on a besoin d'un item en stock pour faire cette construction 
             $reqverifsilo = $bd->prepare('SELECT quantite FROM c_silo WHERE idplanetesilo = ? AND iditems = ?'); 
-            $reqverifsilo->execute(array($_POST['id'], $repinfoitem['itemnecessaire'])); 
+            $reqverifsilo->execute(array($_POST['idplanete'], $repinfoitem['itemnecessaire'])); 
             $repverifsilo = $reqverifsilo->fetch();        
-            if ($repverifsilo['quantite']<$_POST['combien']) 
+			if ($repverifsilo['quantite']<$_POST['combien']) 
                 { // Vous n'avez pas assez en stock pour faire autant de construction ! 
                 header("Location: ../planete.php?message=28&id=" . urlencode($_POST['idplanete']));  
                 exit(); 

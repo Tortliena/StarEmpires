@@ -8,10 +8,11 @@ require __DIR__ . '/10_affichagedestours.php';
 ?>
 
 <!-- Passer le tour manuellement -->
-<form action="../tour/gestionglobale.php">
-<p>
-    <input type="submit" value="Passer le tour" />
-</p>
+<form action="../tour/gestionglobale.php" method="get">
+  <p>
+  <input type="hidden" name="mdp" value="yguhirtsef">
+  <input type="submit" value="Passer tour : Admin lvl!" />
+  </p>
 </form>
 
 <!-- Reset l'univers ! -->
@@ -34,6 +35,8 @@ require __DIR__ . '/10_affichagedestours.php';
 
 <?php
 require __DIR__ . '/40_gestiondesnews.php';
+
+require __DIR__ . '/60_connexionjoueur.php';
 
 require __DIR__ . '/../include/affichernews.php';
 ?>

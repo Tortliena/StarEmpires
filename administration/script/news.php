@@ -1,11 +1,14 @@
 <?php
 session_start();
 require __DIR__ . '/../../include/bddconnection.php';
+require __DIR__ . '/includescriptadmin.php';
 
+/*
 echo 'Id du joueur : '.$_SESSION['id'].'</br>' ;
 echo 'Texte de la news : '.$_POST['textenews'].'</br>';
 echo 'Titre de la news : '.$_POST['titre'].'</br>';
 echo 'id de la news en cours de modifications (s\'il y a lieu) : '.$_POST['modifnews'].'</br>';
+*/
 
 if(isset($_POST['modifnews']))
 	{

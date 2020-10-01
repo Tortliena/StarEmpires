@@ -79,8 +79,9 @@ for ($x = 0 ; $x <= $xymax ; $x++)
 				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/vaisseaumechant.png" alt="vaisseaumechant" /></a></td>' ;     
 				}
 			else
-				{   
-				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/explore.png" alt="explore" /></a></td>' ;   
+				{
+				$randimage = rand (1,2);  
+				echo '<td class = "tdcarte"><a href="hangars.php?id=' . $_GET['id'] . '&amp;x=' . $x . '&amp;y=' . $y . '"><img class = "carte" src="../imagecarte/explore'.$randimage.'.png" alt="explore" /></a></td>' ;   
 				}   
 			}
 		}   

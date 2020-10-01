@@ -3,7 +3,7 @@
 require __DIR__ . '/../hangars/fonction/flotte.php';
 
 // Affichage du tour en cours : 
-$reponse = $bd->query('SELECT id FROM c_tour ORDER BY id DESC LIMIT 1');
+$reponse = $bd->query('SELECT id, fintour FROM c_tour ORDER BY id DESC LIMIT 1');
 $touractuel = $reponse->fetch();
 $reponse->closeCursor(); 
 echo 'Tour '.$touractuel['id'].'</br>' ; 
@@ -16,12 +16,12 @@ echo '<a class ="lienmenu" href="/forum/index.php">Forum</a></br><br>';
 if (isset($_SESSION['pseudo'])) 
 	{
 	// récupérer le niveau du joueur.
-   	$reqlvl = $bd->prepare('SELECT lvl, creditgalactique, niveauadmin from c_utilisateurs WHERE id= ?');
+   	$reqlvl = $bd->prepare('SELECT * from c_utilisateurs WHERE id = ?');
     $reqlvl->execute(array($_SESSION['id']));
     $replvl = $reqlvl->fetch();
     echo 'Logging : ' . $_SESSION['pseudo'] . ' </br> ';
     echo '<a class ="lienmenu" href="/script/deconnection.php">Déconnection</a></br>';
-    echo '<a class ="lienmenu" href="/messagerie.php">Messagerie</br>';
+    echo '<a class ="lienmenu" href="/messagerie/messagerie.php">Messagerie</br>';
 
     $reqmessnonlu = $bd->prepare('SELECT COUNT(*) AS nbmessnonlu FROM c_messagerie WHERE idjoueurrecepteur = ? AND lu = ? AND supprimerecepteur = ?');
     $reqmessnonlu->execute(array($_SESSION['id'], 0, 0));
@@ -38,7 +38,7 @@ if (isset($_SESSION['pseudo']))
         }
     echo '</a></br>';
         
-    echo '<a class ="lienmenu"  href="/capitale.php">Capitale</a> </br>';
+    echo '<a class ="lienmenu"  href="/capitale/capitale.php">Capitale</a> </br>';
 	if ($replvl['lvl'] > 1)
         {
         echo '<a class ="lienmenu" href="/recherche.php">Recherche</a></br>';
@@ -123,9 +123,9 @@ if (isset($_SESSION['pseudo']))
 <input type="submit" value="Passer le tour" />
 </p>
 </form>
+<a class ="lienmenu" href="/statjoueurs.php">Stats des joueurs</a> </br> 
 
 <!--
-<a class ="lienmenu" href="/tour/test.php">test du tour</a> </br> 
 <a class ="lienmenu" href="/test.php?id=1">test de page</a> </br>
 <a class ="lienmenu" href="/script/test.php?table=autre&amp;backup=non">test de script</a> </br>-->
 

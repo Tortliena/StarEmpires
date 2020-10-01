@@ -8,8 +8,14 @@ include("../function/structurevaisseau.php");
 $reqvaisseau = $bd->prepare('SELECT idvaisseau FROM c_vaisseau WHERE idflottevaisseau = ?');
 $reqMAJflotte = $bd->prepare('UPDATE c_flotte SET structuretotale = ? WHERE idflotte = ?');
 
-
-$reqflotte = $bd->query("SELECT idflotte FROM c_flotte");
+if ($tourrestraint == 'non')
+    {
+    $reqflotte = $bd->query("SELECT idflotte FROM c_flotte");
+    }
+else
+    {
+    $reqflotte = $bd->query("SELECT idflotte FROM c_flotte WHERE idflotte IN ('.$idflottes.')");
+    }
 while($repflotte = $reqflotte->fetch())
   {
   $structureflotte = 0;
@@ -19,7 +25,6 @@ while($repflotte = $reqflotte->fetch())
     list($structure, $structuremax) = structurevaisseau($repvaisseau['idvaisseau']);
     $structureflotte = $structureflotte + $structure; 
     }
-
   $reqMAJflotte->execute(array($structureflotte, $repflotte['idflotte']));
   }
 

@@ -14,10 +14,19 @@ $reqcompterbatiment = $bd->prepare('SELECT sum(case when typebat = 1 then 1 else
                                             sum(case when typebat = 33 then 1 else 0 end) AS HQ
                                     FROM c_batiment WHERE idplanetebat = ?');
 
-// Gerer les planetes une par une. Compter batiments. Taille planete. Compter pop.
-$reqinfoplanete = $bd->query('  SELECT pl.idplanete, pl.taille, pl.lune, pl.environnement, COUNT(p.idpop) AS population
-                                FROM c_planete AS pl INNER JOIN c_population AS p ON p.idplanetepop = pl.idplanete
-                                GROUP BY p.idplanetepop');
+if ($tourrestraint == 'non')
+    {
+    // Gerer les planetes une par une. Compter batiments. Taille planete. Compter pop.
+    $reqinfoplanete = $bd->query('  SELECT pl.idplanete, pl.taille, pl.lune, pl.environnement, COUNT(p.idpop) AS population
+                                    FROM c_planete AS pl INNER JOIN c_population AS p ON p.idplanetepop = pl.idplanete
+                                    GROUP BY p.idplanetepop');
+    }
+else
+    {   
+    $reqinfoplanete = $bd->query('  SELECT pl.idplanete, pl.taille, pl.lune, pl.environnement, COUNT(p.idpop) AS population
+                                    FROM c_planete AS pl INNER JOIN c_population AS p ON p.idplanetepop = pl.idplanete
+                                    WHERE p.idplanetepop IN ('.$idplanetes.') GROUP BY p.idplanetepop');
+    }
 while ($repinfoplanete = $reqinfoplanete->fetch())
     { // Attention, si pas de pop, alors pas de calcul ici ! ! ! 
     $reqcompterbatiment->execute(array($repinfoplanete['idplanete']));

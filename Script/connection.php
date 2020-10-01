@@ -36,7 +36,6 @@ echo $_POST["cookie"] . '</br>' ;
 // Comparaison du pass envoyé via le formulaire avec la base
 $isPasswordCorrect = password_verify($_POST['pass'], $resultat['motdepasse']);
 
-
 // Cas ou l'on a pas entré un pseudo existant.
 if (!$resultat)
     {
@@ -57,7 +56,7 @@ else
             setcookie("id", $_SESSION['id'], time() + (86400 * 30), "/");
             setcookie("pass", $_POST['pass'], time() + (86400 * 30), "/");
             }
-        header('Location: ../capitale.php');
+        header('Location: ../capitale/capitale.php');
         exit();
         } 
     else // Le pseudo existe, mais le mot de passe ne colle pas.
@@ -68,5 +67,4 @@ else
         exit();
         }
     }
-
 ?>

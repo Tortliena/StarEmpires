@@ -66,47 +66,55 @@ $reqargentgalactique = $bd->prepare('SELECT creditgalactique FROM c_utilisateurs
 
 //Pour lvl 13 à 14 : 
 // Voir 10-11, même fonction.
- 
-$reqlvl = $bd->QUERY('SELECT lvl, id from c_utilisateurs ORDER BY id ASC'); 
+
+if ($tourrestraint == 'non')
+    {
+    $reqlvl = $bd->query('SELECT lvl, id from c_utilisateurs ORDER BY id ASC');
+    }
+else
+    {
+    $reqlvl = $bd->prepare('SELECT lvl, id from c_utilisateurs WHERE id = ?');
+    $reqlvl->execute(array($_SESSION['id']));
+    }
 while($replvl = $reqlvl->fetch()) 
-  { 
-  switch ($replvl['lvl']) 
-    {  
-    case 1:   
-      $reqcountpop->execute(array(2, $replvl['id'])); 
-      $repcountouvrier = $reqcountpop->fetch(); 
+  {
+  switch ($replvl['lvl'])
+    {
+    case 1:
+      $reqcountpop->execute(array(2, $replvl['id']));
+      $repcountouvrier = $reqcountpop->fetch();
 
-      $reqcountpop->execute(array(3, $replvl['id'])); 
-      $repcountscient = $reqcountpop->fetch(); 
+      $reqcountpop->execute(array(3, $replvl['id']));
+      $repcountscient = $reqcountpop->fetch();
 
-      // Compter les ouvriers et les scientifiques, si au moins 1, alors monter de niveau. 
-      if ($repcountouvrier['nb']>0 AND $repcountscient['nb']>0) 
-        { 
+      // Compter les ouvriers et les scientifiques, si au moins 1, alors monter de niveau.
+      if ($repcountouvrier['nb']>0 AND $repcountscient['nb']>0)
+        {
         $Commentairestour .= monterniveau($replvl['id'], $replvl['lvl']+1);
-        } 
-    break; 
+        }
+    break;
 
-    case 2: 
-      $reqrechechemoteur->execute(array($replvl['id'])); 
-      $reprechechemoteur = $reqrechechemoteur->fetch(); 
-        // Si on a fait la recherche des moteurs interstellaires, alors monter niveau. 
-      if ($reprechechemoteur['nb']>0) 
-        { 
+    case 2:
+      $reqrechechemoteur->execute(array($replvl['id']));
+      $reprechechemoteur = $reqrechechemoteur->fetch();
+        // Si on a fait la recherche des moteurs interstellaires, alors monter niveau.
+      if ($reprechechemoteur['nb']>0)
+        {
         $Commentairestour .= monterniveau($replvl['id'], $replvl['lvl']+1);
         $reqmessageinterne->execute(array('Conseil civil', $replvl['id'], 0, 'Développement', 'Nous entrons dans une nouvelle ère. Nous pourrions avoir besoin de massivement investir dans notre puissance industrielle et scienfique. Nous avons besoin de développer des labos de recherche de taille mondiale et des chantiers de construction capable de réaliser d\'énormes projets.'));
 
-        // Permet de creer un design pour le joueur. 
-        $reqcreerdesign = $bd->prepare('INSERT INTO c_vaisseau(idflottevaisseau, nomvaisseau) VALUES (?, ?)'); 
+        // Permet de creer un design pour le joueur.
+        $reqcreerdesign = $bd->prepare('INSERT INTO c_vaisseau(idflottevaisseau, nomvaisseau) VALUES (?, ?)');
         $reqcreerdesign->execute(array(-$replvl['id'], 'Vaisseau d\'exploration'));
-        } 
-    break; 
+        }
+    break;
 
-    case 3: 
-      $reqvaisseausorti->execute(array($replvl['id'])); 
-      $repvaisseausorti = $reqvaisseausorti->fetch(); 
-      // Si un vaisseau est dehors, alors on monte de niveau. 
-      if ($repvaisseausorti['nb']>0) 
-        { 
+    case 3:
+      $reqvaisseausorti->execute(array($replvl['id']));
+      $repvaisseausorti = $reqvaisseausorti->fetch();
+      // Si un vaisseau est dehors, alors on monte de niveau.
+      if ($repvaisseausorti['nb']>0)
+        {
         $Commentairestour .= monterniveau($replvl['id'], $replvl['lvl']+1);
         }
     break;
@@ -119,13 +127,13 @@ while($replvl = $reqlvl->fetch())
         {
         $Commentairestour .= monterniveau($replvl['id'], $replvl['lvl']+1);
         }
-    break; 
+    break;
 
-    case 5: 
-      // Pour monter de niveau, il faut avoir perdu des points de vie d'un vaisseau. 
-      $reqpvperdusurunvaisseau->execute(array($replvl['id'])); 
-      $reppvperdusurunvaisseau = $reqpvperdusurunvaisseau->fetch(); 
-      if (isset($reppvperdusurunvaisseau['idvaisseau'])) 
+    case 5:
+      // Pour monter de niveau, il faut avoir perdu des points de vie d'un vaisseau.
+      $reqpvperdusurunvaisseau->execute(array($replvl['id']));
+      $reppvperdusurunvaisseau = $reqpvperdusurunvaisseau->fetch();
+      if (isset($reppvperdusurunvaisseau['idvaisseau']))
         {
         $Commentairestour .= monterniveau($replvl['id'], $replvl['lvl']+1);
         $reqmessageinterne->execute(array('Amirauté', $replvl['id'], 0, 'Réparation et amélioration des vaisseaux', 'Notre vaisseau d\'exploration est dans un triste état. Nous devrions le faire rentrer sur notre planète et le réparer. Nous pourrions aussi en profiter pour améliorer ce vaisseau avec du meilleur équipement. Nous devrions investir dans la recherche dans ce sens. Nous allons avoir un important besoin de ressources et nous pourrions constuire aussi des vaisseaux spécialisé dans la récolte de ressources spatiales.'));

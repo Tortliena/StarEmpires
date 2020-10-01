@@ -62,10 +62,6 @@ $reqmodule = $bd->prepare(" SELECT v.idvaisseau FROM c_composantvaisseau c
                             WHERE v.idflottevaisseau = ? AND c.iditemcomposant = ?
                             LIMIT 1");
 
-// Requetes dans combat, parce qu'on l'utilise là bas.
-$reqflotte = $bd->prepare('     SELECT * FROM c_flotte f
-                                LEFT JOIN c_planete p ON p.idplanete = f.idplaneteflotte
-                                WHERE typeordre = ?');
 $requpdateordre = $bd->prepare('UPDATE c_flotte SET universdestination = ?, xdestination = ?, ydestination = ?, typeordre = ?, bloque = ? WHERE idflotte = ?');
 
 // Trouver les flottes en défense :
@@ -73,11 +69,23 @@ $reqtrouverflottedelaplanete = $bd->prepare('   SELECT v.idvaisseau FROM c_flott
                                                 INNER JOIN c_planete p ON p.idplanete = f.idplaneteflotte
                                                 INNER JOIN c_vaisseau v ON v.idflottevaisseau = f.idflotte
                                                 WHERE f.universflotte = ? AND p.universplanete = ? AND f.xflotte = ? AND p.xplanete = ? AND f.yflotte = ? AND p.yplanete = ?');
-$reqtrouverflottedefense = $bd->prepare('       SELECT v.idvaisseau FROM flotte f
-                                                INNER JOIN c_planete p ON p.idplanete = -f.idplaneteflotte
-                                                INNER JOIN c_vaisseau v ON v.idflottevaisseau = f.idflotte
-                                                WHERE p.universplanete = ? AND p.xplanete = ? AND p.yplanete = ?');
+$reqtrouverflottedefense = $bd->prepare('   SELECT v.idvaisseau FROM flotte f
+                                            INNER JOIN c_planete p ON p.idplanete = -f.idplaneteflotte
+                                            INNER JOIN c_vaisseau v ON v.idflottevaisseau = f.idflotte
+                                            WHERE p.universplanete = ? AND p.xplanete = ? AND p.yplanete = ?');
 
+if ($tourrestraint == 'non')
+    {
+    $reqflotte = $bd->prepare(' SELECT * FROM c_flotte f
+                                LEFT JOIN c_planete p ON p.idplanete = f.idplaneteflotte
+                                WHERE typeordre = ?');
+    }
+else
+    {
+    $reqflotte = $bd->prepare(" SELECT * FROM c_flotte f
+                                LEFT JOIN c_planete p ON p.idplanete = f.idplaneteflotte
+                                WHERE typeordre = ? AND f.idflotte IN ('$idflottes')");
+    }
 
 $reqflotte->execute(array(1)); // ordre de récolte des astéroides (= typeordre 1) 
 while ($repflotte = $reqflotte->fetch()) 
@@ -303,7 +311,6 @@ while ($repflotte = $reqflotte->fetch())
             $yeffectif = $repflotte['yflotte'] + $vitesse;
             }
         } 
- 
     // Applique le déplacement : 
     $applicationdeplacement->execute(array($xeffectif , $yeffectif , $repflotte['universdestination'], $repflotte['idflotte'])); 
 

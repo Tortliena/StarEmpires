@@ -12,7 +12,7 @@ else
 $reqnbnews = $bd->query('SELECT COUNT(*) nb FROM b_news');
 $repnbnews = $reqnbnews->fetch();
 
-echo '<p><h3>News du site : </h3>';
+echo '<p><h3>News du site :</h3>';
 $reqvoirnews = $bd->prepare('SELECT * FROM b_news ORDER BY datenews DESC LIMIT :exclusion , :nombredenews ');
 $reqvoirnews->bindParam(':nombredenews', $nombrenewsaffichees, PDO::PARAM_INT);
 $reqvoirnews->bindParam(':exclusion', $idnews, PDO::PARAM_INT);

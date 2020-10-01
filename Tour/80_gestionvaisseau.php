@@ -8,6 +8,6 @@ include("../function/caracteristiquesvaisseau.php");
 $reqselectionvaisseau = $bd->query('SELECT idvaisseau FROM c_vaisseau ORDER BY idvaisseau');
 while ($repselectionvaisseau = $reqselectionvaisseau->fetch())
     {
-    caracteristiquesvaisseau ($repselectionvaisseau['idvaisseau']); 
+    caracteristiquesvaisseau($repselectionvaisseau['idvaisseau']); 
     }
 ?>

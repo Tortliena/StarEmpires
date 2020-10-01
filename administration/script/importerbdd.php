@@ -1,11 +1,23 @@
 <?php 
 session_start();
 require __DIR__ . '/../../include/bddconnection.php';
+require __DIR__ . '/includescriptadmin.php';
+
+// Gère l'importation/exportation sur le local ou en ligne.
+$path = $_SERVER['DOCUMENT_ROOT'];
+if ($path == 'C:/wamp64/www/Starempires')
+    {
+    define("DB_USER", 'root');
+    define("DB_PASSWORD", 'root');
+    }
+else
+    {
+    define("DB_USER", 'kaien_kaien');
+    define("DB_PASSWORD", 'ucqX8kaS7LtT3ni');
+    }
 
 define("DB_NAME", 'kaien_starsempire');
 define("BACKUP_FILE", 'kaien_starsempire.sql');
-define("DB_USER", 'root');
-define("DB_PASSWORD", 'root');
 define("DB_HOST", 'localhost');
 define("BACKUP_DIR", '../');
 define("TABLES", '*');

@@ -13,7 +13,15 @@ $reqplanetebesoinorga = $bd->prepare('SELECT COUNT(*) AS besoinorga FROM c_plane
 $reqaugmentationorganisation = $bd->prepare('UPDATE c_planete SET organisation = organisation + ? WHERE idplanete = ?');
 $reqaugmentationefficacite = $bd->prepare('UPDATE c_planete SET efficacite = ? WHERE idplanete = ?');
 
-$reqjoueur = $bd->query('SELECT id FROM c_utilisateurs ORDER BY id ASC');
+if ($tourrestraint == 'non')
+    {
+    $reqjoueur = $bd->query('SELECT id FROM c_utilisateurs ORDER BY id ASC');
+    }
+else
+    {
+    $reqjoueur = $bd->prepare('SELECT id FROM c_utilisateurs WHERE id = ?');
+    $reqjoueur->execute(array($_SESSION['id']));
+    }
 while ($repjoueur= $reqjoueur->fetch())
     { // Gestion des joueurs un par un.
     
@@ -48,7 +56,7 @@ while ($repjoueur= $reqjoueur->fetch())
         $augmentation[$i] = $gain[$i+1] - $gain[$i];
         }
 
-    Sort($augmentation); // Permet de faire gagner plus d'organisation sur les planetes biens organisees.
+    sort($augmentation); // Permet de faire gagner plus d'organisation sur les planetes biens organisees.
     
     for ($i = 0; $i < $repplanetebesoinorga['besoinorga']; $i++)
         { // fonction permettant de distribuer les gains entre les planetes.
@@ -62,12 +70,23 @@ while ($repjoueur= $reqjoueur->fetch())
     
     $Commentairestour .= 'joueur '.$repjoueur['id'].' possede une orga de '.$reporganisationactuelle['orga'].' et son gain dorga est de '.$orgagenere.' et il y a '.$repplanetebesoinorga['besoinorga'].' planete ayant besoin dorga.<br>';
     }
-
+    
 // Gerer les planetes une par une pour calculer l'efficacite. Faire update efficacite sur les planete (= orga / (pop*10))
-$reqgestionplanete = $bd->query('   SELECT pl.idplanete, pl.organisation, COUNT(*) AS population
-                                    FROM c_population AS p
-                                    INNER JOIN c_planete AS pl ON p.idplanetepop = pl.idplanete
-                                    GROUP BY p.idplanetepop');
+if ($tourrestraint == 'non')
+    {
+    $reqgestionplanete = $bd->query('   SELECT pl.idplanete, pl.organisation, COUNT(*) AS population
+                                        FROM c_population AS p
+                                        INNER JOIN c_planete AS pl ON p.idplanetepop = pl.idplanete
+                                        GROUP BY p.idplanetepop');
+    }
+else
+    {
+    $reqgestionplanete = $bd->query('   SELECT pl.idplanete, pl.organisation, COUNT(*) AS population
+                                        FROM c_population AS p
+                                        INNER JOIN c_planete AS pl ON p.idplanetepop = pl.idplanete
+                                        WHERE p.idplanetepop IN ('.$idplanetes.')
+                                        GROUP BY p.idplanetepop ');
+    }
 while ($repgestionplanete = $reqgestionplanete->fetch())
     {
     $efficacite = ROUND($repgestionplanete['organisation'] / $repgestionplanete['population'] / 10);

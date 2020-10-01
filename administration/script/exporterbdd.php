@@ -2,53 +2,65 @@
 session_start();
 require __DIR__ . '/../../include/bddconnection.php';
 
-if ($_GET['backup'] == 'non')
+if (isset($_GET['backup']) AND $_GET['backup'] == 'non')
     {
+    require __DIR__ . '/includescriptadmin.php';
     define("BACKUP_DIR", '../');
     }
-elseif ($_GET['backup'] == 'oui')
+elseif (isset($_GET['backup']) AND $_GET['backup'] == 'oui')
     {
+    require __DIR__ . '/includescriptadmin.php';
     define("BACKUP_DIR", '../bddbackup/');
+    }
+elseif (isset($_GET["mdp"]) AND $_GET["mdp"] == 'lrsngrlsntjls')
+    {
+    define("BACKUP_DIR", '../bddbackup/');  
+    }
+else
+    {
+    exit;
     }
 
 // Code permettant de choisir les tables à exporter.
-if ($_GET['table'] == 'univers')
+if (isset($_GET['table']) AND $_GET['table'] == 'univers')
     {
     $reqtexteniveau = $bd->prepare("SELECT TABLE_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE CONSTRAINT_SCHEMA = 'kaien_starsempire' AND TABLE_NAME LIKE 'c%'"); 
     }
-elseif ($_GET['table'] == 'news')
+elseif (isset($_GET['table']) AND $_GET['table'] == 'news')
     {
     $reqtexteniveau = $bd->prepare("SELECT TABLE_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE CONSTRAINT_SCHEMA = 'kaien_starsempire' AND TABLE_NAME LIKE 'b%'"); 
     }
-elseif ($_GET['table'] == 'datasite')
+elseif (isset($_GET['table']) AND $_GET['table'] == 'datasite')
     {
     $reqtexteniveau = $bd->prepare("SELECT TABLE_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE CONSTRAINT_SCHEMA = 'kaien_starsempire' AND TABLE_NAME LIKE 'a%'"); 
     }
 else
     {
-    $reqtexteniveau = $bd->prepare("SELECT TABLE_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE CONSTRAINT_SCHEMA = 'kaien_starsempire'"); 
+    $reqtexteniveau = $bd->prepare("SELECT TABLE_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE CONSTRAINT_SCHEMA = 'kaien_starsempire' AND (TABLE_NAME LIKE 'a%' OR TABLE_NAME LIKE 'b%' OR TABLE_NAME LIKE 'c%')"); 
     }
+
 $a = 0;
-$reqtexteniveau->execute(); 
+$reqtexteniveau->execute(array()); 
 while($reptexteniveau = $reqtexteniveau->fetch())
     {
     if ($a == 0)
-    {
-    $nomsdestables = $reptexteniveau['TABLE_NAME'];
-    }
+        {
+        $nomsdestables = $reptexteniveau['TABLE_NAME'];
+        }
     else
-    {
-    $nomsdestables .= ', '.$reptexteniveau['TABLE_NAME'];
-    }
+        {
+        $nomsdestables .= ', '.$reptexteniveau['TABLE_NAME'];
+        }
     $a++;
     }
 
+// Permet de supprimer le fichier et éviter l'accumulation de données.
 $fichier = '../kaien_starsempire.sql';
 if(file_exists($fichier))
     unlink( $fichier );
 
+// Gère l'importation/exportation sur le local ou en ligne.
 $path = $_SERVER['DOCUMENT_ROOT'];
-
 if ($path == 'C:/wamp64/www/Starempires')
     {
     define("DB_USER", 'root');
@@ -93,13 +105,17 @@ public function __construct($host, $username, $passwd, $dbName, $charset = 'utf8
     $this->conn                    = $this->initializeDatabase();
     $this->backupDir               = BACKUP_DIR ? BACKUP_DIR : '.';
 
-    if ($_GET['backup'] == 'non')
+    if (isset($_GET['backup']) AND $_GET['backup'] == 'non')
         {
         $this->backupFile              = $this->dbName.'.sql';
         }
-    elseif ($_GET['backup'] == 'oui')
+    else
         {
-        $this->backupFile              = $this->dbName.'-'.date("Ymd_His", time()).'.sql';
+        require __DIR__ . '/../../include/bddconnection.php';
+        $reqtour = $bd->query('SELECT id, fintour FROM c_tour ORDER BY id DESC LIMIT 1');
+        $reptour = $reqtour->fetch();
+
+        $this->backupFile              = $this->dbName.'-'.$reptour['id'].'-'.date("Ymd_His", time()).'.sql';
         }
 
     $this->gzipBackupFile          = defined('GZIP_BACKUP_FILE') ? GZIP_BACKUP_FILE : true;
@@ -355,7 +371,7 @@ if (php_sapi_name() != "cli")
     echo '</div>';
     }
 
-if ($_GET['backup'] == 'non')
+if (isset($_GET['backup']) AND $_GET['backup'] == 'non')
     {
     echo '<a class ="lienmenu" href="../administration.php">Retour à l\'administration</a></br></br>';
     echo '<a class ="lienmenu" href="exporterbdd.php?table=autre&amp;backup=oui">Faire un backup</a></br>';

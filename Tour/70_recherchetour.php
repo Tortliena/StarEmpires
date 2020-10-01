@@ -22,12 +22,24 @@ $reqtrouverplaneteavecitem = $bd->prepare(" SELECT s.idplanetesilo, i.itemnecess
 
 $reqarbretechno = $bd->prepare('SELECT idrecherche FROM a_recherche WHERE recherchenecessaire = ? AND niveauminimal <= ?'); 
 
-$reqrecherchejoueur = $bd->query('SELECT u.id, u.recherche, u.lvl, rj.avrech, rj.rechnesc, rj.idrech, rj.idrechprinc, r.itemnecessaire, r.niveauminimal
-                  FROM (SELECT min(ordrerecherche) AS min, avrech, rechnesc, idrech FROM c_rech_joueur WHERE rechposs = 0 GROUP BY idjoueurrecherche) AS x
-                  INNER JOIN c_rech_joueur as rj ON rj.idjoueurrecherche = idjoueurrecherche AND rj.ordrerecherche = x.min
-                  INNER JOIN c_utilisateurs u ON u.id = rj.idjoueurrecherche
-                  INNER JOIN a_recherche r ON rj.idrech = r.idrecherche
-                  ');  // O putain c'est quoi cette requete de dingue !?
+if ($tourrestraint == 'non')
+    {
+    $reqrecherchejoueur = $bd->query('SELECT u.id, u.recherche, u.lvl, rj.avrech, rj.rechnesc, rj.idrech, rj.idrechprinc, r.itemnecessaire, r.niveauminimal
+    FROM (SELECT min(ordrerecherche) AS min, avrech, rechnesc, idrech FROM c_rech_joueur WHERE rechposs = 0 GROUP BY idjoueurrecherche) AS x
+    INNER JOIN c_rech_joueur as rj ON rj.idjoueurrecherche = idjoueurrecherche AND rj.ordrerecherche = x.min
+    INNER JOIN c_utilisateurs u ON u.id = rj.idjoueurrecherche
+    INNER JOIN a_recherche r ON rj.idrech = r.idrecherche ');  // O putain c'est quoi cette requete de dingue !?
+    }
+else
+    {
+    $reqrecherchejoueur = $bd->prepare('SELECT u.id, u.recherche, u.lvl, rj.avrech, rj.rechnesc, rj.idrech, rj.idrechprinc, r.itemnecessaire, r.niveauminimal
+    FROM (SELECT min(ordrerecherche) AS min, avrech, rechnesc, idrech FROM c_rech_joueur WHERE rechposs = 0 GROUP BY idjoueurrecherche) AS x
+    INNER JOIN c_rech_joueur as rj ON rj.idjoueurrecherche = idjoueurrecherche AND rj.ordrerecherche = x.min
+    INNER JOIN c_utilisateurs u ON u.id = rj.idjoueurrecherche
+    INNER JOIN a_recherche r ON rj.idrech = r.idrecherche
+    WHERE u.id = ? ');  // O putain c'est quoi cette requete de dingue !?
+    $reqrecherchejoueur->execute(array($_SESSION['id']));
+    }
 while ($reprecherchejoueur = $reqrecherchejoueur->fetch())
     {
     // echo '<br>Id du joueur : '.$reprecherchejoueur['id'].'. Id de la recherche : '.$reprecherchejoueur['idrech'];
@@ -62,15 +74,13 @@ while ($reprecherchejoueur = $reqrecherchejoueur->fetch())
     }
 
 // Permet de créer une recherche lorsqu'on a un artefact en stock.
-$reqinfoartefact = $bd->prepare(" SELECT i.technescessaire, p.idjoueurplanete FROM c_silo AS s
-                                  INNER JOIN a_items AS i ON s.iditems = i.iditem
-                                  INNER JOIN c_planete p ON p.idplanete = s.idplanetesilo
-                                  WHERE i.typeitem = 'artefact'");
+$reqinfoartefact = $bd->query(" SELECT i.technescessaire, p.idjoueurplanete FROM c_silo AS s
+                                INNER JOIN a_items AS i ON s.iditems = i.iditem
+                                INNER JOIN c_planete p ON p.idplanete = s.idplanetesilo
+                                WHERE i.typeitem = 'artefact'");
 $reqinfoartefact->execute(array());
 while ($repinfoartefact = $reqinfoartefact->fetch())
     {
-    echo 'technecessaire : '.$repinfoartefact['technescessaire'].'<br>';
-    echo 'id du joueur : '.$repinfoartefact['idjoueurplanete'].'<br>';
     creerrecherche($repinfoartefact['technescessaire'], $repinfoartefact['idjoueurplanete']); 
     }
 ?>

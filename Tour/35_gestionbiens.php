@@ -25,7 +25,17 @@ $requpdatepop = $bd->prepare("  UPDATE c_population SET typepoparrivee = 1
 $variationdutour = $bd->prepare('UPDATE c_variationstour SET coutstockage = ? where idplanetevariation = ?');
 
 // Ajout au stock actuel.
-$reqinfoplanete = $bd->query('SELECT v.idplanetevariation, v.prodbiens, v.consobiens, v.entretien, p.biens, p.idjoueurplanete FROM c_planete p INNER JOIN c_variationstour v ON v.idplanetevariation = p.idplanete ORDER BY p.idplanete');
+if ($tourrestraint == 'non')
+    {
+    $reqinfoplanete = $bd->query('SELECT v.idplanetevariation, v.prodbiens, v.consobiens, v.entretien, p.biens, p.idjoueurplanete  
+    FROM c_planete p INNER JOIN c_variationstour v ON v.idplanetevariation = p.idplanete ORDER BY p.idplanete');
+    }
+else
+    {
+    $reqinfoplanete = $bd->query('SELECT v.idplanetevariation, v.prodbiens, v.consobiens, v.entretien, p.biens, p.idjoueurplanete  
+    FROM c_planete p INNER JOIN c_variationstour v ON v.idplanetevariation = p.idplanete WHERE p.idplanete IN ('.$idplanetes.') ORDER BY p.idplanete');
+    }
+
 while ($repinfoplanete = $reqinfoplanete->fetch())
     {      
     $gain = 0;

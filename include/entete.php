@@ -10,12 +10,16 @@ elseif (!isset($_SESSION['id']) AND $_SERVER['PHP_SELF'] != '/accueil.php')
   header('Location: /accueil.php');
   exit();
   }
-
 require __DIR__ . '/../include/bddconnection.php';
 
 echo '<!DOCTYPE html><html><head><meta charset="utf-8" /><link rel="stylesheet" href="/css/importcss.css" /><title>Starsempire</title></head><body>';
-$path = $_SERVER['DOCUMENT_ROOT'];
-$pathmenu = $path.'/include/menu.php';
-include($pathmenu);
+include($_SERVER['DOCUMENT_ROOT'].'/include/menu.php');
+
+if ($_SERVER['PHP_SELF'] != '/accueil.php' AND $touractuel['fintour'] == 0 AND $_SERVER['PHP_SELF'] != '/administration/administration.php' AND $_SERVER['PHP_SELF'] != '/administration/afaire.php')
+  {
+  header('Location: /accueil.php?message=84');
+  exit();
+  }
+
 echo '<div class="corps">';
 ?>

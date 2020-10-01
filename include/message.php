@@ -228,11 +228,11 @@ switch ($_GET["message"])
     break; 
  
     case 50: 
-        echo "Votre vaisseau ne va pas décharger."; 
+        echo "Vous n'avez pas l'autorisation de passer le tour."; 
     break; 
  
     case 51: 
-        echo "Votre vaisseau va rester dans l'espace et ne va pas rentrer en orbite."; 
+        echo "Vous n'avez pas les droits d'administration suffisants."; 
     break; 
  
     case 52: 
@@ -359,6 +359,26 @@ switch ($_GET["message"])
 
     case 83:
         echo "Colonisation lancée !";
+    break;
+
+    case 84:
+        echo "Tour encore en cours !";
+    break;
+
+    case 85:
+        echo "Vous venez de passer un tour. Ce tour fait partie du tutoriel, cela n'affecte que vous. Les tours communs ont lieu 1 fois par jour.";
+    break;
+
+    case 86:
+        echo "Vous ne pouvez pas ordonner plus de transfert de vaisseaux. Attendez que certains transferts se finissent ou annuler des ordres de transferts.";
+    break;
+
+    case 87:
+        echo "Votre vaisseau doit forcément être transférer vers une autre planète.";
+    break;
+
+    case 88:
+        echo "Transfert démarré.";
     break;
     }
  

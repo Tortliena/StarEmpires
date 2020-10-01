@@ -4,6 +4,8 @@ session_start();
 include("../include/bddconnection.php");
 */
 
+$proddesouvriers = variable(8);
+
 $creationvariationdutour = $bd->prepare('INSERT INTO c_variationstour(idplanetevariation, prodbiens, chantier, recherche, consobiens, entretien, entretienflotte) VALUES (?, ?, ?, ?, ?, ?, ?)');
 
 $reqentretienbatiment = $bd->prepare('  SELECT sum(i.entretien) AS entretien
@@ -17,16 +19,29 @@ $reqstructureflottedefense = $bd->prepare(' SELECT structuretotale
                                             FROM c_flotte WHERE idplaneteflotte = ?');
 
 // Gerer les planetes une par une au niveau de la pop/efficacité : 
-$reqcompterpop = $bd->query('SELECT po.idplanetepop, pl.efficacite, COUNT(*) AS population,
-                                    sum(case when po.typepop = 1 then 1 else 0 end) AS citoyens,
-                                    sum(case when po.typepop = 2 then 1 else 0 end) AS ouvriers,
-                                    sum(case when po.typepop = 3 then 1 else 0 end) AS scientifiques,
-                                    sum(case when po.typepop = 4 then 1 else 0 end) AS soldats
-                                    FROM c_population AS po
-                                    INNER JOIN c_planete AS pl ON po.idplanetepop = pl.idplanete
-                                    GROUP BY po.idplanetepop');
-
-$proddesouvriers = variable(8);
+if ($tourrestraint == 'non')
+    {
+    $reqcompterpop = $bd->query('SELECT po.idplanetepop, pl.efficacite, COUNT(*) AS population,
+    sum(case when po.typepop = 1 then 1 else 0 end) AS citoyens,
+    sum(case when po.typepop = 2 then 1 else 0 end) AS ouvriers,
+    sum(case when po.typepop = 3 then 1 else 0 end) AS scientifiques,
+    sum(case when po.typepop = 4 then 1 else 0 end) AS soldats
+    FROM c_population AS po
+    INNER JOIN c_planete AS pl ON po.idplanetepop = pl.idplanete
+    GROUP BY po.idplanetepop');
+    }
+else
+    {
+    $reqcompterpop = $bd->query('SELECT po.idplanetepop, pl.efficacite, COUNT(*) AS population,
+    sum(case when po.typepop = 1 then 1 else 0 end) AS citoyens,
+    sum(case when po.typepop = 2 then 1 else 0 end) AS ouvriers,
+    sum(case when po.typepop = 3 then 1 else 0 end) AS scientifiques,
+    sum(case when po.typepop = 4 then 1 else 0 end) AS soldats
+    FROM c_population AS po
+    INNER JOIN c_planete AS pl ON po.idplanetepop = pl.idplanete
+    WHERE po.idplanetepop IN ('.$idplanetes.')
+    GROUP BY po.idplanetepop');
+    }
 
 while ($repcompterpop = $reqcompterpop->fetch())
     {

@@ -34,9 +34,20 @@ $reqcategorie = $bd->prepare("SELECT typeitem, nombatiment, itemnecessaire, noml
 $reqcomptebat = $bd->prepare('SELECT COUNT(idbat) as nb FROM c_batiment WHERE typebat = ? AND idplanetebat = ?');
 
 //Gestion des construction planete par planete
-$reqplanete = $bd->query('  SELECT v.idplanetevariation, p.idjoueurplanete, v.chantier, p.biens, p.titane, p.neutrinos
-                            FROM c_variationstour v INNER JOIN c_planete p ON p.idplanete = v.idplanetevariation
-                            ORDER BY p.idjoueurplanete');
+if ($tourrestraint == 'non')
+    {
+    $reqplanete = $bd->query('  SELECT v.idplanetevariation, p.idjoueurplanete, v.chantier, p.biens, p.titane, p.neutrinos
+    FROM c_variationstour v INNER JOIN c_planete p ON p.idplanete = v.idplanetevariation
+    ORDER BY p.idjoueurplanete');
+    }
+else
+    {
+    $reqplanete = $bd->query('  SELECT v.idplanetevariation, p.idjoueurplanete, v.chantier, p.biens, p.titane, p.neutrinos
+                        FROM c_variationstour v INNER JOIN c_planete p ON p.idplanete = v.idplanetevariation
+                        WHERE v.idplanetevariation IN ('.$idplanetes.')
+                        ORDER BY p.idjoueurplanete');
+    }
+    
 while ($repplanete = $reqplanete->fetch())
     { // Créer les variables qui vont être utilisées dans les boucles :
     $chantier =  $repplanete['chantier'] ;

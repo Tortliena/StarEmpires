@@ -9,9 +9,18 @@ $miseajourdesressources = $bd->prepare("UPDATE c_planete SET biens = ? WHERE idp
 $miseajourpop = $bd->prepare("UPDATE c_population SET typepop = ?, typepoparrivee = ? WHERE idpop = ?");
 $message = $bd->prepare("INSERT INTO c_messagetour (idjoumess , message , domainemess, numspemessage) VALUES (?, ?, ?, ?)") ;
 
-$reqselectpop = $bd->query('  SELECT p.idplanetepop, t.prixchangementpop, p.typepoparrivee, p.idpop, p.typepop
-                              FROM c_population p INNER JOIN a_typepop t ON t.idtypepop = p.typepoparrivee
-                              WHERE NOT typepoparrivee = 0');
+if ($tourrestraint == 'non')
+    {
+    $reqselectpop = $bd->query('SELECT p.idplanetepop, t.prixchangementpop, p.typepoparrivee, p.idpop, p.typepop
+                                FROM c_population p INNER JOIN a_typepop t ON t.idtypepop = p.typepoparrivee
+                                WHERE NOT typepoparrivee = 0');
+    }
+else
+    {
+    $reqselectpop = $bd->query('SELECT p.idplanetepop, t.prixchangementpop, p.typepoparrivee, p.idpop, p.typepop
+                                FROM c_population p INNER JOIN a_typepop t ON t.idtypepop = p.typepoparrivee
+                                WHERE NOT typepoparrivee = 0 AND p.idplanetepop IN ('.$idplanetes.')');
+    }
 while ($repselectpop = $reqselectpop->fetch())
   {
   $reqplanete->execute(array($repselectpop['idplanetepop']));
