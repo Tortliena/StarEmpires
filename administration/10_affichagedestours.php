@@ -10,12 +10,13 @@
 <?php
 //Permet de voir le tour qui passe, soit en entrant un nombre, soit en laissant vide la case.
 
+$reqinfoderniertour = $bd->query('SELECT * FROM c_tour ORDER BY id DESC LIMIT 1');
+$repinfoderniertour = $reqinfoderniertour->fetch();
+
 if (isset($_GET["voir"]) and $_GET["voir"] == 0 )
   {
-  $reqtourinfo = $bd->query('SELECT * FROM c_tour ORDER BY id DESC LIMIT 1');
-  $reptourinfo = $reqtourinfo->fetch(); 
-  echo 'le dernier tour est le tour ' . $reptourinfo['id'] . ' et s\'est passé le ' . $reptourinfo['datetour']  ;
-  echo ' <br />  ' . $reptourinfo['resume'] ; 
+  echo 'le dernier tour est le tour ' . $repinfoderniertour['id'] . ' et s\'est passé le ' . $repinfoderniertour['datetour']  ;
+  echo ' <br />  ' . $repinfoderniertour['resume'] ; 
   }
 elseif (isset($_GET["voir"]))
   {
@@ -24,5 +25,15 @@ elseif (isset($_GET["voir"]))
   $reptourinfo = $reqtourinfo->fetch();
   echo 'le tour ' . $reptourinfo['id'] . ' s\'est passé le ' . $reptourinfo['datetour']  ;
   echo ' <br />  ' . $reptourinfo['resume'] ;  
+  }
+
+echo '<br>';
+
+if ($repinfoderniertour['fintour'] < 1)
+  {
+  echo 'TOUR BUGUÉ : ';
+  echo '<form action="script/debloquertour.php"><p>';
+  echo '<input type="submit" value="Débloquer" />';
+  echo '</p></form> ';
   }
 ?>

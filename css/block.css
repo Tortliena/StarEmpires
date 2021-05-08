@@ -43,3 +43,8 @@ h3
     border-style:groove;
     border-color:black;
     }
+
+form
+    {
+    display: inline-block;
+    }

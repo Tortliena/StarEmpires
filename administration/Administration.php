@@ -1,22 +1,27 @@
 <?php
 include("../include/entete.php");
+
 echo '<h1>GESTION DU TOUR</h1>';
 
 require __DIR__ . '/../include/message.php';
 
 require __DIR__ . '/10_affichagedestours.php';
+
+// Passer le tour manuellement
+echo '<form action="../tour/gestionglobale.php" method="get"><p>';
+echo '<input type="hidden" name="mdp" value="yguhirtsef">';
+echo '<input type="submit" value="Passer tour : Admin lvl!" />';
+echo '</p></form>';
+
+//Voir si le tour est bloqué. Si le tour est bloqué, alors pouvoir le débloquer.
+
+$reqinfoderniertour = $bd->query('SELECT * FROM c_tour ORDER BY id DESC LIMIT 1');
+
+
 ?>
 
-<!-- Passer le tour manuellement -->
-<form action="../tour/gestionglobale.php" method="get">
-  <p>
-  <input type="hidden" name="mdp" value="yguhirtsef">
-  <input type="submit" value="Passer tour : Admin lvl!" />
-  </p>
-</form>
-
 <!-- Reset l'univers ! -->
-<form action="script/resertunivers.php">
+<br><form action="script/resertunivers.php">
 <p>
   <input id = "checkbox" type="checkbox" name="confirmer"/> <label for="checkbox"></label>
   <input type="submit" value="RAZ joueurs/univers" />

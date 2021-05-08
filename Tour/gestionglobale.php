@@ -14,6 +14,7 @@ include("03_fonctionsdutour.php");
 include("../conception_vaisseau/fonction/caracteristiquesvaisseau.php");
 include("../function/consommercreeritemsplanetemultiple.php");
 include("../function/variable.php");
+include("../function/planeteperteniveau.php");
 include("../hangars/fonction/flotte.php");
 include("../conception_vaisseau/fonction/structurevaisseau.php");
 
@@ -31,6 +32,9 @@ include("20_organisationplanete.php");
 
 if ($tourrestraint == 'non')
     {
+    // Permet de gérer le prestige et le niveau des planètes. Pas accessible à bas niveau.
+    include("21_prestigeetniveauplanete.php");
+    
     // Permet d'améliorer l'environnement des planètes. Pas accessible à bas niveau.
     include("22_environnementplanete.php");
     }
@@ -70,6 +74,12 @@ include("55_combat.php");
 
 // Mouvement de la flotte + exploration
 include("60_deplacementvaisseau.php");
+
+if ($tourrestraint == 'non')
+    {
+    // Transfert des vaisseaux. Initier transferts + diminuer temps + finir transfert.
+    include("63_transfertvaisseau.php");
+    }
 
 // Évents lors de l'exploration de l'univers du joueur !
 include("65_exploration.php");
@@ -117,7 +127,7 @@ if ($tourrestraint == 'non')
     include("95_resumetour.php");
     }
 
-//exit;
+    /*
 if ($tourrestraint == 'non')
     {
     header('Location: /administration/administration.php?voir=');
@@ -126,17 +136,17 @@ else
     {
     header('Location: /capitale/capitale.php?message=85');
     }
-
+*/
 
 
 /*
 Fonction CRON :
 
 Exporter BDD :
-0 	0 	* 	* 	* wget ­-q http://starsempire.webou.net/administration/script/exporterbdd.php?table=autre&backup=oui&mdp=lrsngrlsntjls >/dev/null 2>&1
+0 	0 	* 	* 	* wget ­-q https://starsempire.go.yj.fr/administration/script/exporterbdd.php?table=autre&backup=oui&mdp=lrsngrlsntjls >/dev/null 2>&1
 
 Passer le tour :
-0 	10 	* 	* 	* wget ­-q http://starsempire.webou.net/tour/gestionglobale.php?mdp=lrsngrlsntjls >/dev/null 2>&1
+0 	10 	* 	* 	* wget ­-q https://starsempire.go.yj.fr/tour/gestionglobale.php?mdp=lrsngrlsntjls >/dev/null 2>&1
 
 */
 ?>

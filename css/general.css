@@ -4,15 +4,21 @@ body
     color: black;
     padding-top: 25px;
     padding-left:10px;
+    height: 60vh;
+    justify-content: space-around;
+    flex-direction: column;
+    font-family: sans-serif;
     }
 
 .corps
     {
-    margin-left:150px;
+    margin-left: 0;
+    margin-top: 6%;
     display: flex;
     flex-wrap: nowrap;
     flex-direction: column;
     display: inline-block;    
     vertical-align: top;
-    padding-left:10px;
+    padding: 1px 10px;
+    height: 1000px;
     }

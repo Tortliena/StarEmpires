@@ -14,5 +14,5 @@ include("../include/message.php") ;
 $typemessage = 'planete' ;  
 include("../include/resume.php"); 
 include("../function/infobulle.php");
-include("fonction/detruire.php");
+include("fonction/detruirebatiment.php");
 ?>

@@ -87,8 +87,12 @@ echo '</br>'.$repcompterpop['population']. '/'.$repplanete['popmax'].' unités d
 infobulle('Composée de : <br>'.$repcompterpop['citoyens'].' citoyen(s) <br> '.$repcompterpop['ouvriers'].'/'.$repplanete['ouvriermax'].' ouvrier(s) <br> '.$repcompterpop['scientifiques'].'/'.$repplanete['scientmax'].' scientifique(s).<br>'.$repcompterpop['soldats'].'/'.$repplanete['soldatmax'].' soldat(s).<br><br>De base : +'.$repplanete['taille'].'<br>Environnement : '.floor($repplanete['environnement']/1000).'<br>Ensemble des bâtiments : +'.$bonusbatiment.'<br>(Minimum de 2)', 'infobulle');
 
 $efficacite = MIN($repplanete['efficacite'], 100);
-echo '&nbsp;Efficacite : '.$efficacite.'%';
+echo '&nbsp;Efficacité : '.$efficacite.'%';
 infobulle('Influence la production de la planete. Augmente avec le temps.', 'infobulle');
+
+echo '&nbsp;Prestige : '.$repplanete['prestige'];
+infobulle('Augmente avec la population, le domaine spatial, et d\'autres facteurs.<br>Permet d\'augmenter vos options', 'infobulle');
+
 
 echo '</br>'.$repcompterflotte['nb']. '/'.$repplanete['maxflotte'].' flotte(s).';
 infobulle('De base : +1<br>Planète mère : + 1 (le cas échéant)', 'infobulle');

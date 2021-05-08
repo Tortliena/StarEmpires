@@ -27,7 +27,6 @@ $requpdatevaisseau = $bd->prepare('UPDATE c_vaisseau SET HPmaxvaisseau = 1, idfl
 $reqtrouverflotte = $bd->prepare('SELECT idflotte FROM c_flotte WHERE idplaneteflotte = ?');
 $reqcreerflotte = $bd->prepare('INSERT INTO c_flotte(idplaneteflotte) VALUES(?)');
 
-
 // Par ailleurs :
 $miseajourdesressources = $bd->prepare("UPDATE c_planete SET biens = ?, titane = ?, neutrinos = ? WHERE idplanete = ?");
 $reqcategorie = $bd->prepare("SELECT typeitem, nombatiment, itemnecessaire, nomlimite FROM a_items WHERE iditem = ?");

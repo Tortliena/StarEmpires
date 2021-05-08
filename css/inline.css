@@ -1,45 +1,45 @@
 .aucun
-{
+    {
     color:rgb(100,100,100) ;
-}
+    }
 .faible
-{
+    {
     color:rgb(230,100,20) ;
-}
+    }
 .moyen
-{
+    {
     color: rgb(30,100,1) ;
-}
+    }
 .fort
-{
+    {
     color: rgb(30,100,1) ;
     font-weight: bold;
-}
+    }
 .tresfacile
-{
+    {
     color: rgb(30,100,1) ;
     font-weight: bold;
-}
+    }
 .normal
-{
+    {
     color: rgb(30,100,1) ;
-}
+    }
 .difficile
-{
+    {
     color:rgb(230,100,20) ;
-}
+    }
 .impossible
-{
+    {
     color: rgb(230,0,0) ;
     font-weight: bold;
-}
+    }
 .messagerie
-{
+    {
     text-decoration: underline;
     padding-left: 15px; 
-}
+    }
 
 .nonlu
-{
+    {
     font-weight: normal;
-}
+    }

@@ -1,10 +1,13 @@
 <?php 
 session_start(); 
 require __DIR__ . '/../../include/bddconnection.php'; 
+include("../../function/variable.php");
 
+/*
 echo $_SESSION['id'] . ' id du joueur </br>';
 echo $_POST['idvaisseau'] . ' id du vaisseau </br>';
 echo $_POST['idplanetearrivee'] . ' id de la planète de destination </br>';
+*/
 
 // Vérifier qu'il n'y a pas d'ordre de transfert actuellement.
 $reqnbtrasnfertencours = $bd->prepare('SELECT COUNT(*) AS nb FROM c_transfertvaisseau WHERE idjoueurtransfert = ?');
@@ -12,7 +15,7 @@ $reqnbtrasnfertencours->execute(array($_SESSION['id']));
 $repnbtrasnfertencours = $reqnbtrasnfertencours->fetch();
 if ($repnbtrasnfertencours['nb'] > 0)
     {
-    header('Location: ../capitale/capitale.php?message=86');
+    header('Location: ../capitale.php?message=86');
     exit;
     }
 
@@ -25,7 +28,7 @@ $reqvaisseautransfert->execute(array($_POST['idvaisseau']));
 $repvaisseautransfert  = $reqvaisseautransfert ->fetch();
 if ($repvaisseautransfert['idjoueurplanete'] != $_SESSION['id'])
     {
-    header('Location: ../capitale/capitale.php?message=31');
+    header('Location: ../capitale.php?message=31');
     exit;
     }
 
@@ -33,27 +36,29 @@ if ($repvaisseautransfert['idjoueurplanete'] != $_SESSION['id'])
 $reqplanetetransfert = $bd->prepare('SELECT idjoueurplanete FROM c_planete WHERE idplanete = ?');
 $reqplanetetransfert->execute(array($_POST['idplanetearrivee']));
 $repplanetetransfert  = $reqplanetetransfert->fetch();
-if ($repplanetetransferts['idjoueurplanete'] != $_SESSION['id'])
+if ($repplanetetransfert['idjoueurplanete'] != $_SESSION['id'])
     {
-    header('Location: ../capitale/capitale.php?message=31');
+    // echo $repplanetetransfert['idjoueurplanete']. 'id du joueur de la planète.';
+    header('Location: ../capitale.php?message=31');
     exit;
     }
 
 // Vérifier que la planète de destination est différente de celle d'arrivée.
 if ($repvaisseautransfert['idplanete'] == $_POST['idplanetearrivee'])
     {
-    header('Location: ../capitale/capitale.php?message=87');
+    header('Location: ../capitale.php?message=87');
     exit;
     }
 else  // Faire le transfert. 
     {
-    $reqfairetransfert = $bd->prepare(' INSERT INTO c_transfertvaisseau (idjoueurtransfert, idplanetedepart, idplanetearrivee, toursrestantstranfert)
-                                        VALUES (?, ?, ?, ?)');
-    $reqfairetransfert->execute(array($_SESSION['id'], $repvaisseautransfert['idplanete'], $_POST['idplanetearrivee'], 3));
-    header('Location: ../capitale/capitale.php?message=88');
+    $tempstransfert = variable(11);
+    $reqfairetransfert = $bd->prepare(' INSERT INTO c_transfertvaisseau (idjoueurtransfert, idplanetedepart, idplanetearrivee, toursrestantstranfert, idvaisseautransfert)
+                                        VALUES (?, ?, ?, ?, ?)');
+    $reqfairetransfert->execute(array($_SESSION['id'], $repvaisseautransfert['idplanete'], $_POST['idplanetearrivee'], $tempstransfert, $_POST['idvaisseau']));
+    header('Location: ../capitale.php?message=88');
     exit;
     }
 
-header('Location: ../capitale/capitale.php?message=31');
+header('Location: ../capitale.php?message=31');
 exit;
 ?>

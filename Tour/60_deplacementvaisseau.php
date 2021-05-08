@@ -23,7 +23,7 @@ $reqmessageinterne = $bd->prepare('INSERT INTO c_messagerieinterne(expediteur, d
 //planete
 $reqplanete = $bd->prepare('SELECT idplanete FROM c_planete WHERE xplanete = ? AND yplanete = ? AND universplanete = ? AND idjoueurplanete = ?');
 $reqplanete2 = $bd->prepare('SELECT * FROM c_planete WHERE idplanete = ?');
-$reqchangementproprioplanete = $bd->prepare('UPDATE c_planete SET idjoueurplanete = ?, biens = biens + ?, organisation = 100 WHERE idplanete = ?');
+$reqchangementproprioplanete = $bd->prepare('UPDATE c_planete SET idjoueurplanete = ?, biens = biens + ?, organisation = 100, prestige = 0, idplanetesuzerain = ? WHERE idplanete = ?');
 $reqpop = $bd->prepare('INSERT INTO c_population(idplanetepop, typepop) VALUES(?, ?)');
 $requpenv = $bd->prepare('UPDATE c_planete SET stabiliteenvironnement = ?, environnement = ?, organisation = ? WHERE idplanete = ?');
 $requprestau = $bd->prepare('UPDATE c_planete SET restauration = ? WHERE idplanete = ?');
@@ -155,6 +155,7 @@ while ($repflotte = $reqflotte->fetch())
     $reqsupprimerbataille->execute(array($repflotte['idflotte']));
     $diminution = 1;
     $perteorganisation = 200;
+
     // Info sur la planète envahie : $repflotte['xdestination'] = id de la planète envahie.
     $reqplanete2->execute(array($repflotte['xdestination']));
     $repplanete = $reqplanete2->fetch();
@@ -215,7 +216,7 @@ while ($repflotte = $reqflotte->fetch())
         if ($invasionacceleree == true)
             {
             $tempsrestant = floor($tempsrestant/3);
-            $textemessage .= ' Nos défenses sont dépassées ! Nous allons très rapidement perdre l contrôle de la planète (dans environ '.$tempsrestant.' tours) !';
+            $textemessage .= ' Nos défenses sont dépassées ! Nous allons très rapidement perdre le contrôle de la planète (dans environ '.$tempsrestant.' tours) !';
             }
         else
             {
@@ -226,11 +227,37 @@ while ($repflotte = $reqflotte->fetch())
         }
     else
         {
-        // Si compteur est à 0, alors changer possesseur de la planète.
-        $reqsupprimerordreprecedent->execute(array($repflotte['idflotte']));
-        $reqchangementproprioplanete->execute(array($repflotte['idjoueurplanete'], 0, $repflotte['xdestination']));
+        // Récupérer info sur la planète d'origine de la flotte.
+        $reqplanete2->execute(array($repflotte['idplaneteflotte']));
+        $repplaneteattaquante = $reqplanete2->fetch();
 
-        $reqmessageinterne->execute(array('Force d\'invasion', $repflotte['idjoueurplanete'], 0, 'Planète envahie', 'Nos forces viennent de prendre le contrôle de la planète.'));
+        // Si la planète a un plus gros niveau que celle du joueur, alors lui prendre des planètes de niveau 1 + du prestige + faire perdre un lvl et virer les planètes féodée de même niveau.
+        if ($repplanete['niveauplanete'] > 2 AND $repplanete['niveauplanete'] > $repplaneteattaquante['niveauplanete'])
+            { // La planète est de niveau 2 au moins, mais supérieure à celle du conquérant. Donc juste pillage.
+            
+            //function planeteperteniveau($idplaneteperte, $idplaneteprisevassaux)
+            planeteperteniveau($repplanete['niveauplanete'], 0);
+
+            $textemessage = ' Notre planète a subi de graves dégats et a été pillé. Notre administration est toujours en place mais va avoir besoin de temps pour s\'en remettre.';
+            $reqmessageinterne->execute(array('Ministère de la Défense', $repplanete['idjoueurplanete'], 0, 'Planète en ruines', $textemessage));
+            }
+        elseif($repplanete['niveauplanete'] > 2)
+            { // Dans ce cas, on va soumettre la planète car elle a un bon niveau et peut être soumise.          
+            //function planeteperteniveau($idplaneteperte, $idplaneteprisevassaux)
+            planeteperteniveau($repflotte['xdestination'], $repflotte['idplaneteflotte']);
+            }
+        else
+            {
+            //function planeteperteniveau($idplaneteperte, $idplaneteprisevassaux)
+            planeteperteniveau($repflotte['xdestination'], $repflotte['idplaneteflotte']);
+
+            // Si niveau = 1 ou 2, alors la passer au niveau 1 et la soumettre et prendre le contrôle direct.         
+            $reqchangementproprioplanete->execute(array($repflotte['idjoueurplanete'], 0, 1, $repflotte['idplaneteflotte'], $repflotte['xdestination']));
+
+            // FAIRE MESSAGE EN FONCTION DU TYPE D'INVASION ! ! ! ! ABCDE
+            $reqmessageinterne->execute(array('Force d\'invasion', $repflotte['idjoueurplanete'], 0, 'Planète envahie', 'Nos forces viennent de prendre le contrôle de la planète.'));
+            }
+        $reqsupprimerordreprecedent->execute(array($repflotte['idflotte']));
         }
     }
 
@@ -448,7 +475,7 @@ while ($repflotte = $reqflotte->fetch())
     if ($repflotte['universflotte'] == $repplanete['universplanete'] AND $repflotte['xflotte'] == $repplanete['xplanete'] AND $repflotte['yflotte'] == $repplanete['yplanete'] AND $repplanete['idjoueurplanete'] == 0 AND $peutcoloniser == true) 
         {
         $bonusbiens = variable(2);
-        $reqchangementproprioplanete->execute(array($repflotte['idjoueurplanete'], $bonusbiens[0], $repflotte['xdestination'])); 
+        $reqchangementproprioplanete->execute(array($repflotte['idjoueurplanete'], $bonusbiens[0], $repflotte['idplaneteflotte'], $repflotte['xdestination'])); 
         $reqpop->execute(array($repflotte['xdestination'], 1));
         $messcolonisation = 'Cette flotte vient de coloniser une planete.';
         $message ->execute(array($repflotte['idjoueurplanete'] , $messcolonisation, 'flotte' , $repflotte['idflotte'])) ;

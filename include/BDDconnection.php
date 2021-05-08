@@ -8,13 +8,13 @@ try
 		}
 	else
 		{	
-		$bd = new PDO('mysql:host=localhost;dbname=kaien_starsempire;charset=utf8', 'kaien_kaien', 'ucqX8kaS7LtT3ni', array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));	
+		$bd = new PDO('mysql:host=localhost;dbname=ynyfwcqz_kaien_starsempire;charset=utf8', 'ynyfwcqz_Kaien', 'ScELRbsJLTCR4Lq', array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));	
 		}
 	}
 
 catch(Exception $e)
 	{
 	    // En cas d'erreur, on affiche un message et on arrête tout
-	        die('Erreur (valeur de e !) : '.$e->getMessage());
+	    die('Erreur (valeur de e !) : '.$e->getMessage());
 	}
 ?>

@@ -1,6 +1,7 @@
 <?php
 include("../include/entete.php");
 echo '<h1>CAPITALE</h1>';
+include("../function/variable.php");
 
 include("../include/message.php");
 $typemessage = 'capitale';

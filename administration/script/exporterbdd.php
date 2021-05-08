@@ -65,16 +65,18 @@ if ($path == 'C:/wamp64/www/Starempires')
     {
     define("DB_USER", 'root');
     define("DB_PASSWORD", 'root');
+    define("DB_NAME", 'kaien_starsempire');
     }
 else
     {
-    define("DB_USER", 'kaien_kaien');
-    define("DB_PASSWORD", 'ucqX8kaS7LtT3ni');
+   	// Cas de l'exportation depuis le site web.
+    $nomsdestables = 'c_bataille, c_batiment, c_cargovaisseau, c_champsasteroides, c_composantvaisseau, c_construction, c_destruction, c_etoileneutrinos, c_explore, c_flotte, c_limiteplanete, c_messagerie, c_messagerieinterne, c_messagetour, c_planete, c_population, c_rapportcombat, c_rech_joueur, c_silo, c_station, c_tour, c_transfertvaisseau, c_transfertvaisseau, c_utilisateurs, c_vaisseau, c_variationstour';
+    define("DB_USER", 'ynyfwcqz_Kaien');
+    define("DB_PASSWORD", 'ScELRbsJLTCR4Lq');
+    define("DB_NAME", 'ynyfwcqz_kaien_starsempire');
     }
 
 // Source du script : http://www.iamrohit.in/simple-backup-restore-mysql-database-via-php-script/
-
-define("DB_NAME", 'kaien_starsempire');
 define("DB_HOST", 'localhost');
 define("TABLES", $nomsdestables);
 define("CHARSET", 'utf8');

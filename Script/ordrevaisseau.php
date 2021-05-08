@@ -15,9 +15,10 @@ $reqflotteenorbite = $bd->prepare('SELECT nomflotte FROM c_flotte
 $reqcreerflotte = $bd->prepare('INSERT INTO c_flotte(idplaneteflotte, universflotte, xflotte, yflotte, nomflotte, typeordre)
 								VALUES (?, ?, ?, ?, ?, ?);');
 
-$reqvaisseau = $bd->prepare('	SELECT f.idplaneteflotte, v.HPmaxvaisseau, v.HPvaisseau, v.biensvaisseau, v.titanevaisseau
+$reqvaisseau = $bd->prepare('	SELECT f.idplaneteflotte, v.HPmaxvaisseau, v.HPvaisseau, v.biensvaisseau, v.titanevaisseau, tv.idtransfert
 								FROM c_vaisseau v
 								INNER JOIN c_flotte f ON v.idflottevaisseau = f.idflotte
+								LEFT JOIN c_transfertvaisseau tv ON tv.idvaisseautransfert = v.idvaisseau
 								WHERE v.idvaisseau = ?');
 $reqvaisseau->execute(array($_POST['idvaisseau']));   
 $repvaisseau = $reqvaisseau->fetch();   
@@ -33,6 +34,13 @@ if ($repplanete['idjoueurplanete'] != $_SESSION['id'])   // Vérification du pos
 
 if ($_POST['idplanete'] != $idplanete)   // Vérification que la planète entrée est la bonne.
 	{ header("location: /accueil.php?message=31"); exit();}
+
+if (isset($repvaisseau['idtransfert']))
+	{
+	header("location: /planete/planete.php?message=90&id=" . urlencode($_POST['idplanete']));
+	exit();
+	}
+
 if (in_array($_POST['mouvement'], array(1, 3, 5)))
 	{
 	// Vérifier que la flotte est bel et bien en orbite de la planète : 

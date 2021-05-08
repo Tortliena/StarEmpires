@@ -16,10 +16,10 @@ while ($repmessagerecusinterne  = $reqmessagerecusinterne ->fetch())
     {
     echo '<span class = "nvmessage">Nouveau</span>';
     }
-  echo '<span class="messagerie">Expéditeur</span> :';
+  echo '<span class="messagerie">Expéditeur</span> : ';
   echo $repmessagerecusinterne['expediteur'].' <span class="messagerie">Titre</span> : '.$repmessagerecusinterne['titre'];
   echo '<input type="hidden" name="idmessage" value="'.$repmessagerecusinterne['idmessagerieinterne'].'">';
-  echo ' <input type="submit" value="Supprimer" /></form>';
+  echo '&nbsp;<input type="submit" value="Supprimer" /></form>';
 
   if (isset($_GET["idi"]) AND $_GET["idi"] == $repmessagerecusinterne['idmessagerieinterne'])
     {
@@ -32,7 +32,7 @@ while ($repmessagerecusinterne  = $reqmessagerecusinterne ->fetch())
     }
   else
     {
-    echo '<form method="post" action="messagerie.php?idi='.$repmessagerecusinterne['idmessagerieinterne'].'"> <input type="submit" value="Voir" /></form><br>';
+    echo '&nbsp;<form method="post" action="messagerie.php?idi='.$repmessagerecusinterne['idmessagerieinterne'].'"> <input type="submit" value="Voir" /></form><br>';
     }
   }
 

@@ -65,7 +65,7 @@ while ($reprecherchejoueur = $reqrecherchejoueur->fetch())
           }
 
         // Si la recherche donne accès à une autre recherche, alors on va créer une nouvelle recherche.
-        $reqarbretechno->execute(array($reprecherchejoueur['idrech'], $reprecherchejoueur['niveauminimal']));
+        $reqarbretechno->execute(array($reprecherchejoueur['idrech'], $reprecherchejoueur['lvl']));
         while ($reparbretechno = $reqarbretechno->fetch())
           {
           creerrecherche($reparbretechno['idrecherche'], $reprecherchejoueur['id']);

@@ -14,11 +14,11 @@ while ($repmessageenvoye  = $reqmessageenvoye ->fetch())
     else
         {echo 'lu' ; }  
     echo '</span>';
-    echo '<span class="messagerie">Destinataire</span> :'.$reppseudo['pseudo'];
+    echo '<span class="messagerie">Destinataire</span> : '.$reppseudo['pseudo'];
     echo ' <span class="messagerie">Titre</span> : '.$repmessageenvoye['titremessage'];
     echo ' <span class="messagerie">Date</span> : '.$repmessageenvoye['datemessage'];
     echo '<input type="hidden" name="idmessage" value="'.$repmessageenvoye['idmessagerie'].'">';
-    echo ' <input type="submit" value="Supprimer" /></form>';
+    echo '&nbsp;<input type="submit" value="Supprimer" /></form>';
     
     if (isset($_GET["ide"]) AND $_GET["ide"] == $repmessageenvoye['idmessagerie'])
         {
@@ -26,7 +26,7 @@ while ($repmessageenvoye  = $reqmessageenvoye ->fetch())
         }
     else
         {
-        echo '<form method="post" action="messagerie.php?ide='.$repmessageenvoye['idmessagerie'].'"> <input type="submit" value="Voir" /></form><br>';
+        echo '&nbsp;<form method="post" action="messagerie.php?ide='.$repmessageenvoye['idmessagerie'].'"> <input type="submit" value="Voir" /></form><br>';
         }
     }
 ?>

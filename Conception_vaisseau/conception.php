@@ -36,7 +36,7 @@ else
 	// Permet de sortir de la phase de modification d'un plan.
 	echo '<form method="post" action="conception.php"><input type="submit" value="Fin d\'édition du plan"/></form>';
 
-	echo '&emsp;<form method="post" action="script/supprimerconception.php?id='.-$_GET['id'].'"><input type="submit" value="Réinitialisation du plan"/></form>';
+	echo '&emsp;<form method="post" action="script/supprimerconception.php?id='.-$_GET['id'].'"><input type="submit" value="Réinitialisation du plan"/></form><br>';
 
 	// Permet d'avoir le plan actuel :
 	$reqvaiss = $bd->prepare('SELECT * FROM c_vaisseau WHERE idflottevaisseau = ? AND idvaisseau = ?');

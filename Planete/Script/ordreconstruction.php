@@ -26,7 +26,8 @@ $reqverifiertechnologie = $bd->prepare('SELECT idrechprinc FROM c_rech_joueur WH
         header("Location: ../planete.php?message=11&id=" . urlencode($_POST['idplanete'])); 
         exit();   
         } 
- 
+
+
 // Une fois la vérification faite, lancer le production. 
     elseif ($_POST['trucaconstruire'] > 0) 
         { // Cas des productions classiques (batiments, composants, autre) 
@@ -75,7 +76,7 @@ $reqverifiertechnologie = $bd->prepare('SELECT idrechprinc FROM c_rech_joueur WH
 	            { 
 	            $_SESSION['message1'] = $limite; 
 	            $_SESSION['message2'] = $repcomptechantier['nb']; 
-                header("Location: ../planete.php?message=29&id=" . urlencode($_POST['id'])); 
+                header("Location: ../planete.php?message=29&id=" . urlencode($_POST['idplanete'])); 
 	            exit();   
 	            } 
 	        } 

@@ -10,7 +10,7 @@ $reqconstencours->execute(array($_GET['id']));
 while ($repconstencours = $reqconstencours->fetch()) 
   { 
   // Formulaire pour gérer la construction : 
-  echo '<form method="post" action="script/gererconstruction.php">';
+  echo '<br><form method="post" action="script/gererconstruction.php">';
  
   if ($repconstencours['trucaconstruire']>0) 
     { // Cas des constructions d'items. 

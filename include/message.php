@@ -380,6 +380,22 @@ switch ($_GET["message"])
     case 88:
         echo "Transfert démarré.";
     break;
+
+    case 89:
+        echo "Transfert annulé.";
+    break;
+
+    case 90:
+        echo "Vaisseau en cours de transfert. Impossible de lui donner un ordre.";
+    break;
+
+    case 91:
+        echo "Le tour devrait être débloquer. Mais pourquoi il a bugué le con déjà ?";
+    break;
+
+    case 92:
+        echo "Le dernier tour n'était pas bloqué. Tu fais quoi bordel ?!";
+    break;
     }
  
 unset($_SESSION['message1']); 

@@ -1,0 +1,74 @@
+body
+    {
+    height: 60vh;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: column;
+    font-family: sans-serif;
+    }
+
+.formulaireacceuil
+    {
+    width: 50px;
+    position: relative;
+    height: 45px;
+    }
+
+.formulaireacceuil .inputpseudo,
+.formulaireacceuil .inputmdp  /* Permet de gérer la zone d'écriture */
+    {
+    position: relative;
+    width: 50px;
+    height: 100%;
+    color: darkmagenta;
+    padding-top: 5px;
+    border: none;
+    outline: none;
+    overflow: hidden;
+    background-color: green;
+    }
+
+.formulaireacceuil + .titreinput, /* Zone de sélection + texte avant transition*/
+.formulaireacceuil + .titreinput2 
+    {
+    content: ""; 
+    position: absolute;
+    left: 0%;
+    width: 30%;
+    height: 100%;
+    pointer-events: none;
+    border-bottom: 1px solid black;
+    }
+
+.formulaireacceuil .contenuinput,
+.formulaireacceuil .contenuinput2 /* zone de autour du label avant et après la transtion */ 
+    {
+    position: absolute;
+    left: 5px;
+    transition: all 0.3s ease;
+    }
+.formulaireacceuil .contenuinput 
+    {
+    bottom: 5px;
+    }
+.formulaireacceuil .contenuinput2
+    {
+    top: 93px;
+    }
+
+.formulaireacceuil input:focus + .titreinput .contenuinput,
+.formulaireacceuil input:valid + .titreinput .contenuinput,
+.formulaireacceuil input:focus + .titreinput2 .contenuinput2,
+.formulaireacceuil input:valid + .titreinput2 .contenuinput2 /* Texte qui bouge vers le haut */
+    {
+    transform: translateY(-150%);
+    font-size: 14px;
+    color: yellow;
+    }
+
+.formulaireacceuil input[type=submit]
+    {
+    background-color: pink;
+    margin-left: 80px;
+    }

@@ -2,6 +2,12 @@
 session_start();
 include("../include/bddconnection.php");
 
+/*
+echo $_POST['pseudo'] . ' = post pseudo <br>' ;
+echo $_POST['pass3'] . " = post pass3 et premier mot de passe entré<br>" ;
+echo $_POST['pass2'] . " = post pass2 et second mot de passe entré" ;
+*/
+
 //pseudo vide lors de la tentative d'inscription.
 if (empty($_POST["pseudo"]) or !isset($_POST["pseudo"]))
     {
@@ -10,14 +16,14 @@ if (empty($_POST["pseudo"]) or !isset($_POST["pseudo"]))
     }
 
 //Mots de passe indentiques lors de la tentative d'inscription.
-if ($_POST["pass"] != $_POST["pass2"])
+if ($_POST['pass3'] != $_POST['pass3'])
     {
     header('Location: ../accueil.php?message=1');
     exit();  
     }
 
 //Mots de passe vides lors de la tentative d'inscription.
-if (empty($_POST["pass"]) or !isset($_POST["pass"]))
+if (empty($_POST['pass3']) or !isset($_POST['pass3']))
     {
     header('Location: ../accueil.php?message=2');
     exit();  
@@ -27,7 +33,7 @@ if (empty($_POST["pass"]) or !isset($_POST["pass"]))
 $reponse = $bd->query('SELECT pseudo FROM c_utilisateurs');
 while ($donnees = $reponse->fetch())
     {
-    if ($_POST["pseudo"] == $donnees['pseudo'])
+    if ($_POST['pseudo'] == $donnees['pseudo'])
         {
     header('Location: ../accueil.php?message=3');
     exit();
@@ -36,7 +42,7 @@ while ($donnees = $reponse->fetch())
 
 // Dans le cas d'une inscription réussie :
 // Hachage du mot de passe
-$pass_hache = password_hash($_POST['pass'], PASSWORD_DEFAULT);
+$pass_hache = password_hash($_POST['pass3'], PASSWORD_DEFAULT);
 $requtilisateur = $bd->prepare('INSERT INTO c_utilisateurs(pseudo, motdepasse, dateinscription) VALUES(:pseudo, :pass, CURDATE())');
 $requtilisateur->execute(array(
     'pseudo' => $_POST["pseudo"],
@@ -47,8 +53,8 @@ $reqexplorationplanete = $bd->prepare('INSERT INTO c_explore(univers, x, y, idex
 $reqexplorationplanete->execute(array($dernierIDjoueur, 3, 3, $dernierIDjoueur, 1));
 
 //GESTION DE LA CRÉATION DE LA PLANÈTE
-$reqcreerplanete = $bd->prepare('INSERT INTO c_planete(xplanete, yplanete, universplanete, idjoueurplanete, biens, organisation, efficacite) VALUES(?, ?, ?, ?, ?, ?, ?)');
-$reqcreerplanete->execute(array(3, 3, $dernierIDjoueur, $dernierIDjoueur, 300, 9000, 100));
+$reqcreerplanete = $bd->prepare('INSERT INTO c_planete(xplanete, yplanete, universplanete, idjoueurplanete, biens, organisation, efficacite, prestige, niveauplanete) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)');
+$reqcreerplanete->execute(array(3, 3, $dernierIDjoueur, $dernierIDjoueur, 300, 9000, 100, 300, 2));
 $dernierIDplanete = $bd->lastInsertId();
 // Permet de créer des citoyens de multiples fois
 $reqpop = $bd->prepare('INSERT INTO c_population(idplanetepop, typepop) VALUES(?, ?)');

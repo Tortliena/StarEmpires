@@ -10,11 +10,11 @@ require __DIR__ . '/../tour/01_fonctionsdutour.php';
 // Activer les batailles à taitrer :
 if ($tourrestraint == 'non')
     {
-    $reqactivertouteslesbatailles = $bd->query('UPDATE c_bataille SET active = 1');
+    $bd->query('UPDATE c_bataille SET active = 1');
     }
 else
     {
-    $reqactivertouteslesbatailles = $bd->query("UPDATE c_bataille SET active = 1 WHERE idflotteoffensive IN ('.$idflottes.')");
+    $bd->query("UPDATE c_bataille SET active = 1 WHERE idflotteoffensive IN ('.$idflottes.')");
     }
 
 // Recharge des armes :

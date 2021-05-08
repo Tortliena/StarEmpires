@@ -6,7 +6,7 @@ include("../include/bddconnection.php");
 
 $reqmajlimite = $bd->prepare('UPDATE c_limiteplanete SET popmax = ?, ouvriermax = ?, scientmax = ?, soldatmax = ?, maxmegalopole = ? , maxbaselunaire = ?, maxflotte = ? WHERE idlimiteplanete = ?');
 
-$reqcompterbatiment = $bd->prepare('SELECT sum(case when typebat = 1 then 1 else 0 end) AS centrederecherche,
+$reqcompterbatiment = $bd->prepare('SELECT  sum(case when typebat = 1 then 1 else 0 end) AS centrederecherche,
                                             sum(case when typebat = 2 then 1 else 0 end) AS chantier,
                                             sum(case when typebat = 3 then 1 else 0 end) AS megalopole,
                                             sum(case when typebat = 4 then 1 else 0 end) AS baselunaire,
@@ -17,13 +17,13 @@ $reqcompterbatiment = $bd->prepare('SELECT sum(case when typebat = 1 then 1 else
 if ($tourrestraint == 'non')
     {
     // Gerer les planetes une par une. Compter batiments. Taille planete. Compter pop.
-    $reqinfoplanete = $bd->query('  SELECT pl.idplanete, pl.taille, pl.lune, pl.environnement, COUNT(p.idpop) AS population
+    $reqinfoplanete = $bd->query('  SELECT pl.idplanete, pl.taille, pl.lune, pl.environnement, pl.niveauplanete, COUNT(p.idpop) AS population
                                     FROM c_planete AS pl INNER JOIN c_population AS p ON p.idplanetepop = pl.idplanete
                                     GROUP BY p.idplanetepop');
     }
 else
     {   
-    $reqinfoplanete = $bd->query('  SELECT pl.idplanete, pl.taille, pl.lune, pl.environnement, COUNT(p.idpop) AS population
+    $reqinfoplanete = $bd->query('  SELECT pl.idplanete, pl.taille, pl.lune, pl.environnement, pl.niveauplanete, COUNT(p.idpop) AS population
                                     FROM c_planete AS pl INNER JOIN c_population AS p ON p.idplanetepop = pl.idplanete
                                     WHERE p.idplanetepop IN ('.$idplanetes.') GROUP BY p.idplanetepop');
     }
@@ -44,7 +44,7 @@ while ($repinfoplanete = $reqinfoplanete->fetch())
     
     $maxbaselunaire = $repinfoplanete['lune'];
 
-    $maxflotte = 1 + $repcompterbatiment['HQ'];
+    $maxflotte = $repcompterbatiment['HQ'] + $repinfoplanete['niveauplanete'] - 1;
     
     $reqmajlimite->execute(array($maxpop, $maxouvriers, $maxscientifiques, $maxsoldats, $maxmegalopole, $maxbaselunaire, $maxflotte, $repinfoplanete['idplanete']));
     }

@@ -171,7 +171,7 @@ function modificationvaisseau($idvaisseau, $idjoueur, $lvljoueur, $typedepage)
     } 
   else 
     { 
-    echo 'Pas de noyau';
+    echo 'Pas de noyau ';
     }
   remplacercomposant($_SESSION['id'], 'noyau', 'Pas de noyau', $repnoyausurlevaisseau['iditemcomposant']);
   

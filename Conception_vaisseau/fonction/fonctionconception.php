@@ -46,11 +46,11 @@ function composantdesign($idjoueur, $typecomposant, $textepourrien)
     if ($a == 0)
       {
       echo '<option value="0" disabled selected>' . $textepourrien . '</option>';
-      echo '</select></p></form>' ;
+      echo '</select></p></form><br>' ;
       }
     else
       {
-      echo '</select>&ensp;<input type="submit" value="Ajouter" /></p></form>' ;
+      echo '</select>&ensp;<input type="submit" value="Ajouter" /></p></form><br>' ;
       }
     }
   else
@@ -92,7 +92,7 @@ $reqmenuderoulantdesign = $bd->prepare('SELECT i.iditem, i.nombatiment
     echo '<option value="'.$repmenuderoulantartefact['iditem'].'_0">' . $repmenuderoulantartefact['nombatiment'] . '</option>' ;
     $a++; 
     }
-  echo '</select>&ensp;<input type="submit" value="Remplacer" /></p></form>' ;
+  echo '</select>&ensp;<input type="submit" value="Remplacer" /></p></form><br>' ;
   }
 
 function Supprimercomposant($typecomposant, $texte)

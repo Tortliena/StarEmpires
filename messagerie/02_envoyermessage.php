@@ -17,7 +17,7 @@ if (isset($_SESSION['titre']))
 echo 'size="25" maxlength="80" />';
 echo ' <select name="destinataire" id="destinataire"><option value="0" selected disabled> Destinataire</option>';
 echo $destinataires;
-echo '</select> <input type="submit" value="Envoyer" /></br>';
+echo '</select>&nbsp;<input type="submit" value="Envoyer" /></br>';
 echo '<textarea rows="4" cols="50" name="textemessage" placeholder="Composer votre message ici.">';
 if (isset($_SESSION['message']))
     {

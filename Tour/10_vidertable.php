@@ -13,13 +13,13 @@ while ($repplanetesanslimite = $reqplanetesanslimite->fetch())
 if ($tourrestraint == 'non')
     {
     // Vider la table de messages du tour.
-    $reqdeletemessagetour = $bd->query('DELETE FROM c_messagetour');
+    $bd->query('DELETE FROM c_messagetour');
 
     // Vider la table de variation du tour.
-    $reqdeletevariations = $bd->query('DELETE FROM c_variationstour');
+    $bd->query('DELETE FROM c_variationstour');
 
     // Vider la table des rapport de combat
-    $reqdeleterapportcombat = $bd->query('DELETE FROM c_rapportcombat');
+    $bd->query('DELETE FROM c_rapportcombat');
     }
 else
     {
@@ -28,7 +28,7 @@ else
     $reqdeletemessagetour->execute(array($_SESSION['id']));
 
     // Vider la table de variation du tour.
-    $reqdeletevariations = $bd->query('DELETE FROM c_variationstour WHERE idplanetevariation IN ('.$idplanetes.')');
+    $bd->query('DELETE FROM c_variationstour WHERE idplanetevariation IN ('.$idplanetes.')');
 
     // Vider la table des rapport de combat
     $reqdeleterapportcombat = $bd->prepare('DELETE FROM c_rapportcombat WHERE texteattaquant = ? OR textedefenseur = ?');

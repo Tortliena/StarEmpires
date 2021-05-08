@@ -7,7 +7,7 @@ while ($repvaisseaudanslaflotte = $reqvaisseaudanslaflotte ->fetch())
 	{
 	$a++; 
 	$PourcentHP = $repvaisseaudanslaflotte['HPvaisseau'] / $repvaisseaudanslaflotte['HPmaxvaisseau'] * 100 ;
-	echo '<a href="../Conception_vaisseau/vaisseau.php?id=' . $repvaisseaudanslaflotte['idvaisseau'] . '">' . $repvaisseaudanslaflotte['nomvaisseau'] . '</a> (' . number_format($PourcentHP, 0) . '%)'; 
+	echo '<a href="../conception_vaisseau/vaisseau.php?id=' . $repvaisseaudanslaflotte['idvaisseau'] . '">' . $repvaisseaudanslaflotte['nomvaisseau'] . '</a> (' . number_format($PourcentHP, 0) . '%)'; 
 
 	if ($repplanete2['idplanete'] == $repflotte['idplaneteflotte'])
 		{

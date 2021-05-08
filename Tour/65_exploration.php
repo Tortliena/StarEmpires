@@ -38,9 +38,9 @@ while ($repexplorationexistante = $reqexploration->fetch())
         { 
         // Permet de compter le nombre d'exploration ayant eu lieu. 
         $reqcompterexplo->execute(array($repexplorationexistante['idexplorateur'],  $repexplorationexistante['idexplore'])); 
-        $repcompterexplo = $reqcompterexplo->fetch();  
-        // Impact en fonction du nb de case explorée. 
-        switch ($repcompterexplo['nbcaseexplo']) 
+        $repcompterexplo = $reqcompterexplo->fetch();
+        // Impact en fonction du nb de case explorée.
+        switch ($repcompterexplo['nbcaseexplo'])
             {  
             case 2: 
                 $reqmessageinterne->execute(array('Équipe scientifique', $repexplorationexistante['idexplorateur'], 0, 'Première sortir du système solaire', 'Notre premier vaisseau vient de sortir du système solaire. Il y a une grande quantité de poussière stellaire et on ne peut décerner des objets qu\'a une distance de quelques minutes\-lumière')); 
@@ -101,3 +101,4 @@ while ($repexplorationexistante = $reqexploration->fetch())
             } 
         } 
     }
+?>

@@ -1,6 +1,6 @@
 <?php
 // Gestion tranformation des pop :
-echo '<form method="post" action="script/conversionpop.php"><p>'; 
+echo '<br><form method="post" action="script/conversionpop.php"><p>'; 
 echo '<label for="combien">Convertir </label><input type="number" name="combien" min="1" value="1">'; 
 echo '<select name="popdepart" id="popdepart">'; 
 $reqtypepop = $bd->query('SELECT idtypepop , nompop FROM a_typepop ORDER BY idtypepop ASC'); 
@@ -14,7 +14,7 @@ while ($reptypepop = $reqtypepop->fetch())
   { 
   echo '<option value="'. $reptypepop['idtypepop'] . '">'. $reptypepop['nompop'] .'</option>';  
   } 
-echo '</select><input type="hidden" name="idplanete" value="'.$_GET['id'].'"><input type="hidden" name="supprimer" value="non"><input type="submit" value="Valider"/></p></form>'; 
+echo '</select><input type="hidden" name="idplanete" value="'.$_GET['id'].'">&nbsp;<input type="hidden" name="supprimer" value="non"><input type="submit" value="Valider"/></p></form>'; 
  
 // Permet de visualiser les ordres de conversion de pop en cours.  
 $reqpoptransf = $bd->prepare('SELECT p.typepop, p.typepoparrivee, p.idpop, t.nompop AS depart, y.nompop AS arrivee 
